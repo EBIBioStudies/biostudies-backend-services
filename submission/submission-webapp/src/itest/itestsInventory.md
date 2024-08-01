@@ -1,0 +1,192 @@
+## Permissions Test Suite
+
+### Delete Permission Test Suite
+
+Contains test related to submission deletion.
+
+| Class                | Test No | Test name                                                                 |
+|----------------------|---------|---------------------------------------------------------------------------|
+| DeletePermissionTest | 1-1     | Superuser deletes private submission                                      |
+| DeletePermissionTest | 1-2     | Superuser deletes public submission                                       |
+| DeletePermissionTest | 1-3     | Superuser delete own private submissions                                  |
+| DeletePermissionTest | 1-4     | Superuser resubmit deleted submission                                     |
+| DeletePermissionTest | 1-5     | Regular user deletes private submission                                   |
+| DeletePermissionTest | 1-6     | Regular user deletes public submission                                    |
+| DeletePermissionTest | 1-7     | Regular user deletes their own public submission                          |
+| DeletePermissionTest | 1-8     | Regular user deletes their own private submission                         |
+| DeletePermissionTest | 1-9     | Regular user deletes only their own public subsmissions                   |
+| DeletePermissionTest | 1-10    | Regular user with DELETE access tag permission deletes private submission |
+| DeletePermissionTest | 1-11    | Regular user with DELETE access tag permission deletes public submission  |
+| DeletePermissionTest | 1-12    | Regular user with ADMIN access tag deletes private submission             |
+| DeletePermissionTest | 1-13    | Regular user with ADMIN access tag deletes public submission              |
+
+### File List Test Suite
+
+Contains test related to file list.
+
+| Class                  | Test No | Test name                                                         |
+|------------------------|---------|-------------------------------------------------------------------|
+| FileListSubmissionTest | 3-1     | JSON submission with TSV file list                                |
+| FileListSubmissionTest | 3-2     | JSON submission with XLS file list                                |
+| FileListSubmissionTest | 3-3     | JSON submission with invalid file list format                     |
+| FileListSubmissionTest | 3-4     | Filelist Submission with files inside a folder                    |
+| FileListSubmissionTest | 3-5     | Filelist Submission with files reusing previous version file list |
+| FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
+| FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
+| FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
+| FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
+| FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |
+| FileListValidationTest | 11-4    | Filelist when missing files                                       |
+| FileListValidationTest | 11-5    | Filelist validation when valid filelist                           |
+| FileListValidationTest | 11-6    | Filelist validation when valid filelist with root path            |
+| FileListValidationTest | 11-7    | Filelist validation when valid filelist on behalf another user    |
+
+| Class                           | Test No | Test name                                                                        | Description                                                                                   |
+|---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
+| AllInOneSubmissionTest          | 2-1     | submit all in one TSV submission                                                 | Submits three completely filled submissions (TSV, JSON, XML). Files previously uploaded.      |
+| AllInOneSubmissionTest          | 2-2     | submit all in one JSON submission                                                |                                                                                               |
+| SubmitPermissionTest            | 4-1     | create collection with superuser                                                 | Shows under which permissions a user could perform a submission                               |
+| SubmitPermissionTest            | 4-2     | create collection with regular user                                              |                                                                                               |
+| SubmitPermissionTest            | 4-3     | submit without attach permission                                                 |                                                                                               |
+| SubmitPermissionTest            | 4-4     | submit with attach permission access tag                                         |                                                                                               |
+| SubmitPermissionTest            | 4-5     | registering user and submit to default project                                   |                                                                                               |
+| SubmitPermissionTest            | 4-6     | submit with collection admin permission                                          |                                                                                               |
+| SubmitPermissionTest            | 4-7     | resubmit with collection admin permission                                        |                                                                                               |
+| SubmitPermissionTest            | 4-8     | owner resubmits without attach permission                                        |                                                                                               |
+| SubmitPermissionTest            | 4-9     | not owner user resubmits without the update permission                           |                                                                                               |
+| SubmitPermissionTest            | 4-10    | not owner user resubmits with the update permission                              |                                                                                               |
+| ResubmissionApiTest             | 5-1     | resubmit private existing submission                                             | Shows the system behaves when resubmissions occurs                                            |
+| ResubmissionApiTest             | 5-2     | resubmit existing submission with the same files                                 |                                                                                               |
+| ResubmissionApiTest             | 5-3     | re submit a submission with rootPath                                             |                                                                                               |
+| ResubmissionApiTest             | 5-4     | modify metadata of a public submission                                           |                                                                                               |
+| ResubmissionApiTest             | 5-5     | add files to public submission                                                   |                                                                                               |
+| ResubmissionApiTest             | 5-6     | unauthorized user updates public submission files                                |                                                                                               |
+| ResubmissionApiTest             | 5-7     | authorized user updates public submission files                                  |                                                                                               |
+| ResubmissionApiTest             | 5-8     | unauthorized user removes file list                                              |                                                                                               |
+| SubmissionFileSourceTest        | 6-1     | resubmission with SUBMISSION file source as priority over USER_SPACE             | Considers submission with different source files, user space, fire, bypassing files with fire |
+| SubmissionFileSourceTest        | 6-3-1   | submission with directory with files on FIRE                                     |                                                                                               |
+| SubmissionFileSourceTest        | 6-3-2-1 | re-submission with directory with files on FIRE                                  |                                                                                               |
+| SubmissionFileSourceTest        | 6-3-2-1 | re-submission with directory with files on FIRE using submission source only     |                                                                                               |
+| SubmissionFileSourceTest        | 6-3-3   | re-submission on FIRE, User folder should be prioritized                         |                                                                                               |
+| SubmissionFileSourceTest        | 6-3-4   | submission with directories with the same name on FIRE                           |                                                                                               |
+| SubmissionFileSourceTest        | 6-3-5   | submission with directory with files on NFS                                      |                                                                                               |
+| SubmissionFileSourceTest        | 6-3-6   | submission with directories with the same name on NFS                            |                                                                                               |
+| SubmissionFileSourceTest        | 6-4     | multiple file references                                                         |                                                                                               |
+| SubmissionFileSourceTest        | 6-5     | submission with group file                                                       |                                                                                               |
+| SubmissionFileSourceTest        | 6-6     | Submission bypassing fire                                                        |                                                                                               |
+| SubmissionFileSourceTest        | 6-7     | resubmission with SUBMISSION source ONLY                                         |                                                                                               |
+| SubmissionFileSourceTest        | 6-8     | submission with files with the same md5 and different path                       |                                                                                               |
+| ExtCollectionSubmitTest         | 7-1     | submit private project                                                           | Creates public and private collection project                                                 |
+| ExtCollectionSubmitTest         | 7-2     | submit public project                                                            |                                                                                               |
+| ExtCollectionSubmitTest         | 7-3     | submit duplicated accNo template                                                 |                                                                                               |
+| SubmissionToCollectionsTest     | 8-1     | accNo generation from collection template                                        | Considers different test cases on submission attached to project                              |
+| SubmissionToCollectionsTest     | 8-2     | direct submission overriding collection                                          |                                                                                               |
+| SubmissionToCollectionsTest     | 8-3     | no release date to private collection                                            |                                                                                               |
+| SubmissionToCollectionsTest     | 8-4     | public submission to private collection                                          |                                                                                               |
+| SubmissionToCollectionsTest     | 8-5     | private submission to public collection                                          |                                                                                               |
+| SubmissionToCollectionsTest     | 8-6     | no release date to public collection                                             |                                                                                               |
+| SubmissionToCollectionsTest     | 8-7     | submit to collection with validator                                              |                                                                                               |
+| SubmissionToCollectionsTest     | 8-8     | submit to collection with failling validator                                     |                                                                                               |
+| MultipartFileSubmissionApiTest  | 9-1     | XLS submission                                                                   | Submits submissions and files at the same time                                                |
+| MultipartFileSubmissionApiTest  | 9-2     | TSV submission                                                                   |                                                                                               |
+| MultipartFileSubmissionApiTest  | 9-3     | JSON submission                                                                  |                                                                                               |
+| MultipartFileSubmissionApiTest  | 9-4     | direct submission with overriden attributes                                      |                                                                                               |
+| MultipartFileSubmissionApiTest  | 9-5     | invalid format file                                                              |                                                                                               |
+| SubmissionStorageModeTest       | 10-1    | Fire to Nfs                                                                      | Submit in Fire storage mode, resubmit in Nfs mode, and vice versa.                            |
+| SubmissionStorageModeTest       | 10-2    | Nfs to Fire                                                                      |                                                                                               |
+| SubmissionDraftApiTest          | 12-1    | get draft submission when draft does not exist but submission does               | How the system behaves with respect on drafts                                                 |
+| SubmissionDraftApiTest          | 12-2    | create and get submission draft                                                  |                                                                                               |
+| SubmissionDraftApiTest          | 12-3    | create and update submission draft                                               |                                                                                               |
+| SubmissionDraftApiTest          | 12-4    | delete submission draft after submission                                         |                                                                                               |
+| SubmissionDraftApiTest          | 12-5    | get draft submission when neither draft nor submission exists                    |                                                                                               |
+| SubmissionDraftApiTest          | 12-6    | delete a draft directly                                                          |                                                                                               |
+| SubmissionDraftApiTest          | 12-7    | re submit from draft                                                             |                                                                                               |
+| SubmissionDraftApiTest          | 12-8    | update a submission already submitted draft                                      |                                                                                               |
+| SubmissionListApiTest           | 13-1    | get submission list                                                              | Get all submissions that satisfies filters                                                    |
+| SubmissionListApiTest           | 13-2    | get submission list by accession                                                 |                                                                                               |
+| SubmissionListApiTest           | 13-3    | get direct submission list by accession                                          |                                                                                               |
+| SubmissionListApiTest           | 13-4    | get submission list by keywords                                                  |                                                                                               |
+| SubmissionListApiTest           | 13-5    | get submission list by release date                                              |                                                                                               |
+| SubmissionListApiTest           | 13-6    | get submission list pagination                                                   |                                                                                               |
+| SubmissionListApiTest           | 13-7    | get submissions with submission title                                            |                                                                                               |
+| SubmissionListApiTest           | 13-8    | get submissions with section title                                               |                                                                                               |
+| SubmissionListApiTest           | 13-9    | submission with spaces                                                           |                                                                                               |
+| SubmissionListApiTest           | 13-10   | latest updated submission should appear firs                                     |                                                                                               |
+| SubmissionOnBehalfTest          | 14-1    | submission on behalf another user                                                | Performs differents submissions on behalf other user                                          |
+| SubmissionOnBehalfTest          | 14-2    | submission on behalf new user                                                    |                                                                                               |
+| SubmissionOnBehalfTest          | 14-3    | submission on behalf created user with files in his folder                       |                                                                                               |
+| SubmissionOnBehalfTest          | 14-4    | submission on behalf when owner and submitter has the same file                  |                                                                                               |
+| SpecialSubmissionAttributesTest | 15-2    | submission with tags                                                             |                                                                                               |
+| SpecialSubmissionAttributesTest | 15-3    | new submission with empty accNo subsection table                                 |                                                                                               |
+| SpecialSubmissionAttributesTest | 15-4    | new submission with empty-null attributes                                        |                                                                                               |
+| SpecialSubmissionAttributesTest | 15-5    | new submission with empty-null table attributes                                  |                                                                                               |
+| SpecialSubmissionAttributesTest | 15-6    | submission with DOI                                                              |                                                                                               |
+| SpecialSubmissionAttributesTest | 15-7    | submission with DOI and incomplete name                                          | The DOI is registered without contributors when the author name is incomplete                 |
+| SpecialSubmissionAttributesTest | 15-8    | submission with DOI and no name                                                  | The DOI is registered without contributors when the author name is not present                |
+| SubmissionApiTest               | 16-1    | submit with submission object                                                    | Performs different simple submission cases, no accNo, invalid link url, rootPath, and others. |
+| SubmissionApiTest               | 16-2    | empty accNo                                                                      |                                                                                               |
+| SubmissionApiTest               | 16-3    | submission with root path                                                        |                                                                                               |
+| SubmissionApiTest               | 16-4    | submission with generic root section                                             |                                                                                               |
+| SubmissionApiTest               | 16-5    | submit with invalid link Url                                                     |                                                                                               |
+| SubmissionApiTest               | 16-6    | submission with validation error                                                 |                                                                                               |
+| SubmissionApiTest               | 16-7    | submission for checking ftp files                                                |                                                                                               |
+| SubmissionApiTest               | 16-8    | submission released makes files public                                           |                                                                                               |
+| SubmissionApiTest               | 16-9    | submission not released makes files private                                      |                                                                                               |
+| SubmissionApiTest               | 16-10   | submission containing invalid file path                                          |                                                                                               |
+| SubmissionApiTest               | 16-11   | submission containing folder with trailing slash                                 |                                                                                               |
+| SubmissionApiTest               | 16-12   | submission containing file list with invalid name                                |                                                                                               |
+| SubmissionApiTest               | 16-13   | User with Ftp based folder submission                                            |                                                                                               |
+| SubmissionApiTest               | 16-14   | submission when the system has the basePath property configured                  |                                                                                               |
+| UserFileApiTest                 | 17-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for user considering different user folder names re               |
+| UserFileApiTest                 | 17-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
+| UserFileApiTest                 | 17-3    | upload download delete file and retrieve in user folder with space               |                                                                                               |
+| GroupFilesApiTest               | 18-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for groups considering different folder names                     |
+| GroupFilesApiTest               | 18-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
+| SubmissionAsyncTest             | 19-1    | simple submit async                                                              | Performs a simple submit async and checks each stages in the process                          |
+| SubmissionAsyncTest             | 19-2    | check submission stages                                                          |                                                                                               |
+| CollectionsListTest             | 20-1    | list collections for super user                                                  | Shows which collections users can see                                                         |
+| CollectionsListTest             | 20-2    | list collections for regular user                                                |                                                                                               |
+| CollectionsListTest             | 20-3    | list collections for default user                                                |                                                                                               |
+| CollectionsListTest             | 20-4    | list collections for collection admin user                                       |                                                                                               |
+| PermissionApiTest               | 21-1    | grant permission to a user by superuser                                          | Gives permission to read to a user by superuser, consider its exceptions                      |
+| PermissionApiTest               | 21-2    | grant permission to a user by regular user                                       |                                                                                               |
+| PermissionApiTest               | 21-3    | grant permission to non-existing user                                            |                                                                                               |
+| PermissionApiTest               | 21-4    | grant permission to non-existing submission                                      |                                                                                               |
+| SecurityApiTest                 | 22-1    | register with invalid email                                                      | Shows registration user behaviour                                                             |
+| SecurityApiTest                 | 22-2    | register when activation is not enable                                           |                                                                                               |
+| SecurityApiTest                 | 22-3    | login when inactive                                                              |                                                                                               |
+| SecurityApiTest                 | 22-4    | case insensitive user registration                                               |                                                                                               |
+| SecurityApiTest                 | 22-5    | case insensitive inactive registration                                           |                                                                                               |
+| SecurityApiTest                 | 22-6    | check ftp home type user                                                         |                                                                                               |
+| SecurityApiTest                 | 22-7    | check Nfs home type user                                                         |                                                                                               |
+| SubmissionDraftListApiTest      | 23-1    | get draft by key                                                                 | Shows how to get drafts, paginated or not.                                                    |
+| SubmissionDraftListApiTest      | 23-2    | get drafts without pagination                                                    |                                                                                               |
+| SubmissionDraftListApiTest      | 23-3    | get drafts with pagination                                                       |                                                                                               |
+| UserGroupsApiTest               | 24-1    | get user groups                                                                  | Shows belonging behaviour of users in groups, and exceptions                                  |
+| UserGroupsApiTest               | 24-2    | trying to add a user to un-existing group                                        |                                                                                               |
+| UserGroupsApiTest               | 24-3    | trying to add a user that does not exist                                         |                                                                                               |
+| UserGroupsApiTest               | 24-4    | trying to add a user by regularUser                                              |                                                                                               |
+| SubmissionRefreshApiTest        | 25-1    | Refresh when submission title is updated                                         |                                                                                               |
+| SubmissionRefreshApiTest        | 25-2    | Refresh when submission release date is updated                                  |                                                                                               |
+| SubmissionRefreshApiTest        | 25-3    | Refresh when submission attribute is updated                                     |                                                                                               |
+| SubmissionRefreshApiTest        | 25-4    | Refresh when submission fileListFile attribute is updated                        |                                                                                               |
+| SubmissionStatsTest             | 26-1    | files size stat calculation on submit over FIRE                                  |                                                                                               |
+| SubmissionStatsTest             | 26-2    | files size stat calculation on submit over NFS                                   |                                                                                               |
+| SubmissionStatsTest             | 26-3    | find stats by accNo                                                              |                                                                                               |
+| SubmissionStatsTest             | 26-4    | find stats by type                                                               |                                                                                               |
+| SubmissionStatsTest             | 26-5    | find stats by type and AccNo                                                     |                                                                                               |
+| SubmissionStatsTest             | 26-6    | register stats by file                                                           |                                                                                               |
+| SubmissionStatsTest             | 26-7    | increment stats by file                                                          |                                                                                               |
+| SubmissionReleaseTest           | 27-1    | public submission without secret key and HARD_LINKS release mode                 |                                                                                               |
+| SubmissionReleaseTest           | 27-2    | private submission without secret key and HARD_LINKS release mode                |                                                                                               |
+| SubmissionReleaseTest           | 27-3    | public submission with secret key and MOVE release mode                          |                                                                                               |
+| SubmissionReleaseTest           | 27-4    | private submission with secret key and MOVE release mode                         |                                                                                               |
+| SubmissionReleaseTest           | 27-5    | release already submitted submission using release operation                     |                                                                                               |
+| SubmissionDatesTest             | 28-1    | Creation date is not changed beetween re submissions                             |                                                                                               |
+| SubmissionDatesTest             | 28-2    | Modification date is changed beetween re submissions                             |                                                                                               |
+| SubmissionDatesTest             | 28-3    | Regular user submit with release date in the past                                |                                                                                               |
+| SubmissionDatesTest             | 28-4    | Regular user re-submit a public submission with a new release date in the future |                                                                                               |
+| SubmissionDatesTest             | 28-5    | Regular user re-submit a private submission with a new release date in the past  |                                                                                               |
+| SubmissionDatesTest             | 28-6    | Admin submit and re Submit in the past                                           |                                                                                               |
+| SubmissionDatesTest             | 28-7    | Admin make a public submission private                                           |                                                                                               |
+| SubmissionDatesTest             | 28-8    | Admin make a Regular user public submission private                              |                                                                                               |

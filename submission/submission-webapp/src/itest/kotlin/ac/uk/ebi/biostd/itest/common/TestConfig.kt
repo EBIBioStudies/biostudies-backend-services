@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.common
 
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -14,7 +15,11 @@ class TestConfig {
         userDataRepository: UserDataRepository,
         sequenceDataRepository: SequenceDataRepository,
         securityService: SecurityService,
-    ) = SecurityTestService(securityService, userDataRepository, sequenceDataRepository)
+    ): SecurityTestService = SecurityTestService(securityService, userDataRepository, sequenceDataRepository)
+
+    @Bean
+    fun submissionTestService(submissionRepository: SubmissionPersistenceQueryService): SubmissionTestService =
+        SubmissionTestService(submissionRepository)
 
     @Bean(name = ["TestCollectionValidator"])
     fun testCollectionValidator(): TestCollectionValidator = TestCollectionValidator()

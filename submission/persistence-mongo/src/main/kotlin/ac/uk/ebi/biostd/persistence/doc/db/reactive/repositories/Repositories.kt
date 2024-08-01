@@ -70,6 +70,11 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 
     suspend fun existsByAccNo(accNo: String): Boolean
 
+    suspend fun existsByAccNoAndVersionGreaterThan(
+        accNo: String,
+        version: Int,
+    ): Boolean
+
     suspend fun existsByAccNoAndVersion(
         accNo: String,
         version: Int,

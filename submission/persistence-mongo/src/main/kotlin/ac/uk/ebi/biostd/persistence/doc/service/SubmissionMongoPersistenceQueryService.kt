@@ -40,6 +40,10 @@ internal class SubmissionMongoPersistenceQueryService(
         return submissionRepo.existsByAccNoAndVersion(accNo, version)
     }
 
+    override suspend fun existActiveByAccNo(accNo: String): Boolean {
+        return submissionRepo.existsByAccNoAndVersionGreaterThan(accNo, 0)
+    }
+
     override suspend fun findExtByAccNo(
         accNo: String,
         includeFileListFiles: Boolean,
