@@ -23,19 +23,19 @@ internal class SubmissionService {
             if (request.await) client.waitForSubmission(accNo, version)
         }
 
-    fun transfer(request: TransferRequest) =
+    suspend fun transfer(request: TransferRequest) =
         performRequest {
             val client = bioWebClient(request.securityConfig)
             client.transferSubmission(request.accNo, request.target)
         }
 
-    fun delete(request: DeletionRequest) =
+    suspend fun delete(request: DeletionRequest) =
         performRequest {
             val client = bioWebClient(request.securityConfig)
             client.deleteSubmissions(request.accNoList)
         }
 
-    fun migrate(request: MigrationRequest): Unit =
+    suspend fun migrate(request: MigrationRequest): Unit =
         performRequest {
             val sourceClient = bioWebClient(request.sourceSecurityConfig)
             val targetClient = bioWebClient(request.targetSecurityConfig)
@@ -48,7 +48,7 @@ internal class SubmissionService {
             }
         }
 
-    fun validateFileList(request: ValidateFileListRequest) =
+    suspend fun validateFileList(request: ValidateFileListRequest) =
         performRequest {
             val (fileListPath, accNo, rootPath) = request
             val client = bioWebClient(request.securityConfig)
