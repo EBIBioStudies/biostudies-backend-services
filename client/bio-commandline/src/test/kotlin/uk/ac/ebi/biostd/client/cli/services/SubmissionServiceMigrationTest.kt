@@ -19,6 +19,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -57,25 +58,27 @@ class SubmissionServiceMigrationTest(
     }
 
     @Test
-    fun `migrate sync`() {
-        every { targetClient.submitExt(extSubmission) } returns extSubmission
+    fun `migrate sync`() =
+        runTest {
+            every { targetClient.submitExt(extSubmission) } returns extSubmission
 
-        testInstance.migrate(migrationRequest)
+            testInstance.migrate(migrationRequest)
 
-        verify(exactly = 1) { targetClient.submitExt(extSubmission) }
-        verify(exactly = 0) { targetClient.submitExtAsync(extSubmission) }
-    }
+            verify(exactly = 1) { targetClient.submitExt(extSubmission) }
+            verify(exactly = 0) { targetClient.submitExtAsync(extSubmission) }
+        }
 
     @Test
-    fun `migrate async`() {
-        val expected = extSubmission.copy(owner = "newOwner")
-        every { targetClient.submitExtAsync(expected) } answers { nothing }
+    fun `migrate async`() =
+        runTest {
+            val expected = extSubmission.copy(owner = "newOwner")
+            every { targetClient.submitExtAsync(expected) } answers { nothing }
 
-        testInstance.migrate(migrationRequest.copy(targetOwner = "newOwner", async = true))
+            testInstance.migrate(migrationRequest.copy(targetOwner = "newOwner", async = true))
 
-        verify(exactly = 0) { targetClient.submitExt(expected) }
-        verify(exactly = 1) { targetClient.submitExtAsync(expected) }
-    }
+            verify(exactly = 0) { targetClient.submitExt(expected) }
+            verify(exactly = 1) { targetClient.submitExtAsync(expected) }
+        }
 
     private fun extSubmissionWithFileList(): ExtSubmission {
         val extSection =

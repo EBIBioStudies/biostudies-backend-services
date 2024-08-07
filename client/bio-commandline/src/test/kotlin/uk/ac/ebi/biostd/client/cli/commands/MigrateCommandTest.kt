@@ -1,10 +1,10 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,41 +20,56 @@ internal class MigrateCommandTest(
     @Test
     fun `sync no target owner`() {
         val requestSlot = slot<MigrationRequest>()
-        every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
+        coEvery { submissionService.migrate(capture(requestSlot)) } answers { nothing }
 
         testInstance.parse(
             listOf(
-                "-ac", "S-BSST1",
-                "-s", "http://biostudy-prod.ebi.ac.uk",
-                "-su", "admin_user@ebi.ac.uk",
-                "-sp", "123456",
-                "-t", "http://biostudy-bia.ebi.ac.uk",
-                "-tu", "admin_user@ebi.ac.uk",
-                "-tp", "78910",
+                "-ac",
+                "S-BSST1",
+                "-s",
+                "http://biostudy-prod.ebi.ac.uk",
+                "-su",
+                "admin_user@ebi.ac.uk",
+                "-sp",
+                "123456",
+                "-t",
+                "http://biostudy-bia.ebi.ac.uk",
+                "-tu",
+                "admin_user@ebi.ac.uk",
+                "-tp",
+                "78910",
             ),
         )
 
         val request = requestSlot.captured
         assertRequest(request)
         assertThat(request.async).isFalse
-        verify(exactly = 1) { submissionService.migrate(request) }
+        coVerify(exactly = 1) { submissionService.migrate(request) }
     }
 
     @Test
     fun `async with target owner`() {
         val requestSlot = slot<MigrationRequest>()
-        every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
+        coEvery { submissionService.migrate(capture(requestSlot)) } answers { nothing }
 
         testInstance.parse(
             listOf(
-                "-ac", "S-BSST1",
-                "-s", "http://biostudy-prod.ebi.ac.uk",
-                "-su", "admin_user@ebi.ac.uk",
-                "-sp", "123456",
-                "-t", "http://biostudy-bia.ebi.ac.uk",
-                "-tu", "admin_user@ebi.ac.uk",
-                "-tp", "78910",
-                "-to", "Juan",
+                "-ac",
+                "S-BSST1",
+                "-s",
+                "http://biostudy-prod.ebi.ac.uk",
+                "-su",
+                "admin_user@ebi.ac.uk",
+                "-sp",
+                "123456",
+                "-t",
+                "http://biostudy-bia.ebi.ac.uk",
+                "-tu",
+                "admin_user@ebi.ac.uk",
+                "-tp",
+                "78910",
+                "-to",
+                "Juan",
                 "--async",
             ),
         )
@@ -63,7 +78,7 @@ internal class MigrateCommandTest(
         assertRequest(request)
         assertThat(request.async).isTrue
         assertThat(request.targetOwner).isEqualTo("Juan")
-        verify(exactly = 1) { submissionService.migrate(request) }
+        coVerify(exactly = 1) { submissionService.migrate(request) }
     }
 
     private fun assertRequest(request: MigrationRequest) {

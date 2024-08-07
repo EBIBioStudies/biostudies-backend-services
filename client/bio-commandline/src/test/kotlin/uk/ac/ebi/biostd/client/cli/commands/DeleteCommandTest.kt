@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
@@ -18,11 +18,11 @@ internal class DeleteCommandTest(
 
     @Test
     fun run() {
-        every { submissionService.delete(subDelete) } returns Unit
+        coEvery { submissionService.delete(subDelete) } returns Unit
 
         testInstance.parse(listOf("-s", SERVER, "-u", USER, "-p", PASSWORD, ACC_NO1, ACC_NO2))
 
-        verify(exactly = 1) { submissionService.delete(subDelete) }
+        coVerify(exactly = 1) { submissionService.delete(subDelete) }
     }
 
     private companion object {

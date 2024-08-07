@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import ebi.ac.uk.extended.model.StorageMode
+import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
@@ -22,11 +23,12 @@ internal class TransferCommand(
     private val accNo by option("-ac", "--accNo", help = ACC_NO).required()
     private val target by option("-t", "--target", help = TARGET).required()
 
-    override fun run() {
-        val targetStorage = StorageMode.fromString(target)
-        val securityConfig = SecurityConfig(server, user, password)
+    override fun run(): Unit =
+        runBlocking {
+            val targetStorage = StorageMode.fromString(target)
+            val securityConfig = SecurityConfig(server, user, password)
 
-        subService.transfer(TransferRequest(accNo, targetStorage, securityConfig))
-        echo("SUCCESS: Submission with AccNo $accNo is in queue to be transferred")
-    }
+            subService.transfer(TransferRequest(accNo, targetStorage, securityConfig))
+            echo("SUCCESS: Submission with AccNo $accNo is in queue to be transferred")
+        }
 }
