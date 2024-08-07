@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest.test.collection.query
+package ac.uk.ebi.biostd.itest.test.collection
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
@@ -24,7 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CollectionsListTest(
+class ListCollectionsTest(
     @LocalServerPort val serverPort: Int,
     @Autowired val securityTestService: SecurityTestService,
 ) {

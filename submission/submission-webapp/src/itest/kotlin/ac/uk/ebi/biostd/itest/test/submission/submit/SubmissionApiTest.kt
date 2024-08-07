@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -68,7 +67,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-1 submit with submission object`() =
+    fun `16-1 Submit study with submission object`() =
         runTest {
             val submission =
                 submission("SimpleAcc1") {
@@ -84,7 +83,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-2 empty accNo`() =
+    fun `16-2 Submit study with empty accNo`() =
         runTest {
             val submission =
                 tsv {
@@ -103,7 +102,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-3 submission with root path`() =
+    fun `16-3 Submit study using root path`() =
         runTest {
             val submission =
                 tsv {
@@ -136,7 +135,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-4 submission with generic root section`() =
+    fun `16-4 Submit study with generic root section`() =
         runTest {
             val submission =
                 tsv {
@@ -158,7 +157,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-5 submit with invalid link Url`() {
+    fun `16-5 Submit study with invalid link Url`() {
         val exception =
             assertThrows(WebClientException::class.java) {
                 webClient.submitSingle(invalidLinkUrl().toString(), TSV)
@@ -168,7 +167,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-6 submission with validation error`() {
+    fun `16-6 Submit study with validation error`() {
         val submission =
             submission("S-400") {
                 title = "Submission with invalid file"
@@ -183,8 +182,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `16-7 submission for checking ftp files`() =
+    fun `16-7 Submit public study with folder make files public`() =
         runTest {
             val submission =
                 tsv {
@@ -212,7 +210,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-8 submission released makes files public`() =
+    fun `16-8 Submit public study with file make files public`() =
         runTest {
             val submission =
                 tsv {
@@ -241,7 +239,7 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-9 submission not released makes files private`() =
+    fun `16-9 Submit study not released makes files private`() =
         runTest {
             val submission =
                 tsv {
@@ -270,9 +268,10 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-10 submission containing invalid file path`() {
+    fun `16-10 Submit study with invalid characters file path`() {
         tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
         tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
+
         val file1 = tempFolder.createFile("file_16-10.txt")
         val file2 = tempFolder.createFile("merged-%.tif")
         val submission =
@@ -298,7 +297,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-11 submission containing folder with trailing slash`() {
+    fun `16-11 Submit study containing folder with trailing slash`() {
         val submission =
             tsv {
                 line("Submission", "S-BSST1611")
@@ -322,7 +321,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-12 submission containing file list with invalid name`() {
+    fun `16-12 Submit study containing filelist with invalid name`() {
         val fileList =
             tsv {
                 line("Files", "Type")
@@ -350,7 +349,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-13 User with Ftp based folder submission`() =
+    fun `16-13 Submit study by Regular user with Ftp home directory`() =
         runTest {
             securityTestService.ensureUserRegistration(FtpSuperUser)
             val ftpUserWebClient = getWebClient(serverPort, FtpSuperUser)
@@ -403,7 +402,7 @@ class SubmissionApiTest(
         }
 
         @Test
-        fun `16-14 submission when the system has the basePath property configured`() =
+        fun `16-14 Submit study when the system has the basePath property configured`() =
             runTest {
                 val submission =
                     tsv {
