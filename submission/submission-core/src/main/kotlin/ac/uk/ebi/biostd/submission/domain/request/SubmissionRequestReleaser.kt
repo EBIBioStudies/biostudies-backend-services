@@ -129,13 +129,13 @@ class SubmissionRequestReleaser(
         suspend fun unReleaseFile(reqFile: SubmissionRequestFile) {
             when (val file = reqFile.file) {
                 is NfsFile -> {
-                    val released = reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
-                    rqtService.updateRqtFile(released)
+                    val unreleased = reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
+                    rqtService.updateRqtFile(unreleased)
                 }
 
                 is FireFile -> {
-                    val unreleased = reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
-                    rqtService.updateRqtFile(unreleased)
+                    val unreleased = if (file.published) unRelease(sub, reqFile.index, file) else file
+                    rqtService.updateRqtFile(reqFile.copy(file = unreleased, status = UNRELEASED))
                 }
             }
         }

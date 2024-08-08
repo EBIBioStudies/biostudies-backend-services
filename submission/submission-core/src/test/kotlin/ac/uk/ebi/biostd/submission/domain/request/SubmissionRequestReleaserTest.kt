@@ -313,6 +313,79 @@ class SubmissionRequestReleaserTest(
     }
 
     @Test
+    fun `check released for private submission and previous version was public and fire file already unreleased`(
+        @MockK current: ExtSubmission,
+        @MockK submission: ExtSubmission,
+        @MockK rqt: SubmissionRequest,
+        @MockK nfsFile: NfsFile,
+        @MockK fireFile: FireFile,
+        @MockK suppressedNfsFile: NfsFile,
+        @MockK suppressedFireFile: FireFile,
+    ) = runTest {
+        val relPath = "sub-relpath"
+        val secretKey = "secret-key"
+        val mode = StorageMode.FIRE
+
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, REUSED)
+        val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile, REUSED)
+
+        every { current.released } returns true
+        every { fireFile.published } returns false
+        every { rqt.submission } returns submission
+        every { rqt.currentIndex } returns 1
+        every { submission.accNo } returns ACC_NO
+        every { submission.version } returns VERSION
+        every { submission.released } returns false
+        every { submission.relPath } returns relPath
+        every { submission.secretKey } returns secretKey
+        every { submission.storageMode } returns mode
+        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, REUSED) } returns
+            flowOf(
+                nfsRqtFile,
+                fireRqtFile,
+            )
+        coEvery { queryService.findCoreInfo(ACC_NO) } returns current
+        coEvery { storageService.unReleaseSubmissionFile(submission, nfsFile) } returns suppressedNfsFile
+        coEvery { storageService.unReleaseSubmissionFile(submission, fireFile) } returns suppressedFireFile
+        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
+
+        coEvery {
+            requestService.updateRqtFile(
+                nfsRqtFile.copy(
+                    file = suppressedNfsFile,
+                    status = UNRELEASED,
+                ),
+            )
+        } answers { nothing }
+
+        coEvery {
+            requestService.updateRqtFile(
+                fireRqtFile.copy(
+                    file = fireFile,
+                    status = UNRELEASED,
+                ),
+            )
+        } answers { nothing }
+
+        coEvery {
+            requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
+
+        testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
+
+        coVerify(exactly = 1) {
+            storageService.unReleaseSubmissionFile(submission, nfsFile)
+            eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
+        }
+        coVerify(exactly = 0) {
+            storageService.unReleaseSubmissionFile(submission, fireFile)
+        }
+    }
+
+    @Test
     fun `generate ftp links for private submission`(
         @MockK submission: ExtSubmission,
     ) = runTest {
