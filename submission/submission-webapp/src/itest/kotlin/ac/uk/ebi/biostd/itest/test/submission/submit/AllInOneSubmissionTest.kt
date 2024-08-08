@@ -47,7 +47,7 @@ class AllInOneSubmissionTest(
         }
 
     @Test
-    fun `2-1 submit all in one TSV submission`() =
+    fun `2-1 Submit all in one TSV study`() =
         runTest {
             val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
             webClient.uploadFile(fileList)
@@ -65,7 +65,7 @@ class AllInOneSubmissionTest(
         }
 
     @Test
-    fun `2-2 submit all in one JSON submission`() =
+    fun `2-2 Submit all in one JSON study`() =
         runTest {
             val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
             webClient.uploadFile(fileList)

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest.test.collection.submit
+package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
@@ -31,7 +31,7 @@ import java.time.OffsetDateTime
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ExtCollectionSubmitTest(
+class ProjectSubmitTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val tagsDataRepository: AccessTagDataRepo,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
@@ -62,7 +62,6 @@ class ExtCollectionSubmitTest(
 
             assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
 
-            // TODO Pivotal ID #185231067: use ext endpoint instead of repository
             val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
             assertThat(submittedProject.title).isEqualTo("A Private Project")
