@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -182,6 +183,11 @@ class SubmissionApiTest(
     }
 
     @Test
+    @EnabledIfSystemProperty(
+        named = "enableFire",
+        matches = "false",
+        disabledReason = "Test check ftp output folder which in Fire is a zip file.",
+    )
     fun `16-7 Submit public study with folder make files public`() =
         runTest {
             val submission =
