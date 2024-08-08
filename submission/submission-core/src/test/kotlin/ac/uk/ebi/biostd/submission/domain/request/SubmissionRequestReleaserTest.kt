@@ -64,7 +64,7 @@ class SubmissionRequestReleaserTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `check released when release`(
+    fun `check released for public submission`(
         @MockK submission: ExtSubmission,
         @MockK rqt: SubmissionRequest,
         @MockK nfsFile: NfsFile,
@@ -78,6 +78,66 @@ class SubmissionRequestReleaserTest(
         val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, COPIED)
         val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile, COPIED)
 
+        every { fireFile.published } returns false
+        every { rqt.submission } returns submission
+        every { rqt.currentIndex } returns 1
+        every { submission.accNo } returns ACC_NO
+        every { submission.version } returns VERSION
+        every { submission.released } returns true
+        every { submission.relPath } returns relPath
+        every { submission.secretKey } returns secretKey
+        every { submission.storageMode } returns mode
+        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, COPIED) } returns
+            flowOf(
+                nfsRqtFile,
+                fireRqtFile,
+            )
+        coEvery { storageService.releaseSubmissionFile(submission, fireFile) } returns fireFile
+        coEvery { storageService.releaseSubmissionFile(submission, nfsFile) } returns releasedFile
+        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
+
+        coEvery {
+            requestService.updateRqtFile(
+                nfsRqtFile.copy(
+                    file = releasedFile,
+                    status = RELEASED,
+                ),
+            )
+        } answers { nothing }
+        coEvery { requestService.updateRqtFile(fireRqtFile.copy(status = RELEASED)) } answers { nothing }
+
+        coEvery {
+            requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
+
+        testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
+
+        coVerify(exactly = 1) {
+            storageService.releaseSubmissionFile(submission, nfsFile)
+            storageService.releaseSubmissionFile(submission, fireFile)
+            eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
+        }
+    }
+
+    @Test
+    fun `check release for public submission with FIRE file already published`(
+        @MockK submission: ExtSubmission,
+        @MockK rqt: SubmissionRequest,
+        @MockK nfsFile: NfsFile,
+        @MockK releasedFile: FireFile,
+        @MockK fireFile: FireFile,
+    ) = runTest {
+        val relPath = "sub-relpath"
+        val secretKey = "secret-key"
+        val mode = StorageMode.FIRE
+
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, COPIED)
+        val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile, COPIED)
+
+        every { fireFile.published } returns true
         every { rqt.submission } returns submission
         every { rqt.currentIndex } returns 1
         every { submission.accNo } returns ACC_NO
@@ -118,10 +178,13 @@ class SubmissionRequestReleaserTest(
             storageService.releaseSubmissionFile(submission, nfsFile)
             eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
         }
+        coVerify(exactly = 0) {
+            storageService.releaseSubmissionFile(submission, fireFile)
+        }
     }
 
     @Test
-    fun `check released when not released and no previous version`(
+    fun `check released for private submission`(
         @MockK rqt: SubmissionRequest,
         @MockK submission: ExtSubmission,
     ) = runTest {
@@ -149,7 +212,7 @@ class SubmissionRequestReleaserTest(
     }
 
     @Test
-    fun `check released when not released and previous version was private`(
+    fun `check released for private submission with previous version also private`(
         @MockK rqt: SubmissionRequest,
         @MockK current: ExtSubmission,
         @MockK submission: ExtSubmission,
@@ -179,7 +242,7 @@ class SubmissionRequestReleaserTest(
     }
 
     @Test
-    fun `check released when not released and previous version was public`(
+    fun `check released for private submission and previous version was public`(
         @MockK current: ExtSubmission,
         @MockK submission: ExtSubmission,
         @MockK rqt: SubmissionRequest,

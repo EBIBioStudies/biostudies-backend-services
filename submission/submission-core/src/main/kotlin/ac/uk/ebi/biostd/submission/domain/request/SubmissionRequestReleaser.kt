@@ -90,8 +90,8 @@ class SubmissionRequestReleaser(
                 }
 
                 is FireFile -> {
-                    val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
-                    rqtService.updateRqtFile(released)
+                    val released = if (file.published) file else release(sub, reqFile.index, file)
+                    rqtService.updateRqtFile(reqFile.copy(file = released, status = RELEASED))
                 }
             }
         }
