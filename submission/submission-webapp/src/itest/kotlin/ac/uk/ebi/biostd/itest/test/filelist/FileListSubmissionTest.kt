@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -14,6 +13,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.asserts.assertThrows
@@ -110,8 +110,10 @@ class FileListSubmissionTest(
                     }.toString(),
                 )
 
-            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")), storageMode)
-            val response = webClient.submitSingle(submission, JSON, filesConfig)
+            val parameters = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, tempFolder.createFile("File4.txt"))
+
+            val response = webClient.submitSingle(submission, JSON, parameters, files)
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles(accNo = "S-TEST4", testFile = "File4.txt", fileListName = "FileList")
@@ -159,8 +161,10 @@ class FileListSubmissionTest(
                     }
                 }
 
-            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")), storageMode)
-            val response = webClient.submitSingle(submission, JSON, filesConfig)
+            val parameters = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, tempFolder.createFile("File5.txt"))
+
+            val response = webClient.submitSingle(submission, JSON, parameters, files)
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles(accNo = "S-TEST5", testFile = "File5.txt", fileListName = "FileList")
@@ -195,9 +199,10 @@ class FileListSubmissionTest(
                     }
                 }.toString()
 
-            val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
-            assertThatThrows<WebClientException> { webClient.submitSingle(submission, JSON, filesConfig) }
-                .hasMessageContaining("Unsupported page tab format FileList.txt")
+            val params = SubmitParameters(storageMode = storageMode)
+            assertThatThrows<WebClientException> {
+                webClient.submitSingle(submission, JSON, params, listOf(fileList))
+            }.hasMessageContaining("Unsupported page tab format FileList.txt")
         }
 
     @Test
@@ -225,8 +230,8 @@ class FileListSubmissionTest(
                 )
 
             webClient.uploadFile(fileList, "folder")
-            val filesConfig = SubmissionFilesConfig(listOf(referencedFile), storageMode)
-            assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+            val filesConfig = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitSingle(submission, TSV, filesConfig, listOf(referencedFile))).isSuccessful()
 
             val extSubmission = webClient.getExtByAccNo("S-TEST6")
             val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
@@ -265,8 +270,10 @@ class FileListSubmissionTest(
                 )
 
             val firstVersion = submission(fileList = "reusable-file-list.tsv")
-            val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
-            assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
+            val filesConfig = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, referencedFile)
+
+            assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig, files)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
 
             fileList.delete()
@@ -300,9 +307,10 @@ class FileListSubmissionTest(
                         }.toString(),
                     )
 
-                val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
+                val params = SubmitParameters(storageMode = storageMode)
+                val files = listOf(fileList)
 
-                val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, filesConfig) }
+                val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, params, files) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
                 assertThat(exception).hasMessageContaining("A file list should contain at least one file")
             }
@@ -331,8 +339,9 @@ class FileListSubmissionTest(
                         }.toString(),
                     )
 
-                val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
-                val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, filesConfig) }
+                val params = SubmitParameters(storageMode = storageMode)
+                val files = listOf(fileList, referencedFile)
+                val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, params, files) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
                 assertThat(exception).hasMessageContaining("Attribute name is required")
             }

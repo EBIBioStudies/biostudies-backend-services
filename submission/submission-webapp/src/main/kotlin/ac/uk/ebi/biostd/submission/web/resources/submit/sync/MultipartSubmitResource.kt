@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
@@ -42,10 +42,10 @@ class MultipartSubmitResource(
     @ResponseBody
     suspend fun submitMultipartJson(
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
+        onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
+        @ModelAttribute parameters: SubmitParameters,
     ): Submission {
         val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
@@ -61,10 +61,10 @@ class MultipartSubmitResource(
     @ResponseBody
     suspend fun submitMultipartTsv(
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
+        onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
+        @ModelAttribute parameters: SubmitParameters,
     ): Submission {
         val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
@@ -81,10 +81,10 @@ class MultipartSubmitResource(
     @ResponseBody
     suspend fun submitFile(
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
+        onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
+        @ModelAttribute parameters: SubmitParameters,
     ): Submission {
         val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)

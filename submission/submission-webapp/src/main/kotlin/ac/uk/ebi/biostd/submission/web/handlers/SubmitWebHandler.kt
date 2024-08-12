@@ -6,14 +6,14 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
+import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
+import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.model.SubmitWebRequest
+import ac.uk.ebi.biostd.submission.model.draftKey
+import ac.uk.ebi.biostd.submission.model.method
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.draftKey
-import ac.uk.ebi.biostd.submission.web.model.method
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
@@ -81,7 +81,9 @@ class SubmitWebHandler(
          */
         suspend fun deserializeSubmission(source: FileSourcesList): Submission =
             when (rqt) {
-                is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
+                is ContentSubmitWebRequest ->
+                    serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
+
                 is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
             }
 

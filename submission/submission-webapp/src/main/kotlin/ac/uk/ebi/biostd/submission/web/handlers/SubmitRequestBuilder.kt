@@ -2,12 +2,13 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmissionConfig
-import ac.uk.ebi.biostd.submission.web.model.SubmissionFilesConfig
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
+import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
+import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
+import ac.uk.ebi.biostd.submission.model.SubmissionConfig
+import ac.uk.ebi.biostd.submission.model.SubmissionFilesConfig
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -43,7 +44,7 @@ class SubmitRequestBuilder(
             SubmissionConfig(
                 submitter = request.user,
                 onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
-                attrs = attributes,
+                attrs = attributes.map { ExtAttributeDetail(it.name, it.value) },
                 storageMode = storageMode,
             )
         val filesConfig =
@@ -57,8 +58,8 @@ class SubmitRequestBuilder(
 
 data class SubmitBuilderRequest(
     val user: SecurityUser,
-    val onBehalfRequest: OnBehalfRequest?,
-    val submissionRequestParameters: SubmissionRequestParameters,
+    val onBehalfRequest: OnBehalfParameters?,
+    val submissionRequestParameters: SubmitParameters,
     val draftKey: String? = null,
     val files: List<File>? = null,
 )

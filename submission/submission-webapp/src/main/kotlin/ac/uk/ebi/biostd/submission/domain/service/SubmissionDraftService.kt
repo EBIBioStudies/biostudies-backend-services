@@ -11,8 +11,8 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -38,23 +38,17 @@ class SubmissionDraftService(
     fun getActiveSubmissionDrafts(
         userEmail: String,
         filter: PageRequest = PageRequest(),
-    ): Flow<SubmissionDraft> {
-        return draftPersistenceService.getActiveSubmissionDrafts(userEmail, filter)
-    }
+    ): Flow<SubmissionDraft> = draftPersistenceService.getActiveSubmissionDrafts(userEmail, filter)
 
     suspend fun getOrCreateSubmissionDraft(
         userEmail: String,
         key: String,
-    ): SubmissionDraft {
-        return draftPersistenceService.findSubmissionDraft(userEmail, key) ?: createDraftFromSubmission(userEmail, key)
-    }
+    ): SubmissionDraft = draftPersistenceService.findSubmissionDraft(userEmail, key) ?: createDraftFromSubmission(userEmail, key)
 
     suspend fun getSubmissionDraftContent(
         userEmail: String,
         key: String,
-    ): String {
-        return getOrCreateSubmissionDraft(userEmail, key).content
-    }
+    ): String = getOrCreateSubmissionDraft(userEmail, key).content
 
     suspend fun deleteSubmissionDraft(
         userEmail: String,
@@ -89,8 +83,8 @@ class SubmissionDraftService(
     suspend fun submitDraftAsync(
         key: String,
         user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        parameters: SubmissionRequestParameters,
+        onBehalfRequest: OnBehalfParameters?,
+        parameters: SubmitParameters,
     ) {
         val submission = getOrCreateSubmissionDraft(user.email, key).content
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
@@ -102,8 +96,8 @@ class SubmissionDraftService(
     suspend fun submitDraftSync(
         key: String,
         user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        parameters: SubmissionRequestParameters,
+        onBehalfRequest: OnBehalfParameters?,
+        parameters: SubmitParameters,
     ): Submission {
         val submission = getOrCreateSubmissionDraft(user.email, key).content
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)

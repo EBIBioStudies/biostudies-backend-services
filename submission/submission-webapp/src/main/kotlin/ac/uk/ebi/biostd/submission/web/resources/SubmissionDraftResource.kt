@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.Flow
@@ -78,8 +78,8 @@ internal class SubmissionDraftResource(
     suspend fun submitDraft(
         @PathVariable key: String,
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
+        onBehalfRequest: OnBehalfParameters?,
+        @ModelAttribute parameters: SubmitParameters,
     ) {
         submissionDraftService.submitDraftAsync(key, user, onBehalfRequest, parameters)
     }
@@ -88,11 +88,9 @@ internal class SubmissionDraftResource(
     suspend fun submitDraftSync(
         @PathVariable key: String,
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
-    ): Submission {
-        return submissionDraftService.submitDraftSync(key, user, onBehalfRequest, parameters)
-    }
+        onBehalfRequest: OnBehalfParameters?,
+        @ModelAttribute parameters: SubmitParameters,
+    ): Submission = submissionDraftService.submitDraftSync(key, user, onBehalfRequest, parameters)
 }
 
 internal class ResponseSubmissionDraft(

@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
@@ -44,12 +45,6 @@ interface SubmitClient :
     SubmissionRequestOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
-
-data class SubmissionFilesConfig(
-    val files: List<File>,
-    val storageMode: StorageMode,
-    val preferredSources: List<PreferredSource> = emptyList(),
-)
 
 interface FilesOperations {
     fun uploadFiles(
@@ -271,19 +266,21 @@ interface MultipartSubmitOperations {
     suspend fun submitSingle(
         sub: String,
         format: SubmissionFormat,
-        config: SubmissionFilesConfig,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionResponse
 
     suspend fun submitSingle(
         sub: Submission,
         format: SubmissionFormat,
-        config: SubmissionFilesConfig,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionResponse
 
     suspend fun submitSingle(
         sub: File,
-        config: SubmissionFilesConfig,
-        attrs: Map<String, String> = emptyMap(),
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionResponse
 }
 
@@ -291,19 +288,18 @@ interface MultipartAsyncSubmitOperations {
     fun asyncSubmitSingle(
         submission: String,
         format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
+        parameters: SubmitParameters,
     ): AcceptedSubmission
 
     fun asyncSubmitSingle(
         submission: Submission,
         format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
+        parameters: SubmitParameters,
     ): AcceptedSubmission
 
     fun asyncSubmitSingle(
         submission: File,
-        filesConfig: SubmissionFilesConfig,
-        attrs: Map<String, String> = emptyMap(),
+        parameters: SubmitParameters,
     ): AcceptedSubmission
 }
 

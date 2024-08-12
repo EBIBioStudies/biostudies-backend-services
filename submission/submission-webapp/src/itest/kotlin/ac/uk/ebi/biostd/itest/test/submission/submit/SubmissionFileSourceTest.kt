@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -14,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -106,8 +106,11 @@ class SubmissionFileSourceTest(
             val file1 = tempFolder.createFile("File1.txt", "content file 1")
             val file2 = tempFolder.createFile("File2.txt", "content file 2")
             webClient.uploadFiles(listOf(file1, file2))
-            val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
-            assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
+
+            val files = listOf(fileList)
+            val params = SubmitParameters(storageMode = storageMode)
+
+            assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, params, files)).isSuccessful()
 
             val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
             val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList").toList()
@@ -129,7 +132,7 @@ class SubmissionFileSourceTest(
                 webClient.submitSingle(
                     submission("FileList.json"),
                     TSV,
-                    SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE)),
+                    SubmitParameters(storageMode = storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE)),
                 ),
             ).isSuccessful()
             assertThat(innerFile.toFile().readText()).isEqualTo("content file 1")
@@ -137,7 +140,8 @@ class SubmissionFileSourceTest(
 
             if (enableFire) {
                 val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-                val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList").toList()
+                val secondVersionReferencedFiles =
+                    filesRepository.getReferencedFiles(secondVersion, "FileList").toList()
 
                 val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
                 val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -491,7 +495,8 @@ class SubmissionFileSourceTest(
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File(filePath), subZip)
             val files =
-                subZip.allSubFiles()
+                subZip
+                    .allSubFiles()
                     .filter { file -> file.isDirectory.not() }
                     .map { file -> file.toRelativeString(subZip) to file.readText() }
             subZip.deleteRecursively()
@@ -674,7 +679,7 @@ class SubmissionFileSourceTest(
 
             val file = tempFolder.createFile("test.txt", "test content")
             webClient.uploadFiles(listOf(file))
-            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
+            val filesConfig = SubmitParameters(storageMode = storageMode)
             assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
             val firstVersion = submissionRepository.getExtByAccNo("S-FSTST7")
@@ -690,7 +695,7 @@ class SubmissionFileSourceTest(
                 webClient.submitSingle(
                     submission,
                     TSV,
-                    SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION)),
+                    SubmitParameters(storageMode = storageMode, preferredSources = listOf(SUBMISSION)),
                 ),
             ).isSuccessful()
             assertThat(innerFile.toFile().readText()).isEqualTo("test content")
@@ -740,7 +745,8 @@ class SubmissionFileSourceTest(
 
             val submission = submissionRepository.getExtByAccNo("S-FSTST8")
             val duplicates =
-                filesRepository.getReferencedFiles(submission, "DuplicatedFiles")
+                filesRepository
+                    .getReferencedFiles(submission, "DuplicatedFiles")
                     .toList()
                     .groupBy { (it as FireFile).fireId }
 

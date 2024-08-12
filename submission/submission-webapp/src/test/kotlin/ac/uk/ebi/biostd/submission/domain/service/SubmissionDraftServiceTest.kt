@@ -9,12 +9,12 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
+import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -185,8 +185,8 @@ class SubmissionDraftServiceTest(
     @Test
     fun `submit draft`(
         @MockK user: SecurityUser,
-        @MockK onBehalfRequest: OnBehalfRequest,
-        @MockK parameters: SubmissionRequestParameters,
+        @MockK onBehalfRequest: OnBehalfParameters,
+        @MockK parameters: SubmitParameters,
         @MockK contentRequest: ContentSubmitWebRequest,
     ) = runTest {
         val requestSlot = slot<SubmitBuilderRequest>()

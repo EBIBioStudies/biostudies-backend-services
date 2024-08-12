@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -25,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -75,7 +75,12 @@ class SubmissionRefreshApiTest(
 ) {
     private lateinit var webClient: BioWebClient
 
-    private val newReleaseDate = LocalDate.now(UTC).atStartOfDay().atOffset(UTC).plusDays(1)
+    private val newReleaseDate =
+        LocalDate
+            .now(UTC)
+            .atStartOfDay()
+            .atOffset(UTC)
+            .plusDays(1)
     private val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
     private val fileList =
         tempFolder.createFile(
@@ -95,8 +100,8 @@ class SubmissionRefreshApiTest(
         }
 
     private suspend fun createTestSubmission(accNo: String) {
-        fun testSubmission(accNo: String): Submission {
-            return submission(accNo) {
+        fun testSubmission(accNo: String): Submission =
+            submission(accNo) {
                 title = SUBTITLE
                 releaseDate = OffsetDateTime.now().toStringDate()
                 rootPath = ROOT_PATH
@@ -123,15 +128,12 @@ class SubmissionRefreshApiTest(
                         )
                 }
             }
-        }
 
-        val filesConfig =
-            SubmissionFilesConfig(
-                storageMode = storageMode,
-                files = listOf(refreshFile, fileList, fileListFile),
-            )
+        val params = SubmitParameters(storageMode = storageMode)
+        val files = listOf(refreshFile, fileList, fileListFile)
+
         val testSubmission = testSubmission(accNo)
-        webClient.submitSingle(testSubmission, TSV, filesConfig)
+        webClient.submitSingle(testSubmission, TSV, params, files)
     }
 
     @Test
@@ -189,15 +191,18 @@ class SubmissionRefreshApiTest(
             createTestSubmission(accNo)
 
             val docSubmission =
-                mongoTemplate.findOne(
-                    Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0))),
-                    DocSubmission::class.java,
-                ).awaitSingle()
+                mongoTemplate
+                    .findOne(
+                        Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0))),
+                        DocSubmission::class.java,
+                    ).awaitSingle()
             val query =
                 Query(
-                    where(FILE_LIST_DOC_FILE_SUBMISSION_ID).`is`(docSubmission.id)
+                    where(FILE_LIST_DOC_FILE_SUBMISSION_ID)
+                        .`is`(docSubmission.id)
                         .andOperator(
-                            where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(accNo)
+                            where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO)
+                                .`is`(accNo)
                                 .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0)),
                         ),
                 )

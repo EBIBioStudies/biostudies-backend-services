@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -12,6 +11,8 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitAttribute
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -34,7 +35,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
-import java.util.Collections.singletonMap
 import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
@@ -89,9 +89,12 @@ class SubmissionToCollectionsTest(
                     }.toString(),
                 )
 
-            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
-            val attributes = singletonMap("AttachTo", "Public-Project")
-            assertThat(webClient.submitSingle(submissionFile, filesConfig, attributes)).isSuccessful()
+            val params =
+                SubmitParameters(
+                    storageMode = storageMode,
+                    attributes = listOf(SubmitAttribute("AttachTo", "Public-Project")),
+                )
+            assertThat(webClient.submitSingle(submissionFile, params)).isSuccessful()
 
             assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
                 submission("S-TEST1") {
