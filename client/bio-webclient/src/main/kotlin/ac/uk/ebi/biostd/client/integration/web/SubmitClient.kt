@@ -107,13 +107,13 @@ interface GroupFilesOperations {
 }
 
 interface SubmissionOperations {
-    fun deleteSubmission(accNo: String)
+    suspend fun deleteSubmission(accNo: String)
 
-    fun deleteSubmissions(submissions: List<String>)
+    suspend fun deleteSubmissions(submissions: List<String>)
 
-    fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
+    suspend fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 
-    fun validateFileList(
+    suspend fun validateFileList(
         fileListPath: String,
         rootPath: String? = null,
         accNo: String? = null,

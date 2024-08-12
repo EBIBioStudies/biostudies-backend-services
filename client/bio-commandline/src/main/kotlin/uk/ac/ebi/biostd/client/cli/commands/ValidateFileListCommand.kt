@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.client.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -25,11 +26,12 @@ internal class ValidateFileListCommand(
     private val accNo by option("-ac", "--accNo", help = ACC_NO)
     private val rootPath by option("-rp", "--rootPath", help = ROOT_PATH)
 
-    override fun run() {
-        val securityConfig = SecurityConfig(server, user, password, onBehalf)
-        val request = ValidateFileListRequest(fileListPath, accNo, rootPath, securityConfig)
+    override fun run(): Unit =
+        runBlocking {
+            val securityConfig = SecurityConfig(server, user, password, onBehalf)
+            val request = ValidateFileListRequest(fileListPath, accNo, rootPath, securityConfig)
 
-        submissionService.validateFileList(request)
-        echo("SUCCESS: ${request.fileListPath} is a valid file list")
-    }
+            submissionService.validateFileList(request)
+            echo("SUCCESS: ${request.fileListPath} is a valid file list")
+        }
 }

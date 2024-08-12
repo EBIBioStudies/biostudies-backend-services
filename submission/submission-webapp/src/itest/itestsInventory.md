@@ -20,7 +20,45 @@ Contains test related to submission deletion.
 | DeletePermissionTest | 1-12    | Regular user with ADMIN access tag deletes private submission             |
 | DeletePermissionTest | 1-13    | Regular user with ADMIN access tag deletes public submission              |
 
-### File List Test Suite
+### Delete Files Test Suite
+
+Contains test related to submission file deletion.
+
+| Class                     | Test No | Test name                                                                           |
+|---------------------------|---------|-------------------------------------------------------------------------------------|
+| DeleteFilesPermissionTest | 1-14    | Regular user deletes their own public submission files                              |
+| DeleteFilesPermissionTest | 1-15    | Regular user with UPDATE_PUBLIC permission delete their own public submission files |
+| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                     |
+
+### Submit Permission Test Suite
+
+Contains test related to Submission and collection manipulation.
+
+| Class                | Test No | Test name                                                                       |
+|----------------------|---------|---------------------------------------------------------------------------------|
+| SubmitPermissionTest | 4-1     | Superuser creates a collection                                                  | 
+| SubmitPermissionTest | 4-2     | Regular user can not create a collection                                        | 
+| SubmitPermissionTest | 4-3     | Regular user submits a collection submision without attach permission           | 
+| SubmitPermissionTest | 4-4     | Regular user submits a collection submision attach permission                   | 
+| SubmitPermissionTest | 4-5     | Regular user register and submits to default project                            | 
+| SubmitPermissionTest | 4-6     | Regular user submits with collection admin permission                           |                                                           
+| SubmitPermissionTest | 4-7     | Regular user resubmits another user submission with collection admin permission |                                                           
+| SubmitPermissionTest | 4-8     | Regular user resubmits its own submission                                       |                                                           
+| SubmitPermissionTest | 4-9     | Regular user resubmits another user submission                                  |                                                           
+| SubmitPermissionTest | 4-10    | Regular user resubmits another user submission with UPDATE permission           |                                                           
+
+### Permission API Test Suite
+
+Contains permissions API test.
+
+| Class             | Test No | Test name                                          |
+|-------------------|---------|----------------------------------------------------|
+| PermissionApiTest | 21-1    | Grant permission to a Regular user by Superuser    | 
+| PermissionApiTest | 21-2    | Grant permission to a Regular user by Regular user | 
+| PermissionApiTest | 21-3    | Grant permission to non-existing user              | 
+| PermissionApiTest | 21-4    | Grant permission to non-existing submission        |                                                                                               
+
+## File List Test Suite
 
 Contains test related to file list.
 
@@ -41,28 +79,45 @@ Contains test related to file list.
 | FileListValidationTest | 11-6    | Filelist validation when valid filelist with root path            |
 | FileListValidationTest | 11-7    | Filelist validation when valid filelist on behalf another user    |
 
+## Submission/Resubmission Test Suite
+
+### Submission Test suite
+
+Contains test related to submission
+
+| Class                  | Test No | Test name                                                         |
+|------------------------|---------|-------------------------------------------------------------------|
+| SubmissionApiTest      | 16-1    | Submit study with submission object                               | 
+| SubmissionApiTest      | 16-2    | Submit study with empty accNo                                     | 
+| SubmissionApiTest      | 16-3    | Submit study using root path                                      | 
+| SubmissionApiTest      | 16-4    | Submit study with generic root section                            | 
+| SubmissionApiTest      | 16-5    | Submit study with invalid link Url                                | 
+| SubmissionApiTest      | 16-6    | Submit study with validation error                                | 
+| SubmissionApiTest      | 16-7    | Submit public study with folder make files public                 | 
+| SubmissionApiTest      | 16-8    | Submit public study with file make files public                   | 
+| SubmissionApiTest      | 16-9    | Submit study not released makes files private                     | 
+| SubmissionApiTest      | 16-10   | Submit study with invalid characters file path                    | 
+| SubmissionApiTest      | 16-11   | Submit study containing folder with trailing slash                | 
+| SubmissionApiTest      | 16-12   | Submit study containing filelist with invalid name                | 
+| SubmissionApiTest      | 16-13   | Submit study by Regular user with Ftp home directory              | 
+| SubmissionApiTest      | 16-14   | Submit study when the system has the basePath property configured |
+| AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                       | 
+| AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                      | 
+
+### Resubmission Test suite
+
+Contains test related to resubmission
+
+| Class               | Test No | Test name                              |
+|---------------------|---------|----------------------------------------|
+| ResubmissionApiTest | 5-1     | Resubmit study updating a file content |
+| ResubmissionApiTest | 5-2     | Resubmit study with the same files     |
+| ResubmissionApiTest | 5-3     | Resubmit study with rootPath           |
+| ResubmissionApiTest | 5-4     | Resubmit study updating only metadata  |
+| ResubmissionApiTest | 5-5     | Resubmit study adding new files        |
+
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
-| AllInOneSubmissionTest          | 2-1     | submit all in one TSV submission                                                 | Submits three completely filled submissions (TSV, JSON, XML). Files previously uploaded.      |
-| AllInOneSubmissionTest          | 2-2     | submit all in one JSON submission                                                |                                                                                               |
-| SubmitPermissionTest            | 4-1     | create collection with superuser                                                 | Shows under which permissions a user could perform a submission                               |
-| SubmitPermissionTest            | 4-2     | create collection with regular user                                              |                                                                                               |
-| SubmitPermissionTest            | 4-3     | submit without attach permission                                                 |                                                                                               |
-| SubmitPermissionTest            | 4-4     | submit with attach permission access tag                                         |                                                                                               |
-| SubmitPermissionTest            | 4-5     | registering user and submit to default project                                   |                                                                                               |
-| SubmitPermissionTest            | 4-6     | submit with collection admin permission                                          |                                                                                               |
-| SubmitPermissionTest            | 4-7     | resubmit with collection admin permission                                        |                                                                                               |
-| SubmitPermissionTest            | 4-8     | owner resubmits without attach permission                                        |                                                                                               |
-| SubmitPermissionTest            | 4-9     | not owner user resubmits without the update permission                           |                                                                                               |
-| SubmitPermissionTest            | 4-10    | not owner user resubmits with the update permission                              |                                                                                               |
-| ResubmissionApiTest             | 5-1     | resubmit private existing submission                                             | Shows the system behaves when resubmissions occurs                                            |
-| ResubmissionApiTest             | 5-2     | resubmit existing submission with the same files                                 |                                                                                               |
-| ResubmissionApiTest             | 5-3     | re submit a submission with rootPath                                             |                                                                                               |
-| ResubmissionApiTest             | 5-4     | modify metadata of a public submission                                           |                                                                                               |
-| ResubmissionApiTest             | 5-5     | add files to public submission                                                   |                                                                                               |
-| ResubmissionApiTest             | 5-6     | unauthorized user updates public submission files                                |                                                                                               |
-| ResubmissionApiTest             | 5-7     | authorized user updates public submission files                                  |                                                                                               |
-| ResubmissionApiTest             | 5-8     | unauthorized user removes file list                                              |                                                                                               |
 | SubmissionFileSourceTest        | 6-1     | resubmission with SUBMISSION file source as priority over USER_SPACE             | Considers submission with different source files, user space, fire, bypassing files with fire |
 | SubmissionFileSourceTest        | 6-3-1   | submission with directory with files on FIRE                                     |                                                                                               |
 | SubmissionFileSourceTest        | 6-3-2-1 | re-submission with directory with files on FIRE                                  |                                                                                               |
@@ -123,20 +178,6 @@ Contains test related to file list.
 | SpecialSubmissionAttributesTest | 15-6    | submission with DOI                                                              |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-7    | submission with DOI and incomplete name                                          | The DOI is registered without contributors when the author name is incomplete                 |
 | SpecialSubmissionAttributesTest | 15-8    | submission with DOI and no name                                                  | The DOI is registered without contributors when the author name is not present                |
-| SubmissionApiTest               | 16-1    | submit with submission object                                                    | Performs different simple submission cases, no accNo, invalid link url, rootPath, and others. |
-| SubmissionApiTest               | 16-2    | empty accNo                                                                      |                                                                                               |
-| SubmissionApiTest               | 16-3    | submission with root path                                                        |                                                                                               |
-| SubmissionApiTest               | 16-4    | submission with generic root section                                             |                                                                                               |
-| SubmissionApiTest               | 16-5    | submit with invalid link Url                                                     |                                                                                               |
-| SubmissionApiTest               | 16-6    | submission with validation error                                                 |                                                                                               |
-| SubmissionApiTest               | 16-7    | submission for checking ftp files                                                |                                                                                               |
-| SubmissionApiTest               | 16-8    | submission released makes files public                                           |                                                                                               |
-| SubmissionApiTest               | 16-9    | submission not released makes files private                                      |                                                                                               |
-| SubmissionApiTest               | 16-10   | submission containing invalid file path                                          |                                                                                               |
-| SubmissionApiTest               | 16-11   | submission containing folder with trailing slash                                 |                                                                                               |
-| SubmissionApiTest               | 16-12   | submission containing file list with invalid name                                |                                                                                               |
-| SubmissionApiTest               | 16-13   | User with Ftp based folder submission                                            |                                                                                               |
-| SubmissionApiTest               | 16-14   | submission when the system has the basePath property configured                  |                                                                                               |
 | UserFileApiTest                 | 17-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for user considering different user folder names re               |
 | UserFileApiTest                 | 17-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
 | UserFileApiTest                 | 17-3    | upload download delete file and retrieve in user folder with space               |                                                                                               |
@@ -148,10 +189,6 @@ Contains test related to file list.
 | CollectionsListTest             | 20-2    | list collections for regular user                                                |                                                                                               |
 | CollectionsListTest             | 20-3    | list collections for default user                                                |                                                                                               |
 | CollectionsListTest             | 20-4    | list collections for collection admin user                                       |                                                                                               |
-| PermissionApiTest               | 21-1    | grant permission to a user by superuser                                          | Gives permission to read to a user by superuser, consider its exceptions                      |
-| PermissionApiTest               | 21-2    | grant permission to a user by regular user                                       |                                                                                               |
-| PermissionApiTest               | 21-3    | grant permission to non-existing user                                            |                                                                                               |
-| PermissionApiTest               | 21-4    | grant permission to non-existing submission                                      |                                                                                               |
 | SecurityApiTest                 | 22-1    | register with invalid email                                                      | Shows registration user behaviour                                                             |
 | SecurityApiTest                 | 22-2    | register when activation is not enable                                           |                                                                                               |
 | SecurityApiTest                 | 22-3    | login when inactive                                                              |                                                                                               |

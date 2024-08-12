@@ -6,19 +6,22 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -85,87 +88,90 @@ internal class SubmissionServiceTest {
         }
 
     @Test
-    fun `transfer submission`() {
-        val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
-        val request = TransferRequest(ACC_NO, NFS, securityConfig)
+    fun `transfer submission`() =
+        runTest {
+            val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+            val request = TransferRequest(ACC_NO, NFS, securityConfig)
 
-        every { bioWebClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+            every { bioWebClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
 
-        testInstance.transfer(request)
+            testInstance.transfer(request)
 
-        verify(exactly = 1) {
-            bioWebClient.transferSubmission(ACC_NO, NFS)
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD)
+            verify(exactly = 1) {
+                bioWebClient.transferSubmission(ACC_NO, NFS)
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD)
+            }
         }
-    }
 
     @Test
-    fun `delete successful`() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every { bioWebClient.deleteSubmissions(deletionRequest.accNoList) } answers { nothing }
+    fun `delete successful`() =
+        runTest {
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
+            coEvery { bioWebClient.deleteSubmissions(deletionRequest.accNoList) } answers { nothing }
 
-        testInstance.delete(deletionRequest)
+            testInstance.delete(deletionRequest)
 
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.deleteSubmissions(deletionRequest.accNoList)
+            coVerify(exactly = 1) {
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
+                bioWebClient.deleteSubmissions(deletionRequest.accNoList)
+            }
         }
-    }
 
     @Test
-    fun `perform request throw web client exception with null message`() {
-        every { webClientException.message } returns null
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
+    fun `perform request throw web client exception with null message`() =
+        runTest {
+            every { webClientException.message } returns null
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-        assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(deletionRequest) }
-            .withMessage("WebClientException: ")
-    }
-
-    @Test
-    fun `perform request throw web client exception with not null message`() {
-        every { webClientException.message } returns ERROR_MESSAGE
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
-
-        assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(deletionRequest) }
-            .withMessage("WebClientException: $ERROR_MESSAGE")
-    }
-
-    @Test
-    fun `perform request throw other exception with null message`() {
-        every { webClientException.message } returns null
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
-
-        assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(deletionRequest) }
-            .withMessage("WebClientException: ")
-    }
-
-    @Test
-    fun `perform request throw other exception with not null message`() {
-        every { webClientException.message } returns ERROR_MESSAGE
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
-
-        assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(deletionRequest) }
-            .withMessage("WebClientException: $ERROR_MESSAGE")
-    }
-
-    @Test
-    fun `validate file list`() {
-        val (fileListPath, accNo, rootPath) = validateFileList
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every { bioWebClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
-
-        testInstance.validateFileList(validateFileList)
-
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.validateFileList(fileListPath, rootPath, accNo)
+            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            assertThat(exception).hasMessageStartingWith("WebClientException: ")
         }
-    }
+
+    @Test
+    fun `perform request throw web client exception with not null message`() =
+        runTest {
+            every { webClientException.message } returns ERROR_MESSAGE
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
+
+            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
+        }
+
+    @Test
+    fun `perform request throw other exception with null message`() =
+        runTest {
+            every { webClientException.message } returns null
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
+
+            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            assertThat(exception).hasMessageStartingWith("WebClientException: ")
+        }
+
+    @Test
+    fun `perform request throw other exception with not null message`() =
+        runTest {
+            every { webClientException.message } returns ERROR_MESSAGE
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
+
+            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
+        }
+
+    @Test
+    fun `validate file list`() =
+        runTest {
+            val (fileListPath, accNo, rootPath) = validateFileList
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
+            coEvery { bioWebClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
+
+            testInstance.validateFileList(validateFileList)
+
+            coVerify(exactly = 1) {
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
+                bioWebClient.validateFileList(fileListPath, rootPath, accNo)
+            }
+        }
 
     private companion object {
         private const val ACC_NO = "S-BSST0"

@@ -2,17 +2,16 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ebi.ac.uk.api.dto.SubmissionDto
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.delete
-import ebi.ac.uk.commons.http.ext.getForObject
-import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.model.constants.ACC_NO
 import ebi.ac.uk.model.constants.FILE_LIST_NAME
 import ebi.ac.uk.model.constants.ROOT_PATH
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
+import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
 
 internal const val SUBMISSIONS_URL = "/submissions"
@@ -20,35 +19,50 @@ internal const val SUBMISSIONS_URL = "/submissions"
 internal class SubmissionClient(
     private val client: WebClient,
 ) : SubmissionOperations {
-    override fun deleteSubmission(accNo: String) {
-        client.delete("$SUBMISSIONS_URL/$accNo")
+    override suspend fun deleteSubmission(accNo: String) {
+        client
+            .delete()
+            .uri("$SUBMISSIONS_URL/$accNo")
+            .retrieve()
+            .awaitBodilessEntity()
     }
 
-    override fun deleteSubmissions(submissions: List<String>) {
-        client.delete("$SUBMISSIONS_URL?submissions=${submissions.joinToString(",")}")
+    override suspend fun deleteSubmissions(submissions: List<String>) {
+        client
+            .delete()
+            .uri("$SUBMISSIONS_URL?submissions=${submissions.joinToString(",")}")
+            .retrieve()
+            .awaitBodilessEntity()
     }
 
-    override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
+    override suspend fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         filter.entries.forEach { builder.queryParam(it.key, it.value) }
-
-        return client.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
+        return client
+            .get()
+            .uri(builder.toUriString())
+            .retrieve()
+            .awaitBody()
     }
 
-    override fun validateFileList(
+    override suspend fun validateFileList(
         fileListPath: String,
         rootPath: String?,
         accNo: String?,
     ) {
         val headers = HttpHeaders().apply { contentType = APPLICATION_FORM_URLENCODED }
-        val formData =
-            buildList {
-                add(FILE_LIST_NAME to fileListPath)
-                rootPath?.let { add(ROOT_PATH to it) }
-                accNo?.let { add(ACC_NO to it) }
+        var formData =
+            buildMap<String, List<String>> {
+                put(FILE_LIST_NAME, listOf(fileListPath))
+                rootPath?.let { put(ROOT_PATH, listOf(it)) }
+                accNo?.let { put(ACC_NO, listOf(it)) }
             }
-        val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
-
-        client.post("$SUBMISSIONS_URL/fileLists/validate", RequestParams(headers, body))
+        client
+            .post()
+            .uri("$SUBMISSIONS_URL/fileLists/validate")
+            .headers { it.addAll(headers) }
+            .body(BodyInserters.fromFormData(LinkedMultiValueMap(formData)))
+            .retrieve()
+            .awaitBodilessEntity()
     }
 }
