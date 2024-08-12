@@ -44,7 +44,7 @@ class MultipartSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) content: String,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(FILES, required = false) files: List<MultipartFile>?,
         @ModelAttribute parameters: SubmitParameters,
     ): Submission {
         val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
@@ -63,10 +63,10 @@ class MultipartSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) content: String,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(FILES, required = false) files: List<MultipartFile>?,
         @ModelAttribute parameters: SubmitParameters,
     ): Submission {
-        val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val request = submitRequestBuilder.buildContentRequest(content, SubFormat.TSV, buildRequest)
 
@@ -83,7 +83,7 @@ class MultipartSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) file: MultipartFile,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(FILES, required = false) files: List<MultipartFile>?,
         @ModelAttribute parameters: SubmitParameters,
     ): Submission {
         val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
