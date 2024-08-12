@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
@@ -18,20 +18,26 @@ internal class ValidateFileListCommandTest(
 
     @Test
     fun `validate successful`() {
-        every { submissionService.validateFileList(validateRequest) } returns Unit
+        coEvery { submissionService.validateFileList(validateRequest) } returns Unit
 
         testInstance.parse(
             listOf(
-                "-s", SERVER,
-                "-u", USER,
-                "-p", PASSWORD,
-                "-f", FILE_LIST_PATH,
-                "-ac", ACC_NO,
-                "-rp", ROOT_PATH,
+                "-s",
+                SERVER,
+                "-u",
+                USER,
+                "-p",
+                PASSWORD,
+                "-f",
+                FILE_LIST_PATH,
+                "-ac",
+                ACC_NO,
+                "-rp",
+                ROOT_PATH,
             ),
         )
 
-        verify(exactly = 1) { submissionService.validateFileList((validateRequest)) }
+        coVerify(exactly = 1) { submissionService.validateFileList((validateRequest)) }
     }
 
     private companion object {

@@ -15,13 +15,13 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -76,10 +76,10 @@ class DeletePermissionTest(
                         .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
                 assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
-
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { superUserWebClient.deleteSubmission("S-DLT1") }
-                    .withMessageContaining("The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT1")
+                val exception = assertThrows<WebClientException> { superUserWebClient.deleteSubmission("S-DLT1") }
+                assertThat(exception).hasMessageContaining(
+                    "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT1",
+                )
             }
 
         @Test
@@ -100,9 +100,10 @@ class DeletePermissionTest(
 
                 assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
 
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { superUserWebClient.deleteSubmission("S-DLT2") }
-                    .withMessageContaining("The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT2")
+                val exception = assertThrows<WebClientException> { superUserWebClient.deleteSubmission("S-DLT2") }
+                assertThat(exception).hasMessageContaining(
+                    "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT2",
+                )
             }
 
         @Test
@@ -152,59 +153,63 @@ class DeletePermissionTest(
     @Nested
     inner class RegularUserCases {
         @Test
-        fun `1-5 Regular user deletes private submission`() {
-            val submission =
-                tsv {
-                    line("Submission", "S-DLT3")
-                    line("Title", "Delete Submission 3")
-                    line()
-                }.toString()
+        fun `1-5 Regular user deletes private submission`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-DLT3")
+                        line("Title", "Delete Submission 3")
+                        line()
+                    }.toString()
 
-            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { regularUserWebClient.deleteSubmission("S-DLT3") }
-                .withMessageContaining("The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT3")
-        }
-
-        @Test
-        fun `1-6 regular user deletes public submission`() {
-            val submission =
-                tsv {
-                    line("Submission", "S-DLT4")
-                    line("Title", "Delete Submission 4")
-                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                    line()
-                }.toString()
-
-            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { regularUserWebClient.deleteSubmission("S-DLT4") }
-                .withMessageContaining("The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT4")
-        }
+                val exception = assertThrows<WebClientException> { regularUserWebClient.deleteSubmission("S-DLT3") }
+                assertThat(exception).hasMessageContaining(
+                    "The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT3",
+                )
+            }
 
         @Test
-        fun `1-7 Regular user deletes their own public submission`() {
-            val submission =
-                tsv {
-                    line("Submission", "S-DLT9")
-                    line("Title", "Delete Submission 9")
-                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                    line()
-                }.toString()
+        fun `1-6 regular user deletes public submission`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-DLT4")
+                        line("Title", "Delete Submission 4")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+                    }.toString()
 
-            val onBehalfClient =
-                SecurityWebClient
-                    .create("http://localhost:$serverPort")
-                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+                assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
+                val exception = assertThrows<WebClientException> { regularUserWebClient.deleteSubmission("S-DLT4") }
+                assertThat(exception).hasMessageContaining(
+                    "The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT4",
+                )
+            }
 
-            assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
+        @Test
+        fun `1-7 Regular user deletes their own public submission`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-DLT9")
+                        line("Title", "Delete Submission 9")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+                    }.toString()
 
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { regularUserWebClient.deleteSubmission("S-DLT9") }
-                .withMessageContaining("The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT9")
-        }
+                val onBehalfClient =
+                    SecurityWebClient
+                        .create("http://localhost:$serverPort")
+                        .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+                assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
+                val exception = assertThrows<WebClientException> { regularUserWebClient.deleteSubmission("S-DLT9") }
+                assertThat(exception).hasMessageContaining(
+                    "The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT9",
+                )
+            }
 
         @Test
         fun `1-8 Regular user deletes their own private submission`() =
@@ -293,9 +298,10 @@ class DeletePermissionTest(
                 assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(ExistingUser.email, "ACollection", ADMIN.name)
 
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { existingUserWebClient.deleteSubmission("S-DLT7") }
-                    .withMessageContaining("The user register_user@ebi.ac.uk is not allowed to delete the submission S-DLT7")
+                val exception = assertThrows<WebClientException> { existingUserWebClient.deleteSubmission("S-DLT7") }
+                assertThat(exception).hasMessageContaining(
+                    "The user register_user@ebi.ac.uk is not allowed to delete the submission S-DLT7",
+                )
             }
 
         @Test
@@ -313,9 +319,10 @@ class DeletePermissionTest(
                 assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(ExistingUser.email, "ACollection", ADMIN.name)
 
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { existingUserWebClient.deleteSubmission("S-DLT8") }
-                    .withMessageContaining("The user register_user@ebi.ac.uk is not allowed to delete the submission S-DLT8")
+                val exception = assertThrows<WebClientException> { existingUserWebClient.deleteSubmission("S-DLT8") }
+                assertThat(exception).hasMessageContaining(
+                    "The user register_user@ebi.ac.uk is not allowed to delete the submission S-DLT8",
+                )
             }
 
         @Test
@@ -346,11 +353,13 @@ class DeletePermissionTest(
                 assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
                 assertThat(superUserWebClient.submitSingle(submission3, TSV)).isSuccessful()
 
-                val errorMsg =
-                    "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT113"
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { superUserWebClient.deleteSubmissions(listOf("S-DLT111", "S-DLT112", "S-DLT113")) }
-                    .withMessageContaining(errorMsg)
+                val exception =
+                    assertThrows<WebClientException> {
+                        superUserWebClient.deleteSubmissions(listOf("S-DLT111", "S-DLT112", "S-DLT113"))
+                    }
+                assertThat(exception).hasMessageContaining(
+                    "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT113",
+                )
             }
     }
 }

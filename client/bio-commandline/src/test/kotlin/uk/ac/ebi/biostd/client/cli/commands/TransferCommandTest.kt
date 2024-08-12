@@ -2,10 +2,10 @@ package uk.ac.ebi.biostd.client.cli.commands
 
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -29,19 +29,24 @@ internal class TransferCommandTest(
         val securityConfig = SecurityConfig("server", "user", "password")
         val request = TransferRequest("S-BSST1", NFS, securityConfig)
 
-        every { submissionService.transfer(request) } answers { nothing }
+        coEvery { submissionService.transfer(request) } answers { nothing }
 
         testInstance.parse(
             listOf(
-                "-s", "server",
-                "-u", "user",
-                "-p", "password",
-                "-ac", "S-BSST1",
-                "-t", "NFS",
+                "-s",
+                "server",
+                "-u",
+                "user",
+                "-p",
+                "password",
+                "-ac",
+                "S-BSST1",
+                "-t",
+                "NFS",
             ),
         )
 
-        verify(exactly = 1) { submissionService.transfer(request) }
+        coVerify(exactly = 1) { submissionService.transfer(request) }
     }
 
     @Test
@@ -50,11 +55,16 @@ internal class TransferCommandTest(
             assertThrows<IllegalStateException> {
                 testInstance.parse(
                     listOf(
-                        "-s", "server",
-                        "-u", "user",
-                        "-p", "password",
-                        "-ac", "S-BSST1",
-                        "-t", "INVALID",
+                        "-s",
+                        "server",
+                        "-u",
+                        "user",
+                        "-p",
+                        "password",
+                        "-ac",
+                        "S-BSST1",
+                        "-t",
+                        "INVALID",
                     ),
                 )
             }
