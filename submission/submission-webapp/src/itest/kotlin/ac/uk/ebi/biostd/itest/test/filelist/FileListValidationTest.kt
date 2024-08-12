@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
@@ -60,77 +61,81 @@ class FileListValidationTest(
     @Nested
     inner class InvalidCases {
         @Test
-        fun `11-1 Filelist validation when blank file list`() {
-            val fileList = tempFolder.createFile("BlankFileList.json")
+        fun `11-1 Filelist validation when blank file list`() =
+            runTest {
+                val fileList = tempFolder.createFile("BlankFileList.json")
 
-            webClient.uploadFile(fileList)
+                webClient.uploadFile(fileList)
 
-            val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
-            assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-            assertThat(exception).hasMessageContaining("Expected content to be an array")
+                val exception = assertThrows<WebClientException> { webClient.validateFileList(fileList.name) }
+                assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+                assertThat(exception).hasMessageContaining("Expected content to be an array")
 
-            webClient.deleteFile(fileList.name)
-        }
-
-        @Test
-        fun `11-2 Filelist validation when empty file list`() {
-            val fileList = tempFolder.createFile("EmptyFileList.tsv", "Files\tAttr1")
-
-            webClient.uploadFile(fileList)
-
-            val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
-            assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(exception).hasMessageContaining("A file list should contain at least one file")
-
-            webClient.deleteFile(fileList.name)
-        }
+                webClient.deleteFile(fileList.name)
+            }
 
         @Test
-        fun `11-3 Filelist validation when unsupported file list format`() {
-            val fileList = tempFolder.createFile("image.jpg")
+        fun `11-2 Filelist validation when empty file list`() =
+            runTest {
+                val fileList = tempFolder.createFile("EmptyFileList.tsv", "Files\tAttr1")
 
-            webClient.uploadFile(fileList)
+                webClient.uploadFile(fileList)
 
-            val exception =
-                assertThrows(WebClientException::class.java) {
-                    webClient.validateFileList(fileList.name)
-                }
+                val exception = assertThrows<WebClientException> { webClient.validateFileList(fileList.name) }
+                assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+                assertThat(exception).hasMessageContaining("A file list should contain at least one file")
 
-            assertThat(exception.statusCode).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-            assertThat(exception).hasMessageContaining("Unsupported page tab format image.jpg")
-
-            webClient.deleteFile(fileList.name)
-        }
+                webClient.deleteFile(fileList.name)
+            }
 
         @Test
-        fun `11-4 Filelist when missing files`() {
-            val fileList = tempFolder.createFile("InvalidNfsFileList.json", FILE_LIST_CONTENT)
+        fun `11-3 Filelist validation when unsupported file list format`() =
+            runTest {
+                val fileList = tempFolder.createFile("image.jpg")
 
-            webClient.uploadFile(fileList)
+                webClient.uploadFile(fileList)
 
-            val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
-            assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-            val expectedError =
-                jsonObj {
-                    "log" to
-                        jsonObj {
-                            "level" to "ERROR"
-                            "message" to
-                                """
-                                The following files could not be found:
-                                  - Plate1.tif
-                                List of available sources:
-                                  - Provided Db files
-                                  - biostudies-mgmt-filelist-v@ebi.ac.uk user files
-                                """.trimIndent()
-                            "subnodes" to jsonArray()
-                        }
-                    "status" to "FAIL"
-                }
+                val exception =
+                    assertThrows<WebClientException> {
+                        webClient.validateFileList(fileList.name)
+                    }
 
-            assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
-            webClient.deleteFile(fileList.name)
-        }
+                assertThat(exception.statusCode).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                assertThat(exception).hasMessageContaining("Unsupported page tab format image.jpg")
+
+                webClient.deleteFile(fileList.name)
+            }
+
+        @Test
+        fun `11-4 Filelist when missing files`() =
+            runTest {
+                val fileList = tempFolder.createFile("InvalidNfsFileList.json", FILE_LIST_CONTENT)
+
+                webClient.uploadFile(fileList)
+
+                val exception = assertThrows<WebClientException> { webClient.validateFileList(fileList.name) }
+                assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+                val expectedError =
+                    jsonObj {
+                        "log" to
+                            jsonObj {
+                                "level" to "ERROR"
+                                "message" to
+                                    """
+                                    The following files could not be found:
+                                      - Plate1.tif
+                                    List of available sources:
+                                      - Provided Db files
+                                      - biostudies-mgmt-filelist-v@ebi.ac.uk user files
+                                    """.trimIndent()
+                                "subnodes" to jsonArray()
+                            }
+                        "status" to "FAIL"
+                    }
+
+                assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
+                webClient.deleteFile(fileList.name)
+            }
     }
 
     @Nested
@@ -172,24 +177,25 @@ class FileListValidationTest(
             }
 
         @Test
-        fun `11-6 Filelist validation when valid filelist with root path`() {
-            val file = tempFolder.createFile("File1.tif", "content-1")
-            val fileListContent =
-                tsv {
-                    line("Files")
-                    line("File1.tif")
-                    line()
-                }.toString()
+        fun `11-6 Filelist validation when valid filelist with root path`() =
+            runTest {
+                val file = tempFolder.createFile("File1.tif", "content-1")
+                val fileListContent =
+                    tsv {
+                        line("Files")
+                        line("File1.tif")
+                        line()
+                    }.toString()
 
-            val fileList = tempFolder.createFile("RootPathFileList.tsv", fileListContent)
+                val fileList = tempFolder.createFile("RootPathFileList.tsv", fileListContent)
 
-            webClient.uploadFiles(listOf(file, fileList), "root-path")
+                webClient.uploadFiles(listOf(file, fileList), "root-path")
 
-            webClient.validateFileList(fileList.name, rootPath = "root-path")
+                webClient.validateFileList(fileList.name, rootPath = "root-path")
 
-            webClient.deleteFile(file.name)
-            webClient.deleteFile(fileList.name)
-        }
+                webClient.deleteFile(file.name)
+                webClient.deleteFile(fileList.name)
+            }
 
         @Test
         fun `11-7 Filelist validation when valid filelist on behalf another user`() =
