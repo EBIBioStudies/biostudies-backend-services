@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.time.OffsetDateTime
@@ -39,7 +38,6 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ResubmissionApiTest(
-    @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val requestRepository: SubmissionRequestPersistenceService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
