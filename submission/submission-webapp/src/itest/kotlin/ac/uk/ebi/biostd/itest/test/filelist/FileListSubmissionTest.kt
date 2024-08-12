@@ -230,8 +230,8 @@ class FileListSubmissionTest(
                 )
 
             webClient.uploadFile(fileList, "folder")
-            val filesConfig = SubmitParameters(storageMode = storageMode)
-            assertThat(webClient.submitSingle(submission, TSV, filesConfig, listOf(referencedFile))).isSuccessful()
+            val params = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitSingle(submission, TSV, params, listOf(referencedFile))).isSuccessful()
 
             val extSubmission = webClient.getExtByAccNo("S-TEST6")
             val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
@@ -270,10 +270,10 @@ class FileListSubmissionTest(
                 )
 
             val firstVersion = submission(fileList = "reusable-file-list.tsv")
-            val filesConfig = SubmitParameters(storageMode = storageMode)
+            val params = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, referencedFile)
 
-            assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig, files)).isSuccessful()
+            assertThat(webClient.submitSingle(firstVersion, TSV, params, files)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
 
             fileList.delete()

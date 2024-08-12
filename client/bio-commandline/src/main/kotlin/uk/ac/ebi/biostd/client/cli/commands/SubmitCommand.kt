@@ -47,16 +47,6 @@ internal class SubmitCommand(
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
         val params = SubmitParameters(storageMode = mode, preferredSources = splitPreferredSources(preferredSources))
         val files = splitFiles(attached)
-
-        val request =
-            SubmissionRequest(
-                submissionFile = input,
-                await = await,
-                securityConfig = securityConfig,
-                parameters = params,
-                files = files,
-            )
-
-        submissionService.submit(request)
+        submissionService.submit(SubmissionRequest(input, await, securityConfig, params, files))
     }
 }

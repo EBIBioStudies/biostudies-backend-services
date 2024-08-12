@@ -58,7 +58,6 @@ class SubmitAsyncResource(
     ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
-
         return submitWebHandler.submitAsync(request)
     }
 }

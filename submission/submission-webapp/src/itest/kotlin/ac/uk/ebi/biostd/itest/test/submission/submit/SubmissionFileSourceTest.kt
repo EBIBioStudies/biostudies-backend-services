@@ -679,8 +679,8 @@ class SubmissionFileSourceTest(
 
             val file = tempFolder.createFile("test.txt", "test content")
             webClient.uploadFiles(listOf(file))
-            val filesConfig = SubmitParameters(storageMode = storageMode)
-            assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+            val params = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitSingle(submission, TSV, params)).isSuccessful()
 
             val firstVersion = submissionRepository.getExtByAccNo("S-FSTST7")
             val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"

@@ -42,10 +42,10 @@ class MultipartAsyncSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) content: String,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(FILES, required = false) files: List<MultipartFile>?,
         @ModelAttribute parameters: SubmitParameters,
     ): AcceptedSubmission {
-        val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, buildRequest)
 
@@ -60,10 +60,10 @@ class MultipartAsyncSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) content: String,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(FILES, required = false) files: List<MultipartFile>?,
         @ModelAttribute parameters: SubmitParameters,
     ): AcceptedSubmission {
-        val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.TSV, buildRequest)
 
@@ -79,10 +79,10 @@ class MultipartAsyncSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @RequestParam(SUBMISSION) file: MultipartFile,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(FILES, required = false) files: List<MultipartFile>?,
         @ModelAttribute parameters: SubmitParameters,
     ): AcceptedSubmission {
-        val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val fileWebRequest = submitRequestBuilder.buildFileRequest(tempFileGenerator.asFile(file), buildRequest)
 
