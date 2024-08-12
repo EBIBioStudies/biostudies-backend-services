@@ -180,9 +180,9 @@ internal class SubmissionServiceTest {
         private val webClientException: WebClientException = mockk()
         private val bioWebClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
-        private val filesConfig = SubmitParameters(storageMode = FIRE, preferredSources = listOf(SUBMISSION))
+        private val submitParams = SubmitParameters(storageMode = FIRE, preferredSources = listOf(SUBMISSION))
 
-        private val subRequest = SubmissionRequest(mockk(), false, securityConfig, filesConfig, files = listOf(mockk()))
+        private val subRequest = SubmissionRequest(mockk(), false, securityConfig, submitParams, listOf(mockk()))
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
         private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }
