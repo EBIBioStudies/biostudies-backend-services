@@ -314,7 +314,10 @@ class SubmissionStatsTest(
             }.toString()
         webClient.submitSingle(submission1, TSV)
 
-        val statsFile = kotlin.io.path.createTempFile().toFile()
+        val statsFile =
+            kotlin.io.path
+                .createTempFile()
+                .toFile()
         statsFile.writeText("STATS-0005\t150")
 
         webClient.registerStats("VIEWS", statsFile)
@@ -339,7 +342,10 @@ class SubmissionStatsTest(
             )
         webClient.registerStat(dStat)
 
-        val statsFile = kotlin.io.path.createTempFile().toFile()
+        val statsFile =
+            kotlin.io.path
+                .createTempFile()
+                .toFile()
         statsFile.writeText("$accNo\t150")
 
         webClient.incrementStats("VIEWS", statsFile)

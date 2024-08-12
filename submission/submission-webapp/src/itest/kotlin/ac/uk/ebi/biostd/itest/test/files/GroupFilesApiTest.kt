@@ -38,12 +38,10 @@ class GroupFilesApiTest(
     fun init() =
         runTest {
             securityTestService.ensureUserRegistration(SuperUser)
-
             webClient = getWebClient(serverPort, SuperUser)
-            webClient.addUserInGroup(
-                webClient.createGroup(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION).name,
-                SuperUser.email,
-            )
+
+            val group = webClient.createGroup(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION)
+            webClient.addUserInGroup(group.name, SuperUser.email)
         }
 
     @Test
@@ -87,7 +85,13 @@ class GroupFilesApiTest(
     ) {
         assertThat(resultFile.name).isEqualTo(file.name)
         assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
-        assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(TEST_GROUP_NAME).resolve(path).toString())
+        assertThat(resultFile.path).isEqualTo(
+            Paths
+                .get("groups")
+                .resolve(TEST_GROUP_NAME)
+                .resolve(path)
+                .toString(),
+        )
         assertThat(resultFile.size).isEqualTo(file.length())
         assertThat(file).hasContent(downloadFile.readText())
     }

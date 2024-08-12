@@ -30,7 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @Import(FilePersistenceConfig::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PermissionApiTest(
+class GrantPermissionApiTest(
     @Autowired private val userDataRepository: UserDataRepository,
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val securityTestService: SecurityTestService,
@@ -48,7 +48,15 @@ class PermissionApiTest(
             superWebClient = getWebClient(serverPort, SuperUser)
             regularWebClient = getWebClient(serverPort, RegularUser)
 
-            setUpTestCollection()
+            val collection =
+                tsv {
+                    line("Submission", "PermissionCollection")
+                    line("AccNoTemplate", "!{S-PCOL}")
+                    line()
+
+                    line("Project")
+                }.toString()
+            superWebClient.submitSingle(collection, TSV)
         }
 
     @BeforeEach
@@ -57,7 +65,7 @@ class PermissionApiTest(
     }
 
     @Test
-    fun `21-1 grant permission to a user by superuser`() {
+    fun `21-1 Grant permission to a Regular user by Superuser`() {
         superWebClient.grantPermission(dbUser.email, "PermissionCollection", "READ")
 
         val permissions = accessPermissionRepository.findAllByUserEmail(dbUser.email)
@@ -68,42 +76,27 @@ class PermissionApiTest(
     }
 
     @Test
-    fun `21-2 grant permission to a user by regular user`() {
+    fun `21-2 Grant permission to a Regular user by Regular user`() {
         assertThrows<WebClientException> {
             regularWebClient.grantPermission(dbUser.email, "PermissionCollection", "READ")
         }
     }
 
     @Test
-    fun `21-3 grant permission to non-existing user`() {
-        assertThrows<WebClientException>("The user $FAKE_USER does not exist") {
-            superWebClient.grantPermission(FAKE_USER, "PermissionCollection", "READ")
+    fun `21-3 Grant permission to non-existing user`() {
+        assertThrows<WebClientException>("The user fakeUser does not exist") {
+            superWebClient.grantPermission("fakeUser", "PermissionCollection", "READ")
         }
     }
 
     @Test
-    fun `21-4 grant permission to non-existing submission`() {
-        assertThrows<WebClientException>("The submission $FAKE_ACC_NO was not found") {
-            superWebClient.grantPermission(dbUser.email, FAKE_ACC_NO, "READ")
+    fun `21-4 Grant permission to non-existing submission`() {
+        assertThrows<WebClientException>("The submission fakeAccNo was not found") {
+            superWebClient.grantPermission(dbUser.email, "fakeAccNo", "READ")
         }
     }
 
-    private fun setUpTestCollection() {
-        val collection =
-            tsv {
-                line("Submission", "PermissionCollection")
-                line("AccNoTemplate", "!{S-PCOL}")
-                line()
-
-                line("Project")
-            }.toString()
-
-        superWebClient.submitSingle(collection, TSV)
-    }
-
     private companion object {
-        const val FAKE_USER = "fakeUser"
-        const val FAKE_ACC_NO = "fakeAccNo"
         val dbUser =
             DbUser(
                 email = "test@email.com",
