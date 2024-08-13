@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ebi.ac.uk.api.ON_BEHALF_PARAM
 import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.REGISTER_PARAM
-import ebi.ac.uk.api.USER_NAME_PARAM
+import ebi.ac.uk.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
+import ebi.ac.uk.api.OnBehalfParameters.Companion.REGISTER_PARAM
+import ebi.ac.uk.api.OnBehalfParameters.Companion.USER_NAME_PARAM
 import ebi.ac.uk.base.orFalse
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory

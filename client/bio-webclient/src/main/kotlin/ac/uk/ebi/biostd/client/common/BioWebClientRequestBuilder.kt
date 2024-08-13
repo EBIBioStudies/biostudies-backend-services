@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.common
 
-import ebi.ac.uk.api.STORAGE_MODE
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES

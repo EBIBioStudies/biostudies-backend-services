@@ -5,10 +5,9 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
+import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.api.dto.NonRegistration
-import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.CheckUserRequest
@@ -237,14 +236,14 @@ interface SubmitOperations {
         submission: Submission,
         format: SubmissionFormat = JSON,
         storageMode: StorageMode? = null,
-        register: RegisterConfig = NonRegistration,
+        register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
     fun submitSingle(
         submission: String,
         format: SubmissionFormat = JSON,
         storageMode: StorageMode? = null,
-        register: RegisterConfig = NonRegistration,
+        register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
     fun submitSingleFromDraftAsync(draftKey: String)
@@ -258,7 +257,7 @@ interface SubmitOperations {
         submission: String,
         format: SubmissionFormat = JSON,
         storageMode: StorageMode? = null,
-        register: RegisterConfig = NonRegistration,
+        register: OnBehalfParameters? = null,
     ): AcceptedSubmission
 }
 
