@@ -69,6 +69,8 @@ app:
     jarLocation: # the submitter task jar location.
     javaLocation: # The path to the java installation
     configFilePath: # the submitter task application.yml file location.
+    taskMemoryMgb: # Amount of memory (in MB) to be allocated for the submission processing tasks
+    taskCores: # Number of cores to be allocated for the submission processing tasks
   cluster:
     enabled: # Whether the cluster jobs should be triggered remotely
     default: # Default cluster mode. Valid values: LSF | SLURM

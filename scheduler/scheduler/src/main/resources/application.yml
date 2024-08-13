@@ -1,5 +1,6 @@
 app:
   apps-folder: # Folder where app jar can be located
+  javaHome: # The path to the java installation
   slack:
     pmcNotificationsUrl: # E-PMC Slack notifications URL
     schedulerNotificationsUrl:  # Scheduler Slack notifications URL
@@ -15,7 +16,7 @@ app:
   cluster:
     user: # cluster ssh user
     sshKey: # cluster ssh key path.
-    sshServer:  # cluster sever (to submit jobs from)
+    server:  # cluster sever (to submit jobs from)
     logsPath: # path to place the logs of the dispatched jobs
 
 pmc:
@@ -23,6 +24,10 @@ pmc:
     temp: # Temporary folder to place PMC imported files
     mongoUri: # URI to mongo database used by the PMC import process
     loadFolder: # Folder to load .gz pmc files from
+    mongoDatabase: # The database name to access the data
+    bio-studies-url: # BioStudies backend URL
+    bio-studies-user: # BioStudies manager user
+    bio-studies-password: # BioStudies manager password
 
 exporter:
   tmpFilesPath: # Path to the temp folder to store files
