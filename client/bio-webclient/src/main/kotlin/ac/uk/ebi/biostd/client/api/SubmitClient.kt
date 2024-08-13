@@ -12,11 +12,11 @@ import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
 import ebi.ac.uk.api.OnBehalfParameters.Companion.REGISTER_PARAM
 import ebi.ac.uk.api.OnBehalfParameters.Companion.USER_NAME_PARAM
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.commons.http.ext.postForObject
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.web.optionalQueryParam
@@ -33,14 +33,14 @@ internal class SubmitClient(
     override fun submit(
         submission: Submission,
         format: SubmissionFormat,
-        storageMode: StorageMode?,
+        submitParameters: SubmitParameters?,
         register: OnBehalfParameters?,
     ): SubmissionResponse {
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
         val response =
             client
                 .post()
-                .uri(buildUrl(register, storageMode))
+                .uri(buildUrl(register, submitParameters))
                 .body(BodyInserters.fromValue(serializedSubmission))
                 .headers { it.addAll(formatHeaders(format)) }
                 .retrieve()
@@ -51,13 +51,13 @@ internal class SubmitClient(
     override fun submit(
         submission: String,
         format: SubmissionFormat,
-        storageMode: StorageMode?,
+        submitParameters: SubmitParameters?,
         register: OnBehalfParameters?,
     ): SubmissionResponse {
         val response =
             client
                 .post()
-                .uri(buildUrl(register, storageMode))
+                .uri(buildUrl(register, submitParameters))
                 .body(BodyInserters.fromValue(submission))
                 .headers { it.addAll(formatHeaders(format)) }
                 .retrieve()
@@ -68,11 +68,11 @@ internal class SubmitClient(
     override fun submitAsync(
         submission: String,
         format: SubmissionFormat,
-        storageMode: StorageMode?,
+        submitParameters: SubmitParameters?,
         register: OnBehalfParameters?,
     ): AcceptedSubmission {
         val headers = formatHeaders(format)
-        val url = buildUrl(register, storageMode).plus("/async")
+        val url = buildUrl(register, submitParameters).plus("/async")
 
         return client.postForObject(url, RequestParams(headers, submission))
     }
@@ -97,9 +97,12 @@ internal class SubmitClient(
 
     private fun buildUrl(
         config: OnBehalfParameters?,
-        storageMode: StorageMode?,
+        submitParameters: SubmitParameters?,
     ): String {
-        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL).optionalQueryParam(STORAGE_MODE, storageMode)
+        val builder =
+            UriComponentsBuilder
+                .fromUriString(SUBMISSIONS_URL)
+                .optionalQueryParam(STORAGE_MODE, submitParameters?.storageMode)
         return when (config) {
             null -> builder.toUriString()
             else ->

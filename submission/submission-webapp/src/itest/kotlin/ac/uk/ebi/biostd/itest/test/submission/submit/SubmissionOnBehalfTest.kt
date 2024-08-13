@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -93,7 +94,13 @@ class SubmissionOnBehalfTest(
                     line("Title", "Submission Title")
                 }.toString()
 
-            val response = webClient.submit(submission, TSV, storageMode, OnBehalfParameters(email, username))
+            val response =
+                webClient.submit(
+                    submission,
+                    TSV,
+                    SubmitParameters(storageMode = storageMode),
+                    OnBehalfParameters(email, username),
+                )
             val saved = submissionRepository.getExtByAccNo(response.body.accNo)
 
             assertThat(saved.owner).isEqualTo(email)

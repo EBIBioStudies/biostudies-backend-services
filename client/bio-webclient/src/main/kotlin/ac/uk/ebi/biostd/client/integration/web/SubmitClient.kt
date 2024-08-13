@@ -235,21 +235,21 @@ interface SubmitOperations {
     fun submit(
         submission: Submission,
         format: SubmissionFormat = JSON,
-        storageMode: StorageMode? = null,
+        submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
     fun submit(
         submission: String,
         format: SubmissionFormat = JSON,
-        storageMode: StorageMode? = null,
+        submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
     fun submitAsync(
         submission: String,
         format: SubmissionFormat = JSON,
-        storageMode: StorageMode? = null,
+        submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
     ): AcceptedSubmission
 
