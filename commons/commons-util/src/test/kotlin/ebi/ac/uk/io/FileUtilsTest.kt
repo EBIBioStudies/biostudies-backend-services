@@ -1,9 +1,14 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.exception.CorruptedFileException
+import ebi.ac.uk.io.FileUtils.checkDirectoryIntegrity
+import ebi.ac.uk.io.FileUtils.checkFileIntegrity
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.io.ext.createOrReplaceFile
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.clean
@@ -15,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.nio.file.Files
@@ -123,6 +129,68 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 assertThat(getPosixFilePermissions(nestedDir.toPath())).containsExactlyInAnyOrderElementsOf(RWX______)
                 assertThat(getPosixFilePermissions(nestedFile.toPath())).containsExactlyInAnyOrderElementsOf(RW_______)
             }
+        }
+    }
+
+    @Nested
+    inner class CheckIntegrity {
+        @Test
+        fun `check file integrity`() {
+            val file = temporaryFolder.createFile("integrity-test.txt", "integrity content")
+            checkFileIntegrity(file, file.md5())
+        }
+
+        @Test
+        fun `check invalid file integrity`() {
+            val file = temporaryFolder.createFile("invalid-integrity-test.txt", "invalid integrity content")
+
+            val error = assertThrows<CorruptedFileException> { checkFileIntegrity(file, "invalid-md5") }
+
+            assertThat(error.message).isEqualTo("The file ${file.absolutePath} doesn't match the expected MD5")
+        }
+
+        @Test
+        fun `check directory integrity`() {
+            val folder1 = temporaryFolder.createDirectory("folder1")
+            val folder2 = temporaryFolder.createDirectory("folder2")
+            setUpTestDirectory(folder1)
+            setUpTestDirectory(folder2)
+
+            checkDirectoryIntegrity(folder1, folder2)
+        }
+
+        @Test
+        fun `check directory integrity with different file content`() {
+            val folder1 = temporaryFolder.createDirectory("folder1")
+            val folder2 = temporaryFolder.createDirectory("folder2")
+            setUpTestDirectory(folder1)
+            setUpTestDirectory(folder2)
+            val invalidFile = folder2.createOrReplaceFile("integrity/integrity-test-1.txt", "invalid content")
+
+            val error = assertThrows<CorruptedFileException> { checkDirectoryIntegrity(folder1, folder2) }
+
+            assertThat(error.message).isEqualTo("The file ${invalidFile.absolutePath} doesn't match the expected MD5")
+        }
+
+        @Test
+        fun `check directory integrity with missing file`() {
+            val folder1 = temporaryFolder.createDirectory("folder1")
+            val folder2 = temporaryFolder.createDirectory("folder2")
+            setUpTestDirectory(folder1)
+            setUpTestDirectory(folder2)
+            val missingFile = folder2.resolve("integrity/inner-integrity/integrity-test-2.txt")
+            missingFile.delete()
+
+            val error = assertThrows<CorruptedFileException> { checkDirectoryIntegrity(folder1, folder2) }
+
+            assertThat(error.message).isEqualTo("The file ${missingFile.absolutePath} doesn't match the expected MD5")
+        }
+
+        private fun setUpTestDirectory(root: File) {
+            val folder = root.createDirectory("integrity")
+            val innerFolder = folder.createDirectory("inner-integrity")
+            folder.createFile("integrity-test-1.txt", "integrity 1")
+            innerFolder.createFile("integrity-test-2.txt", "integrity 2")
         }
     }
 

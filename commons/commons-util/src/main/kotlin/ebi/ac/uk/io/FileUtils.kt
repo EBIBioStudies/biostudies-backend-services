@@ -1,5 +1,6 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.exception.CorruptedFileException
 import ebi.ac.uk.io.FileUtilsHelper.createDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
 import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
@@ -7,6 +8,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.isEmpty
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -104,6 +106,18 @@ object FileUtils {
         }
     }
 
+    fun checkFileIntegrity(target: File, expectedMd5: String) {
+        require(target.md5() == expectedMd5) { throw CorruptedFileException(target) }
+    }
+
+    fun checkDirectoryIntegrity(
+        source: File,
+        target: File,
+    ) {
+        listAllFilesWithRelPaths(source)
+            .forEach { checkFileIntegrity(target.resolve(it.first), it.second.md5()) }
+    }
+
     fun createHardLink(
         file: File,
         sourcePath: Path,
@@ -158,6 +172,12 @@ object FileUtils {
             .sorted()
             .map { it.toFile() }
             .kotlinToList()
+    }
+
+    fun listAllFilesWithRelPaths(dir: File): List<Pair<String, File>> {
+        return listAllFiles(dir)
+            .filterNot { it.isDirectory }
+            .map { it.path.removePrefix("${dir.path}/") to it }
     }
 
     fun listFiles(file: File): List<File> =
@@ -295,7 +315,7 @@ internal object FileUtilsHelper {
     }
 
     /*
-     * Some methods require ignoring exceptions of the type FileAlreadyExistsException in order to become thread safe.
+     * Some methods require ignoring exceptions of type FileAlreadyExistsException in order to become thread safe.
      * See this discussion for more details:
      * https://github.com/EBIBioStudies/biostudies-backend-services/pull/733#discussion_r1280085979
      */

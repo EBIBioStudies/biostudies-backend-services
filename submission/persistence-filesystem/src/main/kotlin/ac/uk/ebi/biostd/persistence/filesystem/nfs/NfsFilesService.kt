@@ -3,11 +3,14 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.asNfsFile
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.FileUtils.checkDirectoryIntegrity
+import ebi.ac.uk.io.FileUtils.checkFileIntegrity
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.Permissions
@@ -42,11 +45,28 @@ class NfsFilesService(
         sub: ExtSubmissionInfo,
         file: NfsFile,
     ): ExtFile {
+        val source = file.file
         val permissions = sub.permissions()
         val subFile = getSubFile(sub, permissions, file.relPath)
         if (subFile.notExist()) copyOrReplaceFile(file.file, subFile, permissions)
 
-        return file.copy(fullPath = subFile.absolutePath, file = subFile)
+        val persisted = file.copy(fullPath = subFile.absolutePath, file = subFile)
+        checkIntegrity(sub, source, persisted)
+
+        return persisted
+    }
+
+    private fun checkIntegrity(
+        sub: ExtSubmissionInfo,
+        source: File,
+        persisted: NfsFile,
+    ) {
+        logger.info { "${sub.accNo} ${sub.owner} Started checking file integrity for ${persisted.fullPath}" }
+        when (persisted.type) {
+            DIR -> checkDirectoryIntegrity(source, persisted.file)
+            else -> checkFileIntegrity(persisted.file, persisted.md5)
+        }
+        logger.info { "${sub.accNo} ${sub.owner} Finished checking file integrity for ${persisted.fullPath}" }
     }
 
     private fun persistFireFile(

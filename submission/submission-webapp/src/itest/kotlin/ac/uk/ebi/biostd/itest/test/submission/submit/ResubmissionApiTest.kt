@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
@@ -39,7 +38,6 @@ import java.time.OffsetDateTime
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ResubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val requestRepository: SubmissionRequestPersistenceService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val filesRepository: SubmissionFilesPersistenceService,
     @LocalServerPort val serverPort: Int,

@@ -1,3 +1,4 @@
+import Dependencies.CommonsCodec
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -32,6 +33,7 @@ dependencies {
     api(project(FireWebClient))
     api(project(SubmissionPersistenceCommonApi))
 
+    implementation(CommonsCodec)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(KotlinLogging)
