@@ -48,13 +48,13 @@ class SubmissionListApiTest(
             webClient = getWebClient(serverPort, SuperUser)
 
             for (idx in 11..20) {
-                assertThat(webClient.submitSingle(getSimpleSubmission(idx), TSV)).isSuccessful()
+                assertThat(webClient.submit(getSimpleSubmission(idx), TSV)).isSuccessful()
             }
 
             val params = SubmitParameters(storageMode = storageMode)
             for (idx in 21..30) {
                 val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
-                assertThat(webClient.submitSingle(submission, params)).isSuccessful()
+                assertThat(webClient.submitMultipart(submission, params)).isSuccessful()
             }
         }
 
@@ -162,7 +162,7 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submissionList =
                 webClient.getSubmissions(
@@ -193,7 +193,7 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
             assertThat(submissionTitleList).satisfiesOnlyOnce {
@@ -219,7 +219,7 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submissionList =
                 webClient.getSubmissions(
@@ -240,7 +240,7 @@ class SubmissionListApiTest(
     @Test
     fun `13-10 latest updated submission should appear first`() =
         runTest {
-            webClient.submitSingle(getSimpleSubmission(19), TSV)
+            webClient.submit(getSimpleSubmission(19), TSV)
 
             val submissionList =
                 webClient.getSubmissions(

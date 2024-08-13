@@ -70,7 +70,7 @@ class SubmissionOnBehalfTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val response = onBehalfClient.submitSingle(submission, TSV)
+            val response = onBehalfClient.submit(submission, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
@@ -93,7 +93,7 @@ class SubmissionOnBehalfTest(
                     line("Title", "Submission Title")
                 }.toString()
 
-            val response = webClient.submitSingle(submission, TSV, storageMode, OnBehalfParameters(email, username))
+            val response = webClient.submit(submission, TSV, storageMode, OnBehalfParameters(email, username))
             val saved = submissionRepository.getExtByAccNo(response.body.accNo)
 
             assertThat(saved.owner).isEqualTo(email)
@@ -130,7 +130,7 @@ class SubmissionOnBehalfTest(
                 }.toString()
 
             val onBehalfClient = getWebClient(serverPort, SuperUser, onBehalf = RegularUser)
-            val response = onBehalfClient.submitSingle(submission, TSV)
+            val response = onBehalfClient.submit(submission, TSV)
             assertThat(response).isSuccessful()
 
             val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
@@ -166,7 +166,7 @@ class SubmissionOnBehalfTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val response = onBehalfClient.submitSingle(submission, TSV)
+            val response = onBehalfClient.submit(submission, TSV)
             assertThat(response).isSuccessful()
 
             val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath

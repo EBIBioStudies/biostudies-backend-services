@@ -22,7 +22,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.apache.commons.io.FileUtils
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -168,7 +167,12 @@ class FileListValidationTest(
                 val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
 
                 webClient.uploadFiles(listOf(file1, fileList))
-                webClient.submitSingle(previousVersion, TSV, SubmitParameters(storageMode = storageMode), listOf(file2))
+                webClient.submitMultipart(
+                    previousVersion,
+                    TSV,
+                    SubmitParameters(storageMode = storageMode),
+                    listOf(file2),
+                )
 
                 webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 

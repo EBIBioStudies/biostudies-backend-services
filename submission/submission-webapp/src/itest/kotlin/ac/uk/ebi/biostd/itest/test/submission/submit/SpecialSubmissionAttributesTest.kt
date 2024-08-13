@@ -77,7 +77,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             val submitted = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-TEST123"))
             assertThat(submitted).isEqualTo(
                 submission("S-TEST123") {
@@ -107,7 +107,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL123")
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL123")
@@ -219,7 +219,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
 
@@ -333,7 +333,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
             assertSubmission(savedSubmission)
@@ -367,7 +367,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL125")
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL125")
@@ -398,7 +398,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL126")
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL126")
@@ -429,7 +429,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL127")
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL127")

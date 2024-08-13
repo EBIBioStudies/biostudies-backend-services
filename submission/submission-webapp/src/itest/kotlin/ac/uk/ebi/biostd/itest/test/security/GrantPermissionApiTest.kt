@@ -56,7 +56,7 @@ class GrantPermissionApiTest(
 
                     line("Project")
                 }.toString()
-            superWebClient.submitSingle(collection, TSV)
+            superWebClient.submit(collection, TSV)
         }
 
     @BeforeEach

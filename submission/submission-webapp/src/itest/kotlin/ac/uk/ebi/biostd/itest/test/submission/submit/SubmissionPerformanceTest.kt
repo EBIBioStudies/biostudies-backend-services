@@ -74,7 +74,7 @@ class SubmissionPerformanceTest(
                 line()
             }.toString()
 
-        val executionTime = measureTime { webClient.submitSingle(submission, SubmissionFormat.TSV) }
+        val executionTime = measureTime { webClient.submit(submission, SubmissionFormat.TSV) }
 
         // Execution time is bounded by 9 times the delay on each Fire operation
         val expectedTime = (9.0 * (files * delay)).toLong()

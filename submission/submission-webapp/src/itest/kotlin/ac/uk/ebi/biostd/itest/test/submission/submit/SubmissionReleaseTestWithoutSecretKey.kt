@@ -75,7 +75,7 @@ class SubmissionReleaseTestWithoutSecretKey(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_27-1.txt", "27-1 file content"))
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE001")
 
@@ -105,7 +105,7 @@ class SubmissionReleaseTestWithoutSecretKey(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_27-2.txt", "27-2 file content"))
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE002")
 

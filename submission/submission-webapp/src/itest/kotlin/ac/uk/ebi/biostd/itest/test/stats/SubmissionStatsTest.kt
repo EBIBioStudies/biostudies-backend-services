@@ -115,7 +115,7 @@ class SubmissionStatsTest(
             )
             webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
-            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
             waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").isNotEmpty() }
 
             val statVersion1 = statsDataService.findByAccNo("S-STTS1")
@@ -124,7 +124,7 @@ class SubmissionStatsTest(
             assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
             assertThat(statVersion1.first().accNo).isEqualTo("S-STTS1")
 
-            assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
+            assertThat(webClient.submit(version2, TSV)).isSuccessful()
             waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 576L }
             val stats = statsDataService.findByAccNo("S-STTS1")
             assertThat(stats).hasSize(1)
@@ -193,7 +193,7 @@ class SubmissionStatsTest(
             )
             webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
-            assertThat(webClient.submitSingle(version1, TSV, NFS)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV, NFS)).isSuccessful()
             waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
             val statVersion1 = statsDataService.findByAccNo("S-STTS2")
             assertThat(statVersion1).hasSize(1)
@@ -201,7 +201,7 @@ class SubmissionStatsTest(
             assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
             assertThat(statVersion1.first().accNo).isEqualTo("S-STTS2")
 
-            assertThat(webClient.submitSingle(version2, TSV, NFS)).isSuccessful()
+            assertThat(webClient.submit(version2, TSV, NFS)).isSuccessful()
             waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").first().value != 574L }
 
             val sub = submissionRepository.getCoreInfoByAccNoAndVersion("S-STTS2", 2)
@@ -233,7 +233,7 @@ class SubmissionStatsTest(
                 line("Submission", accNo)
             }.toString()
 
-        webClient.submitSingle(submission, TSV)
+        webClient.submit(submission, TSV)
 
         val stat =
             SubmissionStat(
@@ -255,7 +255,7 @@ class SubmissionStatsTest(
                 line("Submission", accNo)
             }.toString()
 
-        webClient.submitSingle(submission, TSV)
+        webClient.submit(submission, TSV)
 
         val vStat =
             SubmissionStat(
@@ -276,14 +276,14 @@ class SubmissionStatsTest(
             tsv {
                 line("Submission", accNo1)
             }.toString()
-        webClient.submitSingle(submission1, TSV)
+        webClient.submit(submission1, TSV)
 
         val accNo2 = "STATS-0004"
         val submission2 =
             tsv {
                 line("Submission", accNo2)
             }.toString()
-        webClient.submitSingle(submission2, TSV)
+        webClient.submit(submission2, TSV)
 
         val vStat =
             SubmissionStat(
@@ -312,7 +312,7 @@ class SubmissionStatsTest(
             tsv {
                 line("Submission", accNo)
             }.toString()
-        webClient.submitSingle(submission1, TSV)
+        webClient.submit(submission1, TSV)
 
         val statsFile =
             kotlin.io.path
@@ -332,7 +332,7 @@ class SubmissionStatsTest(
             tsv {
                 line("Submission", accNo)
             }.toString()
-        webClient.submitSingle(submission1, TSV)
+        webClient.submit(submission1, TSV)
 
         val dStat =
             SubmissionStat(

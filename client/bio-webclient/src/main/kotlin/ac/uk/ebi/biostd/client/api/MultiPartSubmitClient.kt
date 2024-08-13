@@ -26,7 +26,7 @@ internal class MultiPartSubmitClient(
     private val client: WebClient,
     private val serializationService: SerializationService,
 ) : MultipartSubmitOperations {
-    override suspend fun submitSingle(
+    override suspend fun submitMultipart(
         sub: File,
         parameters: SubmitParameters,
         files: List<File>,
@@ -41,7 +41,7 @@ internal class MultiPartSubmitClient(
         return submit("/submissions/direct", headers, body)
     }
 
-    override suspend fun submitSingle(
+    override suspend fun submitMultipart(
         sub: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
@@ -52,7 +52,7 @@ internal class MultiPartSubmitClient(
         return submit("/submissions", headers, body)
     }
 
-    override suspend fun submitSingle(
+    override suspend fun submitMultipart(
         sub: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,

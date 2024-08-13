@@ -75,7 +75,7 @@ class SubmissionReleaseTestWithSecretKey(
                 }.toString()
 
             webClient.uploadFile(ITestListener.tempFolder.createFile("file_27-3.txt", "27-3 file content"))
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, SubmissionFormat.TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE003")
 
@@ -108,7 +108,7 @@ class SubmissionReleaseTestWithSecretKey(
                 }.toString()
 
             webClient.uploadFile(ITestListener.tempFolder.createFile("file_27-4.txt", "27-4 file content"))
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, SubmissionFormat.TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE004")
 
@@ -136,7 +136,7 @@ class SubmissionReleaseTestWithSecretKey(
                     line("ReleaseDate", releaseTime.toStringDate())
                 }.toString()
 
-            webClient.submitSingle(submission, SubmissionFormat.TSV)
+            webClient.submit(submission, SubmissionFormat.TSV)
 
             val submitted = submissionRepository.getExtByAccNo(accNo)
             Assertions.assertThat(submitted.releaseTime).isEqualTo(releaseTime.atMidnight())

@@ -232,25 +232,18 @@ interface PermissionOperations {
 }
 
 interface SubmitOperations {
-    fun submitSingle(
+    fun submit(
         submission: Submission,
         format: SubmissionFormat = JSON,
         storageMode: StorageMode? = null,
         register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
-    fun submitSingle(
+    fun submit(
         submission: String,
         format: SubmissionFormat = JSON,
         storageMode: StorageMode? = null,
         register: OnBehalfParameters? = null,
-    ): SubmissionResponse
-
-    fun submitSingleFromDraftAsync(draftKey: String)
-
-    fun submitSingleFromDraft(
-        draftKey: String,
-        preferredSources: List<PreferredSource>? = null,
     ): SubmissionResponse
 
     fun submitAsync(
@@ -259,24 +252,31 @@ interface SubmitOperations {
         storageMode: StorageMode? = null,
         register: OnBehalfParameters? = null,
     ): AcceptedSubmission
+
+    fun submitFromDraftAsync(draftKey: String)
+
+    fun submitFromDraft(
+        draftKey: String,
+        preferredSources: List<PreferredSource>? = null,
+    ): SubmissionResponse
 }
 
 interface MultipartSubmitOperations {
-    suspend fun submitSingle(
+    suspend fun submitMultipart(
         sub: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
     ): SubmissionResponse
 
-    suspend fun submitSingle(
+    suspend fun submitMultipart(
         sub: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
     ): SubmissionResponse
 
-    suspend fun submitSingle(
+    suspend fun submitMultipart(
         sub: File,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),

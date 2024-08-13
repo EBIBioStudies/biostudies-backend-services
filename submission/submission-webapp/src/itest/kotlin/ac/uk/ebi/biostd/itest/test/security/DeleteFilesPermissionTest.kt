@@ -75,7 +75,7 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createFile("file-list_5-6.tsv", fileListVersion1))
             webClient.uploadFile(tempFolder.createFile("file_5-6-1.txt", "5-6-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-6-2.txt", "5-6-2 file content"))
-            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
             val version2 =
                 tsv {
@@ -116,7 +116,7 @@ class DeleteFilesPermissionTest(
 
             webClient.uploadFile(tempFolder.createFile("file_5-7-1.txt", "5-7-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-7-2.txt", "5-7-2 file content"))
-            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
             val version2 =
                 tsv {
@@ -133,7 +133,7 @@ class DeleteFilesPermissionTest(
             webClient.grantPermission(SuperUser.email, "S-RSTST7", UPDATE_PUBLIC.name)
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
 
-            assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
+            assertThat(webClient.submit(version2, TSV)).isSuccessful()
         }
 
     @Test
@@ -162,7 +162,7 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createFile("file-list_5-8.tsv", fileListVersion1))
             webClient.uploadFile(tempFolder.createFile("file_5-8-1.txt", "5-8-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-8-2.txt", "5-8-2 file content"))
-            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
             val version2 =
                 tsv {

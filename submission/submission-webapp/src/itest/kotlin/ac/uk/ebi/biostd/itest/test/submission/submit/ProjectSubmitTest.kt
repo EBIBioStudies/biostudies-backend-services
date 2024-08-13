@@ -60,7 +60,7 @@ class ProjectSubmitTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
+            assertThat(webClient.submit(privateProject, TSV)).isSuccessful()
 
             val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
@@ -87,7 +87,7 @@ class ProjectSubmitTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submitSingle(publicProject, TSV)).isSuccessful()
+            assertThat(webClient.submit(publicProject, TSV)).isSuccessful()
 
             val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
@@ -117,9 +117,9 @@ class ProjectSubmitTest(
                 line("Project")
             }.toString()
 
-        assertThat(webClient.submitSingle(aProject, TSV)).isSuccessful()
+        assertThat(webClient.submit(aProject, TSV)).isSuccessful()
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(anotherProject, TSV) }
+            .isThrownBy { webClient.submit(anotherProject, TSV) }
             .withMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
     }
 }

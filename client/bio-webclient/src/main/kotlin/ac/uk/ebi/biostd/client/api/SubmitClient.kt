@@ -30,7 +30,7 @@ internal class SubmitClient(
     private val client: WebClient,
     private val serializationService: SerializationService,
 ) : SubmitOperations {
-    override fun submitSingle(
+    override fun submit(
         submission: Submission,
         format: SubmissionFormat,
         storageMode: StorageMode?,
@@ -48,7 +48,7 @@ internal class SubmitClient(
         return serializationService.deserializeResponse(response, JSON).block()!!
     }
 
-    override fun submitSingle(
+    override fun submit(
         submission: String,
         format: SubmissionFormat,
         storageMode: StorageMode?,
@@ -77,11 +77,11 @@ internal class SubmitClient(
         return client.postForObject(url, RequestParams(headers, submission))
     }
 
-    override fun submitSingleFromDraftAsync(draftKey: String) {
+    override fun submitFromDraftAsync(draftKey: String) {
         client.post("$SUBMISSIONS_URL/drafts/$draftKey/submit")
     }
 
-    override fun submitSingleFromDraft(
+    override fun submitFromDraft(
         draftKey: String,
         preferredSources: List<PreferredSource>?,
     ): SubmissionResponse {

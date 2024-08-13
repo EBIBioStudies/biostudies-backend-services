@@ -113,7 +113,7 @@ class FileListSubmissionTest(
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, tempFolder.createFile("File4.txt"))
 
-            val response = webClient.submitSingle(submission, JSON, parameters, files)
+            val response = webClient.submitMultipart(submission, JSON, parameters, files)
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles(accNo = "S-TEST4", testFile = "File4.txt", fileListName = "FileList")
@@ -164,7 +164,7 @@ class FileListSubmissionTest(
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, tempFolder.createFile("File5.txt"))
 
-            val response = webClient.submitSingle(submission, JSON, parameters, files)
+            val response = webClient.submitMultipart(submission, JSON, parameters, files)
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles(accNo = "S-TEST5", testFile = "File5.txt", fileListName = "FileList")
@@ -201,7 +201,7 @@ class FileListSubmissionTest(
 
             val params = SubmitParameters(storageMode = storageMode)
             assertThatThrows<WebClientException> {
-                webClient.submitSingle(submission, JSON, params, listOf(fileList))
+                webClient.submitMultipart(submission, JSON, params, listOf(fileList))
             }.hasMessageContaining("Unsupported page tab format FileList.txt")
         }
 
@@ -231,7 +231,7 @@ class FileListSubmissionTest(
 
             webClient.uploadFile(fileList, "folder")
             val params = SubmitParameters(storageMode = storageMode)
-            assertThat(webClient.submitSingle(submission, TSV, params, listOf(referencedFile))).isSuccessful()
+            assertThat(webClient.submitMultipart(submission, TSV, params, listOf(referencedFile))).isSuccessful()
 
             val extSubmission = webClient.getExtByAccNo("S-TEST6")
             val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
@@ -273,13 +273,13 @@ class FileListSubmissionTest(
             val params = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, referencedFile)
 
-            assertThat(webClient.submitSingle(firstVersion, TSV, params, files)).isSuccessful()
+            assertThat(webClient.submitMultipart(firstVersion, TSV, params, files)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
 
             fileList.delete()
 
             val secondVersion = submission(fileList = "reusable-file-list.json")
-            assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
+            assertThat(webClient.submit(secondVersion, TSV)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
         }
 
@@ -310,7 +310,7 @@ class FileListSubmissionTest(
                 val params = SubmitParameters(storageMode = storageMode)
                 val files = listOf(fileList)
 
-                val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, params, files) }
+                val exception = assertThrows<WebClientException> { webClient.submitMultipart(sub, TSV, params, files) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
                 assertThat(exception).hasMessageContaining("A file list should contain at least one file")
             }
@@ -341,7 +341,7 @@ class FileListSubmissionTest(
 
                 val params = SubmitParameters(storageMode = storageMode)
                 val files = listOf(fileList, referencedFile)
-                val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, params, files) }
+                val exception = assertThrows<WebClientException> { webClient.submitMultipart(sub, TSV, params, files) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
                 assertThat(exception).hasMessageContaining("Attribute name is required")
             }

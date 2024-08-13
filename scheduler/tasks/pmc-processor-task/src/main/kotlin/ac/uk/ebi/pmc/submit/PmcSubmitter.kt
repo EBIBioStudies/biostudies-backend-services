@@ -75,7 +75,7 @@ class PmcSubmitter(
         suspend fun submit(): SubmissionResponse {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
             val params = SubmitParameters(storageMode = StorageMode.NFS)
-            return bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, params, files)
+            return bioWebClient.submitMultipart(submission.body, SubmissionFormat.JSON, params, files)
         }
 
         return runCatching { withTimeout(TIMEOUT) { measureTimedValue { submit() } } }

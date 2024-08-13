@@ -133,7 +133,7 @@ class SubmissionRefreshApiTest(
         val files = listOf(refreshFile, fileList, fileListFile)
 
         val testSubmission = testSubmission(accNo)
-        webClient.submitSingle(testSubmission, TSV, params, files)
+        webClient.submitMultipart(testSubmission, TSV, params, files)
     }
 
     @Test

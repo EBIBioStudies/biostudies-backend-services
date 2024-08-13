@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
 
     client.uploadFiles(listOf(submissionFile))
     val response =
-        client.submitSingle(
+        client.submit(
             submission {
                 title = "my-submission example"
                 attribute("Attribute", "Attr Value 1")
