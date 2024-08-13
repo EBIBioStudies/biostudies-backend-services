@@ -49,7 +49,7 @@ internal class SubmissionServiceTest {
 
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             every {
-                bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.parameters)
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
             } returns accepted
 
             testInstance.submit(subRequest)
@@ -57,7 +57,7 @@ internal class SubmissionServiceTest {
             verify(exactly = 0) { bioWebClient.getSubmissionRequestStatus(any(), any()) }
             verify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-                bioWebClient.asyncSubmitSingle(
+                bioWebClient.submitMultipartAsync(
                     subRequest.submissionFile,
                     subRequest.parameters,
                 )
@@ -72,7 +72,7 @@ internal class SubmissionServiceTest {
             every { bioWebClient.getSubmissionRequestStatus("S-BSST1", 2) } returns PROCESSED
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             every {
-                bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.parameters)
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
             } returns accepted
 
             testInstance.submit(subRequest.copy(await = true))
@@ -80,7 +80,7 @@ internal class SubmissionServiceTest {
             verify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
                 bioWebClient.getSubmissionRequestStatus("S-BSST1", 2)
-                bioWebClient.asyncSubmitSingle(
+                bioWebClient.submitMultipartAsync(
                     subRequest.submissionFile,
                     subRequest.parameters,
                 )

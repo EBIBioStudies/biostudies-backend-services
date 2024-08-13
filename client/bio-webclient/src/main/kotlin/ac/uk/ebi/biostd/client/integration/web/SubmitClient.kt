@@ -284,19 +284,19 @@ interface MultipartSubmitOperations {
 }
 
 interface MultipartAsyncSubmitOperations {
-    fun asyncSubmitSingle(
+    fun submitMultipartAsync(
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
     ): AcceptedSubmission
 
-    fun asyncSubmitSingle(
+    fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
     ): AcceptedSubmission
 
-    fun asyncSubmitSingle(
+    fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
     ): AcceptedSubmission

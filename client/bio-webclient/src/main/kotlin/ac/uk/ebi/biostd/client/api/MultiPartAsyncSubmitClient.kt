@@ -23,7 +23,7 @@ class MultiPartAsyncSubmitClient(
     private val client: WebClient,
     private val serializationService: SerializationService,
 ) : MultipartAsyncSubmitOperations {
-    override fun asyncSubmitSingle(
+    override fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
     ): AcceptedSubmission {
@@ -36,7 +36,7 @@ class MultiPartAsyncSubmitClient(
         return client.postForObject("$SUBMIT_URL/direct", RequestParams(headers, multiPartBody))
     }
 
-    override fun asyncSubmitSingle(
+    override fun submitMultipartAsync(
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
@@ -46,7 +46,7 @@ class MultiPartAsyncSubmitClient(
         return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
     }
 
-    override fun asyncSubmitSingle(
+    override fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
