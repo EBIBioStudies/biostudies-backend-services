@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.cluster.web
 
-import ac.uk.ebi.biostd.common.properties.Cluster
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.client.cluster.model.Cluster
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
