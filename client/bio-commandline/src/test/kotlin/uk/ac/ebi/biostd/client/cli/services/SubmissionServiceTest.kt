@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.PrintMessage
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
@@ -49,7 +49,7 @@ internal class SubmissionServiceTest {
 
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             every {
-                bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
             } returns accepted
 
             testInstance.submit(subRequest)
@@ -57,9 +57,9 @@ internal class SubmissionServiceTest {
             verify(exactly = 0) { bioWebClient.getSubmissionRequestStatus(any(), any()) }
             verify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-                bioWebClient.asyncSubmitSingle(
+                bioWebClient.submitMultipartAsync(
                     subRequest.submissionFile,
-                    subRequest.filesConfig,
+                    subRequest.parameters,
                 )
             }
         }
@@ -72,7 +72,7 @@ internal class SubmissionServiceTest {
             every { bioWebClient.getSubmissionRequestStatus("S-BSST1", 2) } returns PROCESSED
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             every {
-                bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
             } returns accepted
 
             testInstance.submit(subRequest.copy(await = true))
@@ -80,9 +80,9 @@ internal class SubmissionServiceTest {
             verify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
                 bioWebClient.getSubmissionRequestStatus("S-BSST1", 2)
-                bioWebClient.asyncSubmitSingle(
+                bioWebClient.submitMultipartAsync(
                     subRequest.submissionFile,
-                    subRequest.filesConfig,
+                    subRequest.parameters,
                 )
             }
         }
@@ -186,9 +186,9 @@ internal class SubmissionServiceTest {
         private val webClientException: WebClientException = mockk()
         private val bioWebClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
-        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), FIRE, listOf(SUBMISSION))
+        private val submitParams = SubmitParameters(storageMode = FIRE, preferredSources = listOf(SUBMISSION))
 
-        private val subRequest = SubmissionRequest(mockk(), false, securityConfig, filesConfig)
+        private val subRequest = SubmissionRequest(mockk(), false, securityConfig, submitParams, listOf(mockk()))
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
         private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }

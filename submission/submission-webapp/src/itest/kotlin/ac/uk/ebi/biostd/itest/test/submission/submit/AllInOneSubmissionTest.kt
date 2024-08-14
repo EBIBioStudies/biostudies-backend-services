@@ -54,7 +54,7 @@ class AllInOneSubmissionTest(
             subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submitSingle(submission.readText(), TSV)
+            webClient.submit(submission.readText(), TSV)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
             if (enableFire) {
@@ -72,7 +72,7 @@ class AllInOneSubmissionTest(
             subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submitSingle(submission.readText(), JSON)
+            webClient.submit(submission.readText(), JSON)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
             if (enableFire) {

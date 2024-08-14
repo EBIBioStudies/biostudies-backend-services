@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReque
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
@@ -73,7 +74,7 @@ class SubmissionStorageModeTest(
             val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-1")
             webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
-            assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
             assertThat(fireSub.storageMode).isEqualTo(FIRE)
             assertThat(fireSub.version).isEqualTo(1)
@@ -82,7 +83,7 @@ class SubmissionStorageModeTest(
             assertThat(fireSub.section.fileList).isNotNull()
             assertFileListFile(fireSub.section.fileList!!, FireFile::class)
 
-            assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
             assertThat(nfsSub.storageMode).isEqualTo(NFS)
             assertThat(nfsSub.version).isEqualTo(2)
@@ -102,7 +103,7 @@ class SubmissionStorageModeTest(
             val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-2")
             webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
-            assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
             assertThat(nfsSub.storageMode).isEqualTo(NFS)
             assertThat(nfsSub.version).isEqualTo(1)
@@ -111,7 +112,7 @@ class SubmissionStorageModeTest(
             assertThat(nfsSub.section.fileList).isNotNull()
             assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
 
-            assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
             assertThat(fireSub.version).isEqualTo(2)
             assertThat(fireSub.storageMode).isEqualTo(FIRE)
@@ -131,7 +132,7 @@ class SubmissionStorageModeTest(
             val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-3")
             webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
-            assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
             webClient.transferSubmission("S-STR-MODE-3", FIRE)
@@ -156,7 +157,7 @@ class SubmissionStorageModeTest(
         runTest {
             val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-4")
             webClient.uploadFiles(listOf(file, fileListFile, fileList))
-            assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
             webClient.transferSubmission("S-STR-MODE-4", NFS)

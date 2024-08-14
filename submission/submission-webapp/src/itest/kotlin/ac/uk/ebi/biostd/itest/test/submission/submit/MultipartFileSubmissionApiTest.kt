@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -14,6 +13,8 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitAttribute
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.dsl.excel.excel
@@ -112,9 +113,11 @@ class MultipartFileSubmissionApiTest(
                     }
                 }
 
-            val filesConfig =
-                SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
-            val response = webClient.submitSingle(excelPageTab, filesConfig)
+            val params = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, tempFolder.createFile("SomeFile.txt"))
+
+            val response = webClient.submitMultipart(excelPageTab, params, files)
+
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
@@ -145,9 +148,9 @@ class MultipartFileSubmissionApiTest(
                     }
                 }
 
-            val response = webClient.submitSingle(excelPageTab, SubmissionFilesConfig(emptyList(), storageMode))
-            assertThat(response).isSuccessful()
+            val response = webClient.submitMultipart(excelPageTab, SubmitParameters(storageMode = storageMode))
 
+            assertThat(response).isSuccessful()
             val sub = submissionRepository.getExtByAccNo(response.body.accNo)
             assertThat(Paths.get("$submissionPath/${sub.relPath}/${sub.accNo}.tsv")).hasContent(
                 """
@@ -184,8 +187,11 @@ class MultipartFileSubmissionApiTest(
                     }.toString(),
                 )
 
-            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File1.txt")), storageMode)
-            val response = webClient.submitSingle(submission, TSV, filesConfig)
+            val files = listOf(fileList, tempFolder.createFile("File1.txt"))
+            val params = SubmitParameters(storageMode = storageMode)
+
+            val response = webClient.submitMultipart(submission, TSV, params, files)
+
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST1", "File1.txt")
             fileList.delete()
@@ -232,8 +238,11 @@ class MultipartFileSubmissionApiTest(
                     }).toString(),
                 )
 
-            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File2.txt")), storageMode)
-            val response = webClient.submitSingle(submission, JSON, filesConfig)
+            val params = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, tempFolder.createFile("File2.txt"))
+
+            val response = webClient.submitMultipart(submission, JSON, params, files)
+
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST2", "File2.txt")
             fileList.delete()
@@ -257,13 +266,11 @@ class MultipartFileSubmissionApiTest(
                     }.toString(),
                 )
 
-            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
-            val response =
-                webClient.submitSingle(
-                    sub = submission,
-                    config = filesConfig,
-                    attrs = hashMapOf(("Type" to "Exp"), ("Exp" to "1")),
-                )
+            val attributes = listOf(SubmitAttribute("Type", "Exp"), SubmitAttribute("Exp", "1"))
+            val params = SubmitParameters(storageMode = storageMode, attributes = attributes)
+
+            val response = webClient.submitMultipart(submission, params)
+
             assertThat(response).isSuccessful()
             submission.delete()
 
@@ -278,9 +285,9 @@ class MultipartFileSubmissionApiTest(
     fun `9-5 invalid format file`() =
         runTest {
             val submission = tempFolder.createFile("submission.txt", "invalid file")
-            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
+            val params = SubmitParameters(storageMode = storageMode)
 
-            assertThatThrows<WebClientException> { webClient.submitSingle(submission, filesConfig) }
+            assertThatThrows<WebClientException> { webClient.submitMultipart(submission, params) }
                 .hasMessageContaining("Unsupported page tab format submission.txt")
         }
 

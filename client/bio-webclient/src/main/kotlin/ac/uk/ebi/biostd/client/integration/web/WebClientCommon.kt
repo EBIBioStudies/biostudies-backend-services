@@ -12,11 +12,13 @@ import reactor.netty.http.client.HttpClient
 
 internal fun webClientBuilder(baseUrl: String): WebClient.Builder {
     val exchangeStrategies =
-        ExchangeStrategies.builder().codecs { configurer ->
-            if (configurer is ClientCodecConfigurer) {
-                configurer.defaultCodecs().maxInMemorySize(-1)
-            }
-        }.build()
+        ExchangeStrategies
+            .builder()
+            .codecs { configurer ->
+                if (configurer is ClientCodecConfigurer) {
+                    configurer.defaultCodecs().maxInMemorySize(-1)
+                }
+            }.build()
 
     val httpClient =
         HttpClient.create().doOnConnected { connection ->
@@ -24,7 +26,8 @@ internal fun webClientBuilder(baseUrl: String): WebClient.Builder {
             connection.addHandlerLast(WriteTimeoutHandler(0))
         }
 
-    return WebClient.builder()
+    return WebClient
+        .builder()
         .uriBuilderFactory(DefaultUriBuilderFactory(baseUrl))
         .clientConnector(ReactorClientHttpConnector(httpClient))
         .filter(bioWebClientErrorHandler())

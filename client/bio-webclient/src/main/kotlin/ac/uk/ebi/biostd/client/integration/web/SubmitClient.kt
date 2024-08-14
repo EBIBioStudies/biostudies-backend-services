@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.api.dto.NonRegistration
-import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.CheckUserRequest
@@ -44,12 +44,6 @@ interface SubmitClient :
     SubmissionRequestOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
-
-data class SubmissionFilesConfig(
-    val files: List<File>,
-    val storageMode: StorageMode,
-    val preferredSources: List<PreferredSource> = emptyList(),
-)
 
 interface FilesOperations {
     fun uploadFiles(
@@ -238,72 +232,73 @@ interface PermissionOperations {
 }
 
 interface SubmitOperations {
-    fun submitSingle(
+    fun submit(
         submission: Submission,
         format: SubmissionFormat = JSON,
-        storageMode: StorageMode? = null,
-        register: RegisterConfig = NonRegistration,
+        submitParameters: SubmitParameters? = null,
+        register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
-    fun submitSingle(
+    fun submit(
         submission: String,
         format: SubmissionFormat = JSON,
-        storageMode: StorageMode? = null,
-        register: RegisterConfig = NonRegistration,
-    ): SubmissionResponse
-
-    fun submitSingleFromDraftAsync(draftKey: String)
-
-    fun submitSingleFromDraft(
-        draftKey: String,
-        preferredSources: List<PreferredSource>? = null,
+        submitParameters: SubmitParameters? = null,
+        register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
     fun submitAsync(
         submission: String,
         format: SubmissionFormat = JSON,
-        storageMode: StorageMode? = null,
-        register: RegisterConfig = NonRegistration,
+        submitParameters: SubmitParameters? = null,
+        register: OnBehalfParameters? = null,
     ): AcceptedSubmission
+
+    fun submitFromDraftAsync(draftKey: String)
+
+    fun submitFromDraft(
+        draftKey: String,
+        preferredSources: List<PreferredSource>? = null,
+    ): SubmissionResponse
 }
 
 interface MultipartSubmitOperations {
-    suspend fun submitSingle(
+    suspend fun submitMultipart(
         sub: String,
         format: SubmissionFormat,
-        config: SubmissionFilesConfig,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionResponse
 
-    suspend fun submitSingle(
+    suspend fun submitMultipart(
         sub: Submission,
         format: SubmissionFormat,
-        config: SubmissionFilesConfig,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionResponse
 
-    suspend fun submitSingle(
+    suspend fun submitMultipart(
         sub: File,
-        config: SubmissionFilesConfig,
-        attrs: Map<String, String> = emptyMap(),
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionResponse
 }
 
 interface MultipartAsyncSubmitOperations {
-    fun asyncSubmitSingle(
+    fun submitMultipartAsync(
         submission: String,
         format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
+        parameters: SubmitParameters,
     ): AcceptedSubmission
 
-    fun asyncSubmitSingle(
+    fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
+        parameters: SubmitParameters,
     ): AcceptedSubmission
 
-    fun asyncSubmitSingle(
+    fun submitMultipartAsync(
         submission: File,
-        filesConfig: SubmissionFilesConfig,
-        attrs: Map<String, String> = emptyMap(),
+        parameters: SubmitParameters,
     ): AcceptedSubmission
 }
 

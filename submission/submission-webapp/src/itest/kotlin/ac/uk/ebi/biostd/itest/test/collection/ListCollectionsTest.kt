@@ -95,8 +95,8 @@ class ListCollectionsTest(
                 line("Project")
             }.toString()
 
-        assertThat(superUserWebClient.submitSingle(sampleCollection, TSV)).isSuccessful()
-        assertThat(superUserWebClient.submitSingle(defaultCollection, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submit(sampleCollection, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submit(defaultCollection, TSV)).isSuccessful()
     }
 
     private suspend fun setUpUsers() {

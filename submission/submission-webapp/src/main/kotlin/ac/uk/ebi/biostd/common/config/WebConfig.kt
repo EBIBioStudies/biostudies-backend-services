@@ -7,12 +7,12 @@ import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
-import ac.uk.ebi.biostd.submission.converters.ExtAttributeDetailConverter
 import ac.uk.ebi.biostd.submission.converters.ExtFileTableConverter
 import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
+import ac.uk.ebi.biostd.submission.converters.SubmitAttributeConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.format.FormatterRegistry
@@ -61,6 +61,6 @@ internal class WebConfig(
     }
 
     override fun addFormatters(registry: FormatterRegistry) {
-        registry.addConverter(ExtAttributeDetailConverter())
+        registry.addConverter(SubmitAttributeConverter())
     }
 }

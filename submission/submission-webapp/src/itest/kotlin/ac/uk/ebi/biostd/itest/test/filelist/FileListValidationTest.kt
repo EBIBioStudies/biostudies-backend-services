@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -12,6 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -22,7 +22,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.apache.commons.io.FileUtils
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -168,7 +167,12 @@ class FileListValidationTest(
                 val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
 
                 webClient.uploadFiles(listOf(file1, fileList))
-                webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2), storageMode))
+                webClient.submitMultipart(
+                    previousVersion,
+                    TSV,
+                    SubmitParameters(storageMode = storageMode),
+                    listOf(file2),
+                )
 
                 webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 

@@ -75,7 +75,7 @@ class SubmissionApiTest(
                     title = "Simple Submission"
                 }
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("SimpleAcc1")).isEqualTo(
                 submission("SimpleAcc1") {
                     title = "Simple Submission"
@@ -92,7 +92,7 @@ class SubmissionApiTest(
                     line("Title", "Empty AccNo")
                 }.toString()
 
-            val response = webClient.submitSingle(submission, TSV)
+            val response = webClient.submit(submission, TSV)
 
             assertThat(response).isSuccessful()
             assertThat(getSimpleSubmission(response.body.accNo)).isEqualTo(
@@ -125,7 +125,7 @@ class SubmissionApiTest(
                 "RootPathFolder",
             )
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-12364")).isEqualTo(
                 submission("S-12364") {
                     title = "Sample Submission"
@@ -148,7 +148,7 @@ class SubmissionApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
@@ -161,7 +161,7 @@ class SubmissionApiTest(
     fun `16-5 Submit study with invalid link Url`() {
         val exception =
             assertThrows(WebClientException::class.java) {
-                webClient.submitSingle(invalidLinkUrl().toString(), TSV)
+                webClient.submit(invalidLinkUrl().toString(), TSV)
             }
 
         assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -177,7 +177,7 @@ class SubmissionApiTest(
 
         val exception =
             assertFailsWith<WebClientException> {
-                webClient.submitSingle(submission)
+                webClient.submit(submission)
             }
         assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
     }
@@ -205,7 +205,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.createFolder("folder1")
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-500")
 
@@ -233,7 +233,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_16-8.txt", "16-8 file content"))
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-600")
 
@@ -262,7 +262,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_16-9.txt", "16-9 file content"))
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-700")
 
@@ -298,7 +298,7 @@ class SubmissionApiTest(
 
         webClient.uploadFiles(listOf(file1, file2))
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .isThrownBy { webClient.submit(submission, TSV) }
             .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
     }
 
@@ -319,7 +319,7 @@ class SubmissionApiTest(
             }.toString()
 
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .isThrownBy { webClient.submit(submission, TSV) }
             .withMessageContainingAll(
                 "The given file path contains invalid characters: inner/directory/",
                 "For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list",
@@ -350,7 +350,7 @@ class SubmissionApiTest(
 
         webClient.uploadFiles(listOf(file1, file2))
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .isThrownBy { webClient.submit(submission, TSV) }
             .withMessageContaining("The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv")
     }
 
@@ -390,7 +390,7 @@ class SubmissionApiTest(
                     line("File", "simpleFtpFile.txt")
                 }.toString()
 
-            val result = ftpUserWebClient.submitSingle(submission, TSV)
+            val result = ftpUserWebClient.submit(submission, TSV)
 
             assertThat(result).isSuccessful()
         }
@@ -424,7 +424,7 @@ class SubmissionApiTest(
                     }.toString()
                 webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val extSub = submissionRepository.getExtByAccNo("S-12366")
                 assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")

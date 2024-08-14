@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidationRequest
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
+import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.model.constants.ACC_NO
 import ebi.ac.uk.model.constants.FILE_LIST_NAME
 import ebi.ac.uk.model.constants.ROOT_PATH
@@ -23,7 +23,7 @@ class FileListResource(
     @PostMapping("/validate")
     suspend fun validateFileList(
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
+        onBehalfRequest: OnBehalfParameters?,
         @RequestParam(ACC_NO) accNo: String?,
         @RequestParam(ROOT_PATH) rootPath: String?,
         @RequestParam(FILE_LIST_NAME) fileListName: String,

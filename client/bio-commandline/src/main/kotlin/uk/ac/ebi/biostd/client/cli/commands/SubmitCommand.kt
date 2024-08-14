@@ -1,12 +1,12 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import kotlinx.coroutines.runBlocking
@@ -45,8 +45,8 @@ internal class SubmitCommand(
     private suspend fun submit() {
         val mode = StorageMode.fromString(storageMode)
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
-        val filesConfig = SubmissionFilesConfig(splitFiles(attached), mode, splitPreferredSources(preferredSources))
-
-        submissionService.submit(SubmissionRequest(input, await, securityConfig, filesConfig))
+        val params = SubmitParameters(storageMode = mode, preferredSources = splitPreferredSources(preferredSources))
+        val files = splitFiles(attached)
+        submissionService.submit(SubmissionRequest(input, await, securityConfig, params, files))
     }
 }

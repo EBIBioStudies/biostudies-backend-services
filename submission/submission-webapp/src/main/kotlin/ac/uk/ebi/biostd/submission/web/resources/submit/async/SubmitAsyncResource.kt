@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
+import ebi.ac.uk.api.OnBehalfParameters
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -36,9 +36,9 @@ class SubmitAsyncResource(
     @ResponseBody
     suspend fun submitTsv(
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
+        onBehalfRequest: OnBehalfParameters?,
         @RequestBody submission: String,
-        @ModelAttribute parameters: SubmissionRequestParameters,
+        @ModelAttribute parameters: SubmitParameters,
     ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.TSV, buildRequest)
@@ -52,13 +52,12 @@ class SubmitAsyncResource(
     @ResponseBody
     suspend fun submitJson(
         @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
+        onBehalfRequest: OnBehalfParameters?,
         @RequestBody submission: String,
-        @ModelAttribute parameters: SubmissionRequestParameters,
+        @ModelAttribute parameters: SubmitParameters,
     ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
-
         return submitWebHandler.submitAsync(request)
     }
 }

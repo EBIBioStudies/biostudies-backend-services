@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -12,6 +11,8 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitAttribute
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -34,7 +35,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
-import java.util.Collections.singletonMap
 import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
@@ -67,7 +67,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "AccNo Generation Test")
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             val expected =
                 submission("S-TEST-EXT1") {
                     title = "AccNo Generation Test"
@@ -89,9 +89,12 @@ class SubmissionToCollectionsTest(
                     }.toString(),
                 )
 
-            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
-            val attributes = singletonMap("AttachTo", "Public-Project")
-            assertThat(webClient.submitSingle(submissionFile, filesConfig, attributes)).isSuccessful()
+            val params =
+                SubmitParameters(
+                    storageMode = storageMode,
+                    attributes = listOf(SubmitAttribute("AttachTo", "Public-Project")),
+                )
+            assertThat(webClient.submitMultipart(submissionFile, params)).isSuccessful()
 
             assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
                 submission("S-TEST1") {
@@ -111,7 +114,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "No Release Date To Private Project")
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(
                 submission("S-PRP0") {
                     title = "No Release Date To Private Project"
@@ -132,7 +135,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "Public Submission To Private Project")
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(
                 submission("S-PRP1") {
                     title = "Public Submission To Private Project"
@@ -153,7 +156,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "Private submission into public project")
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(
                 submission("S-PUP0") {
                     title = "Private submission into public project"
@@ -173,7 +176,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "No Release Date To Public Project")
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(
                 submission("S-PUP1") {
                     title = "No Release Date To Public Project"
@@ -192,7 +195,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "A Validated Submission")
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(testCollectionValidator.validated).isTrue
             assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(
                 submission("S-VLD0") {
@@ -211,7 +214,7 @@ class SubmissionToCollectionsTest(
                 line("Title", "A Fail Submission")
             }.toString()
 
-        val exception = assertFailsWith<WebClientException> { webClient.submitSingle(submission, TSV) }
+        val exception = assertFailsWith<WebClientException> { webClient.submit(submission, TSV) }
         assertThat(exception.message!!.contains("Testing failure"))
     }
 
@@ -264,11 +267,11 @@ class SubmissionToCollectionsTest(
                 line("Project")
             }.toString()
 
-        assertThat(webClient.submitSingle(testProject, TSV)).isSuccessful()
-        assertThat(webClient.submitSingle(publicProject, TSV)).isSuccessful()
-        assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
-        assertThat(webClient.submitSingle(failCollection, TSV)).isSuccessful()
-        assertThat(webClient.submitSingle(validatedCollection, TSV)).isSuccessful()
+        assertThat(webClient.submit(testProject, TSV)).isSuccessful()
+        assertThat(webClient.submit(publicProject, TSV)).isSuccessful()
+        assertThat(webClient.submit(privateProject, TSV)).isSuccessful()
+        assertThat(webClient.submit(failCollection, TSV)).isSuccessful()
+        assertThat(webClient.submit(validatedCollection, TSV)).isSuccessful()
     }
 
     private suspend fun getSimpleSubmission(accNo: String) =

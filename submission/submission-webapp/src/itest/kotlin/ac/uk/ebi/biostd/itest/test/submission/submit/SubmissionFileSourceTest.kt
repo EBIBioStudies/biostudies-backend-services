@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -14,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -106,8 +106,11 @@ class SubmissionFileSourceTest(
             val file1 = tempFolder.createFile("File1.txt", "content file 1")
             val file2 = tempFolder.createFile("File2.txt", "content file 2")
             webClient.uploadFiles(listOf(file1, file2))
-            val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
-            assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
+
+            val files = listOf(fileList)
+            val params = SubmitParameters(storageMode = storageMode)
+
+            assertThat(webClient.submitMultipart(submission("FileList.tsv"), TSV, params, files)).isSuccessful()
 
             val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
             val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList").toList()
@@ -126,10 +129,10 @@ class SubmissionFileSourceTest(
             webClient.uploadFiles(listOf(tempFolder.createFile("File1.txt", "content file 1 updated")))
 
             assertThat(
-                webClient.submitSingle(
+                webClient.submitMultipart(
                     submission("FileList.json"),
                     TSV,
-                    SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE)),
+                    SubmitParameters(storageMode = storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE)),
                 ),
             ).isSuccessful()
             assertThat(innerFile.toFile().readText()).isEqualTo("content file 1")
@@ -137,7 +140,8 @@ class SubmissionFileSourceTest(
 
             if (enableFire) {
                 val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-                val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList").toList()
+                val secondVersionReferencedFiles =
+                    filesRepository.getReferencedFiles(secondVersion, "FileList").toList()
 
                 val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
                 val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -175,7 +179,7 @@ class SubmissionFileSourceTest(
                 webClient.uploadFiles(listOf(file1), "directory")
                 webClient.uploadFiles(listOf(file2), "directory/subdirectory")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST3")
                 assertThat(submitted.section.files).hasSize(1)
@@ -213,7 +217,7 @@ class SubmissionFileSourceTest(
                 val file1 = tempFolder.createFile("file1.txt", "content-1")
                 webClient.uploadFiles(listOf(file1), "directory-1")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST81")
                 assertThat(submitted.section.files).hasSize(1)
@@ -228,7 +232,7 @@ class SubmissionFileSourceTest(
                 val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
                 webClient.uploadFiles(listOf(file2), "directory-1")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val updated = submissionRepository.getExtByAccNo("S-FSTST81")
                 assertThat(updated.section.files).hasSize(1)
@@ -269,10 +273,10 @@ class SubmissionFileSourceTest(
                 webClient.uploadFiles(listOf(file1), "directory-2")
                 webClient.uploadFiles(listOf(fileListFile))
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val draft = webClient.getSubmissionDraft("S-FSTST82")
-                val response = webClient.submitSingleFromDraft(draft.key, listOf(SUBMISSION))
+                val response = webClient.submitFromDraft(draft.key, listOf(SUBMISSION))
                 assertThat(response).isSuccessful()
             }
 
@@ -297,7 +301,7 @@ class SubmissionFileSourceTest(
                 val file1 = tempFolder.createFile("file1.txt", "content-1")
                 webClient.uploadFiles(listOf(file1), "test-directory")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST9")
                 assertThat(submitted.section.files).hasSize(1)
@@ -325,7 +329,7 @@ class SubmissionFileSourceTest(
 
                 val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
                 webClient.uploadFiles(listOf(file2), "test-directory")
-                assertThat(webClient.submitSingle(newVersion, TSV)).isSuccessful()
+                assertThat(webClient.submit(newVersion, TSV)).isSuccessful()
 
                 val updated = submissionRepository.getExtByAccNo("S-FSTST9")
                 assertThat(updated.section.files).hasSize(1)
@@ -366,7 +370,7 @@ class SubmissionFileSourceTest(
                 webClient.uploadFiles(listOf(fileC), "folder")
                 webClient.uploadFiles(listOf(fileB), "folder/duplicated")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
                 assertThat(submitted.section.files).hasSize(2)
@@ -412,7 +416,7 @@ class SubmissionFileSourceTest(
                 webClient.uploadFiles(listOf(file1), "directory")
                 webClient.uploadFiles(listOf(file2), "directory/subdirectory")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
                 assertThat(submitted.section.files).hasSize(1)
@@ -457,7 +461,7 @@ class SubmissionFileSourceTest(
                 webClient.uploadFiles(listOf(fileC), "folder")
                 webClient.uploadFiles(listOf(fileB), "folder/duplicated")
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
                 assertThat(submitted.section.files).hasSize(2)
@@ -491,7 +495,8 @@ class SubmissionFileSourceTest(
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File(filePath), subZip)
             val files =
-                subZip.allSubFiles()
+                subZip
+                    .allSubFiles()
                     .filter { file -> file.isDirectory.not() }
                     .map { file -> file.toRelativeString(subZip) to file.readText() }
             subZip.deleteRecursively()
@@ -528,7 +533,7 @@ class SubmissionFileSourceTest(
                 ),
             )
 
-            assertThat(webClient.submitSingle(firstVersionPagetab, TSV)).isSuccessful()
+            assertThat(webClient.submit(firstVersionPagetab, TSV)).isSuccessful()
 
             val submission = submissionRepository.getExtByAccNo("S-FSTST4")
             assertThat(submission.version).isEqualTo(1)
@@ -564,7 +569,7 @@ class SubmissionFileSourceTest(
                 }.toString()
 
             webClient.uploadFiles(listOf(tempFolder.createFile("SecondVersionFileList.tsv", secondVersionFileList)))
-            assertThat(webClient.submitSingle(secondVersionPagetab, TSV)).isSuccessful()
+            assertThat(webClient.submit(secondVersionPagetab, TSV)).isSuccessful()
 
             val subV2 = submissionRepository.getExtByAccNo("S-FSTST4")
             assertThat(subV2.version).isEqualTo(2)
@@ -603,7 +608,7 @@ class SubmissionFileSourceTest(
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             val submitted = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-FSTST5"))
             assertThat(submitted).isEqualTo(
                 submission("S-FSTST5") {
@@ -638,7 +643,7 @@ class SubmissionFileSourceTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
             val submitted = submissionRepository.getExtByAccNo("S-FSTST6")
 
             assertThat(submitted.section.files[0]).hasLeftValueSatisfying {
@@ -674,8 +679,8 @@ class SubmissionFileSourceTest(
 
             val file = tempFolder.createFile("test.txt", "test content")
             webClient.uploadFiles(listOf(file))
-            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
-            assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+            val params = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitMultipart(submission, TSV, params)).isSuccessful()
 
             val firstVersion = submissionRepository.getExtByAccNo("S-FSTST7")
             val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
@@ -687,10 +692,10 @@ class SubmissionFileSourceTest(
             webClient.uploadFiles(listOf(tempFolder.createFile("test.txt", "updated test content")))
 
             assertThat(
-                webClient.submitSingle(
+                webClient.submitMultipart(
                     submission,
                     TSV,
-                    SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION)),
+                    SubmitParameters(storageMode = storageMode, preferredSources = listOf(SUBMISSION)),
                 ),
             ).isSuccessful()
             assertThat(innerFile.toFile().readText()).isEqualTo("test content")
@@ -731,7 +736,7 @@ class SubmissionFileSourceTest(
             val fileList = tempFolder.createFile("DuplicatedFiles.tsv", fileListPageTab)
 
             webClient.uploadFiles(files.plus(fileList))
-            assertThat(webClient.submitSingle(submissionPageTab, TSV)).isSuccessful()
+            assertThat(webClient.submit(submissionPageTab, TSV)).isSuccessful()
 
             val md5 = files.first().md5()
             assertThat(files.all { it.md5() == md5 }).isTrue()
@@ -740,7 +745,8 @@ class SubmissionFileSourceTest(
 
             val submission = submissionRepository.getExtByAccNo("S-FSTST8")
             val duplicates =
-                filesRepository.getReferencedFiles(submission, "DuplicatedFiles")
+                filesRepository
+                    .getReferencedFiles(submission, "DuplicatedFiles")
                     .toList()
                     .groupBy { (it as FireFile).fireId }
 

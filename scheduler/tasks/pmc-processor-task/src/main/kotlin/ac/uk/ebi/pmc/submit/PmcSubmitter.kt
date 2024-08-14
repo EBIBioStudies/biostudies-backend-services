@@ -2,13 +2,13 @@ package ac.uk.ebi.pmc.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.client.integration.web.SubmissionResponse
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcMode
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.flow.collect
@@ -48,7 +48,8 @@ class PmcSubmitter(
     private suspend fun submitSubmissions(sourceFile: String?) {
         val counter = AtomicInteger(0)
         supervisorScope {
-            submissionService.findReadyToSubmit(sourceFile)
+            submissionService
+                .findReadyToSubmit(sourceFile)
                 .concurrently(CONCURRENCY) { submitSubmission(it, counter.incrementAndGet()) }
                 .collect()
         }
@@ -73,8 +74,8 @@ class PmcSubmitter(
     private suspend fun submit(submission: SubmissionDocument): Result<TimedValue<SubmissionResponse>> {
         suspend fun submit(): SubmissionResponse {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
-            val filesConfig = SubmissionFilesConfig(files, StorageMode.NFS)
-            return bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
+            val params = SubmitParameters(storageMode = StorageMode.NFS)
+            return bioWebClient.submitMultipart(submission.body, SubmissionFormat.JSON, params, files)
         }
 
         return runCatching { withTimeout(TIMEOUT) { measureTimedValue { submit() } } }

@@ -99,7 +99,7 @@ class ResubmissionApiTest(
                     ),
                 )
                 webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf", "pdf content")), "a")
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val sub = submissionRepository.getExtByAccNo("S-RSTST1")
                 assertThat(sub.version).isEqualTo(1)
@@ -109,7 +109,7 @@ class ResubmissionApiTest(
 
                 val changedFile = tempFolder.resolve("fileSubSection.txt").apply { writeText("newContent") }
                 webClient.uploadFiles(listOf(changedFile))
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val subV2 = submissionRepository.getExtByAccNo("S-RSTST1")
                 assertThat(subV2.version).isEqualTo(2)
@@ -161,7 +161,7 @@ class ResubmissionApiTest(
                     ),
                 )
                 webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val sub = submissionRepository.getExtByAccNo("S-RSTST2")
                 assertThat(sub.version).isEqualTo(1)
@@ -170,7 +170,7 @@ class ResubmissionApiTest(
                 assertThat(File("$submissionPath/${sub.relPath}/Files/fileSubSection.txt")).hasContent("content")
                 assertThat(File("$submissionPath/${sub.relPath}/Files/a/fileFileList.pdf")).exists()
 
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
                 val subV2 = submissionRepository.getExtByAccNo("S-RSTST2")
                 assertThat(subV2.version).isEqualTo(2)
                 assertThat(File("$submissionPath/${subV2.relPath}/Files/file section.doc")).exists()
@@ -197,11 +197,11 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt")), rootPath)
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
             webClient.deleteFile(dataFile, rootPath)
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
         }
     }
 
@@ -268,7 +268,7 @@ class ResubmissionApiTest(
             webClient.uploadFile(tempFolder.createFile("file_5-4-1.txt", "5-4-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-4-2.txt", "5-4-2 file content"))
 
-            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
             assertSubmission(
                 title = "Public Submission",
                 sectionType = "Experiment",
@@ -301,7 +301,7 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createOrReplaceFile("file-list_5-4.tsv", fileListVersion2))
-            assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
+            assertThat(webClient.submit(version2, TSV)).isSuccessful()
             assertSubmission(
                 title = "Public Submission Updated",
                 sectionType = "Experiment Updated",
@@ -326,7 +326,7 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_5-5-1.txt", "5-5-1 file content"))
-            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
             val version2 =
                 tsv {
@@ -343,7 +343,7 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_5-5-2.txt", "5-5-2 file content"))
-            assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
+            assertThat(webClient.submit(version2, TSV)).isSuccessful()
 
             val submission = submissionRepository.getExtByAccNo("S-RSTST5", includeFileListFiles = true)
             val section = submission.section

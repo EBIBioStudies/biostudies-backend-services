@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.web.model
+package ac.uk.ebi.biostd.submission.model
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.model.ExtAttributeDetail
@@ -8,18 +8,6 @@ import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
-class OnBehalfRequest(
-    val userEmail: String,
-    val userName: String?,
-    val register: Boolean?,
-)
-
-data class SubmissionRequestParameters(
-    val preferredSources: List<PreferredSource> = emptyList(),
-    val attributes: List<ExtAttributeDetail> = emptyList(),
-    val storageMode: StorageMode?,
-)
-
 data class SubmissionConfig(
     val submitter: SecurityUser,
     val onBehalfUser: SecurityUser?,
@@ -27,9 +15,6 @@ data class SubmissionConfig(
     val storageMode: StorageMode?,
 )
 
-/**
- * TODO: merge with ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig as it is duplicated.
- */
 data class SubmissionFilesConfig(
     val files: List<File>?,
     val preferredSources: List<PreferredSource>,
