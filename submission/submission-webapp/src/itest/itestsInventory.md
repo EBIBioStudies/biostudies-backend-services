@@ -85,24 +85,26 @@ Contains test related to file list.
 
 Contains test related to submission
 
-| Class                  | Test No | Test name                                                         |
-|------------------------|---------|-------------------------------------------------------------------|
-| SubmissionApiTest      | 16-1    | Submit study with submission object                               | 
-| SubmissionApiTest      | 16-2    | Submit study with empty accNo                                     | 
-| SubmissionApiTest      | 16-3    | Submit study using root path                                      | 
-| SubmissionApiTest      | 16-4    | Submit study with generic root section                            | 
-| SubmissionApiTest      | 16-5    | Submit study with invalid link Url                                | 
-| SubmissionApiTest      | 16-6    | Submit study with validation error                                | 
-| SubmissionApiTest      | 16-7    | Submit public study with folder make files public                 | 
-| SubmissionApiTest      | 16-8    | Submit public study with file make files public                   | 
-| SubmissionApiTest      | 16-9    | Submit study not released makes files private                     | 
-| SubmissionApiTest      | 16-10   | Submit study with invalid characters file path                    | 
-| SubmissionApiTest      | 16-11   | Submit study containing folder with trailing slash                | 
-| SubmissionApiTest      | 16-12   | Submit study containing filelist with invalid name                | 
-| SubmissionApiTest      | 16-13   | Submit study by Regular user with Ftp home directory              | 
-| SubmissionApiTest      | 16-14   | Submit study when the system has the basePath property configured |
-| AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                       | 
-| AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                      | 
+| Class                  | Test No | Test name                                                                 |
+|------------------------|---------|---------------------------------------------------------------------------|
+| SubmissionApiTest      | 16-1    | Submit study with submission object                                       | 
+| SubmissionApiTest      | 16-2    | Submit study with empty accNo                                             | 
+| SubmissionApiTest      | 16-3    | Submit study using root path                                              | 
+| SubmissionApiTest      | 16-4    | Submit study with generic root section                                    | 
+| SubmissionApiTest      | 16-5    | Submit study with invalid link Url                                        | 
+| SubmissionApiTest      | 16-6    | Submit study with validation error                                        | 
+| SubmissionApiTest      | 16-7    | Submit public study with folder make files public                         | 
+| SubmissionApiTest      | 16-8    | Submit public study with file make files public                           | 
+| SubmissionApiTest      | 16-9    | Submit study not released makes files private                             | 
+| SubmissionApiTest      | 16-10   | Submit study with invalid characters file path                            | 
+| SubmissionApiTest      | 16-11   | Submit study containing folder with trailing slash                        | 
+| SubmissionApiTest      | 16-12   | Submit study containing filelist with invalid name                        | 
+| SubmissionApiTest      | 16-13   | Submit study by Regular user with Ftp home directory                      | 
+| SubmissionApiTest      | 16-14   | Submit study when the system has the basePath property configured         |
+| SubmissionApiTest      | 16-15   | Submit study publish SubmissionSubmitted message                          |
+| SubmissionApiTest      | 16-16   | Submit study with silentMode does not publish SubmissionSubmitted message |
+| AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                               | 
+| AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                              | 
 
 ### Resubmission Test suite
 
