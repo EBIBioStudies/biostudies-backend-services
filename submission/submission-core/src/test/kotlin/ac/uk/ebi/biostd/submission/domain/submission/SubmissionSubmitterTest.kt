@@ -25,14 +25,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
     @MockK private val request: SubmitRequest,
-    @MockK private val submissionSubmitter: LocalExtSubmissionSubmitter,
+    @MockK private val submitter: LocalExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
     @MockK private val collectionValidationService: CollectionValidationService,
     @MockK private val draftService: SubmissionDraftPersistenceService,
 ) {
     private val testInstance =
         SubmissionSubmitter(
-            submissionSubmitter,
+            submitter,
             submissionProcessor,
             collectionValidationService,
             draftService,
@@ -50,25 +50,23 @@ class SubmissionSubmitterTest(
     @Test
     fun `create request`() =
         runTest {
-            val submission = basicExtSubmission
+            val sub = basicExtSubmission
             val extRequestSlot = slot<ExtSubmitRequest>()
 
-            coEvery { submissionProcessor.processSubmission(request) } returns submission
-            coEvery { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
-            coEvery {
-                submissionSubmitter.createRequest(capture(extRequestSlot))
-            } returns (submission.accNo to submission.version)
+            coEvery { submissionProcessor.processSubmission(request) } returns sub
+            coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
+            coEvery { submitter.createRequest(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
 
             testInstance.createRequest(request)
 
             val extRequest = extRequestSlot.captured
             assertThat(extRequest.draftKey).isEqualTo("TMP_123")
-            assertThat(extRequest.submission).isEqualTo(submission)
+            assertThat(extRequest.submission).isEqualTo(sub)
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
-                collectionValidationService.executeCollectionValidators(submission)
-                draftService.setProcessingStatus(submission.owner, "TMP_123")
-                submissionSubmitter.createRequest(extRequest)
+                collectionValidationService.executeCollectionValidators(sub)
+                draftService.setProcessingStatus(sub.owner, "TMP_123")
+                submitter.createRequest(extRequest)
                 draftService.setAcceptedStatus("TMP_123")
             }
             coVerify(exactly = 0) {
@@ -93,7 +91,7 @@ class SubmissionSubmitterTest(
             }
             coVerify(exactly = 0) {
                 collectionValidationService.executeCollectionValidators(submission)
-                submissionSubmitter.createRequest(capture(extRequestSlot))
+                submitter.createRequest(capture(extRequestSlot))
                 draftService.setAcceptedStatus("TMP_123")
             }
         }
@@ -103,6 +101,7 @@ class SubmissionSubmitterTest(
         every { request.owner } returns basicExtSubmission.owner
         every { request.accNo } returns basicExtSubmission.accNo
         every { request.previousVersion } returns null
+        every { request.silentMode } returns false
     }
 
     private fun setUpDraftService() {
