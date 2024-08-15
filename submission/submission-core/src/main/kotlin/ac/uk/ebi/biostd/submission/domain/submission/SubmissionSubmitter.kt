@@ -20,7 +20,7 @@ class SubmissionSubmitter(
 ) {
     suspend fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))
+        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode))
         return submission
     }
 

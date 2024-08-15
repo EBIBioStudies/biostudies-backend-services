@@ -31,7 +31,8 @@ class SubmissionRequestSaver(
                 val sub = saveRequest(it.submission)
                 RqtResponse(it.withNewStatus(PERSISTED), sub)
             }
-        eventsPublisherService.submissionSubmitted(submission.accNo, rqt.notifyTo)
+
+        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(submission.accNo, rqt.notifyTo)
         eventsPublisherService.submissionPersisted(submission.accNo, submission.version)
     }
 

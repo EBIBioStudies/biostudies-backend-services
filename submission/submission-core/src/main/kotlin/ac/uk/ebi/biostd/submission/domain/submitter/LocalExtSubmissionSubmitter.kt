@@ -53,7 +53,13 @@ class LocalExtSubmissionSubmitter(
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
-        val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
+        val request =
+            SubmissionRequest(
+                submission = submission,
+                notifyTo = rqt.notifyTo,
+                draftKey = rqt.draftKey,
+                silentMode = rqt.silentMode,
+            )
         return requestService.createRequest(request)
     }
 

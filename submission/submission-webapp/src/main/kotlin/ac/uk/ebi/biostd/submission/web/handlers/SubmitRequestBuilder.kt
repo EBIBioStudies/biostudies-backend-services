@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.submission.model.SubmissionConfig
 import ac.uk.ebi.biostd.submission.model.SubmissionFilesConfig
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
@@ -39,13 +40,14 @@ class SubmitRequestBuilder(
     }
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
-        val (preferredSource, attributes, storageMode) = request.submissionRequestParameters
+        val (preferredSource, attributes, storageMode, silentMode) = request.submissionRequestParameters
         val submissionConfig =
             SubmissionConfig(
                 submitter = request.user,
                 onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 attrs = attributes.map { ExtAttributeDetail(it.name, it.value) },
                 storageMode = storageMode,
+                silentMode = silentMode.orFalse(),
             )
         val filesConfig =
             SubmissionFilesConfig(
@@ -62,4 +64,5 @@ data class SubmitBuilderRequest(
     val submissionRequestParameters: SubmitParameters,
     val draftKey: String? = null,
     val files: List<File>? = null,
+    val silentMode: Boolean = false,
 )

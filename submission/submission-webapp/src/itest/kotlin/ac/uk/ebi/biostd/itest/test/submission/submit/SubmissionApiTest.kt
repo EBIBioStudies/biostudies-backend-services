@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.TestMessageService
 import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
@@ -13,6 +14,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -54,6 +56,7 @@ class SubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @Autowired val testMessageService: TestMessageService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -430,6 +433,32 @@ class SubmissionApiTest(
                 assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
             }
     }
+
+    @Test
+    fun `16-15 Submit study publish SubmissionSubmitted message`() =
+        runTest {
+            val accNo = "MESSAGE-123"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
+
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(testMessageService.findSubmittedMessages(accNo)).isNotNull()
+        }
+
+    @Test
+    fun `16-16 Submit study with silentMode does not publish SubmissionSubmitted message`() =
+        runTest {
+            val accNo = "NO_MESSAGE-123"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
+
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(silentMode = true))).isSuccessful()
+            assertThat(testMessageService.findSubmittedMessages(accNo)).isNull()
+        }
 
     private suspend fun getSimpleSubmission(accNo: String) =
         toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))

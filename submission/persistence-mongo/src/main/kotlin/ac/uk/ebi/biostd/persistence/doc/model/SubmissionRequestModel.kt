@@ -29,10 +29,11 @@ data class DocSubmissionRequest(
     val currentIndex: Int,
     val previousVersion: Int?,
     val modificationTime: Instant,
+    val silentMode: Boolean,
     val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
-    fun asSetOnInsert(): Update {
-        return Update()
+    fun asSetOnInsert(): Update =
+        Update()
             .setOnInsert("_id", id)
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_VERSION, version)
@@ -49,8 +50,8 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_PREV_SUB_VERSION, previousVersion)
             .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
+            .setOnInsert(DocRequestFields.RQT_SILENT_MODE, silentMode)
             .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
-    }
 }
 
 data class DocRequestStatusChanges(
