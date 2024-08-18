@@ -11,8 +11,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
@@ -25,6 +25,7 @@ import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestMongoPersistenc
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -60,15 +61,22 @@ class MongoDbServicesConfig {
     internal fun submissionRequestPersistenceService(
         serializationService: ExtSerializationService,
         requestRepo: SubmissionRequestDocDataRepository,
+        requestFilesRepository: SubmissionRequestFilesDocDataRepository,
         distributedLockService: DistributedLockService,
     ): SubmissionRequestPersistenceService =
-        SubmissionRequestMongoPersistenceService(serializationService, requestRepo, distributedLockService)
+        SubmissionRequestMongoPersistenceService(
+            serializationService,
+            requestRepo,
+            requestFilesRepository,
+            distributedLockService,
+        )
 
     @Bean
     internal fun submissionRequestFilesPersistenceService(
         extSerializationService: ExtSerializationService,
         requestRepository: SubmissionRequestDocDataRepository,
-        requestFilesRepository: SubmissionRequestFilesRepository,
+        requestFilesRepository: SubmissionRequestFilesDocDataRepository,
+        reactiveMongoTemplate: ReactiveMongoTemplate,
     ): SubmissionRequestFilesPersistenceService =
         SubmissionRequestFilesMongoPersistenceService(
             extSerializationService,

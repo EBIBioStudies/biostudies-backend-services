@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -43,7 +43,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
     @Autowired private val extSerializationService: ExtSerializationService,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
-    @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
+    @Autowired private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
 ) {
     private val testInstance =
         SubmissionRequestFilesMongoPersistenceService(

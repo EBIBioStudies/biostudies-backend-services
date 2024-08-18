@@ -127,6 +127,11 @@ interface SubmissionRequestPersistenceService {
         accNo: String,
         version: Int,
     ): Boolean
+
+    suspend fun archieveRequest(
+        accNo: String,
+        version: Int,
+    )
 }
 
 sealed interface OptResponse<T> {
