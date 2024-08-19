@@ -146,7 +146,7 @@ class SubmissionRequestDocDataRepository(
 
         val archievedFiles =
             archieveRequestFiles()
-                .every(200) { "$accNo, $version archieved file ${it.index}, path='${it.value.path}'" }
+                .every(REPORT_RATE) { "$accNo, $version archieved file ${it.index}, path='${it.value.path}'" }
                 .count()
         archieveRequest()
         return archievedFiles
@@ -331,6 +331,10 @@ class SubmissionRequestDocDataRepository(
                 where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*"),
             ),
         )
+
+    companion object {
+        const val REPORT_RATE = 200
+    }
 }
 
 enum class ProcessResult {

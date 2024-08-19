@@ -48,12 +48,6 @@ class ExtSubmissionService(
         return refreshed
     }
 
-    suspend fun archiveSubmissionRequest(
-        user: String,
-        accNo: String,
-    ) {
-    }
-
     suspend fun releaseSubmission(
         user: String,
         accNo: String,
