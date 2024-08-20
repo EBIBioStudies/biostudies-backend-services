@@ -161,6 +161,7 @@ object DocRequestFields {
     const val RQT_REUSED_FILES = "reusedFiles"
     const val RQT_IDX = "currentIndex"
     const val RQT_MODIFICATION_TIME = "modificationTime"
+    const val RQT_SILENT_MODE = "silentMode"
     const val RQT_PREV_SUB_VERSION = "previousVersion"
     const val RQT_STATUS_CHANGES = "statusChanges"
     const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"

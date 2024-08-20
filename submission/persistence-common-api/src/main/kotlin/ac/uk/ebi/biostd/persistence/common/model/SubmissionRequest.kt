@@ -18,9 +18,10 @@ data class SubmissionRequest(
     val reusedFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
+    val silentMode: Boolean,
     val previousVersion: Int?,
 ) {
-    constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
+    constructor(submission: ExtSubmission, notifyTo: String, silentMode: Boolean, draftKey: String? = null) : this(
         submission,
         draftKey,
         notifyTo,
@@ -33,38 +34,37 @@ data class SubmissionRequest(
         reusedFiles = 0,
         currentIndex = 0,
         previousVersion = null,
+        silentMode = silentMode,
         modificationTime = OffsetDateTime.now(),
     )
 
     /**
      * Update request by setting new status, resetting current Index and updating modification date.
      */
-    fun withNewStatus(status: RequestStatus): SubmissionRequest {
-        return copy(
+    fun withNewStatus(status: RequestStatus): SubmissionRequest =
+        copy(
             status = status,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
         )
-    }
 
     /**
      * Create a Submission Request after indexing stage setting total files field.
      */
-    fun indexed(totalFiles: Int): SubmissionRequest {
-        return copy(
+    fun indexed(totalFiles: Int): SubmissionRequest =
+        copy(
             status = RequestStatus.INDEXED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
             totalFiles = totalFiles,
         )
-    }
 
     /**
      * Create a Submission Request after clean indexing stage setting conflicted, deprecated files and previous version
      * fields.
      */
-    fun cleanIndexed(fileChanges: SubmissionRequestFileChanges): SubmissionRequest {
-        return copy(
+    fun cleanIndexed(fileChanges: SubmissionRequestFileChanges): SubmissionRequest =
+        copy(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
@@ -75,7 +75,6 @@ data class SubmissionRequest(
             reusedFiles = fileChanges.reusedFiles,
             previousVersion = fileChanges.previousVersion,
         )
-    }
 }
 
 data class SubmissionRequestFileChanges(

@@ -1,10 +1,16 @@
 package ac.uk.ebi.biostd.itest.common
 
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.service.SecurityService
+import org.springframework.amqp.core.Binding
+import org.springframework.amqp.core.BindingBuilder
+import org.springframework.amqp.core.Queue
+import org.springframework.amqp.core.TopicExchange
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -28,5 +34,22 @@ class TestConfig {
     fun failCollectionValidator(): FailCollectionValidator = FailCollectionValidator()
 
     @Bean
-    fun testUserDataService(userDataDataRepository: UserDataDataRepository) = TestUserDataService(userDataDataRepository)
+    fun testUserDataService(userDataDataRepository: UserDataDataRepository): TestUserDataService =
+        TestUserDataService(userDataDataRepository)
+
+    @Bean
+    fun testMessageService(rabbitTemplate: RabbitTemplate): TestMessageService = TestMessageService(rabbitTemplate)
+
+    @Bean
+    fun submissionSubmittedQueue(): Queue = Queue(SUBMISSION_SUBMITTED_QUEUE)
+
+    @Bean
+    fun submissionSubmittedBinding(exchange: TopicExchange): Binding =
+        BindingBuilder.bind(submissionSubmittedQueue()).to(exchange).with(
+            SUBMISSIONS_ROUTING_KEY,
+        )
+
+    companion object {
+        const val SUBMISSION_SUBMITTED_QUEUE = "testSubmissionQueue"
+    }
 }

@@ -18,10 +18,12 @@ data class OnBehalfParameters(
 data class SubmitParameters(
     val preferredSources: List<PreferredSource> = emptyList(),
     val attributes: List<SubmitAttribute> = emptyList(),
-    val storageMode: StorageMode?,
+    val storageMode: StorageMode? = null,
+    val silentMode: Boolean? = null,
 ) {
     companion object {
         const val STORAGE_MODE = "storageMode"
+        const val SILENT_MODE = "silentMode"
     }
 }
 

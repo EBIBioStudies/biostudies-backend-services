@@ -32,9 +32,7 @@ class ExtSubmissionService(
     suspend fun reTriggerSubmission(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
-        return submissionSubmitter.handleRequest(accNo, version)
-    }
+    ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
 
     suspend fun refreshSubmission(
         user: String,
@@ -45,7 +43,8 @@ class ExtSubmissionService(
         val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
         val toRefresh = submission.copy(released = released)
-        val refreshed = submissionSubmitter.createRequest(ExtSubmitRequest(toRefresh, user))
+        val request = ExtSubmitRequest(toRefresh, user)
+        val refreshed = submissionSubmitter.createRequest(request)
         eventsPublisherService.submissionRequest(refreshed.first, refreshed.second)
         return refreshed
     }
