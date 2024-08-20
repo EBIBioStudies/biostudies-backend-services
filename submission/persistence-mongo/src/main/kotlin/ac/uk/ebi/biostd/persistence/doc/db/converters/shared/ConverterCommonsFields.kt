@@ -168,3 +168,9 @@ object DocRequestFields {
     const val RQT_STATUS_CHANGE_END_TIME = "endTime"
     const val RQT_STATUS_CHANGE_RESULT = "result"
 }
+
+object DocRequestFileFields {
+    const val RQT_FILE_ACC_NO = "accNo"
+    const val RQT_FILE_VERSION = "version"
+    const val RQT_FILE_PATH = "path"
+}

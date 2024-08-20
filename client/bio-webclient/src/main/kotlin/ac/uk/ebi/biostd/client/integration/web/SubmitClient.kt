@@ -303,8 +303,13 @@ interface MultipartAsyncSubmitOperations {
 }
 
 interface SubmissionRequestOperations {
-    fun getSubmissionRequestStatus(
+    suspend fun getSubmissionRequestStatus(
         accNo: String,
         version: Int,
     ): RequestStatus
+
+    suspend fun archiveSubmissionRequest(
+        accNo: String,
+        version: Int,
+    )
 }

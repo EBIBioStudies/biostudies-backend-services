@@ -6,6 +6,7 @@ import ebi.ac.uk.model.RequestStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
@@ -21,16 +22,21 @@ class SubmissionRequestResource(
     suspend fun getSubmissionRequest(
         @PathVariable accNo: String,
         @PathVariable version: Int,
-    ): SubmissionRequest {
-        return submissionRequestService.getSubmissionRequest(accNo, version)
-    }
+    ): SubmissionRequest = submissionRequestService.getSubmissionRequest(accNo, version)
 
     @GetMapping("/{accNo}/{version}/status")
     @ResponseBody
     suspend fun getSubmissionRequestStatus(
         @PathVariable accNo: String,
         @PathVariable version: Int,
-    ): RequestStatus {
-        return getSubmissionRequest(accNo, version).status
+    ): RequestStatus = getSubmissionRequest(accNo, version).status
+
+    @PostMapping("/{accNo}/{version}/archive")
+    @ResponseBody
+    suspend fun archiveSubmissionRequest(
+        @PathVariable accNo: String,
+        @PathVariable version: Int,
+    ) {
+        submissionRequestService.archiveRequest(accNo, version)
     }
 }

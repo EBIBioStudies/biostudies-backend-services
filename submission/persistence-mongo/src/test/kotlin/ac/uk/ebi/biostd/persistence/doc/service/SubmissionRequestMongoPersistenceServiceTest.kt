@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.asserts.assertThrows
@@ -48,6 +50,7 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
@@ -55,11 +58,16 @@ import java.time.Instant
 class SubmissionRequestMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
-    @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
+    @Autowired private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     @Autowired private val lockService: DistributedLockService,
 ) {
     private val testInstance =
-        SubmissionRequestMongoPersistenceService(ExtSerializationService(), requestRepository, lockService)
+        SubmissionRequestMongoPersistenceService(
+            ExtSerializationService(),
+            requestRepository,
+            requestFilesRepository,
+            lockService,
+        )
 
     @AfterEach
     fun afterEach() =
@@ -144,6 +152,50 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 assertThat(statusChange.result).isEqualTo("ERROR")
             }
     }
+
+    @Test
+    fun archiveRequest() =
+        runTest {
+            val request =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    status = RequestStatus.PROCESSED,
+                    draftKey = "temp-123",
+                    notifyTo = "user@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                    totalFiles = 5,
+                    deprecatedFiles = 10,
+                    deprecatedPageTab = 3,
+                    conflictingFiles = 12,
+                    conflictingPageTab = 8,
+                    reusedFiles = 5,
+                    currentIndex = 6,
+                    modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    previousVersion = 1,
+                    statusChanges = emptyList(),
+                )
+            val rqtF1 =
+                DocSubmissionRequestFile(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    path = "file-path",
+                    index = 1,
+                    status = RequestFileStatus.LOADED,
+                    previousSubFile = false,
+                    file = BasicDBObject("property", "value"),
+                )
+
+            requestRepository.saveRequest(request)
+            requestFilesRepository.save(rqtF1)
+
+            testInstance.archiveRequest("abc-123", 2)
+
+            assertThat(requestRepository.findByAccNo("abc-123").toList()).isEmpty()
+            assertThat(requestFilesRepository.countByAccNoAndVersion("abc-123", 2)).isZero()
+        }
 
     @Test
     fun getProcessingRequests() =

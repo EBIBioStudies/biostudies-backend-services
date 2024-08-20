@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.OptResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
@@ -30,6 +31,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
     override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
@@ -45,6 +47,22 @@ class SubmissionRequestMongoPersistenceService(
                     )
             }
         return request.map { it.accNo to it.version }
+    }
+
+    override suspend fun archiveRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        require(
+            requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED),
+        ) { "Request $accNo, $version can not be archived as not processed" }
+
+        val archivedFiles = requestRepository.archiveRequest(accNo, version)
+        val countFiles = requestFilesRepository.countByAccNoAndVersion(accNo, version)
+
+        if (archivedFiles != countFiles) error("More files that archived identitified in request $accNo, $version")
+        requestRepository.deleteByAccNoAndVersion(accNo, version)
+        requestFilesRepository.deleteByAccNoAndVersion(accNo, version)
     }
 
     override suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int> {
