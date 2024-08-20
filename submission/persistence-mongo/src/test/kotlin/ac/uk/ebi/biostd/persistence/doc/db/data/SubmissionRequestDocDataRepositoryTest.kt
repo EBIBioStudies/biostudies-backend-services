@@ -57,7 +57,7 @@ class SubmissionRequestDocDataRepositoryTest(
         }
 
     @Test
-    fun archieveRequest() =
+    fun archiveRequest() =
         runTest {
             val request =
                 DocSubmissionRequest(
@@ -106,7 +106,7 @@ class SubmissionRequestDocDataRepositoryTest(
             filesRepository.save(rqtF2)
             testInstance.saveRequest(request)
 
-            val result = testInstance.archieveRequest("abc-123", 2)
+            val result = testInstance.archiveRequest("abc-123", 2)
             assertThat(result).isEqualTo(2)
 
             val query = Query().addCriteria(where(RQT_ACC_NO).`is`("abc-123").andOperator(where(RQT_VERSION).`is`(2)))

@@ -149,7 +149,7 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         index: Int,
     ): Flow<DocSubmissionRequestFile>
 
-    fun countByAccNoAndVersion(
+    suspend fun countByAccNoAndVersion(
         accNo: String,
         version: Int,
     ): Int

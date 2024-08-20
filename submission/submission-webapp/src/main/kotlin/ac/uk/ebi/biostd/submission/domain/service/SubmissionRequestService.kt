@@ -11,10 +11,10 @@ class SubmissionRequestService(
         version: Int,
     ): SubmissionRequest = requestPersistenceService.getSubmissionRequest(accNo, version)
 
-    suspend fun archieveRequest(
+    suspend fun archiveRequest(
         accNo: String,
         version: Int,
     ) {
-        requestPersistenceService.archieveRequest(accNo, version)
+        requestPersistenceService.archiveRequest(accNo, version)
     }
 }

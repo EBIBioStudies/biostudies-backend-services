@@ -91,7 +91,7 @@ class SubmissionRequestDocDataRepository(
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
-    suspend fun archieveRequest(
+    suspend fun archiveRequest(
         accNo: String,
         version: Int,
     ): Int {
@@ -102,7 +102,7 @@ class SubmissionRequestDocDataRepository(
                     .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version)),
             )
 
-        fun archieveRequestFiles(): Flow<DocSubmissionRequestFile> {
+        fun archiveRequestFiles(): Flow<DocSubmissionRequestFile> {
             var mergeOperation =
                 Aggregation
                     .merge()
@@ -123,7 +123,7 @@ class SubmissionRequestDocDataRepository(
                 .asFlow()
         }
 
-        suspend fun archieveRequest(): DocSubmissionRequest {
+        suspend fun archiveRequest(): DocSubmissionRequest {
             var mergeOperation =
                 Aggregation
                     .merge()
@@ -144,12 +144,12 @@ class SubmissionRequestDocDataRepository(
                 .awaitSingle()
         }
 
-        val archievedFiles =
-            archieveRequestFiles()
-                .every(REPORT_RATE) { "$accNo, $version archieved file ${it.index}, path='${it.value.path}'" }
+        val archivedFiles =
+            archiveRequestFiles()
+                .every(REPORT_RATE) { "$accNo, $version archived file ${it.index}, path='${it.value.path}'" }
                 .count()
-        archieveRequest()
-        return archievedFiles
+        archiveRequest()
+        return archivedFiles
     }
 
     suspend fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {

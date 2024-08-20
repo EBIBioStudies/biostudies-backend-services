@@ -128,7 +128,7 @@ interface SubmissionRequestPersistenceService {
         version: Int,
     ): Boolean
 
-    suspend fun archieveRequest(
+    suspend fun archiveRequest(
         accNo: String,
         version: Int,
     )

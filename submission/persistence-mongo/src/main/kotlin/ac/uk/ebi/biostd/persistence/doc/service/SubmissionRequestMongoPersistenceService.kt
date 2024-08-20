@@ -49,18 +49,18 @@ class SubmissionRequestMongoPersistenceService(
         return request.map { it.accNo to it.version }
     }
 
-    override suspend fun archieveRequest(
+    override suspend fun archiveRequest(
         accNo: String,
         version: Int,
     ) {
         require(
             requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED),
-        ) { "Request $accNo, $version can not be archieved as not processed" }
+        ) { "Request $accNo, $version can not be archived as not processed" }
 
-        val archievedFiles = requestRepository.archieveRequest(accNo, version)
+        val archivedFiles = requestRepository.archiveRequest(accNo, version)
         val countFiles = requestFilesRepository.countByAccNoAndVersion(accNo, version)
 
-        if (archievedFiles != countFiles) error("More files that archieved identitified in in request $accNo, $version")
+        if (archivedFiles != countFiles) error("More files that archived identitified in request $accNo, $version")
         requestRepository.deleteByAccNoAndVersion(accNo, version)
         requestFilesRepository.deleteByAccNoAndVersion(accNo, version)
     }

@@ -31,12 +31,12 @@ class SubmissionRequestResource(
         @PathVariable version: Int,
     ): RequestStatus = getSubmissionRequest(accNo, version).status
 
-    @PostMapping("/{accNo}/{version}/archieve")
+    @PostMapping("/{accNo}/{version}/archive")
     @ResponseBody
     suspend fun archiveSubmissionRequest(
         @PathVariable accNo: String,
         @PathVariable version: Int,
     ) {
-        submissionRequestService.archieveRequest(accNo, version)
+        submissionRequestService.archiveRequest(accNo, version)
     }
 }

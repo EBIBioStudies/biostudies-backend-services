@@ -14,13 +14,12 @@ class SubmissionRequestClient(
     override suspend fun getSubmissionRequestStatus(
         accNo: String,
         version: Int,
-    ): RequestStatus {
-        return client
+    ): RequestStatus =
+        client
             .post()
             .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/status")
             .retrieve()
             .awaitBody<RequestStatus>()
-    }
 
     override suspend fun archiveSubmissionRequest(
         accNo: String,
@@ -28,7 +27,7 @@ class SubmissionRequestClient(
     ) {
         client
             .post()
-            .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/archieve")
+            .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/archive")
             .retrieve()
             .bodyToMono(Void::class.java)
             .awaitSingle()
