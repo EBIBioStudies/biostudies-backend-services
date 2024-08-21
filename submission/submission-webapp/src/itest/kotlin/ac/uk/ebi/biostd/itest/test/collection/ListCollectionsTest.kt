@@ -13,6 +13,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -42,41 +43,45 @@ class ListCollectionsTest(
         }
 
     @Test
-    fun `20-1 list collections for super user`() {
-        val collections = superUserWebClient.getCollections()
+    fun `20-1 list collections for super user`() =
+        runTest {
+            val collections = superUserWebClient.getCollections()
 
-        assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
-        assertThat(collections).anyMatch { it.accno == "SampleCollection" }
-        assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
-    }
-
-    @Test
-    fun `20-2 list collections for regular user`() {
-        val collections = regularUserWebClient.getCollections()
-
-        assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
-        assertThat(collections).anyMatch { it.accno == "SampleCollection" }
-        assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
-    }
+            assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
+            assertThat(collections).anyMatch { it.accno == "SampleCollection" }
+            assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+        }
 
     @Test
-    fun `20-3 list collections for default user`() {
-        val collections = defaultUserWebClient.getCollections()
+    fun `20-2 list collections for regular user`() =
+        runTest {
+            val collections = regularUserWebClient.getCollections()
 
-        assertThat(collections).hasSize(1)
-        assertThat(collections.first().accno).isEqualTo("DefaultCollection")
-    }
+            assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
+            assertThat(collections).anyMatch { it.accno == "SampleCollection" }
+            assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+        }
 
     @Test
-    fun `20-4 list collections for collection admin user`() {
-        val collections = collectionAdminUserWebClient.getCollections()
+    fun `20-3 list collections for default user`() =
+        runTest {
+            val collections = defaultUserWebClient.getCollections()
 
-        assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
-        assertThat(collections).anyMatch { it.accno == "SampleCollection" }
-        assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
-    }
+            assertThat(collections).hasSize(1)
+            assertThat(collections.first().accno).isEqualTo("DefaultCollection")
+        }
 
-    private fun registerCollections() {
+    @Test
+    fun `20-4 list collections for collection admin user`() =
+        runTest {
+            val collections = collectionAdminUserWebClient.getCollections()
+
+            assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
+            assertThat(collections).anyMatch { it.accno == "SampleCollection" }
+            assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+        }
+
+    private suspend fun registerCollections() {
         val sampleCollection =
             tsv {
                 line("Submission", "SampleCollection")
