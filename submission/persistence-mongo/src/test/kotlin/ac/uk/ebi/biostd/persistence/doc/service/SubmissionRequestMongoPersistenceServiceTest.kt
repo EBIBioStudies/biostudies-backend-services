@@ -175,6 +175,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                     previousVersion = 1,
                     statusChanges = emptyList(),
+                    silentMode = false,
                 )
             val rqtF1 =
                 DocSubmissionRequestFile(

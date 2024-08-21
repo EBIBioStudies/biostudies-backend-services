@@ -6,9 +6,10 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.assertThrows
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,35 +43,46 @@ class UserGroupsApiTest(
         }
 
     @Test
-    fun `24-1 get user groups`() {
-        val groups = superWebClient.getGroups()
+    fun `24-1 get user groups`() =
+        runTest {
+            val groups = superWebClient.getGroups()
 
-        assertThat(groups).hasSize(1)
+            assertThat(groups).hasSize(1)
 
-        val group = groups.first()
-        assertThat(group.description).isEqualTo(GROUP_DESC)
-    }
-
-    @Test
-    fun `24-2 trying to add a user to unexisting group`() {
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { superWebClient.addUserInGroup(NON_EXISTING_GROUP, SuperUser.email) }
-            .withMessageContaining("The group $NON_EXISTING_GROUP does not exists")
-    }
+            val group = groups.first()
+            assertThat(group.description).isEqualTo(GROUP_DESC)
+        }
 
     @Test
-    fun `24-3 trying to add a user that does not exist`() {
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER) }
-            .withMessageContaining("The user $NON_EXISTING_USER does not exists")
-    }
+    fun `24-2 trying to add a user to unexisting group`() =
+        runTest {
+            val exception =
+                assertThrows<WebClientException> {
+                    superWebClient.addUserInGroup(NON_EXISTING_GROUP, SuperUser.email)
+                }
+            assertThat(exception).hasMessageContaining("The group $NON_EXISTING_GROUP does not exists")
+        }
 
     @Test
-    fun `24-4 trying to add a user by regularUser`() {
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER) }
-            .withMessageContaining("Access is denied")
-    }
+    fun `24-3 trying to add a user that does not exist`() =
+        runTest {
+            val exception =
+                assertThrows<WebClientException> {
+                    superWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER)
+                }
+            assertThat(exception).hasMessageContaining("The user $NON_EXISTING_USER does not exists")
+        }
+
+    @Test
+    fun `24-4 trying to add a user by regularUser`() =
+        runTest {
+            val exception =
+                assertThrows<WebClientException> {
+                    regularWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER)
+                }
+
+            assertThat(exception).hasMessageContaining("Access is denied")
+        }
 
     companion object {
         const val NON_EXISTING_GROUP = "fakeGroup"

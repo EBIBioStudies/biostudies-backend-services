@@ -134,23 +134,23 @@ interface SecurityOperations {
 }
 
 interface GeneralOperations {
-    fun getGroups(): List<Group>
+    suspend fun getGroups(): List<Group>
 
-    fun getCollections(): List<Collection>
+    suspend fun getCollections(): List<Collection>
 
     suspend fun generateFtpLinks(accNo: String)
 
-    fun createGroup(
+    suspend fun createGroup(
         groupName: String,
         groupDescription: String,
     ): UserGroupDto
 
-    fun addUserInGroup(
+    suspend fun addUserInGroup(
         groupName: String,
         userName: String,
     )
 
-    fun getProfile(): UserProfile
+    suspend fun getProfile(): UserProfile
 }
 
 interface StatsOperations {
