@@ -18,6 +18,7 @@ data class SubmitRequest(
     val collection: BasicCollection?,
     val previousVersion: ExtSubmission?,
     val storageMode: StorageMode?,
+    val silentMode: Boolean,
 ) {
     val accNo: String = submission.accNo.ifBlank { "PENDING_ACC_NO" }
     val owner: String = onBehalfUser?.email ?: submitter.email

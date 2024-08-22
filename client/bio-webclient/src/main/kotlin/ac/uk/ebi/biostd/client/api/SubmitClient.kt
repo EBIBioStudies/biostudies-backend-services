@@ -13,6 +13,7 @@ import ebi.ac.uk.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
 import ebi.ac.uk.api.OnBehalfParameters.Companion.REGISTER_PARAM
 import ebi.ac.uk.api.OnBehalfParameters.Companion.USER_NAME_PARAM
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.post
@@ -103,6 +104,7 @@ internal class SubmitClient(
             UriComponentsBuilder
                 .fromUriString(SUBMISSIONS_URL)
                 .optionalQueryParam(STORAGE_MODE, submitParameters?.storageMode)
+                .optionalQueryParam(SILENT_MODE, submitParameters?.silentMode)
         return when (config) {
             null -> builder.toUriString()
             else ->

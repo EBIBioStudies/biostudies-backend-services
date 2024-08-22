@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_COL
 import com.mongodb.DBObject
 import ebi.ac.uk.model.RequestStatus
 import org.bson.types.ObjectId
@@ -10,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.query.Update
 import java.time.Instant
 
-@Document(collection = "submission_requests")
+@Document(collection = RQT_COL)
 data class DocSubmissionRequest(
     @Id
     val id: ObjectId,
@@ -29,10 +31,11 @@ data class DocSubmissionRequest(
     val currentIndex: Int,
     val previousVersion: Int?,
     val modificationTime: Instant,
+    val silentMode: Boolean,
     val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
-    fun asSetOnInsert(): Update {
-        return Update()
+    fun asSetOnInsert(): Update =
+        Update()
             .setOnInsert("_id", id)
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_VERSION, version)
@@ -49,8 +52,8 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_PREV_SUB_VERSION, previousVersion)
             .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
+            .setOnInsert(DocRequestFields.RQT_SILENT_MODE, silentMode)
             .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
-    }
 }
 
 data class DocRequestStatusChanges(
@@ -62,7 +65,7 @@ data class DocRequestStatusChanges(
     val result: String?,
 )
 
-@Document(collection = "submission_request_files")
+@Document(collection = RQT_FILE_COL)
 data class DocSubmissionRequestFile(
     @Id
     val id: ObjectId,
@@ -74,3 +77,11 @@ data class DocSubmissionRequestFile(
     val status: RequestFileStatus,
     val previousSubFile: Boolean,
 )
+
+object CollectionsNames {
+    const val RQT_FILE_COL = "submission_request_files"
+    const val RQT_FILE_ARCH_COL = "submission_request_files_archive"
+
+    const val RQT_COL = "submission_requests"
+    const val RQT_ARCH_COL = "submission_requests_archive"
+}

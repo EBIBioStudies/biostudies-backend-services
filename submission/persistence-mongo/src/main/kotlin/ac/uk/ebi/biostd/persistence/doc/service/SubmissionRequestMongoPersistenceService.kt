@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.OptResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
@@ -30,11 +31,10 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
-    override suspend fun hasActiveRequest(accNo: String): Boolean {
-        return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
-    }
+    override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
 
     override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request =
@@ -49,6 +49,22 @@ class SubmissionRequestMongoPersistenceService(
         return request.map { it.accNo to it.version }
     }
 
+    override suspend fun archiveRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        require(
+            requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED),
+        ) { "Request $accNo, $version can not be archived as not processed" }
+
+        val archivedFiles = requestRepository.archiveRequest(accNo, version)
+        val countFiles = requestFilesRepository.countByAccNoAndVersion(accNo, version)
+
+        if (archivedFiles != countFiles) error("More files that archived identitified in request $accNo, $version")
+        requestRepository.deleteByAccNoAndVersion(accNo, version)
+        requestFilesRepository.deleteByAccNoAndVersion(accNo, version)
+    }
+
     override suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val (request, created) = requestRepository.saveRequest(asDocRequest(rqt))
         if (created.not()) throw ConcurrentSubException(request.accNo, request.version)
@@ -58,9 +74,7 @@ class SubmissionRequestMongoPersistenceService(
     override suspend fun getRequestStatus(
         accNo: String,
         version: Int,
-    ): RequestStatus {
-        return requestRepository.getByAccNoAndVersion(accNo, version).status
-    }
+    ): RequestStatus = requestRepository.getByAccNoAndVersion(accNo, version).status
 
     override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
         requestRepository.updateSubRqtFile(rqt)
@@ -89,6 +103,7 @@ class SubmissionRequestMongoPersistenceService(
                 SubmissionRequest(
                     submission = stored,
                     draftKey = request.draftKey,
+                    silentMode = request.silentMode,
                     notifyTo = request.notifyTo,
                     status = request.status,
                     conflictingFiles = request.conflictingFiles,
@@ -133,9 +148,7 @@ class SubmissionRequestMongoPersistenceService(
     override suspend fun isRequestCompleted(
         accNo: String,
         version: Int,
-    ): Boolean {
-        return requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED)
-    }
+    ): Boolean = requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED)
 
     private suspend fun saveRequest(
         rqt: SubmissionRequest,
@@ -164,6 +177,7 @@ class SubmissionRequestMongoPersistenceService(
             reusedFiles = rqt.reusedFiles,
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
+            silentMode = rqt.silentMode,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -174,6 +188,7 @@ class SubmissionRequestMongoPersistenceService(
             SubmissionRequest(
                 submission = stored,
                 draftKey = request.draftKey,
+                silentMode = request.silentMode,
                 notifyTo = request.notifyTo,
                 status = request.status,
                 totalFiles = request.totalFiles,

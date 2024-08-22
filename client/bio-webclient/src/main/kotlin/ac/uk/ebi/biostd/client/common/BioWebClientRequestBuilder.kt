@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.common
 
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.model.constants.ATTRIBUTES
@@ -16,14 +17,15 @@ internal fun multipartBody(
     parameters: SubmitParameters,
     files: List<File> = emptyList(),
 ): LinkedMultiValueMap<String, Any> {
-    val (sources, attributes, storageMode) = parameters
+    val (sources, attributes, storageMode, silentMode) = parameters
     val pairs =
         buildList<Pair<String, Any>> {
             add(SUBMISSION to submission)
 
             addAll(sources.orEmpty().map { PREFERRED_SOURCES to it.name })
-            storageMode?.let { add(STORAGE_MODE to it.value) }
             addAll(attributes.orEmpty().map { ATTRIBUTES to it })
+            storageMode?.let { add(STORAGE_MODE to it.value) }
+            silentMode?.let { add(SILENT_MODE to it) }
 
             addAll(files.map { FILES to FileSystemResource(it) })
         }

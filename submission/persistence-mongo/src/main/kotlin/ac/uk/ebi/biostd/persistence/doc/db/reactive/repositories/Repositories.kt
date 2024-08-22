@@ -94,9 +94,8 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
     suspend fun findSubmissionCollections(accNo: String): SubmissionCollections?
 }
 
-suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission {
-    return findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
-}
+suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
+    findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
     suspend fun existsByAccNoAndStatusIn(
@@ -130,6 +129,11 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     suspend fun getById(id: ObjectId): DocSubmissionRequest
 
     suspend fun findByAccNo(accNo: String): Flow<DocSubmissionRequest>
+
+    suspend fun deleteByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    )
 }
 
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
@@ -145,6 +149,11 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         index: Int,
     ): Flow<DocSubmissionRequestFile>
 
+    suspend fun countByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): Int
+
     @Query("{ 'accNo': ?0, 'version': ?1, 'status': ?2 }")
     @Meta(flags = [CursorOption.NO_TIMEOUT])
     fun findRequestFiles(
@@ -159,6 +168,11 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         accNo: String,
         version: Int,
     ): DocSubmissionRequestFile
+
+    suspend fun deleteByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    )
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {

@@ -13,6 +13,7 @@ data class SubmissionConfig(
     val onBehalfUser: SecurityUser?,
     val attrs: List<ExtAttributeDetail>,
     val storageMode: StorageMode?,
+    val silentMode: Boolean,
 )
 
 data class SubmissionFilesConfig(

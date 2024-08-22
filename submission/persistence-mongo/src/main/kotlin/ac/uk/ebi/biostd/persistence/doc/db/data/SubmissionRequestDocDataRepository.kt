@@ -38,21 +38,33 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_PREVIOUS_SUB_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_ARCH_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_ARCH_COL
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.coroutines.every
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING
 import ebi.ac.uk.model.RequestStatus.PROCESSED
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.aggregation.Aggregation
+import org.springframework.data.mongodb.core.aggregation.Aggregation.match
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions
+import org.springframework.data.mongodb.core.aggregation.Fields
+import org.springframework.data.mongodb.core.aggregation.MergeOperation.WhenDocumentsDontMatch
+import org.springframework.data.mongodb.core.aggregation.MergeOperation.WhenDocumentsMatch
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -69,13 +81,75 @@ class SubmissionRequestDocDataRepository(
 ) : SubmissionRequestRepository by submissionRequestRepository {
     suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val result =
-            mongoTemplate.upsert(
-                Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
-                request.asSetOnInsert(),
-                DocSubmissionRequest::class.java,
-            ).awaitSingle()
+            mongoTemplate
+                .upsert(
+                    Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
+                    request.asSetOnInsert(),
+                    DocSubmissionRequest::class.java,
+                ).awaitSingle()
         val created = result.matchedCount < 1
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
+    }
+
+    suspend fun archiveRequest(
+        accNo: String,
+        version: Int,
+    ): Int {
+        val matchOperation =
+            match(
+                where(RQT_FILE_SUB_ACC_NO)
+                    .`is`(accNo)
+                    .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version)),
+            )
+
+        fun archiveRequestFiles(): Flow<DocSubmissionRequestFile> {
+            var mergeOperation =
+                Aggregation
+                    .merge()
+                    .intoCollection(RQT_FILE_ARCH_COL)
+                    .on(Fields.UNDERSCORE_ID)
+                    .whenMatched(WhenDocumentsMatch.replaceDocument())
+                    .whenNotMatched(WhenDocumentsDontMatch.insertNewDocument())
+                    .build()
+            val aggregation =
+                Aggregation
+                    .newAggregation(
+                        DocSubmissionRequestFile::class.java,
+                        matchOperation,
+                        mergeOperation,
+                    ).withOptions(AggregationOptions.builder().allowDiskUse(true).build())
+            return mongoTemplate
+                .aggregate(aggregation, DocSubmissionRequestFile::class.java)
+                .asFlow()
+        }
+
+        suspend fun archiveRequest(): DocSubmissionRequest {
+            var mergeOperation =
+                Aggregation
+                    .merge()
+                    .intoCollection(RQT_ARCH_COL)
+                    .on(Fields.UNDERSCORE_ID)
+                    .whenMatched(WhenDocumentsMatch.replaceDocument())
+                    .whenNotMatched(WhenDocumentsDontMatch.insertNewDocument())
+                    .build()
+            val aggregation =
+                Aggregation
+                    .newAggregation(
+                        DocSubmissionRequest::class.java,
+                        matchOperation,
+                        mergeOperation,
+                    ).withOptions(AggregationOptions.builder().allowDiskUse(true).build())
+            return mongoTemplate
+                .aggregate(aggregation, DocSubmissionRequest::class.java)
+                .awaitSingle()
+        }
+
+        val archivedFiles =
+            archiveRequestFiles()
+                .every(REPORT_RATE) { "$accNo, $version archived file ${it.index}, path='${it.value.path}'" }
+                .count()
+        archiveRequest()
+        return archivedFiles
     }
 
     suspend fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
@@ -90,9 +164,7 @@ class SubmissionRequestDocDataRepository(
     suspend fun getRequest(
         accNo: String,
         version: Int,
-    ): DocSubmissionRequest {
-        return submissionRequestRepository.getByAccNoAndVersion(accNo, version)
-    }
+    ): DocSubmissionRequest = submissionRequestRepository.getByAccNoAndVersion(accNo, version)
 
     suspend fun getRequest(
         accNo: String,
@@ -111,14 +183,23 @@ class SubmissionRequestDocDataRepository(
                 result = null,
             )
         val update = Update().addToSet(RQT_STATUS_CHANGES, statusChange)
-        val query = Query(where(RQT_ACC_NO).`is`(accNo).and(RQT_VERSION).`is`(version).and(RQT_STATUS).`is`(status))
+        val query =
+            Query(
+                where(RQT_ACC_NO)
+                    .`is`(accNo)
+                    .and(RQT_VERSION)
+                    .`is`(version)
+                    .and(RQT_STATUS)
+                    .`is`(status),
+            )
         val result =
-            mongoTemplate.findAndModify(
-                query,
-                update,
-                FindAndModifyOptions.options().returnNew(true),
-                DocSubmissionRequest::class.java,
-            ).awaitSingle()
+            mongoTemplate
+                .findAndModify(
+                    query,
+                    update,
+                    FindAndModifyOptions.options().returnNew(true),
+                    DocSubmissionRequest::class.java,
+                ).awaitSingle()
         return statusId.toString() to result
     }
 
@@ -128,7 +209,8 @@ class SubmissionRequestDocDataRepository(
         limit: Int,
     ): Pair<Int, List<DocSubmissionRequest>> {
         val result =
-            mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
+            mongoTemplate
+                .find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
                 .asFlow()
                 .toList()
         return result.count() to result
@@ -136,7 +218,8 @@ class SubmissionRequestDocDataRepository(
 
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionListFilter): Criteria =
-        where("$SUB.$SUB_OWNER").`is`(filter.filterUser)
+        where("$SUB.$SUB_OWNER")
+            .`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
     suspend fun increaseIndex(
@@ -155,7 +238,8 @@ class SubmissionRequestDocDataRepository(
                 .set(RQT_FILE_INDEX, file.index)
                 .set(RQT_FILE_STATUS, file.status)
         val where =
-            where(RQT_FILE_SUB_ACC_NO).`is`(file.accNo)
+            where(RQT_FILE_SUB_ACC_NO)
+                .`is`(file.accNo)
                 .andOperator(
                     where(RQT_FILE_SUB_VERSION).`is`(file.version),
                     where(RQT_FILE_PATH).`is`(file.path),
@@ -169,7 +253,8 @@ class SubmissionRequestDocDataRepository(
         val serializedFile = extSerializationService.serialize(file.file)
         val update = update(RQT_FILE_FILE, BasicDBObject.parse(serializedFile)).set(RQT_FILE_STATUS, file.status)
         val where =
-            where(RQT_FILE_SUB_ACC_NO).`is`(file.accNo)
+            where(RQT_FILE_SUB_ACC_NO)
+                .`is`(file.accNo)
                 .andOperator(
                     where(RQT_FILE_SUB_VERSION).`is`(file.version),
                     where(RQT_FILE_PATH).`is`(file.path),
@@ -201,8 +286,12 @@ class SubmissionRequestDocDataRepository(
     ) {
         val query =
             Query(
-                where(SUB_ACC_NO).`is`(rqt.accNo).and(SUB_VERSION).`is`(rqt.version)
-                    .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID").`is`(ObjectId(processId)),
+                where(SUB_ACC_NO)
+                    .`is`(rqt.accNo)
+                    .and(SUB_VERSION)
+                    .`is`(rqt.version)
+                    .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID")
+                    .`is`(ObjectId(processId)),
             )
         val update =
             Update()
@@ -222,15 +311,18 @@ class SubmissionRequestDocDataRepository(
     }
 
     private fun criteriaArray(filter: SubmissionListFilter): Array<Criteria> =
-        ImmutableList.Builder<Criteria>().apply {
-            add(where(SUB_STATUS).`in`(PROCESSING))
-            filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
-            filter.type?.let { add(where("$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-            filter.rTimeFrom?.let { add(where("$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
-            filter.rTimeTo?.let { add(where("$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }
-            filter.keywords?.let { add(keywordsCriteria(it)) }
-            filter.released?.let { add(where("$SUB.$SUB_RELEASED").`is`(it)) }
-        }.build().toTypedArray()
+        ImmutableList
+            .Builder<Criteria>()
+            .apply {
+                add(where(SUB_STATUS).`in`(PROCESSING))
+                filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
+                filter.type?.let { add(where("$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
+                filter.rTimeFrom?.let { add(where("$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
+                filter.rTimeTo?.let { add(where("$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }
+                filter.keywords?.let { add(keywordsCriteria(it)) }
+                filter.released?.let { add(where("$SUB.$SUB_RELEASED").`is`(it)) }
+            }.build()
+            .toTypedArray()
 
     private fun keywordsCriteria(keywords: String) =
         Criteria().orOperator(
@@ -239,6 +331,10 @@ class SubmissionRequestDocDataRepository(
                 where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*"),
             ),
         )
+
+    companion object {
+        const val REPORT_RATE = 200
+    }
 }
 
 enum class ProcessResult {
