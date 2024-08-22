@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
-import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE_PUBLIC
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -29,11 +28,10 @@ internal class UserPrivilegesService(
     override suspend fun canSubmitToCollection(
         submitter: String,
         collection: String,
-    ): Boolean {
-        return isSuperUser(submitter) ||
+    ): Boolean =
+        isSuperUser(submitter) ||
             isAdmin(submitter, collection) ||
             hasPermissions(submitter, collection, ATTACH)
-    }
 
     override fun allowedCollections(
         email: String,
@@ -51,27 +49,18 @@ internal class UserPrivilegesService(
     override suspend fun canResubmit(
         submitter: String,
         accNo: String,
-    ): Boolean {
-        return isSuperUser(submitter) ||
+    ): Boolean =
+        isSuperUser(submitter) ||
             isAdmin(submitter, accNo) ||
             isAuthor(getOwner(accNo), submitter) ||
             hasPermissions(submitter, accNo, UPDATE)
-    }
 
     override suspend fun canDelete(
         submitter: String,
         accNo: String,
-    ): Boolean {
-        return (isAuthor(getOwner(accNo), submitter) && isPublic(accNo).not()) ||
+    ): Boolean =
+        (isAuthor(getOwner(accNo), submitter) && isPublic(accNo).not()) ||
             hasPermissions(submitter, accNo, DELETE)
-    }
-
-    override suspend fun canUpdatePublicSubmission(
-        submitter: String,
-        accNo: String,
-    ): Boolean {
-        return hasPermissions(submitter, accNo, UPDATE_PUBLIC)
-    }
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
@@ -104,11 +93,7 @@ internal class UserPrivilegesService(
 
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
 
-    private suspend fun getOwner(accNo: String): String? {
-        return submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
-    }
+    private suspend fun getOwner(accNo: String): String? = submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
 
-    private suspend fun isPublic(accNo: String): Boolean {
-        return submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
-    }
+    private suspend fun isPublic(accNo: String): Boolean = submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
 }

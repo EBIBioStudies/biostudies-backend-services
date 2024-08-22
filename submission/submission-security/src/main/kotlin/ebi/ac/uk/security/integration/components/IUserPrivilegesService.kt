@@ -27,11 +27,6 @@ interface IUserPrivilegesService {
         accNo: String,
     ): Boolean
 
-    suspend fun canUpdatePublicSubmission(
-        submitter: String,
-        accNo: String,
-    ): Boolean
-
     fun canSubmitExtended(submitter: String): Boolean
 
     fun canRelease(email: String): Boolean

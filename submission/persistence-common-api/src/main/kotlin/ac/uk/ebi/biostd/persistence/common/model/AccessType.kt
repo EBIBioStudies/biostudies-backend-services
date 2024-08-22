@@ -5,7 +5,6 @@ enum class AccessType {
     ATTACH,
     UPDATE,
     DELETE,
-    UPDATE_PUBLIC,
     ADMIN,
 }
 

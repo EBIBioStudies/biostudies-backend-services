@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE_PUBLIC
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
@@ -130,7 +130,7 @@ class DeleteFilesPermissionTest(
                     line()
                 }.toString()
 
-            webClient.grantPermission(SuperUser.email, "S-RSTST7", UPDATE_PUBLIC.name)
+            webClient.grantPermission(SuperUser.email, "S-RSTST7", AccessType.DELETE.name)
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
 
             assertThat(webClient.submit(version2, TSV)).isSuccessful()
