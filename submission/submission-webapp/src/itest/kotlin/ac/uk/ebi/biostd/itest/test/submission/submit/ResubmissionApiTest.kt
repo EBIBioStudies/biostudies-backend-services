@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -13,10 +14,13 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createOrReplaceFile
+import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -350,5 +354,59 @@ class ResubmissionApiTest(
             assertThat(section.files).hasSize(2)
             assertThat(section.files[0]).hasLeftValueSatisfying { assertThat(it.fileName).isEqualTo("file_5-5-1.txt") }
             assertThat(section.files[1]).hasLeftValueSatisfying { assertThat(it.fileName).isEqualTo("file_5-5-2.txt") }
+        }
+
+    @Test
+    fun `5-6 Resubmit study currenlty being flag as invalid`() =
+        runTest {
+            val version1 =
+                tsv {
+                    line("Submission", "S-ACCNO56")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5_6_1.txt")
+                    line()
+                }.toString()
+
+            webClient.uploadFile(tempFolder.createFile("file_5_6_1.txt", "5-6-1 file content"))
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+
+            val version2 =
+                tsv {
+                    line("Submission", "S-ACCNO56")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5_6_2.txt")
+                    line()
+                }.toString()
+
+            webClient.uploadFile(tempFolder.createFile("file_5_6_2.txt", "5-6-2 file content"))
+
+            val (accNo, version) = webClient.submitAsync(version2, TSV)
+
+            waitUntil(
+                timeout = java.time.Duration.ofSeconds(10),
+            ) { requestRepository.getRequestStatus(accNo, version) == RequestStatus.INVALID }
+
+            val exception =
+                assertThrows<WebClientException> {
+                    webClient.submit(version2, TSV)
+                }
+            assertThat(exception).hasMessage(
+                """
+                {
+                  "log": {
+                    "level": "ERROR",
+                    "message": "Submission request can't be accepted. Version '2' of 'S-ACCNO56' is currently being processed.",
+                    "subnodes": []
+                  },
+                  "status": "FAIL"
+                }
+                """.trimIndent(),
+            )
         }
 }
