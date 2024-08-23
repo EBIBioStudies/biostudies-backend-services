@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionRequestNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
@@ -164,7 +165,11 @@ class SubmissionRequestDocDataRepository(
     suspend fun getRequest(
         accNo: String,
         version: Int,
-    ): DocSubmissionRequest = submissionRequestRepository.getByAccNoAndVersion(accNo, version)
+    ): DocSubmissionRequest {
+        return submissionRequestRepository
+            .findByAccNoAndVersion(accNo, version)
+            ?: throw SubmissionRequestNotFoundException(accNo, version)
+    }
 
     suspend fun getRequest(
         accNo: String,

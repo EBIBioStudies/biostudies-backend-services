@@ -16,7 +16,7 @@ class SubmissionRequestClient(
         version: Int,
     ): RequestStatus =
         client
-            .post()
+            .get()
             .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/status")
             .retrieve()
             .awaitBody<RequestStatus>()
