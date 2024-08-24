@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -19,6 +20,7 @@ class SubmissionRequestValidator(
     private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
+    private val properties: SecurityProperties,
 ) {
     suspend fun validateRequest(
         accNo: String,
@@ -27,7 +29,7 @@ class SubmissionRequestValidator(
     ) {
         val (request) =
             requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
-                val requestStatus = validateRequest(it)
+                val requestStatus = if (properties.preventFileDelition) validateRequest(it) else VALIDATED
                 RqtUpdate(it.withNewStatus(requestStatus))
             }
 
@@ -39,7 +41,7 @@ class SubmissionRequestValidator(
         val submitter = rqt.submission.submitter
         val currentReleased = queryService.findCoreInfo(rqt.submission.accNo)?.released.orFalse()
 
-        if (currentReleased && rqt.hasFilesChanges && userPrivilegesService.canDelete(submitter, accNo).not()) {
+        if (currentReleased && rqt.hasFilesChanges && userPrivilegesService.canDeleteFiles(submitter, accNo).not()) {
             logger.error { "$accNo ${rqt.submission.owner} The user $submitter is not allowed to modify files" }
             return INVALID
         }

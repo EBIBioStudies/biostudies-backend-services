@@ -3,6 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE_FILES
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
@@ -61,6 +62,11 @@ internal class UserPrivilegesService(
     ): Boolean =
         (isAuthor(getOwner(accNo), submitter) && isPublic(accNo).not()) ||
             hasPermissions(submitter, accNo, DELETE)
+
+    override suspend fun canDeleteFiles(
+        submitter: String,
+        accNo: String,
+    ): Boolean = hasPermissions(submitter, accNo, DELETE_FILES)
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 

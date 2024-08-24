@@ -22,10 +22,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -130,7 +132,7 @@ class DeleteFilesPermissionTest(
                     line()
                 }.toString()
 
-            webClient.grantPermission(SuperUser.email, "S-RSTST7", AccessType.DELETE.name)
+            webClient.grantPermission(SuperUser.email, "S-RSTST7", AccessType.DELETE_FILES.name)
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
 
             assertThat(webClient.submit(version2, TSV)).isSuccessful()
@@ -180,4 +182,47 @@ class DeleteFilesPermissionTest(
 
             waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequestStatus("S-RSTST8", 2) == INVALID }
         }
+
+    @Nested
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.security.preventFileDelition=false"])
+    inner class PreventFileDelitionFlag(
+        @Autowired val securityTestService: SecurityTestService,
+        @LocalServerPort val serverPort: Int,
+    ) {
+        private lateinit var webClient: BioWebClient
+
+        @BeforeAll
+        fun init() {
+            webClient = getWebClient(serverPort, RegularUser)
+            securityTestService.ensureSequence("S-BSST")
+        }
+
+        @Test
+        fun `1-17 Regular user deletes their own public submission files when preventFileDelition is disable`() =
+            runTest {
+                val version1 =
+                    tsv {
+                        line("Submission")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+                        line("Study")
+                        line("File", "file_abc.txt")
+                    }.toString()
+
+                webClient.uploadFile(tempFolder.createFile("file_abc.txt", "abc content"))
+
+                val response = webClient.submit(version1, TSV)
+                assertThat(response).isSuccessful()
+
+                val version2 =
+                    tsv {
+                        line("Submission", response.body.accNo)
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+                        line("Study")
+                        line("File", "file_abc.txt")
+                    }.toString()
+                assertThat(webClient.submit(version2, TSV)).isSuccessful()
+            }
+    }
 }
