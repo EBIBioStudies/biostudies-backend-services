@@ -39,7 +39,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_PREVIOUS_SUB_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_ARCH_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_COL
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_ARCH_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_COL
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
@@ -53,6 +55,7 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.bson.Document
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -141,7 +144,7 @@ class SubmissionRequestDocDataRepository(
             val aggregation =
                 Aggregation
                     .newAggregation(
-                        BsonDocument::class.java,
+                        Document::class.java,
                         match(criteria),
                         mergeOperation,
                     ).withOptions(
