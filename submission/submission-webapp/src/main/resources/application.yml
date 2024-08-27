@@ -102,7 +102,7 @@ app:
     tokenHash: # Token used for hash authentication
     environment: # Current application execution environment
     requireActivation: # Indicates whether a new user need activation before being used
-    preventFileDelition: # Indicates wheter or not to prevent public submission non pagetab file delitions
+    preventFileDeletion: # Indicates wheter or not to prevent public submission non pagetab file delitions
     instanceKeys:
       dev: # Instance key for the submission tool DEV environment
       beta: # Instance key for the submission tool BETA environment

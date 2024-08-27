@@ -29,7 +29,7 @@ class SubmissionRequestValidator(
     ) {
         val (request) =
             requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
-                val requestStatus = if (properties.preventFileDelition) validateRequest(it) else VALIDATED
+                val requestStatus = if (properties.preventFileDeletion) validateRequest(it) else VALIDATED
                 RqtUpdate(it.withNewStatus(requestStatus))
             }
 

@@ -29,7 +29,7 @@ Contains test related to submission file deletion.
 | DeleteFilesPermissionTest | 1-14    | Regular user deletes their own public submission files                                     |
 | DeleteFilesPermissionTest | 1-15    | Regular user with UPDATE_PUBLIC permission delete their own public submission files        |
 | DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                            |
-| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission files when preventFileDelition is disable |
+| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission files when preventFileDeletion is disable |
 
 ### Submit Permission Test Suite
 

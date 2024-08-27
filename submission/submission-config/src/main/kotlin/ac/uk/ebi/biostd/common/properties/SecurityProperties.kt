@@ -9,7 +9,7 @@ data class SecurityProperties(
     val tokenHash: String,
     val environment: String,
     val requireActivation: Boolean = false,
-    val preventFileDelition: Boolean,
+    val preventFileDeletion: Boolean,
     @NestedConfigurationProperty
     val instanceKeys: InstanceKeys = InstanceKeys(),
     val filesProperties: FilesProperties,
