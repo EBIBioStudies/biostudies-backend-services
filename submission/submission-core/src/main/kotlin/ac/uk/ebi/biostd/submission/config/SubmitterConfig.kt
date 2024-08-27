@@ -105,12 +105,14 @@ class SubmitterConfig(
         eventsPublisherService: EventsPublisherService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
+        applicationProperties: ApplicationProperties,
     ): SubmissionRequestValidator =
         SubmissionRequestValidator(
             userPrivilegesService,
             eventsPublisherService,
             queryService,
             requestService,
+            applicationProperties.security,
         )
 
     @Bean
@@ -134,15 +136,14 @@ class SubmitterConfig(
         persistenceService: SubmissionPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
         eventsPublisherService: EventsPublisherService,
-    ): SubmissionRequestSaver {
-        return SubmissionRequestSaver(
+    ): SubmissionRequestSaver =
+        SubmissionRequestSaver(
             requestService,
             fileProcessingService,
             persistenceService,
             filesRequestService,
             eventsPublisherService,
         )
-    }
 
     @Bean
     fun requestProcessor(

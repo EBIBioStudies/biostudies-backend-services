@@ -15,6 +15,9 @@ enum class RequestStatus {
     ;
 
     companion object {
+        /**
+         * List of status consider as the system is processing or owns the submission.
+         */
         val PROCESSING: Set<RequestStatus> =
             setOf(
                 REQUESTED,
@@ -25,6 +28,7 @@ enum class RequestStatus {
                 FILES_COPIED,
                 CHECK_RELEASED,
                 PERSISTED,
+                INVALID,
             )
     }
 }
