@@ -42,8 +42,8 @@ class SubmissionRequestApiTest(
         }
 
     @Test
-    fun `29-1 Get submission request status`()
-        = runTest {
+    fun `29-1 Get submission request status`() =
+        runTest {
             val sub =
                 tsv {
                     line("Submission", "S-RQT1")
@@ -59,8 +59,8 @@ class SubmissionRequestApiTest(
         }
 
     @Test
-    fun `29-2 Archive submission request`()
-        = runTest {
+    fun `29-2 Archive submission request`() =
+        runTest {
             val sub =
                 tsv {
                     line("Submission", "S-RQT2")
