@@ -268,21 +268,6 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
-        val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
-        val update =
-            Update()
-                .set(SUB_STATUS, rqt.status)
-                .set(SUB, rqt.submission)
-                .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_IDX, rqt.currentIndex)
-                .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
-                .set(RQT_STATUS_CHANGES, rqt.statusChanges)
-
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
-    }
-
     suspend fun updateSubmissionRequest(
         rqt: DocSubmissionRequest,
         processId: String,
