@@ -185,7 +185,7 @@ class DeleteFilesPermissionTest(
 
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.security.preventFileDeletion=false"])
-    inner class preventFileDeletionFlag(
+    inner class PreventFileDeletionFlag(
         @Autowired val securityTestService: SecurityTestService,
         @LocalServerPort val serverPort: Int,
     ) {
