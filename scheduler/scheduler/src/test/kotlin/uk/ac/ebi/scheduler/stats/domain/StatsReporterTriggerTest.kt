@@ -72,13 +72,13 @@ class StatsReporterTriggerTest(
         assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            "module load openjdk-17.0.5_8-gcc-11.2.0-gsv4jnu; \
+            module load openjdk-17.0.5_8-gcc-11.2.0-gsv4jnu; \
             java \
             -Dsun.jnu.encoding=UTF-8 -Xmx6g \
             -jar apps-folder/stats-reporter-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
-            --app.publishPath=/stats/publish"
+            --app.publishPath=/stats/publish
             """.trimIndent(),
         )
     }

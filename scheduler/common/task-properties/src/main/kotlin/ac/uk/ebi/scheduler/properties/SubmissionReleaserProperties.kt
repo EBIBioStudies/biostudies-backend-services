@@ -26,7 +26,7 @@ class SubmissionReleaserProperties : JavaAppProperties {
             add("--app.notification-times.first-warning-days=$firstWarningDays")
             add("--app.notification-times.second-warning-days=$secondWarningDays")
             add("--app.notification-times.third-warning-days=$thirdWarningDays")
-        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
+        }.joinToString(separator = " \\\n")
 
     lateinit var mode: ReleaserMode
 

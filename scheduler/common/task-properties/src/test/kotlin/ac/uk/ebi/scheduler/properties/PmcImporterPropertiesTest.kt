@@ -45,7 +45,7 @@ class PmcImporterPropertiesTest {
         assertThat(properties.asCmd("/apps-folder", 8569))
             .isEqualTo(
                 """
-                "java debug=8569 \
+                java debug=8569 \
                 -jar /apps-folder/pmc-processor-task-1.0.0.jar \
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
@@ -57,7 +57,7 @@ class PmcImporterPropertiesTest {
                 --app.data.bioStudiesUser=user \
                 --app.data.bioStudiesPassword=password \
                 --app.data.loadFolder=/loadPath \
-                --app.data.loadFile=import.gz"
+                --app.data.loadFile=import.gz
                 """.trimIndent(),
             )
     }
@@ -80,14 +80,14 @@ class PmcImporterPropertiesTest {
         assertThat(properties.asCmd("/apps-folder", 8569))
             .isEqualTo(
                 """
-                "java debug=8569 \
+                java debug=8569 \
                 -jar /apps-folder/pmc-processor-task-1.0.0.jar \
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
                 --app.data.mongodbUri=mongodbUri \
                 --app.data.mongodbDatabase=a-database \
                 --app.data.notificationsUrl=http://slack-here \
-                --app.data.pmcBaseUrl=http://pmc"
+                --app.data.pmcBaseUrl=http://pmc
                 """.trimIndent(),
             )
     }

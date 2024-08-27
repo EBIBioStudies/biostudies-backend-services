@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.Cluster.LSF
+import uk.ac.ebi.biostd.client.cluster.model.Cluster.SLURM
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
@@ -24,12 +27,12 @@ import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 @EnableConfigurationProperties(AppProperties::class, StatsReporterProperties::class)
 internal class SchedulerConfig {
     @Bean
-    fun clusterOperations(appProperties: AppProperties): ClusterClient =
-        LsfClusterClient.create(
-            appProperties.cluster.sshKey,
-            appProperties.cluster.server,
-            appProperties.cluster.logsPath,
-        )
+    fun clusterOperations(appProperties: AppProperties): ClusterClient {
+        return when (appProperties.cluster.default) {
+            LSF -> lsfCluster(appProperties)
+            SLURM -> slurmCluster(appProperties)
+        }
+    }
 
     @Bean
     fun loaderService(
@@ -92,4 +95,22 @@ internal class SchedulerConfig {
             statsTrigger,
             releaserTrigger,
         )
+
+    companion object {
+        fun lsfCluster(properties: AppProperties): LsfClusterClient {
+            return LsfClusterClient.create(
+                properties.cluster.sshKey,
+                properties.cluster.lsfServer,
+                properties.cluster.logsPath,
+            )
+        }
+
+        fun slurmCluster(properties: AppProperties): SlurmClusterClient {
+            return SlurmClusterClient.create(
+                properties.cluster.sshKey,
+                properties.cluster.slurmServer,
+                properties.cluster.logsPath,
+            )
+        }
+    }
 }

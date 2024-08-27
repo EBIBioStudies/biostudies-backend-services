@@ -102,7 +102,7 @@ class SubmissionReleaserTriggerTest(
         assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            "module load openjdk-17.0.5_8-gcc-11.2.0-gsv4jnu; \
+            module load openjdk-17.0.5_8-gcc-11.2.0-gsv4jnu; \
             java \
             -Dsun.jnu.encoding=UTF-8 -Xmx6g \
             -jar apps-folder/submission-releaser-task-1.0.0.jar \
@@ -118,7 +118,7 @@ class SubmissionReleaserTriggerTest(
             --app.bioStudies.password=123456 \
             --app.notification-times.first-warning-days=60 \
             --app.notification-times.second-warning-days=30 \
-            --app.notification-times.third-warning-days=7"
+            --app.notification-times.third-warning-days=7
             """.trimIndent(),
         )
     }

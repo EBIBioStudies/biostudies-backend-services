@@ -44,7 +44,7 @@ class PmcImporterProperties : JavaAppProperties {
             loadFile?.let { add("--app.data.loadFile=$it") }
             sourceFile?.let { add("--app.data.sourceFile=$it") }
             submissionId?.let { add("--app.data.submissionId=$it") }
-        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
+        }.joinToString(separator = " \\\n")
 
     companion object {
         // Todo: refactor to have biostudies parameters in a wrapper class

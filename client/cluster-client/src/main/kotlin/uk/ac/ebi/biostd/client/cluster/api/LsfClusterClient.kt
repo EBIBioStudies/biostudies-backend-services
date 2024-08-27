@@ -90,7 +90,6 @@ class LsfClusterClient(
     companion object {
         const val DONE_STATUS = "DONE"
         const val EXIT_STATUS = "EXIT"
-        const val PEND_STATUS = "PEND"
 
         fun create(
             sshKey: String,
