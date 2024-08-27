@@ -1,20 +1,22 @@
 package ac.uk.ebi.biostd.cluster.web
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Cluster
 import ac.uk.ebi.biostd.submission.config.GeneralConfig
 import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.Cluster
+import uk.ac.ebi.biostd.client.cluster.model.Cluster.LSF
+import uk.ac.ebi.biostd.client.cluster.model.Cluster.SLURM
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 
 /**
- * Temporally class added with the purpose of testing both cluster type access. Expected to be deleted when codon
- * service is completly deprecated.
+ * Temporally class added with the purpose of testing both cluster type access. Expected to be deleted when LSF service
+ * is no longer operational.
  */
 class ClusterExecutor private constructor(
-    val lsfClusterClient: LsfClusterClient,
-    val slurmClusterClient: SlurmClusterClient,
+    private val lsfClusterClient: LsfClusterClient,
+    private val slurmClusterClient: SlurmClusterClient,
 ) {
     constructor(properties: ApplicationProperties) : this(
         lsfClusterClient = GeneralConfig.lsfCluster(properties),
@@ -26,8 +28,8 @@ class ClusterExecutor private constructor(
         jobSpec: JobSpec,
     ): Result<Job> {
         return when (cluster) {
-            Cluster.LSF -> lsfClusterClient.triggerJobAsync(jobSpec)
-            Cluster.SLURM -> slurmClusterClient.triggerJobAsync(jobSpec)
+            LSF -> lsfClusterClient.triggerJobAsync(jobSpec)
+            SLURM -> slurmClusterClient.triggerJobAsync(jobSpec)
         }
     }
 
@@ -36,8 +38,8 @@ class ClusterExecutor private constructor(
         jobSpec: JobSpec,
     ): Job {
         return when (cluster) {
-            Cluster.LSF -> lsfClusterClient.triggerJobSync(jobSpec)
-            Cluster.SLURM -> slurmClusterClient.triggerJobSync(jobSpec)
+            LSF -> lsfClusterClient.triggerJobSync(jobSpec)
+            SLURM -> slurmClusterClient.triggerJobSync(jobSpec)
         }
     }
 
@@ -46,8 +48,8 @@ class ClusterExecutor private constructor(
         jobId: String,
     ): String {
         return when (cluster) {
-            Cluster.LSF -> lsfClusterClient.jobStatus(jobId)
-            Cluster.SLURM -> slurmClusterClient.jobStatus(jobId)
+            LSF -> lsfClusterClient.jobStatus(jobId)
+            SLURM -> slurmClusterClient.jobStatus(jobId)
         }
     }
 
@@ -56,8 +58,8 @@ class ClusterExecutor private constructor(
         jobId: String,
     ): String {
         return when (cluster) {
-            Cluster.LSF -> lsfClusterClient.jobLogs(jobId)
-            Cluster.SLURM -> slurmClusterClient.jobLogs(jobId)
+            LSF -> lsfClusterClient.jobLogs(jobId)
+            SLURM -> slurmClusterClient.jobLogs(jobId)
         }
     }
 }

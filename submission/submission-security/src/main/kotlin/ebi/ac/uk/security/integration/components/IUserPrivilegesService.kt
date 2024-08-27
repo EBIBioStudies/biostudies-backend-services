@@ -27,7 +27,7 @@ interface IUserPrivilegesService {
         accNo: String,
     ): Boolean
 
-    suspend fun canUpdatePublicSubmission(
+    suspend fun canDeleteFiles(
         submitter: String,
         accNo: String,
     ): Boolean

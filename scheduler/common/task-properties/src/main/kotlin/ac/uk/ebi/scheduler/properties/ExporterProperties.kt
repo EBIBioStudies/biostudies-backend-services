@@ -27,7 +27,7 @@ class ExporterProperties : JavaAppProperties {
             add("--app.bioStudies.url=$bioStudiesUrl")
             add("--app.bioStudies.user=$bioStudiesUser")
             add("--app.bioStudies.password=$bioStudiesPassword")
-        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
+        }.joinToString(separator = " \\\n")
 
     lateinit var mode: ExporterMode
 

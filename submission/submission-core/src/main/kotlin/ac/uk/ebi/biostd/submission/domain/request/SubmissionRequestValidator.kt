@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -19,20 +20,20 @@ class SubmissionRequestValidator(
     private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
+    private val properties: SecurityProperties,
 ) {
     suspend fun validateRequest(
         accNo: String,
         version: Int,
         processId: String,
     ) {
-        var requestStatus = INVALID
+        val (request) =
+            requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
+                val requestStatus = if (properties.preventFileDelition) validateRequest(it) else VALIDATED
+                RqtUpdate(it.withNewStatus(requestStatus))
+            }
 
-        requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
-            requestStatus = validateRequest(it)
-            RqtUpdate(it.withNewStatus(requestStatus))
-        }
-
-        if (requestStatus == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
+        if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
     }
 
     internal suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
@@ -40,10 +41,7 @@ class SubmissionRequestValidator(
         val submitter = rqt.submission.submitter
         val currentReleased = queryService.findCoreInfo(rqt.submission.accNo)?.released.orFalse()
 
-        if (currentReleased &&
-            rqt.hasFilesChanges &&
-            userPrivilegesService.canUpdatePublicSubmission(submitter, accNo).not()
-        ) {
+        if (currentReleased && rqt.hasFilesChanges && userPrivilegesService.canDeleteFiles(submitter, accNo).not()) {
             logger.error { "$accNo ${rqt.submission.owner} The user $submitter is not allowed to modify files" }
             return INVALID
         }

@@ -24,11 +24,12 @@ Contains test related to submission deletion.
 
 Contains test related to submission file deletion.
 
-| Class                     | Test No | Test name                                                                           |
-|---------------------------|---------|-------------------------------------------------------------------------------------|
-| DeleteFilesPermissionTest | 1-14    | Regular user deletes their own public submission files                              |
-| DeleteFilesPermissionTest | 1-15    | Regular user with UPDATE_PUBLIC permission delete their own public submission files |
-| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                     |
+| Class                     | Test No | Test name                                                                                  |
+|---------------------------|---------|--------------------------------------------------------------------------------------------|
+| DeleteFilesPermissionTest | 1-14    | Regular user deletes their own public submission files                                     |
+| DeleteFilesPermissionTest | 1-15    | Regular user with UPDATE_PUBLIC permission delete their own public submission files        |
+| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                            |
+| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission files when preventFileDelition is disable |
 
 ### Submit Permission Test Suite
 
@@ -110,13 +111,14 @@ Contains test related to submission
 
 Contains test related to resubmission
 
-| Class               | Test No | Test name                              |
-|---------------------|---------|----------------------------------------|
-| ResubmissionApiTest | 5-1     | Resubmit study updating a file content |
-| ResubmissionApiTest | 5-2     | Resubmit study with the same files     |
-| ResubmissionApiTest | 5-3     | Resubmit study with rootPath           |
-| ResubmissionApiTest | 5-4     | Resubmit study updating only metadata  |
-| ResubmissionApiTest | 5-5     | Resubmit study adding new files        |
+| Class               | Test No | Test name                                      |
+|---------------------|---------|------------------------------------------------|
+| ResubmissionApiTest | 5-1     | Resubmit study updating a file content         |
+| ResubmissionApiTest | 5-2     | Resubmit study with the same files             |
+| ResubmissionApiTest | 5-3     | Resubmit study with rootPath                   |
+| ResubmissionApiTest | 5-4     | Resubmit study updating only metadata          |
+| ResubmissionApiTest | 5-5     | Resubmit study adding new files                |
+| ResubmissionApiTest | 5-6     | Resubmit study currenlty being flag as invalid |
 
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------

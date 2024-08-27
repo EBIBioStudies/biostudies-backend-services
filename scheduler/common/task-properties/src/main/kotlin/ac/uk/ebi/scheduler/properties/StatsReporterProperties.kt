@@ -14,7 +14,7 @@ class StatsReporterProperties : JavaAppProperties {
             add("--spring.data.mongodb.uri=$mongodbUri")
             add("--spring.data.mongodb.database=$mongodbDatabase")
             add("--app.publishPath=$publishPath")
-        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
+        }.joinToString(separator = " \\\n")
     }
 
     lateinit var mongodbUri: String

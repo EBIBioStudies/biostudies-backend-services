@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Cluster
 import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
@@ -16,6 +15,8 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.Cluster.LSF
+import uk.ac.ebi.biostd.client.cluster.model.Cluster.SLURM
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
@@ -87,8 +88,8 @@ class GeneralConfig {
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
     fun clusterClient(properties: ApplicationProperties): ClusterClient {
         return when (properties.cluster.default) {
-            Cluster.LSF -> lsfCluster(properties)
-            Cluster.SLURM -> slurmCluster(properties)
+            LSF -> lsfCluster(properties)
+            SLURM -> slurmCluster(properties)
         }
     }
 

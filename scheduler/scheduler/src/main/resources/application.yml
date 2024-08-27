@@ -16,8 +16,10 @@ app:
   cluster:
     user: # cluster ssh user
     sshKey: # cluster ssh key path.
-    server:  # cluster sever (to submit jobs from)
+    lsfServer:  # LSF cluster sever
+    slurmServer:  # SLURM cluster sever
     logsPath: # path to place the logs of the dispatched jobs
+    default: # Default cluster mode. Valid values: LSF | SLURM
 
 pmc:
   import:
