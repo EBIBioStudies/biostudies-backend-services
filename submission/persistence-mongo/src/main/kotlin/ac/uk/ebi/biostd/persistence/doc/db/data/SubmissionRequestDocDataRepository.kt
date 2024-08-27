@@ -45,15 +45,12 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.coroutines.every
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING
 import ebi.ac.uk.model.RequestStatus.PROCESSED
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
@@ -91,18 +88,20 @@ class SubmissionRequestDocDataRepository(
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
+    /**
+     * Archive the given request. Note that {@see Document} is used rathet than specific entity type to avoid schema
+     * changes to affect operation.
+     */
     suspend fun archiveRequest(
         accNo: String,
         version: Int,
-    ): Int {
-        val matchOperation =
-            match(
-                where(RQT_FILE_SUB_ACC_NO)
-                    .`is`(accNo)
-                    .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version)),
-            )
+    ): Long {
+        var criteria =
+            where(RQT_FILE_SUB_ACC_NO)
+                .`is`(accNo)
+                .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version))
 
-        fun archiveRequestFiles(): Flow<DocSubmissionRequestFile> {
+        suspend fun archiveRequestFiles(): Long {
             var mergeOperation =
                 Aggregation
                     .merge()
@@ -114,16 +113,23 @@ class SubmissionRequestDocDataRepository(
             val aggregation =
                 Aggregation
                     .newAggregation(
-                        DocSubmissionRequestFile::class.java,
-                        matchOperation,
+                        Document::class.java,
+                        match(criteria),
                         mergeOperation,
-                    ).withOptions(AggregationOptions.builder().allowDiskUse(true).build())
-            return mongoTemplate
-                .aggregate(aggregation, DocSubmissionRequestFile::class.java)
-                .asFlow()
+                    ).withOptions(
+                        AggregationOptions
+                            .builder()
+                            .allowDiskUse(true)
+                            .skipOutput()
+                            .build(),
+                    )
+            mongoTemplate
+                .aggregate(aggregation, RQT_FILE_COL, Document::class.java)
+                .awaitFirstOrNull()
+            return mongoTemplate.count(Query().addCriteria(criteria), RQT_FILE_ARCH_COL).awaitSingle()
         }
 
-        suspend fun archiveRequest(): DocSubmissionRequest {
+        suspend fun archiveRequest() {
             var mergeOperation =
                 Aggregation
                     .merge()
@@ -135,19 +141,22 @@ class SubmissionRequestDocDataRepository(
             val aggregation =
                 Aggregation
                     .newAggregation(
-                        DocSubmissionRequest::class.java,
-                        matchOperation,
+                        BsonDocument::class.java,
+                        match(criteria),
                         mergeOperation,
-                    ).withOptions(AggregationOptions.builder().allowDiskUse(true).build())
-            return mongoTemplate
-                .aggregate(aggregation, DocSubmissionRequest::class.java)
-                .awaitSingle()
+                    ).withOptions(
+                        AggregationOptions
+                            .builder()
+                            .allowDiskUse(true)
+                            .skipOutput()
+                            .build(),
+                    )
+            mongoTemplate
+                .aggregate(aggregation, RQT_COL, Document::class.java)
+                .awaitFirstOrNull()
         }
 
-        val archivedFiles =
-            archiveRequestFiles()
-                .every(REPORT_RATE) { "$accNo, $version archived file ${it.index}, path='${it.value.path}'" }
-                .count()
+        val archivedFiles = archiveRequestFiles()
         archiveRequest()
         return archivedFiles
     }
