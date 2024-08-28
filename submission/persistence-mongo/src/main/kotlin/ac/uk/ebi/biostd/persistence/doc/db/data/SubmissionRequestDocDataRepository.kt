@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionRequestNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
@@ -164,7 +165,11 @@ class SubmissionRequestDocDataRepository(
     suspend fun getRequest(
         accNo: String,
         version: Int,
-    ): DocSubmissionRequest = submissionRequestRepository.getByAccNoAndVersion(accNo, version)
+    ): DocSubmissionRequest {
+        return submissionRequestRepository
+            .findByAccNoAndVersion(accNo, version)
+            ?: throw SubmissionRequestNotFoundException(accNo, version)
+    }
 
     suspend fun getRequest(
         accNo: String,
@@ -261,21 +266,6 @@ class SubmissionRequestDocDataRepository(
                     where(RQT_PREVIOUS_SUB_FILE).`is`(file.previousSubFile),
                 )
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
-    }
-
-    suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
-        val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
-        val update =
-            Update()
-                .set(SUB_STATUS, rqt.status)
-                .set(SUB, rqt.submission)
-                .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_IDX, rqt.currentIndex)
-                .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
-                .set(RQT_STATUS_CHANGES, rqt.statusChanges)
-
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     suspend fun updateSubmissionRequest(

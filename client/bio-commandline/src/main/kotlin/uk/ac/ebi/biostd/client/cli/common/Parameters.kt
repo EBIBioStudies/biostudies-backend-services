@@ -49,3 +49,8 @@ internal object TransferenceParameters {
     const val ACC_NO = "Accession number of the submission to be transferred"
     const val TARGET = "Determines where submission need to be transferred to. Valid values are: FIRE/NFS"
 }
+
+internal object SubmissionRequestParameters {
+    const val ACC_NO = "Accession number of the submission request to check the status"
+    const val VERSION = "Version of the submission request to check the status"
+}

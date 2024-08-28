@@ -231,3 +231,5 @@ Contains test related to resubmission
 | SubmissionDatesTest             | 28-6    | Admin submit and re Submit in the past                                           |                                                                                               |
 | SubmissionDatesTest             | 28-7    | Admin make a public submission private                                           |                                                                                               |
 | SubmissionDatesTest             | 28-8    | Admin make a Regular user public submission private                              |                                                                                               |
+| SubmissionRequestApiTest        | 29-1    | Get submission request status                                                    |                                                                                               |
+| SubmissionRequestApiTest        | 29-2    | Archive submission request                                                       |                                                                                               |

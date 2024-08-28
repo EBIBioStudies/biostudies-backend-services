@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.SubmissionRequestOperations
 import ebi.ac.uk.model.RequestStatus
-import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 
 private const val SUBMISSION_REQUEST_URL = "/submissions/requests"
@@ -16,7 +16,7 @@ class SubmissionRequestClient(
         version: Int,
     ): RequestStatus =
         client
-            .post()
+            .get()
             .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/status")
             .retrieve()
             .awaitBody<RequestStatus>()
@@ -29,7 +29,6 @@ class SubmissionRequestClient(
             .post()
             .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/archive")
             .retrieve()
-            .bodyToMono(Void::class.java)
-            .awaitSingle()
+            .awaitBodilessEntity()
     }
 }

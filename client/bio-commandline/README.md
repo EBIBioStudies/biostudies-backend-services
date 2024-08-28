@@ -34,6 +34,25 @@ Make a submission to BioStudies
 * The submission format doesn't need to be specified since it'll be inferred from the input file's extension.
 * TSV submissions can be submitted using a XLSX file.
 
+### Submission Request Status
+Get the status of a submission request
+
+```
+java -jar build/libs/BioStudiesCLI-2.0.jar requestStatus \
+-s <server> \
+-u <user> \
+-p <password> \
+-ac <accNo> \
+-v <version>
+```
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** BioStudies user with privileges to get the submission request.
+* **p or --password:** The user password.
+* **ac or --accNo:** Accession number of the submission request to check the status.
+* **v or --version:** Version of the submission request to check the status.
+
 ### Delete
 Delete a submission
 

@@ -114,6 +114,11 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: Set<RequestStatus>,
     ): DocSubmissionRequest
 
+    suspend fun findByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): DocSubmissionRequest?
+
     suspend fun getByAccNoAndVersion(
         accNo: String,
         version: Int,
