@@ -51,7 +51,7 @@ app:
     tokenHash: biostd-test
     environment: TEST
     requireActivation: false
-    preventFileDelition: true
+    preventFileDeletion: true
     filesProperties:
       defaultMode: NFS
       filesDirPath:

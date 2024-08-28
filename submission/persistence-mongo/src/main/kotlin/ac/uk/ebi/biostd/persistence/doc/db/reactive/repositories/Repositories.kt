@@ -157,7 +157,7 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
     suspend fun countByAccNoAndVersion(
         accNo: String,
         version: Int,
-    ): Int
+    ): Long
 
     @Query("{ 'accNo': ?0, 'version': ?1, 'status': ?2 }")
     @Meta(flags = [CursorOption.NO_TIMEOUT])

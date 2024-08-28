@@ -184,8 +184,8 @@ class DeleteFilesPermissionTest(
         }
 
     @Nested
-    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.security.preventFileDelition=false"])
-    inner class PreventFileDelitionFlag(
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.security.preventFileDeletion=false"])
+    inner class PreventFileDeletionFlag(
         @Autowired val securityTestService: SecurityTestService,
         @LocalServerPort val serverPort: Int,
     ) {
@@ -198,7 +198,7 @@ class DeleteFilesPermissionTest(
         }
 
         @Test
-        fun `1-17 Regular user deletes their own public submission files when preventFileDelition is disable`() =
+        fun `1-17 Regular user deletes their own public submission files when preventFileDeletion is disable`() =
             runTest {
                 val version1 =
                     tsv {
