@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
@@ -118,7 +119,12 @@ internal class DatabaseChangeLogTest(
             }
 
             suspend fun assertSubmissionIndexes() {
-                val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().asFlow().toList()
+                val submissionIndexes =
+                    mongoTemplate
+                        .collection<DocSubmission>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
 
                 assertThat(mongoTemplate.collectionExists<DocSubmission>().awaitSingle()).isTrue()
                 assertThat(submissionIndexes).hasSize(12)
@@ -128,18 +134,29 @@ internal class DatabaseChangeLogTest(
             }
 
             suspend fun assertRequestIndexes() {
-                val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().asFlow().toList()
+                val requestIndexes =
+                    mongoTemplate
+                        .collection<DocSubmissionRequest>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
                 assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>().awaitSingle()).isTrue()
-                assertThat(requestIndexes).hasSize(14)
+                assertThat(requestIndexes).hasSize(15)
 
                 assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertSubmissionCoreIndexes("$SUB.", indexes = requestIndexes)
                 assertThat(requestIndexes[12]).containsEntry("key", Document(SUB_ACC_NO, 1))
                 assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+                assertThat(requestIndexes[14]).containsEntry("key", Document(RQT_STATUS, 1))
             }
 
             suspend fun assertFileListIndexes() {
-                val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().asFlow().toList()
+                val listIndexes =
+                    mongoTemplate
+                        .collection<FileListDocFile>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
                 assertThat(mongoTemplate.collectionExists<FileListDocFile>().awaitSingle()).isTrue()
                 assertThat(listIndexes).hasSize(8)
                 assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -157,14 +174,24 @@ internal class DatabaseChangeLogTest(
             }
 
             suspend fun assertStatsIndexes() {
-                val statsIndexes = mongoTemplate.collection<DocSubmissionStats>().listIndexes().asFlow().toList()
+                val statsIndexes =
+                    mongoTemplate
+                        .collection<DocSubmissionStats>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
                 assertThat(statsIndexes).hasSize(2)
                 assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
             }
 
             suspend fun assertRequestFileIndexes() {
-                val filesIndexes = mongoTemplate.collection<DocSubmissionRequestFile>().listIndexes().asFlow().toList()
+                val filesIndexes =
+                    mongoTemplate
+                        .collection<DocSubmissionRequestFile>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
                 assertThat(filesIndexes).hasSize(8)
 
                 assertThat(filesIndexes[0]).containsEntry("key", Document("_id", 1))
