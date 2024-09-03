@@ -327,27 +327,52 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(result[0].accNo).isEqualTo("accNo1")
                 assertThat(result[0].version).isEqualTo(2)
                 assertThat(result[0].status).isEqualTo(PROCESSING)
-                assertThat(requestRepository.existsByAccNoAndStatusIn("accNo1", RequestStatus.PROCESSING)).isTrue()
+                assertThat(
+                    requestRepository.existsByAccNoAndStatusIn(
+                        "accNo1",
+                        RequestStatus.PROCESSING_STATUS,
+                    ),
+                ).isTrue()
 
                 assertThat(result[1].accNo).isEqualTo("accNo2")
                 assertThat(result[1].version).isEqualTo(2)
                 assertThat(result[1].status).isEqualTo(PROCESSING)
-                assertThat(requestRepository.existsByAccNoAndStatusIn("accNo2", RequestStatus.PROCESSING)).isTrue()
+                assertThat(
+                    requestRepository.existsByAccNoAndStatusIn(
+                        "accNo2",
+                        RequestStatus.PROCESSING_STATUS,
+                    ),
+                ).isTrue()
 
                 assertThat(result[2].accNo).isEqualTo("accNo3")
                 assertThat(result[2].version).isEqualTo(2)
                 assertThat(result[2].status).isEqualTo(PROCESSING)
-                assertThat(requestRepository.existsByAccNoAndStatusIn("accNo3", RequestStatus.PROCESSING)).isTrue()
+                assertThat(
+                    requestRepository.existsByAccNoAndStatusIn(
+                        "accNo3",
+                        RequestStatus.PROCESSING_STATUS,
+                    ),
+                ).isTrue()
 
                 assertThat(result[3].accNo).isEqualTo("accNo4")
                 assertThat(result[3].version).isEqualTo(2)
                 assertThat(result[3].status).isEqualTo(PROCESSING)
-                assertThat(requestRepository.existsByAccNoAndStatusIn("accNo4", RequestStatus.PROCESSING)).isTrue()
+                assertThat(
+                    requestRepository.existsByAccNoAndStatusIn(
+                        "accNo4",
+                        RequestStatus.PROCESSING_STATUS,
+                    ),
+                ).isTrue()
 
                 assertThat(result[4].accNo).isEqualTo("accNo5")
                 assertThat(result[4].version).isEqualTo(1)
                 assertThat(result[4].status).isEqualTo(PROCESSED)
-                assertThat(requestRepository.existsByAccNoAndStatusIn("accNo5", RequestStatus.PROCESSING)).isFalse()
+                assertThat(
+                    requestRepository.existsByAccNoAndStatusIn(
+                        "accNo5",
+                        RequestStatus.PROCESSING_STATUS,
+                    ),
+                ).isFalse()
             }
 
         @Test

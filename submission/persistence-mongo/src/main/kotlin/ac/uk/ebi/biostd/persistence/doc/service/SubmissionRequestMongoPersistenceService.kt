@@ -11,7 +11,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRep
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,15 +35,20 @@ class SubmissionRequestMongoPersistenceService(
     private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
-    override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
+    override suspend fun findAllProcessed(): Flow<Pair<String, Int>> =
+        requestRepository
+            .findByStatusIn(PROCESSED_STATUS)
+            .map { it.accNo to it.version }
+
+    override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 
     override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request =
             when (since) {
-                null -> requestRepository.findByStatusIn(PROCESSING)
+                null -> requestRepository.findByStatusIn(PROCESSING_STATUS)
                 else ->
                     requestRepository.findByStatusInAndModificationTimeLessThan(
-                        PROCESSING,
+                        PROCESSING_STATUS,
                         Instant.now().minus(since),
                     )
             }
