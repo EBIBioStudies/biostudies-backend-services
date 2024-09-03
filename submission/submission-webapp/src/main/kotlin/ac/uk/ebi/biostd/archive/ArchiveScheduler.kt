@@ -5,9 +5,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
+@Component
 class ArchiveScheduler(
     private val persistenceService: SubmissionRequestPersistenceService,
 ) {
