@@ -93,6 +93,8 @@ interface SubmissionFilesPersistenceService {
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
+    suspend fun findAllProcessed(): Flow<Pair<String, Int>>
+
     suspend fun hasActiveRequest(accNo: String): Boolean
 
     suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>

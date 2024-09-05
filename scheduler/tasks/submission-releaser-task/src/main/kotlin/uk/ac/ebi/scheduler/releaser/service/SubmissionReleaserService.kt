@@ -41,7 +41,7 @@ class SubmissionReleaserService(
         withContext(Dispatchers.Default) {
             releaserRepository
                 .findAllUntil(to.toDate())
-                .filterNot { requestRepository.existsByAccNoAndStatusIn(it.accNo, RequestStatus.PROCESSING) }
+                .filterNot { requestRepository.existsByAccNoAndStatusIn(it.accNo, RequestStatus.PROCESSING_STATUS) }
                 .map { async { releaseSafely(it) } }
                 .collect { it.await() }
         }
@@ -57,9 +57,7 @@ class SubmissionReleaserService(
     }
 
     private fun releaseSafely(releaseData: ReleaseData) {
-        runCatching {
-            bioWebClient.refreshSubmission(releaseData.accNo)
-        }
+        runCatching { bioWebClient.refreshSubmission(releaseData.accNo) }
             .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
             .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
     }

@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.model.RequestStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/submissions/requests")
 @PreAuthorize("isAuthenticated()")
 class SubmissionRequestResource(
-    private val submissionRequestService: SubmissionRequestService,
+    private val submissionRequestService: SubmissionRequestPersistenceService,
 ) {
     @GetMapping("/{accNo}/{version}")
     @ResponseBody
@@ -29,7 +29,7 @@ class SubmissionRequestResource(
     suspend fun getSubmissionRequestStatus(
         @PathVariable accNo: String,
         @PathVariable version: Int,
-    ): RequestStatus = getSubmissionRequest(accNo, version).status
+    ): RequestStatus = submissionRequestService.getSubmissionRequest(accNo, version).status
 
     @PostMapping("/{accNo}/{version}/archive")
     @ResponseBody

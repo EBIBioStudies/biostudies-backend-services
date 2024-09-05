@@ -84,8 +84,8 @@ class SubmissionReleaserServiceTest(
         every { bioWebClient.refreshSubmission("S-BSST0") } answers { "S-BSST0" to 2 }
         every { releaserRepository.findAllUntil(to) } returns flowOf(released, releasing)
 
-        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST0", RequestStatus.PROCESSING) } returns false
-        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST1", RequestStatus.PROCESSING) } returns true
+        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST0", RequestStatus.PROCESSING_STATUS) } returns false
+        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST1", RequestStatus.PROCESSING_STATUS) } returns true
 
         testInstance.releaseDailySubmissions()
 

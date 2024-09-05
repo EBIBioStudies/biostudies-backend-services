@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
@@ -114,6 +115,7 @@ suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on(RQT_STATUS, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(RQT_STATUS, ASC).on(RQT_MODIFICATION_TIME, ASC)).awaitSingleOrNull()
     }
 }
 

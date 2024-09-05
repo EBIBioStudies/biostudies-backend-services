@@ -15,10 +15,12 @@ enum class RequestStatus {
     ;
 
     companion object {
+        val PROCESSED_STATUS: Set<RequestStatus> = setOf(RequestStatus.PROCESSED)
+
         /**
          * List of status consider as the system is processing or owns the submission.
          */
-        val PROCESSING: Set<RequestStatus> =
+        val PROCESSING_STATUS: Set<RequestStatus> =
             setOf(
                 REQUESTED,
                 INDEXED,

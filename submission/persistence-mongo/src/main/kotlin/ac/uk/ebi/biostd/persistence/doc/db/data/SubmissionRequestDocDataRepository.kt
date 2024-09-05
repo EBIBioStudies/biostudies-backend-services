@@ -49,7 +49,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -89,7 +89,7 @@ class SubmissionRequestDocDataRepository(
                     DocSubmissionRequest::class.java,
                 ).awaitSingle()
         val created = result.matchedCount < 1
-        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
+        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING_STATUS) to created
     }
 
     /**
@@ -177,11 +177,10 @@ class SubmissionRequestDocDataRepository(
     suspend fun getRequest(
         accNo: String,
         version: Int,
-    ): DocSubmissionRequest {
-        return submissionRequestRepository
+    ): DocSubmissionRequest =
+        submissionRequestRepository
             .findByAccNoAndVersion(accNo, version)
             ?: throw SubmissionRequestNotFoundException(accNo, version)
-    }
 
     suspend fun getRequest(
         accNo: String,
@@ -316,7 +315,7 @@ class SubmissionRequestDocDataRepository(
         ImmutableList
             .Builder<Criteria>()
             .apply {
-                add(where(SUB_STATUS).`in`(PROCESSING))
+                add(where(SUB_STATUS).`in`(PROCESSING_STATUS))
                 filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
                 filter.type?.let { add(where("$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
                 filter.rTimeFrom?.let { add(where("$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }

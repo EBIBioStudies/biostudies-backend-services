@@ -23,7 +23,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -131,10 +130,6 @@ class SubmissionWebConfig {
             submissionQueryService,
             persistenceDraftService,
         )
-
-    @Bean
-    fun submissionRequestService(requestPersistenceService: SubmissionRequestPersistenceService): SubmissionRequestService =
-        SubmissionRequestService(requestPersistenceService)
 
     @Bean
     fun submissionHandler(
