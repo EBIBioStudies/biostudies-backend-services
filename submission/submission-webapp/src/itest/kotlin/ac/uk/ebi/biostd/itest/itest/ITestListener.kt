@@ -166,6 +166,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.cluster.slurmServer", "test-server")
         properties.addProperty("app.cluster.default", "LSF")
         properties.addProperty("app.cluster.logsPath", clusterLogsPath.absolutePath)
+        properties.addProperty("app.cluster.wrapperPath", clusterWrapperPath.absolutePath)
     }
 
     private fun findResource(resource: String): File? = this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
@@ -200,6 +201,7 @@ class ITestListener : TestExecutionListener {
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
         internal val clusterLogsPath = testAppFolder.createDirectory("cluster-logs")
+        internal val clusterWrapperPath = testAppFolder.createDirectory("cluster-wrapper")
 
         private val fireServer: WireMockServer by lazy { createFireApiMock() }
         private val doiServer: WireMockServer by lazy { createDoiApiMock() }

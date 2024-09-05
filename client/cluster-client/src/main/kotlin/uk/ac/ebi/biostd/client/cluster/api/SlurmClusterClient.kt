@@ -21,9 +21,6 @@ class SlurmClusterClient(
 ) : ClusterClient {
     private val sshClient by lazy { SshClient(sshMachine = sshServer, sshKey = sshKey) }
 
-    // TODO add script to the deployment
-    // TODO LSF ?
-    // TODO tests
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
         val parameters = mutableListOf("sbatch --output=/dev/null")
         parameters.addAll(jobSpec.asParameter(wrapperPath, logsPath))
@@ -73,7 +70,7 @@ class SlurmClusterClient(
 
     override suspend fun jobLogs(jobId: String): String {
         return sshClient.runInSession {
-            val (_, response) = executeCommand("cat $logsPath/${jobId}_OUT")
+            val (_, response) = executeCommand("cat $logsPath/${jobId.takeLast(JOB_ID_DIGITS)}/${jobId}_OUT")
             return@runInSession response
         }
     }
@@ -121,8 +118,7 @@ class SlurmClusterClient(
             )
         }
 
-        // TODO does this need to be a companion fun?
-        fun JobSpec.asParameter(
+        private fun JobSpec.asParameter(
             wrapperPath: String,
             logsPath: String,
         ): List<String> =
@@ -133,5 +129,7 @@ class SlurmClusterClient(
                 add("--partition=${queue.name}")
                 add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$command\"")
             }
+
+        private const val JOB_ID_DIGITS = 3
     }
 }
