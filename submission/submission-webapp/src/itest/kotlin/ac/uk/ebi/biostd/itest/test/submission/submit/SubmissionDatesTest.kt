@@ -7,6 +7,9 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.itest.test.collection.ListCollectionsTest.CollectionUser
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
@@ -19,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -332,6 +336,152 @@ class SubmissionDatesTest(
 
         @Test
         fun `28-8 Admin make a Regular user public submission private`() =
+            runTest {
+                val v1 =
+                    tsv {
+                        line("Submission")
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                val submitted = userWebClient.submit(v1, TSV)
+                assertThat(submitted).isSuccessful()
+                val accNo = submitted.body.accNo
+
+                val v2 =
+                    tsv {
+                        line("Submission", accNo)
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", "2050-04-24")
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                assertThat(adminWebClient.submit(v2, TSV)).isSuccessful()
+                val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
+                assertThat(v2Extended.released).isFalse()
+                assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
+            }
+    }
+
+    @Nested
+    inner class CollectionAdminUser {
+        private val collectionAccNo = "PermissionCollection"
+        private lateinit var colAdminWebClient: BioWebClient
+
+        @BeforeAll
+        fun beforeAll() =
+            runBlocking {
+                val collection =
+                    tsv {
+                        line("Submission", collectionAccNo)
+                        line("AccNoTemplate", "!{S-PERMISIONT}")
+                        line()
+
+                        line("Project")
+                    }.toString()
+                assertThat(adminWebClient.submit(collection, TSV)).isSuccessful()
+
+                securityTestService.ensureUserRegistration(CollectionUser)
+
+                adminWebClient.grantPermission(CollectionUser.email, collectionAccNo, ADMIN.name)
+                adminWebClient.grantPermission(DefaultUser.email, collectionAccNo, ATTACH.name)
+
+                colAdminWebClient = getWebClient(serverPort, CollectionUser)
+            }
+
+        @BeforeEach
+        fun beforeEach() {
+            colAdminWebClient = getWebClient(serverPort, CollectionUser)
+        }
+
+        @Test
+        fun `28-9 Collection Admin submits and re submit in the past`() =
+            runTest {
+                val v1 =
+                    tsv {
+                        line("Submission")
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", "2020-04-24")
+                        line("AttachTo", collectionAccNo)
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                val v1Submission = colAdminWebClient.submit(v1, TSV)
+                val accNo = v1Submission.body.accNo
+                assertThat(v1Submission).isSuccessful()
+
+                val v1Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 1)
+                assertThat(v1Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2020-04-24T00:00+00:00"))
+
+                val v2 =
+                    tsv {
+                        line("Submission", accNo)
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", "1985-04-24")
+                        line("AttachTo", collectionAccNo)
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+                assertThat(colAdminWebClient.submit(v2, TSV)).isSuccessful()
+                val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
+                assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("1985-04-24T00:00+00:00"))
+            }
+
+        @Test
+        fun `28-10 Collection Admin make a public submission private`() =
+            runTest {
+                val v1 =
+                    tsv {
+                        line("Submission")
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", "2020-04-24")
+                        line("AttachTo", collectionAccNo)
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                val v1Submission = colAdminWebClient.submit(v1, TSV)
+                val accNo = v1Submission.body.accNo
+                assertThat(v1Submission).isSuccessful()
+
+                val v1Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 1)
+                assertThat(v1Extended.released).isTrue()
+                assertThat(v1Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2020-04-24T00:00+00:00"))
+
+                val v2 =
+                    tsv {
+                        line("Submission", accNo)
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", "2050-04-24")
+                        line("AttachTo", collectionAccNo)
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                assertThat(colAdminWebClient.submit(v2, TSV)).isSuccessful()
+                val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
+                assertThat(v2Extended.released).isFalse()
+                assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
+            }
+
+        @Test
+        fun `28-11 Collection Admin make a Regular user public submission private`() =
             runTest {
                 val v1 =
                     tsv {

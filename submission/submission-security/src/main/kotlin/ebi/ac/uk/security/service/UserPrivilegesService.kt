@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE_FILES
@@ -70,7 +71,14 @@ internal class UserPrivilegesService(
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
-    override fun canUpdateReleaseDate(email: String): Boolean = isSuperUser(email)
+    override fun canUpdateReleaseDate(
+        email: String,
+        collection: String?,
+    ): Boolean =
+        when (collection) {
+            null -> isSuperUser(email)
+            else -> isSuperUser(email) || permissionsService.hasPermission(email, collection, ADMIN)
+        }
 
     private suspend fun hasPermissions(
         user: String,

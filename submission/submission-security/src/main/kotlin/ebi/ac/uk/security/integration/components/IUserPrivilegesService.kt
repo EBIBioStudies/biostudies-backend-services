@@ -40,5 +40,8 @@ interface IUserPrivilegesService {
      * Permission to indicate the given user is able to release in the past, make a submission private or change a
      * public study release date.
      */
-    fun canUpdateReleaseDate(email: String): Boolean
+    fun canUpdateReleaseDate(
+        email: String,
+        collection: String?,
+    ): Boolean
 }
