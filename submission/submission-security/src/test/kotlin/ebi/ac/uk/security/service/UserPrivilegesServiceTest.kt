@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.service
 
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
@@ -27,7 +28,7 @@ import ac.uk.ebi.biostd.persistence.model.DbUser as UserDB
 class UserPrivilegesServiceTest(
     @MockK private val author: UserDB,
     @MockK private val otherAuthor: UserDB,
-    @MockK private val superuser: UserDB,
+    @MockK private val user: UserDB,
     @MockK private val basicSubmission: BasicSubmission,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val queryService: SubmissionMetaQueryService,
@@ -197,24 +198,28 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `regular user release`() {
-        every { superuser.superuser } returns false
+        every { user.superuser } returns false
         assertThat(testInstance.canRelease("superuser@mail.com")).isFalse()
     }
 
     @Test
     fun `super user suppress`() {
-        assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com")).isTrue()
+        assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com", null)).isTrue()
+        assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com", "any_project")).isTrue()
     }
 
     @Test
     fun `regular user suppress`() {
-        every { superuser.superuser } returns false
-        assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com")).isFalse()
+        every { user.superuser } returns false
+        assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com", null)).isFalse()
+
+        every { userPermissionsService.hasPermission("superuser@mail.com", "any_project", ADMIN) } returns true
+        assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com", "any_project")).isTrue()
     }
 
     private fun initUsers() {
-        every { superuser.id } returns 123
-        every { superuser.superuser } returns true
+        every { user.id } returns 123
+        every { user.superuser } returns true
 
         every { author.id } returns 124
         every { author.superuser } returns false
@@ -225,7 +230,7 @@ class UserPrivilegesServiceTest(
         every { userRepository.findByEmail("empty@mail.com") } returns null
         every { userRepository.findByEmail("author@mail.com") } returns author
         every { userRepository.findByEmail("otherAuthor@mail.com") } returns otherAuthor
-        every { userRepository.findByEmail("superuser@mail.com") } returns superuser
+        every { userRepository.findByEmail("superuser@mail.com") } returns user
     }
 
     private fun initSubmissionQueries() {
