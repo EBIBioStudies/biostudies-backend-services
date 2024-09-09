@@ -2,7 +2,7 @@
 
 #
 # Executes the given command in the SLURM cluster placing the files in a dynamic location based on the job id last
-# three digits.
+# three digits. For example, for a job with id 12345, the logs would be placed at /the/logs/path/345/12345_OUT.
 #
 # Parameters:
 #  $1: Job logs output path
