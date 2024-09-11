@@ -18,5 +18,6 @@ data class ClusterProperties(
     val lsfServer: String,
     val slurmServer: String,
     val logsPath: String,
+    val wrapperPath: String,
     val default: Cluster,
 )

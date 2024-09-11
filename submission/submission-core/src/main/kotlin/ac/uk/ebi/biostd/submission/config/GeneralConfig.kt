@@ -124,6 +124,7 @@ class GeneralConfig {
                 properties.cluster.key,
                 properties.cluster.slurmServer,
                 properties.cluster.logsPath,
+                properties.cluster.wrapperPath,
             )
         }
     }

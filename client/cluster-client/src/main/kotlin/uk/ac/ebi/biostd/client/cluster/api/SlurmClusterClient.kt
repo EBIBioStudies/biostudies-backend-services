@@ -14,6 +14,7 @@ import kotlin.Result.Companion.success
 private val logger = KotlinLogging.logger {}
 
 class SlurmClusterClient(
+    private val wrapperPath: String,
     private val logsPath: String,
     private val sshServer: String,
     private val sshKey: String,
@@ -21,8 +22,8 @@ class SlurmClusterClient(
     private val sshClient by lazy { SshClient(sshMachine = sshServer, sshKey = sshKey) }
 
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
-        val parameters = mutableListOf("sbatch --output=$logsPath/%J_OUT --error=$logsPath/%J_IN")
-        parameters.addAll(jobSpec.asParameter())
+        val parameters = mutableListOf("sbatch --output=/dev/null")
+        parameters.addAll(jobSpec.asParameter(wrapperPath, logsPath))
         val command = parameters.joinToString(separator = " ")
         logger.info { "Executing command '$command'" }
 
@@ -46,15 +47,15 @@ class SlurmClusterClient(
      * Return the slurm job status. PENDING/RUNNING/COMPLETING/COMPLETED
      */
     override suspend fun jobStatus(jobId: String): String {
-        suspend fun CommandRunner.runningJobStatus(): String? {
+        fun CommandRunner.runningJobStatus(): String? {
             val status = executeCommand("squeue --noheader --format=%T --job $jobId").second
-            if (status.isBlank()) return null else return status
+            return status.ifBlank { null }
         }
 
-        suspend fun CommandRunner.historicalJobStatus(): String? {
+        fun CommandRunner.historicalJobStatus(): String? {
             val command = "sacct --noheader --format=JobID,State --jobs=$jobId | grep \"^$jobId \" | awk '{print \$2}'"
             val status = executeCommand(command).second
-            if (status.isBlank()) return null else return status
+            return status.ifBlank { null }
         }
 
         return sshClient.runInSession {
@@ -69,7 +70,7 @@ class SlurmClusterClient(
 
     override suspend fun jobLogs(jobId: String): String {
         return sshClient.runInSession {
-            val (_, response) = executeCommand("cat $logsPath/${jobId}_OUT")
+            val (_, response) = executeCommand("cat $logsPath/${jobId.takeLast(JOB_ID_DIGITS)}/${jobId}_OUT")
             return@runInSession response
         }
     }
@@ -107,17 +108,28 @@ class SlurmClusterClient(
             sshKey: String,
             sshMachine: String,
             logsPath: String,
+            wrapperPath: String,
         ): SlurmClusterClient {
-            return SlurmClusterClient(logsPath = logsPath, sshServer = sshMachine, sshKey = sshKey)
+            return SlurmClusterClient(
+                logsPath = logsPath,
+                wrapperPath = wrapperPath,
+                sshServer = sshMachine,
+                sshKey = sshKey,
+            )
         }
 
-        fun JobSpec.asParameter(): List<String> =
+        private fun JobSpec.asParameter(
+            wrapperPath: String,
+            logsPath: String,
+        ): List<String> =
             buildList {
                 add("--cores=$cores")
                 add("--time=$minutes")
                 add("--mem=$ram")
                 add("--partition=${queue.name}")
-                add("--wrap=\"$command\"")
+                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$command\"")
             }
+
+        private const val JOB_ID_DIGITS = 3
     }
 }
