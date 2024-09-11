@@ -175,8 +175,8 @@ task updateClusterWrapper {
     doLast {
         ssh.run {
             session(remotes[env]) {
-                put from: "$rootDir/ci/slurm_wrapper.sh", into: "$clusterWrapperPath/slurm_wrapper.sh"
-                execute "chmod +x $clusterWrapperPath/slurm_wrapper.sh"
+                put from: "$rootDir/ci/slurm_wrapper.sh", into: "$deployPath/slurm_wrapper.sh"
+                execute "chmod +x $deployPath/slurm_wrapper.sh"
             }
         }
     }
