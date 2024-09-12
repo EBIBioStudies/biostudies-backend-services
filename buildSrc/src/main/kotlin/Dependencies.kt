@@ -16,6 +16,7 @@ import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
+import Versions.CommonsCodecVersion
 import Versions.CommonsCsvVersion
 import Versions.CommonsFileUploadVersion
 import Versions.CommonsIOVersion
@@ -76,6 +77,7 @@ object Versions {
     const val KMongoCoroutineVersion = "4.6.1"
     const val MongockVersion = "4.3.8"
 
+    const val CommonsCodecVersion = "1.17.1"
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
@@ -201,6 +203,7 @@ object Dependencies {
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val CommonsNet = "commons-net:commons-net:$CommonsNetVersion"
     const val CommonsPool = "org.apache.commons:commons-pool2:$CommonsPoolVersion"
+    const val CommonsCodec = "commons-codec:commons-codec:$CommonsCodecVersion"
     const val CommonsCsv = "org.apache.commons:commons-csv:$CommonsCsvVersion"
     const val PoiOxml = "org.apache.poi:poi-ooxml:$PoiVersion"
 }

@@ -1,9 +1,14 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
+import ebi.ac.uk.exception.CorruptedFileException
+import ebi.ac.uk.io.FileUtils.listAllFilesWithRelPaths
+import ebi.ac.uk.io.ext.md5
+import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.isDirectory
 
@@ -22,6 +27,8 @@ object ZipUtil {
                     zs.closeEntry()
                 }
         }
+
+        checkZipIntegrity(sourceDir, zipFile)
     }
 
     fun unpack(
@@ -39,4 +46,20 @@ object ZipUtil {
         zipEntry.time = 0
         return zipEntry
     }
+
+    internal fun checkZipIntegrity(
+        sourceDir: File,
+        zipFile: File,
+    ) {
+        ZipFile(zipFile).use { zip ->
+            listAllFilesWithRelPaths(sourceDir).forEach {
+                val (path, sourceFile) = it
+                val entry = zip.getEntry(path)
+
+                if (entry == null || sourceFile.md5() != zip.md5(entry)) throw CorruptedFileException(sourceFile)
+            }
+        }
+    }
+
+    private fun ZipFile.md5(entry: ZipEntry): String = getInputStream(entry).use { DigestUtils.md5Hex(it).uppercase() }
 }
