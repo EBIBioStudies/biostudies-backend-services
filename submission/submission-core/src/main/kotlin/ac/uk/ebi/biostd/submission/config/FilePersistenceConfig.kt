@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
-import java.time.Clock
 
 @Configuration
 @Import(value = [SqlPersistenceConfig::class, GeneralConfig::class, ToSubmissionConfig::class])
@@ -55,8 +54,7 @@ class FilePersistenceConfig(
     fun fireFileService(): FireFilesService = FireFilesService(fireClient)
 
     @Bean
-    fun pageTabService(pageTabUtil: PageTabUtil): PageTabService =
-        PageTabService(Clock.systemDefaultZone(), File(properties.fire.tempDirPath), pageTabUtil)
+    fun pageTabService(pageTabUtil: PageTabUtil): PageTabService = PageTabService(File(properties.fire.tempDirPath), pageTabUtil)
 
     @Bean
     fun pageTabUtil(
