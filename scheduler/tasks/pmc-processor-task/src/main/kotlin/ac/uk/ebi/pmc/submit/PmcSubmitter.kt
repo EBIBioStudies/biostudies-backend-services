@@ -26,7 +26,7 @@ import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val TIMEOUT = 25_000L
+private const val TIMEOUT = 60_000L
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(
@@ -74,7 +74,9 @@ class PmcSubmitter(
     private suspend fun submit(submission: SubmissionDocument): Result<TimedValue<SubmissionResponse>> {
         suspend fun submit(): SubmissionResponse {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
-            val params = SubmitParameters(storageMode = StorageMode.NFS)
+
+            logger.info { "submitting accNo='${submission.accNo}', docId='${submission.id}' with ${files.size} files" }
+            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true)
             return bioWebClient.submitMultipart(submission.body, SubmissionFormat.JSON, params, files)
         }
 

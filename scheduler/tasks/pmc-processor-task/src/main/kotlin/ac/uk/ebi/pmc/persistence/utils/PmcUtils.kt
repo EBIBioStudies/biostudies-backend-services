@@ -8,7 +8,7 @@ object PmcUtils {
     /**
      * Extract the sequence number from a pmc file. ie. bs-07-02-2024-6.txt.gz
      */
-    fun extractSequence(filePath: String): Int {
+    fun extractSequence(filePath: String): Long {
         val match = regex.find(filePath)
         val datePart = match?.groups?.get(1)?.value ?: throw IllegalArgumentException(error)
 
@@ -18,6 +18,6 @@ object PmcUtils {
 
         // Reformat the date
         val (day, month, year, sequence) = dateComponents
-        return "$year$month$day$sequence".toInt()
+        return "$year$month$day$sequence".toLong()
     }
 }

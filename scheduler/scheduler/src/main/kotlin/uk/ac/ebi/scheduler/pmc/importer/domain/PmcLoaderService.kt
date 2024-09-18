@@ -145,8 +145,9 @@ private class PmcLoader(
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
-                    FOUR_CORES,
-                    EIGHT_GB,
+                    minutes = JOB_MINUTES,
+                    cores = FOUR_CORES,
+                    ram = EIGHT_GB,
                     command = properties.asCmd(appProperties.appsFolder, debugPort),
                 ),
             )
@@ -162,8 +163,9 @@ private class PmcLoader(
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
-                    EIGHT_CORES,
-                    MemorySpec.TWENTYFOUR_GB,
+                    minutes = JOB_MINUTES,
+                    cores = EIGHT_CORES,
+                    ram = MemorySpec.TWENTYFOUR_GB,
                     command = properties.asCmd(appProperties.appsFolder, debugPort),
                 ),
             )
@@ -179,8 +181,9 @@ private class PmcLoader(
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
-                    EIGHT_CORES,
-                    MemorySpec.TWENTYFOUR_GB,
+                    minutes = JOB_MINUTES,
+                    cores = EIGHT_CORES,
+                    ram = MemorySpec.TWENTYFOUR_GB,
                     command = properties.asCmd(appProperties.appsFolder, debugPort),
                 ),
             )
@@ -208,4 +211,8 @@ private class PmcLoader(
         bioStudiesUrl = properties.bioStudiesUrl,
         submissionId = submissionId,
     )
+
+    private companion object {
+        const val JOB_MINUTES = 48 * 60
+    }
 }
