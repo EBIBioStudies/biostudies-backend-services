@@ -1,5 +1,9 @@
 package uk.ac.ebi.fire.client.integration.web
 
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
+import aws.sdk.kotlin.services.s3.S3Client
+import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
+import aws.smithy.kotlin.runtime.net.url.Url
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.client.builder.AwsClientBuilder
@@ -13,7 +17,8 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.ac.ebi.fire.client.api.FireWebClient
-import uk.ac.ebi.fire.client.api.S3Client
+import uk.ac.ebi.fire.client.api.S3JClient
+import uk.ac.ebi.fire.client.api.S3KClient
 import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 
 private const val FIRE_API_BASE = "fire"
@@ -27,21 +32,34 @@ class FireClientFactory private constructor() {
         ): FireClient =
             RetryWebClient(
                 createHttpClient(fireConfig),
-                createS3Client(s3Config),
+                createS3KClient(s3Config),
                 SuspendRetryTemplate(retryConfig),
             )
+
+        private fun createS3Client(s3Config: S3Config): S3Client {
+            val credentials = StaticCredentialsProvider(Credentials(s3Config.accessKey, s3Config.secretKey))
+            return S3Client {
+                region = s3Config.region
+                endpointUrl = Url.parse(s3Config.endpoint)
+                forcePathStyle = true
+                credentialsProvider = credentials
+            }
+        }
 
         private fun amazonS3Client(s3Config: S3Config): AmazonS3 {
             val basicAWSCredentials = BasicAWSCredentials(s3Config.accessKey, s3Config.secretKey)
             val endpointConfiguration = AwsClientBuilder.EndpointConfiguration(s3Config.endpoint, s3Config.region)
-            return AmazonS3Client.builder()
+            return AmazonS3Client
+                .builder()
                 .withEndpointConfiguration(endpointConfiguration)
                 .withPathStyleAccessEnabled(true)
                 .withCredentials(AWSStaticCredentialsProvider(basicAWSCredentials))
                 .build()
         }
 
-        private fun createS3Client(s3Config: S3Config): FireS3Client = S3Client(s3Config.bucket, amazonS3Client(s3Config))
+        private fun createS3KClient(s3Config: S3Config): FireS3Client = S3KClient(s3Config.bucket, createS3Client(s3Config))
+
+        private fun createS3JClient(s3Config: S3Config): FireS3Client = S3JClient(s3Config.bucket, amazonS3Client(s3Config))
 
         private fun createHttpClient(config: FireConfig): FireWebClient {
             val webClient = createWebClient(config.fireHost, config.fireVersion, config.username, config.password)
@@ -55,9 +73,11 @@ class FireClientFactory private constructor() {
             password: String,
         ): WebClient {
             val exchangeStrategies =
-                ExchangeStrategies.builder().codecs { configurer ->
-                    if (configurer is ClientCodecConfigurer) configurer.defaultCodecs().maxInMemorySize(-1)
-                }.build()
+                ExchangeStrategies
+                    .builder()
+                    .codecs { configurer ->
+                        if (configurer is ClientCodecConfigurer) configurer.defaultCodecs().maxInMemorySize(-1)
+                    }.build()
 
             val httpClient =
                 HttpClient.create().doOnConnected { connection ->
@@ -65,7 +85,8 @@ class FireClientFactory private constructor() {
                     connection.addHandlerLast(WriteTimeoutHandler(0))
                 }
 
-            return WebClient.builder()
+            return WebClient
+                .builder()
                 .baseUrl("$fireHost/$FIRE_API_BASE/$fireVersion")
                 .defaultHeaders { headers -> headers.setBasicAuth(username, password) }
                 .clientConnector(ReactorClientHttpConnector(httpClient))

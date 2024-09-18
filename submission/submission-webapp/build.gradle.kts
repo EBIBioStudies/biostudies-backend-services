@@ -6,6 +6,7 @@ import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
+import Dependencies.OkHttp3
 import Dependencies.RxJava2
 import Dependencies.SpringWebFlux
 import Dependencies.SpringfoxSwagger
@@ -65,6 +66,12 @@ plugins {
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
     id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
+}
+
+dependencyManagement {
+    dependencies {
+        dependency(OkHttp3) // Required by Aws S3 Kotlin sdk
+    }
 }
 
 allOpen {

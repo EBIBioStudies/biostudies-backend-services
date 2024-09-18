@@ -16,6 +16,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -52,121 +53,125 @@ class EuToxRiskValidatorTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun validate() {
-        val bodySlot = slot<FileSystemResource>()
-        val headersSlot = slot<Consumer<HttpHeaders>>()
-        val submission =
-            basicExtSubmission.copy(
-                section =
-                    ExtSection(
-                        type = "Study",
-                        files =
-                            listOf(
-                                left(createNfsFile("folder/test.xlsx", "Files/folder/test.xlsx", excelFile)),
-                            ),
-                    ),
-            )
+    fun validate() =
+        runTest {
+            val bodySlot = slot<FileSystemResource>()
+            val headersSlot = slot<Consumer<HttpHeaders>>()
+            val submission =
+                basicExtSubmission.copy(
+                    section =
+                        ExtSection(
+                            type = "Study",
+                            files =
+                                listOf(
+                                    left(createNfsFile("folder/test.xlsx", "Files/folder/test.xlsx", excelFile)),
+                                ),
+                        ),
+                )
 
-        every { client.post().uri(testUrl) } returns requestSpec
-        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every {
-            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
-        } returns EuToxRiskValidatorResponse(listOf())
+            every { client.post().uri(testUrl) } returns requestSpec
+            every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+            every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+            every {
+                requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
+            } returns EuToxRiskValidatorResponse(listOf())
 
-        testInstance.validate(submission)
+            testInstance.validate(submission)
 
-        val body = bodySlot.captured
-        val headers = headersSlot.captured
-        headers.andThen {
-            assertThat(it[HttpHeaders.CONTENT_TYPE]!!.first()).isEqualTo(MediaType.APPLICATION_JSON)
+            val body = bodySlot.captured
+            val headers = headersSlot.captured
+            headers.andThen {
+                assertThat(it[HttpHeaders.CONTENT_TYPE]!!.first()).isEqualTo(MediaType.APPLICATION_JSON)
+            }
+            verify(exactly = 1) {
+                client.post().uri(testUrl)
+                requestSpec.bodyValue(body)
+                requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
+            }
         }
-        verify(exactly = 1) {
-            client.post().uri(testUrl)
-            requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
-        }
-    }
 
     @Test
-    fun validateWhenNotApplicable() {
-        val submission =
-            basicExtSubmission.copy(
-                section =
-                    ExtSection(
-                        type = "Study",
-                        attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1")),
-                    ),
-            )
+    fun validateWhenNotApplicable() =
+        runTest {
+            val submission =
+                basicExtSubmission.copy(
+                    section =
+                        ExtSection(
+                            type = "Study",
+                            attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1")),
+                        ),
+                )
 
-        testInstance.validate(submission)
+            testInstance.validate(submission)
 
-        verify { client wasNot called }
-    }
+            verify { client wasNot called }
+        }
 
     @Test
-    fun `validate with errors`() {
-        val bodySlot = slot<FileSystemResource>()
-        val headersSlot = slot<Consumer<HttpHeaders>>()
-        val submission =
-            basicExtSubmission.copy(
-                section =
-                    ExtSection(
-                        type = "Study",
-                        files =
-                            listOf(
-                                left(
-                                    createNfsFile(
-                                        "folder/test.xlsx",
-                                        "Files/folder/test.xlsx",
-                                        excelFile,
+    fun `validate with errors`() =
+        runTest {
+            val bodySlot = slot<FileSystemResource>()
+            val headersSlot = slot<Consumer<HttpHeaders>>()
+            val submission =
+                basicExtSubmission.copy(
+                    section =
+                        ExtSection(
+                            type = "Study",
+                            files =
+                                listOf(
+                                    left(
+                                        createNfsFile(
+                                            "folder/test.xlsx",
+                                            "Files/folder/test.xlsx",
+                                            excelFile,
+                                        ),
                                     ),
                                 ),
-                            ),
-                    ),
+                        ),
+                )
+
+            every { client.post().uri(testUrl) } returns requestSpec
+            every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+            every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+            every {
+                requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
+            } returns EuToxRiskValidatorResponse(listOf(EuToxRiskValidatorMessage("an error")))
+
+            val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
+            assertThat(error.message).isEqualTo(
+                "The submission doesn't comply with the collection requirements. Errors: [an error]",
             )
 
-        every { client.post().uri(testUrl) } returns requestSpec
-        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every {
-            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
-        } returns EuToxRiskValidatorResponse(listOf(EuToxRiskValidatorMessage("an error")))
-
-        val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
-        assertThat(error.message).isEqualTo(
-            "The submission doesn't comply with the collection requirements. Errors: [an error]",
-        )
-
-        val body = bodySlot.captured
-        val headers = headersSlot.captured
-        headers.andThen {
-            assertThat(it[HttpHeaders.CONTENT_TYPE]!!.first()).isEqualTo(MediaType.APPLICATION_JSON)
+            val body = bodySlot.captured
+            val headers = headersSlot.captured
+            headers.andThen {
+                assertThat(it[HttpHeaders.CONTENT_TYPE]!!.first()).isEqualTo(MediaType.APPLICATION_JSON)
+            }
+            verify(exactly = 1) {
+                client.post().uri(testUrl)
+                requestSpec.bodyValue(body)
+                requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
+            }
         }
-        verify(exactly = 1) {
-            client.post().uri(testUrl)
-            requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
-        }
-    }
 
     @Test
-    fun `submission without excel file`() {
-        val submission =
-            basicExtSubmission.copy(
-                section =
-                    ExtSection(
-                        type = "Study",
-                        files =
-                            listOf(
-                                left(createNfsFile("folder/test.txt", "Files/folder/test.txt", textFile)),
-                            ),
-                    ),
-            )
+    fun `submission without excel file`() =
+        runTest {
+            val submission =
+                basicExtSubmission.copy(
+                    section =
+                        ExtSection(
+                            type = "Study",
+                            files =
+                                listOf(
+                                    left(createNfsFile("folder/test.txt", "Files/folder/test.txt", textFile)),
+                                ),
+                        ),
+                )
 
-        val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
-        assertThat(error.message).isEqualTo(
-            "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]",
-        )
-    }
+            val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
+            assertThat(error.message).isEqualTo(
+                "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]",
+            )
+        }
 }

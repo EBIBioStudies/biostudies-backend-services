@@ -22,10 +22,10 @@ class CollectionValidationService(
     private suspend fun loadCollection(accNo: String) = queryService.getBasicCollection(accNo)
 
     @Throws(CollectionValidationException::class)
-    private fun validate(
+    private suspend fun validate(
         validator: String,
         submission: ExtSubmission,
-    ) = loadValidator(validator).validate(submission)
+    ): Unit = loadValidator(validator).validate(submission)
 
     private fun loadValidator(name: String) = beanFactory.getBean(name, CollectionValidator::class.java)
 }

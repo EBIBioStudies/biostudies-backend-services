@@ -11,23 +11,24 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
+import kotlinx.coroutines.test.runTest
 import org.apache.http.client.methods.HttpRequestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-class S3ClientTest(
+class S3JClientTest(
     private val tmpFolder: TemporaryFolder,
     @MockK val amazonS3Client: AmazonS3,
 ) {
-    private val testInstance = S3Client("bucket", amazonS3Client)
+    private val testInstance = S3JClient("bucket", amazonS3Client)
 
     @Test
     fun downloadByPath(
         @MockK s3Object: S3Object,
         @MockK httpRequestBase: HttpRequestBase,
-    ) {
+    ) = runTest {
         val content = tmpFolder.createFile("s3file", "content")
         val getRequestSlot = slot<GetObjectRequest>()
         every { amazonS3Client.getObject(capture(getRequestSlot)) } returns s3Object

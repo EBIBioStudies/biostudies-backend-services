@@ -49,7 +49,7 @@ class NfsFilesService(
         return file.copy(fullPath = subFile.absolutePath, file = subFile)
     }
 
-    private fun persistFireFile(
+    private suspend fun persistFireFile(
         sub: ExtSubmissionInfo,
         file: FireFile,
     ): ExtFile {

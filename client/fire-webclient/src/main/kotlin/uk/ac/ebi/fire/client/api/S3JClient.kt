@@ -3,21 +3,24 @@ package uk.ac.ebi.fire.client.api
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.GetObjectRequest
 import com.amazonaws.services.s3.model.S3Object
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import uk.ac.ebi.fire.client.integration.web.FireS3Client
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-class S3Client(
+class S3JClient(
     private val bucketName: String,
     private val amazonS3Client: AmazonS3,
 ) : FireS3Client {
-    override fun downloadByPath(path: String): File? {
-        val stream = getFireObjectByPath(path).objectContent
-        val tmp = File.createTempFile(DEFAULT_PREFIX, path.substringAfterLast("/"))
-        Files.copy(stream, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        return tmp
-    }
+    override suspend fun downloadByPath(path: String): File? =
+        withContext(Dispatchers.IO) {
+            val stream = getFireObjectByPath(path).objectContent
+            val tmp = File.createTempFile(DEFAULT_PREFIX, path.substringAfterLast("/"))
+            Files.copy(stream, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            tmp
+        }
 
     private fun getFireObjectByPath(path: String): S3Object {
         val getObjectRequest = GetObjectRequest(bucketName, path)
