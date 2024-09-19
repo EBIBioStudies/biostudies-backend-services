@@ -4,11 +4,6 @@ import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
 import aws.smithy.kotlin.runtime.net.url.Url
-import com.amazonaws.auth.AWSStaticCredentialsProvider
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.client.builder.AwsClientBuilder
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.AmazonS3Client
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -17,7 +12,6 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.ac.ebi.fire.client.api.FireWebClient
-import uk.ac.ebi.fire.client.api.S3JClient
 import uk.ac.ebi.fire.client.api.S3KClient
 import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 
@@ -46,20 +40,7 @@ class FireClientFactory private constructor() {
             }
         }
 
-        private fun amazonS3Client(s3Config: S3Config): AmazonS3 {
-            val basicAWSCredentials = BasicAWSCredentials(s3Config.accessKey, s3Config.secretKey)
-            val endpointConfiguration = AwsClientBuilder.EndpointConfiguration(s3Config.endpoint, s3Config.region)
-            return AmazonS3Client
-                .builder()
-                .withEndpointConfiguration(endpointConfiguration)
-                .withPathStyleAccessEnabled(true)
-                .withCredentials(AWSStaticCredentialsProvider(basicAWSCredentials))
-                .build()
-        }
-
         private fun createS3KClient(s3Config: S3Config): FireS3Client = S3KClient(s3Config.bucket, createS3Client(s3Config))
-
-        private fun createS3JClient(s3Config: S3Config): FireS3Client = S3JClient(s3Config.bucket, amazonS3Client(s3Config))
 
         private fun createHttpClient(config: FireConfig): FireWebClient {
             val webClient = createWebClient(config.fireHost, config.fireVersion, config.username, config.password)
