@@ -138,6 +138,7 @@ internal class NfsFtpServiceTest(
         @Test
         fun `un-release submission file`() =
             runTest {
+                every { subInfo.released } returns false
                 val subFolder = folderResolver.getPublicSubFolder(REL_PATH).toFile()
                 val filesPath = subFolder.createDirectory(FILES_PATH)
                 val file = filesPath.createFile("move-test.txt", "move content")
