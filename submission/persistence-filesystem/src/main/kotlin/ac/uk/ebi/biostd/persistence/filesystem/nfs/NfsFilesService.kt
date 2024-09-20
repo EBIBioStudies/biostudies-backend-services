@@ -11,7 +11,7 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWXR_XR_X
+import ebi.ac.uk.io.RWXR_X__X
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
@@ -77,7 +77,7 @@ class NfsFilesService(
         permissions: Set<PosixFilePermission>,
     ): File {
         val submissionPath = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
-        FileUtils.createParentFolders(submissionPath, RWXR_XR_X)
+        FileUtils.createParentFolders(submissionPath, RWXR_X__X)
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 

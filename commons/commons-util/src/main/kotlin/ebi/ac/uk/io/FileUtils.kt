@@ -31,8 +31,7 @@ val RWX______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--
 val RWX__X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--x---")
 val RW_RW____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-rw----")
 val RWXRWX___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxrwx---")
-val RWXR_X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
-val RW_R_____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r-----")
+val RWXR_X__X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x--x")
 val RW_R__R__: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r--r--")
 val RWXR_XR_X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
