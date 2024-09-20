@@ -213,6 +213,6 @@ private class PmcLoader(
     )
 
     private companion object {
-        const val JOB_MINUTES = 48 * 60
+        const val JOB_MINUTES = 48 * 60 // 2 Days default PMC jobs duraiton
     }
 }
