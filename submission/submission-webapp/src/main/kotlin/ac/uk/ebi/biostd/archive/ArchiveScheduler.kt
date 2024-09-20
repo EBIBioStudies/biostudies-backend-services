@@ -20,17 +20,31 @@ class ArchiveScheduler(
     private val persistenceService: SubmissionRequestPersistenceService,
 ) {
     /**
-     * Archive request every day at 3 am.
+     * Delete request files every day at 1 am.
      */
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
+    fun deleteRequestFiles() =
+        runBlocking {
+            persistenceService
+                .findAllProcessed()
+                .onEach { (accNo, version) -> logger.info { "Deleting request files $accNo, $version" } }
+                .collect { (accNo, version) ->
+                    val subTempFolder = Paths.get(props.fire.tempDirPath).resolve("$accNo/$version").toFile()
+                    FileUtils.deleteFile(subTempFolder)
+                    logger.info { "Deleted request files for $accNo, $version" }
+                }
+        }
+
+    /**
+     * Archive request every day at 4 am.
+     */
+    @Scheduled(cron = "0 0 4 * * *")
     fun archiveRequests() =
         runBlocking {
             persistenceService
                 .findAllProcessed()
                 .onEach { (accNo, version) -> logger.info { "Archiving request $accNo, $version" } }
                 .collect { (accNo, version) ->
-                    val subTempFolder = Paths.get(props.fire.tempDirPath).resolve("$accNo/$version").toFile()
-                    FileUtils.deleteFile(subTempFolder)
                     persistenceService.archiveRequest(accNo, version)
                     logger.info { "Archived request $accNo, $version" }
                 }
