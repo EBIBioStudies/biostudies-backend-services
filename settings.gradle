@@ -11,7 +11,6 @@ include("commons:commons-http")
 include("commons:commons-serialization")
 include("commons:commons-serialization-util")
 include("commons:commons-test")
-include("commons:commons-transpiler")
 
 include("commons:commons-model-extended")
 include("commons:commons-model-extended-mapping")
