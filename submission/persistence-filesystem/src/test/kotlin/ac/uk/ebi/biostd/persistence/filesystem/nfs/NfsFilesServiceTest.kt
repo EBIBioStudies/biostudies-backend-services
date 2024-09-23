@@ -11,10 +11,11 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -82,12 +83,12 @@ class NfsFilesServiceTest(
                         emptyList(),
                     )
 
-                every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
+                coEvery { fireClient.downloadByPath("/a/file.txt") } returns downloaded
 
                 val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
 
                 val path = "${privateFolder.absolutePath}/${sub.relPath}/${fireFile.relPath}"
-                verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
+                coVerify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
                 assertThat(persisted.fullPath).isEqualTo(path)
                 assertThat(Files.exists(Paths.get(path))).isTrue()
             }

@@ -3,7 +3,9 @@ package uk.ac.ebi.fire.client.integration.web
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
-interface FireClient : FireWebClient, FireS3Client
+interface FireClient :
+    FireWebClient,
+    FireS3Client
 
 @Suppress("TooManyFunctions")
 interface FireWebClient {
@@ -32,5 +34,5 @@ interface FireWebClient {
 }
 
 interface FireS3Client {
-    fun downloadByPath(path: String): File?
+    suspend fun downloadByPath(path: String): File?
 }

@@ -58,7 +58,7 @@ internal class RetryWebClient(
         template.execute(opt) { fireClient.delete(fireOid) }
     }
 
-    override fun downloadByPath(path: String): File? {
+    override suspend fun downloadByPath(path: String): File? {
         val opt = "Download file path='$path'"
         return runBlocking { template.execute(opt) { fireS3Client.downloadByPath(path) } }
     }

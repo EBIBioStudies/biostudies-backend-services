@@ -40,7 +40,7 @@ data class SubmissionDocument(
     var status: SubmissionStatus,
     val sourceFile: String,
     val posInFile: Int,
-    val sourceTime: Int,
+    val sourceTime: Long,
     val files: List<ObjectId> = emptyList(),
     val updated: Instant = Instant.now(),
 ) {

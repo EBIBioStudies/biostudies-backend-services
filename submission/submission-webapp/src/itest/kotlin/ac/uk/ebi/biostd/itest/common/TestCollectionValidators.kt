@@ -7,13 +7,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 class TestCollectionValidator : CollectionValidator {
     var validated = false
 
-    override fun validate(submission: ExtSubmission) {
+    override suspend fun validate(submission: ExtSubmission) {
         validated = true
     }
 }
 
 class FailCollectionValidator : CollectionValidator {
-    override fun validate(submission: ExtSubmission) {
-        throw CollectionValidationException(listOf("Testing failure"))
-    }
+    override suspend fun validate(submission: ExtSubmission): Unit = throw CollectionValidationException(listOf("Testing failure"))
 }

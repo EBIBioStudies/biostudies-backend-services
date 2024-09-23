@@ -36,10 +36,12 @@ import Versions.Log4JVersion
 import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
+import Versions.OkHttpVersion
 import Versions.PoiVersion
 import Versions.ReactorNettyVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
+import Versions.S3KVersion
 import Versions.S3Version
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
@@ -88,7 +90,9 @@ object Versions {
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
     const val H2Version = "1.4.197"
-    const val S3Version = "1.12.293"
+    const val S3Version = "1.12.772"
+    const val S3KVersion = "1.3.32"
+    const val OkHttpVersion = "5.0.0-alpha.14"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
     const val OkHttpLoggingVersion = "4.10.0"
@@ -171,6 +175,8 @@ object Dependencies {
     const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
 
     // Misc
+    const val AwsS3K = "aws.sdk.kotlin:s3:$S3KVersion"
+    const val OkHttp3 = "com.squareup.okhttp3:okhttp:$OkHttpVersion"
     const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
     const val ServletApi = "javax.servlet:javax.servlet-api"
     const val Logback = "ch.qos.logback:logback-classic"

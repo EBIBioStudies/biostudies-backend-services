@@ -13,7 +13,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -46,13 +45,13 @@ class CollectionValidationServiceTest(
                 releaseTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC),
             )
 
-        every { validator.validate(submission) } answers { nothing }
+        coEvery { validator.validate(submission) } answers { nothing }
         coEvery { queryService.getBasicCollection("ArrayExpress") } returns basicProject
         every { beanFactory.getBean("ArrayExpressValidator", CollectionValidator::class.java) } returns validator
 
         testInstance.executeCollectionValidators(submission)
 
-        verify(exactly = 1) { validator.validate(submission) }
+        coVerify(exactly = 1) { validator.validate(submission) }
     }
 
     @Test
