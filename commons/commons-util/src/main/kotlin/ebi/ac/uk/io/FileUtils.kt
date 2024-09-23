@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.isEmpty
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -89,6 +90,12 @@ object FileUtils {
             .asSequence()
             .filter { it.isDirectory && it.isEmpty() }
             .forEach { Files.delete(it.toPath()) }
+    }
+
+    fun cleanDirectory(dir: File) {
+        dir.listFilesOrEmpty()
+            .asSequence()
+            .forEach { deleteFile(it) }
     }
 
     fun moveFile(

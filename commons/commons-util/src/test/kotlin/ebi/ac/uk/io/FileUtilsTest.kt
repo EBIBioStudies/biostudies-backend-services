@@ -302,6 +302,26 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     @Nested
+    inner class CleanDirectory {
+        @Test
+        fun `clean directory`() {
+            val cleanTempFolder = temporaryFolder.createDirectory("cleanTempFolder")
+            val sub1 = cleanTempFolder.createDirectory("sub1")
+            val sub2 = cleanTempFolder.createDirectory("sub2")
+            val sub1Sub1 = sub1.createDirectory("sub1Sub1")
+            val file = sub1Sub1.createFile("one.txt", "text")
+
+            FileUtils.cleanDirectory(cleanTempFolder)
+
+            assertThat(cleanTempFolder).exists()
+            assertThat(sub1).doesNotExist()
+            assertThat(sub2).doesNotExist()
+            assertThat(sub1Sub1).doesNotExist()
+            assertThat(file).doesNotExist()
+        }
+    }
+
+    @Nested
     inner class Utilities {
         @Test
         fun `is directory`() {
