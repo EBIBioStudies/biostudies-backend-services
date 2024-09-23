@@ -105,9 +105,7 @@ class SubmissionService(
             PmcMode.SUBMIT, PmcMode.SUBMIT_SINGLE -> SubmissionStatus.ERROR_SUBMIT
         }
 
-    suspend fun findById(submissionId: String): SubmissionDocument {
-        return subRepository.getById(ObjectId(submissionId))
-    }
+    suspend fun findById(submissionId: String): SubmissionDocument = subRepository.getById(ObjectId(submissionId))
 
     suspend fun changeStatus(
         sub: SubmissionDocument,
@@ -116,7 +114,5 @@ class SubmissionService(
         subRepository.update(sub.copy(status = status))
     }
 
-    fun getSubFiles(files: List<ObjectId>): Flow<SubFileDocument> {
-        return fileRepository.findByIds(files)
-    }
+    fun getSubFiles(files: List<ObjectId>): Flow<SubFileDocument> = fileRepository.findByIds(files)
 }

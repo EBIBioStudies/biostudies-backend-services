@@ -13,6 +13,7 @@ import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
@@ -26,7 +27,7 @@ import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val TIMEOUT = 60_000L
+private const val TIMEOUT = 180_000L
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(
@@ -34,9 +35,12 @@ class PmcSubmitter(
     private val errorService: ErrorsService,
     private val submissionService: SubmissionService,
 ) {
-    fun submitAll(sourceFile: String?): Unit =
+    fun submitAll(
+        sourceFile: String?,
+        limit: Int?,
+    ): Unit =
         runBlocking {
-            submitSubmissions(sourceFile)
+            submitSubmissions(sourceFile, limit)
         }
 
     fun submitSingle(submissionId: String): Unit =
@@ -45,11 +49,15 @@ class PmcSubmitter(
             submitSubmission(submission, 1)
         }
 
-    private suspend fun submitSubmissions(sourceFile: String?) {
+    private suspend fun submitSubmissions(
+        sourceFile: String?,
+        limit: Int?,
+    ) {
         val counter = AtomicInteger(0)
         supervisorScope {
             submissionService
                 .findReadyToSubmit(sourceFile)
+                .take(limit ?: Int.MAX_VALUE)
                 .concurrently(CONCURRENCY) { submitSubmission(it, counter.incrementAndGet()) }
                 .collect()
         }
