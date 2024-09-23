@@ -27,8 +27,14 @@ class TimesService(
         val releaseTime = rqt.submission.releaseDate?.let { parseDate(it) }
         val released = releaseTime?.isBeforeOrEqual(now).orFalse()
         val submitter = rqt.submitter.email
+        val collection = rqt.collection?.accNo
 
-        if (releaseTime != null && privileges.canUpdateReleaseDate(submitter).not()) checkReleaseTime(rqt, releaseTime)
+        if (releaseTime != null && privileges.canUpdateReleaseDate(submitter, collection).not()) {
+            checkReleaseTime(
+                rqt,
+                releaseTime,
+            )
+        }
         return Times(creationTime, now, releaseTime, released)
     }
 
@@ -41,8 +47,7 @@ class TimesService(
 
         when (val previous = rqt.previousVersion) {
             null -> if (releaseTime < today) throw PastReleaseDateException()
-            else ->
-                if (previous.released && releaseTime != previous.releaseTime) throw InvalidReleaseException()
+            else -> if (previous.released && releaseTime != previous.releaseTime) throw InvalidReleaseException()
         }
     }
 

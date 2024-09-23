@@ -1,4 +1,5 @@
 import Dependencies.AwsS3
+import Dependencies.AwsS3K
 import Dependencies.JSONOrg
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinCoroutinesReactive
@@ -26,6 +27,7 @@ dependencies {
     api(project(CommonsUtil))
     api(project(CommonsHttp))
 
+    implementation(AwsS3K)
     implementation(AwsS3)
     implementation(JSONOrg)
     implementation(KotlinCoroutines)

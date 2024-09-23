@@ -25,17 +25,18 @@ class EuToxRiskValidator(
     private val validationProperties: ValidatorProperties,
     private val fireClient: FireClient,
 ) : CollectionValidator {
-    override fun validate(submission: ExtSubmission) {
+    override suspend fun validate(submission: ExtSubmission) {
         if (submission.section.attributes.none { it.name == SKIP_VALIDATION_ATTR }) {
             validateSubmission(validationProperties.euToxRiskValidationApi, submission)
         }
     }
 
-    private fun validateSubmission(
+    private suspend fun validateSubmission(
         url: String,
         submission: ExtSubmission,
     ) {
-        client.postForObject<EuToxRiskValidatorResponse>(url, RequestParams(jsonHeaders(), body(submission)))
+        client
+            .postForObject<EuToxRiskValidatorResponse>(url, RequestParams(jsonHeaders(), body(submission)))
             .errors
             .map { it.message }
             .ifNotEmpty { throw CollectionValidationException(it) }
@@ -43,7 +44,7 @@ class EuToxRiskValidator(
 
     private fun jsonHeaders() = HttpHeaders().apply { contentType = APPLICATION_JSON }
 
-    fun body(submission: ExtSubmission): FileSystemResource {
+    private suspend fun body(submission: ExtSubmission): FileSystemResource {
         val subFile =
             submission
                 .allSectionsFiles
@@ -52,14 +53,17 @@ class EuToxRiskValidator(
         return FileSystemResource(asFile(subFile))
     }
 
-    private fun asFile(file: ExtFile1): File {
-        return when (file) {
+    private suspend fun asFile(file: ExtFile1): File =
+        when (file) {
             is FireFile -> fireClient.downloadByPath(file.filePath)!!
             is NfsFile -> file.file
         }
-    }
 }
 
-class EuToxRiskValidatorResponse(val errors: List<EuToxRiskValidatorMessage>)
+class EuToxRiskValidatorResponse(
+    val errors: List<EuToxRiskValidatorMessage>,
+)
 
-class EuToxRiskValidatorMessage(val message: String)
+class EuToxRiskValidatorMessage(
+    val message: String,
+)

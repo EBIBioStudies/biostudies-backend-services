@@ -110,6 +110,7 @@ internal class SchedulerConfig {
                 properties.cluster.sshKey,
                 properties.cluster.slurmServer,
                 properties.cluster.logsPath,
+                properties.cluster.wrapperPath,
             )
         }
     }

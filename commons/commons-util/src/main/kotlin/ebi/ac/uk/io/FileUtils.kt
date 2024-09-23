@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.isEmpty
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -30,8 +31,7 @@ val RWX______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--
 val RWX__X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--x---")
 val RW_RW____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-rw----")
 val RWXRWX___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxrwx---")
-val RWXR_X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
-val RW_R_____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r-----")
+val RWXR_X__X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x--x")
 val RW_R__R__: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r--r--")
 val RWXR_XR_X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
@@ -90,6 +90,12 @@ object FileUtils {
             .asSequence()
             .filter { it.isDirectory && it.isEmpty() }
             .forEach { Files.delete(it.toPath()) }
+    }
+
+    fun cleanDirectory(dir: File) {
+        dir.listFilesOrEmpty()
+            .asSequence()
+            .forEach { deleteFile(it) }
     }
 
     fun moveFile(

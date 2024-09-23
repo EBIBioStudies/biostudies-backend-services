@@ -19,6 +19,7 @@ app:
     lsfServer:  # LSF cluster sever
     slurmServer:  # SLURM cluster sever
     logsPath: # path to place the logs of the dispatched jobs
+    wrapperPath: # path to place the command wrapper script
     default: # Default cluster mode. Valid values: LSF | SLURM
 
 pmc:

@@ -20,9 +20,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
-import java.time.Clock
-import java.time.LocalDate
-import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class PageTabServiceTest(
@@ -36,15 +33,12 @@ internal class PageTabServiceTest(
     private val fileListJson = temporaryFolder.createFile("fileList.json")
     private val fileListTsv = temporaryFolder.createFile("fileList.tsv")
 
-    private val date = LocalDate.of(2023, 1, 24).atStartOfDay(ZoneId.of("UTC"))
-    private val clock = Clock.fixed(date.toInstant(), ZoneId.of("UTC"))
-
-    private val testInstance = PageTabService(clock, baseTempDir, pageTabUtil)
+    private val testInstance = PageTabService(baseTempDir, pageTabUtil)
 
     @Test
     fun `generate pagetab`() =
         runTest {
-            val tempDir = File("${baseTempDir.absolutePath}/2023/1/24/S-TEST123/1")
+            val tempDir = File("${baseTempDir.absolutePath}/S-TEST123/1")
             val fileList = temporaryFolder.createFile("file-list")
             val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))
             val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))

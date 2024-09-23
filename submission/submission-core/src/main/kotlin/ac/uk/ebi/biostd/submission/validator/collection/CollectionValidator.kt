@@ -5,5 +5,5 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 interface CollectionValidator {
     @Throws(CollectionValidationException::class)
-    fun validate(submission: ExtSubmission)
+    suspend fun validate(submission: ExtSubmission)
 }

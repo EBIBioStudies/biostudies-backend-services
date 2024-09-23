@@ -171,6 +171,17 @@ task deployArtifact {
     }
 }
 
+task updateClusterWrapper {
+    doLast {
+        ssh.run {
+            session(remotes[env]) {
+                put from: "$rootDir/ci/slurm_wrapper.sh", into: "$deployPath/slurm_wrapper.sh"
+                execute "chmod +x $deployPath/slurm_wrapper.sh"
+            }
+        }
+    }
+}
+
 task deploy {
     doLast {
         ssh.run {
