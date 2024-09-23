@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.properties.NotificationsProperties
+import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -26,7 +26,7 @@ import uk.ac.ebi.events.config.EventsProperties
 class EventsPublisherService(
     private val rabbitTemplate: RabbitTemplate,
     private val eventsProperties: EventsProperties,
-    private val notificationsProperties: NotificationsProperties,
+    private val notificationsProperties: SubmissionNotificationsProperties,
 ) {
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)

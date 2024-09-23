@@ -107,7 +107,7 @@ interface SubmissionRequestPersistenceService {
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
     /**
-     * Update the given request file. By default only file index is updated in submission request. For other options
+     * Update the given request file. By default, only file index is updated in submission request. For other options
      * @see UpdateOptions
      */
     suspend fun updateRqtFile(rqt: SubmissionRequestFile)
