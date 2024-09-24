@@ -59,7 +59,6 @@ class SubmissionRequestReleaserTest(
             TEST_CONCURRENCY,
             storageService,
             ExtSerializationService(),
-            eventsPublisherService,
             queryService,
             requestService,
             filesService,

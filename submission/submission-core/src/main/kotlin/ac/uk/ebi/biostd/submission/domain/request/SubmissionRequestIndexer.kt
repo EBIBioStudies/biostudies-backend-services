@@ -10,7 +10,6 @@ import ebi.ac.uk.model.RequestStatus.REQUESTED
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestIndexer(
-    private val eventsPublisherService: EventsPublisherService,
     private val extSerializationService: ExtSerializationService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -37,7 +35,6 @@ class SubmissionRequestIndexer(
             var indexedRqt = it.indexed(indexRequest(it.submission))
             RqtUpdate(indexedRqt)
         }
-        eventsPublisherService.requestIndexed(accNo, version)
     }
 
     private suspend fun indexRequest(sub: ExtSubmission): Int {

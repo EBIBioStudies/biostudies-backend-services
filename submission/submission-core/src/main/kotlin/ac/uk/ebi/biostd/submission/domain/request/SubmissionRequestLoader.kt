@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
@@ -31,7 +30,6 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestLoader(
     private val concurrency: Int,
     private val fireTempDirPath: File,
-    private val eventsPublisherService: EventsPublisherService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
@@ -47,7 +45,6 @@ class SubmissionRequestLoader(
             loadRequest(it.submission)
             RqtUpdate(it.withNewStatus(LOADED))
         }
-        eventsPublisherService.requestLoaded(accNo, version)
     }
 
     private suspend fun loadRequest(sub: ExtSubmission) {

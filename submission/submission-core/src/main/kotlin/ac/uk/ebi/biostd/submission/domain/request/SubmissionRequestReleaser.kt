@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -35,7 +34,6 @@ class SubmissionRequestReleaser(
     private val concurrency: Int,
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
-    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val rqtService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -58,8 +56,6 @@ class SubmissionRequestReleaser(
 
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
         }
-
-        eventsPublisherService.requestCheckedRelease(accNo, version)
     }
 
     /**
@@ -161,7 +157,8 @@ class SubmissionRequestReleaser(
 
     private suspend fun generateFtpLinks(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        serializationService.filesFlow(sub)
+        serializationService
+            .filesFlow(sub)
             .filterNot { it is FireFile && it.published }
             .collectIndexed { idx, file -> release(sub, idx, file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }

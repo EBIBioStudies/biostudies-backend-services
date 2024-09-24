@@ -77,7 +77,6 @@ class SubmitterConfig(
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestIndexer =
         SubmissionRequestIndexer(
-            eventsPublisherService,
             serializationService,
             requestService,
             filesRequestService,
@@ -96,20 +95,17 @@ class SubmitterConfig(
             queryService,
             filesRequestService,
             requestService,
-            eventsPublisherService,
         )
 
     @Bean
     fun requestValidator(
         userPrivilegesService: IUserPrivilegesService,
-        eventsPublisherService: EventsPublisherService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
         applicationProperties: ApplicationProperties,
     ): SubmissionRequestValidator =
         SubmissionRequestValidator(
             userPrivilegesService,
-            eventsPublisherService,
             queryService,
             requestService,
             applicationProperties.security,
@@ -117,14 +113,12 @@ class SubmitterConfig(
 
     @Bean
     fun requestLoader(
-        eventsPublisherService: EventsPublisherService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestLoader =
         SubmissionRequestLoader(
             properties.persistence.concurrency,
             File(properties.fire.tempDirPath),
-            eventsPublisherService,
             filesRequestService,
             requestService,
         )
@@ -135,14 +129,12 @@ class SubmitterConfig(
         fileProcessingService: FileProcessingService,
         persistenceService: SubmissionPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
-        eventsPublisherService: EventsPublisherService,
     ): SubmissionRequestSaver =
         SubmissionRequestSaver(
             requestService,
             fileProcessingService,
             persistenceService,
             filesRequestService,
-            eventsPublisherService,
         )
 
     @Bean
@@ -155,7 +147,6 @@ class SubmitterConfig(
         SubmissionRequestProcessor(
             properties.persistence.concurrency,
             storageService,
-            eventsPublisherService,
             requestService,
             filesRequestService,
         )
@@ -164,7 +155,6 @@ class SubmitterConfig(
     fun submissionReleaser(
         fileStorageService: FileStorageService,
         serializationService: ExtSerializationService,
-        eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -173,7 +163,6 @@ class SubmitterConfig(
             properties.persistence.concurrency,
             fileStorageService,
             serializationService,
-            eventsPublisherService,
             submissionPersistenceQueryService,
             requestService,
             filesRequestService,
@@ -183,7 +172,6 @@ class SubmitterConfig(
     fun submissionCleaner(
         queryService: SubmissionPersistenceQueryService,
         storageService: FileStorageService,
-        eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestCleaner =
@@ -191,7 +179,6 @@ class SubmitterConfig(
             properties.persistence.concurrency,
             queryService,
             storageService,
-            eventsPublisherService,
             requestService,
             filesRequestService,
         )
@@ -212,6 +199,7 @@ class SubmitterConfig(
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
+        eventsPublisherService: EventsPublisherService,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
@@ -227,6 +215,7 @@ class SubmitterConfig(
             submissionCleaner,
             submissionSaver,
             submissionQueryService,
+            eventsPublisherService,
         )
 
     @Bean

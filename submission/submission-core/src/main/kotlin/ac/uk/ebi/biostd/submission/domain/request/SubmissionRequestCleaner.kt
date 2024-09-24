@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -17,7 +18,6 @@ import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
@@ -25,7 +25,6 @@ class SubmissionRequestCleaner(
     private val concurrency: Int,
     private val queryService: SubmissionPersistenceQueryService,
     private val storageService: FileStorageService,
-    private val eventsPublisherService: EventsPublisherService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
@@ -37,17 +36,17 @@ class SubmissionRequestCleaner(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
-        requestService.onRequest(accNo, version, VALIDATED, processId) {
-            val previousVersion = it.previousVersion
-            if (previousVersion != null) {
-                cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
-                cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING_PAGE_TAB)
+    ): SubmissionRequest {
+        val (rqt) =
+            requestService.onRequest(accNo, version, VALIDATED, processId) {
+                val previousVersion = it.previousVersion
+                if (previousVersion != null) {
+                    cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
+                    cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING_PAGE_TAB)
+                }
+                RqtUpdate(it.withNewStatus(CLEANED))
             }
-
-            RqtUpdate(it.withNewStatus(CLEANED))
-        }
-        eventsPublisherService.requestCleaned(accNo, version)
+        return rqt
     }
 
     /**
@@ -69,7 +68,6 @@ class SubmissionRequestCleaner(
 
             RqtUpdate(it.withNewStatus(PROCESSED))
         }
-        eventsPublisherService.submissionFinalized(accNo, version)
     }
 
     private suspend fun cleanFiles(

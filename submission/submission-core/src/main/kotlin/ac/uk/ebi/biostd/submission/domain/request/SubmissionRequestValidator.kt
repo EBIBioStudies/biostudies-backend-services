@@ -11,13 +11,11 @@ import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestValidator(
     private val userPrivilegesService: IUserPrivilegesService,
-    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
     private val properties: SecurityProperties,
@@ -26,14 +24,14 @@ class SubmissionRequestValidator(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest {
         val (request) =
             requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
                 val requestStatus = if (properties.preventFileDeletion) validateRequest(it) else VALIDATED
                 RqtUpdate(it.withNewStatus(requestStatus))
             }
-
-        if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
+        return request
+        // if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
     }
 
     internal suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {

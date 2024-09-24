@@ -14,14 +14,12 @@ import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
     private val concurrency: Int,
     private val storageService: FileStorageService,
-    private val eventsPublisherService: EventsPublisherService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
@@ -37,7 +35,6 @@ class SubmissionRequestProcessor(
             processRequest(it.submission)
             RqtUpdate(it.withNewStatus(FILES_COPIED))
         }
-        eventsPublisherService.requestFilesCopied(accNo, version)
     }
 
     private suspend fun processRequest(sub: ExtSubmission) {

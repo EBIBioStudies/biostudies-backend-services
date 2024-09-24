@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -9,7 +10,6 @@ import ebi.ac.uk.extended.model.copyWithAttributes
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 
 private val logger = KotlinLogging.logger {}
@@ -19,21 +19,20 @@ class SubmissionRequestSaver(
     private val fileProcessingService: FileProcessingService,
     private val persistenceService: SubmissionPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
-    private val eventsPublisherService: EventsPublisherService,
 ) {
     suspend fun saveRequest(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
-        val (rqt, submission) =
+    ): SubmissionRequest {
+        val (rqt) =
             requestService.onRequest(accNo, version, CHECK_RELEASED, processId) {
                 val sub = saveRequest(it.submission)
                 RqtResponse(it.withNewStatus(PERSISTED), sub)
             }
-
-        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(submission.accNo, rqt.notifyTo)
-        eventsPublisherService.submissionPersisted(submission.accNo, submission.version)
+        return rqt
+        // if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(submission.accNo, rqt.notifyTo)
+        // eventsPublisherService.submissionPersisted(submission.accNo, submission.version)
     }
 
     private suspend fun saveRequest(sub: ExtSubmission): ExtSubmission {
