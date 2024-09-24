@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
-import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -18,79 +16,68 @@ private val logger = KotlinLogging.logger {}
 class RemoteExtSubmissionSubmitter(
     private val clusterClient: ClusterClient,
     private val properties: SubmissionTaskProperties,
-) : ExtSubmissionSubmitter {
-    override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        TODO("Remote execution not required")
-    }
-
-    override suspend fun indexRequest(
+) {
+    suspend fun indexRequest(
         accNo: String,
         version: Int,
     ) {
-        TODO("Remote execution not required")
+        executeRemotely(accNo, version, Mode.INDEX)
     }
 
-    override suspend fun loadRequest(
+    suspend fun loadRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.LOAD)
     }
 
-    override suspend fun indexToCleanRequest(
+    suspend fun indexToCleanRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.INDEX_TO_CLEAN)
     }
 
-    override suspend fun validateRequest(
+    suspend fun validateRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.VALIDATE)
     }
 
-    override suspend fun cleanRequest(
+    suspend fun cleanRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.CLEAN)
     }
 
-    override suspend fun processRequest(
+    suspend fun processRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.COPY)
     }
 
-    override suspend fun checkReleased(
+    suspend fun checkReleased(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.CHECK_RELEASED)
     }
 
-    override suspend fun saveRequest(
+    suspend fun saveRequest(
         accNo: String,
         version: Int,
     ) {
-        TODO("Remote execution not required")
+        executeRemotely(accNo, version, Mode.SAVE)
     }
 
-    override suspend fun finalizeRequest(
+    suspend fun finalizeRequest(
         accNo: String,
         version: Int,
     ) {
-        TODO("Remote execution not required")
-    }
-
-    override suspend fun handleRequest(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        TODO("Remote execution not required")
+        executeRemotely(accNo, version, Mode.FINALIZE)
     }
 
     private suspend fun executeRemotely(
