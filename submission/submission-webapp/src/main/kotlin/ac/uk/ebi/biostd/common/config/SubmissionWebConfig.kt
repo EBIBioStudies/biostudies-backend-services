@@ -84,7 +84,7 @@ class SubmissionWebConfig {
                 eventsPublisherService,
             )
         val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
-        return ExtendedSubmissionSubmitter(local, remote, requestService, queryService)
+        return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService, queryService)
     }
 
     @Bean
