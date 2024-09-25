@@ -20,6 +20,7 @@ data class SubmitParameters(
     val attributes: List<SubmitAttribute> = emptyList(),
     val storageMode: StorageMode? = null,
     val silentMode: Boolean? = null,
+    val processAll: Boolean? = null,
 ) {
     companion object {
         const val STORAGE_MODE = "storageMode"

@@ -55,9 +55,9 @@ class SubmissionSubmitterTest(
 
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
-            coEvery { submitter.createRequest(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
+            coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
 
-            testInstance.createRequest(request)
+            testInstance.createRqt(request)
 
             val extRequest = extRequestSlot.captured
             assertThat(extRequest.draftKey).isEqualTo("TMP_123")
@@ -66,7 +66,7 @@ class SubmissionSubmitterTest(
                 submissionProcessor.processSubmission(request)
                 collectionValidationService.executeCollectionValidators(sub)
                 draftService.setProcessingStatus(sub.owner, "TMP_123")
-                submitter.createRequest(extRequest)
+                submitter.createRqt(extRequest)
                 draftService.setAcceptedStatus("TMP_123")
             }
             coVerify(exactly = 0) {
@@ -82,7 +82,7 @@ class SubmissionSubmitterTest(
 
             coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
-            assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
+            assertThrows<InvalidSubmissionException> { testInstance.createRqt(request) }
 
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
@@ -91,7 +91,7 @@ class SubmissionSubmitterTest(
             }
             coVerify(exactly = 0) {
                 collectionValidationService.executeCollectionValidators(submission)
-                submitter.createRequest(capture(extRequestSlot))
+                submitter.createRqt(capture(extRequestSlot))
                 draftService.setAcceptedStatus("TMP_123")
             }
         }

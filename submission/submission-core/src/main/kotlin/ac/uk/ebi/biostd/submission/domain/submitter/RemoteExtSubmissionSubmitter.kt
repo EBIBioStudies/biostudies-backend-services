@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
+import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
+import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -16,68 +18,86 @@ private val logger = KotlinLogging.logger {}
 class RemoteExtSubmissionSubmitter(
     private val clusterClient: ClusterClient,
     private val properties: SubmissionTaskProperties,
-) {
-    suspend fun indexRequest(
+) : ExtSubmissionSubmitter {
+    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun indexRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.INDEX)
     }
 
-    suspend fun loadRequest(
+    override suspend fun loadRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.LOAD)
     }
 
-    suspend fun indexToCleanRequest(
+    override suspend fun indexToCleanRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.INDEX_TO_CLEAN)
     }
 
-    suspend fun validateRequest(
+    override suspend fun validateRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.VALIDATE)
     }
 
-    suspend fun cleanRequest(
+    override suspend fun cleanRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.CLEAN)
     }
 
-    suspend fun processRequest(
+    override suspend fun processRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.COPY)
     }
 
-    suspend fun checkReleased(
+    override suspend fun checkReleased(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.CHECK_RELEASED)
     }
 
-    suspend fun saveRequest(
+    override suspend fun saveRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.SAVE)
     }
 
-    suspend fun finalizeRequest(
+    override suspend fun finalizeRequest(
         accNo: String,
         version: Int,
     ) {
         executeRemotely(accNo, version, Mode.FINALIZE)
+    }
+
+    override suspend fun handleRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    ) {
+        executeRemotely(accNo, version, Mode.COMPLETE)
     }
 
     private suspend fun executeRemotely(

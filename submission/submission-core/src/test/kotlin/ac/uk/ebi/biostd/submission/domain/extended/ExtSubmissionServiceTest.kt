@@ -68,7 +68,7 @@ class ExtSubmissionServiceTest(
             val submitRequestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
             testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
@@ -78,7 +78,7 @@ class ExtSubmissionServiceTest(
             assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
             coVerify(exactly = 1) {
                 submissionRepository.existByAccNo("ArrayExpress")
-                submissionSubmitter.createRequest(submissionRequest)
+                submissionSubmitter.createRqt(submissionRequest)
                 submissionSubmitter.handleRequest(extSubmission.accNo, 1)
                 securityQueryService.existsByEmail("owner@email.org", false)
             }
@@ -90,7 +90,7 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 1)
             every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
             testInstance.submitExtAsync("user@mail.com", extSubmission)
@@ -154,7 +154,7 @@ class ExtSubmissionServiceTest(
             coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
             coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
             coEvery {
-                submissionSubmitter.createRequest(capture(requestSlot))
+                submissionSubmitter.createRqt(capture(requestSlot))
             } returns (collection.accNo to collection.version)
 
             testInstance.submitExt("user@mail.com", collection)
@@ -175,7 +175,7 @@ class ExtSubmissionServiceTest(
 
             every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
             coEvery { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
-            coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 2)
 
             testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
 
@@ -185,7 +185,7 @@ class ExtSubmissionServiceTest(
             assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
 
             coVerify(exactly = 1) {
-                submissionSubmitter.createRequest(submissionRequest)
+                submissionSubmitter.createRqt(submissionRequest)
                 eventsPublisher.submissionRequest(extSubmission.accNo, 2)
             }
         }

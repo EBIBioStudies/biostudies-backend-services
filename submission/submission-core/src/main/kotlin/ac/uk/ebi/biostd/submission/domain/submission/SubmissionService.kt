@@ -23,8 +23,8 @@ private val logger = KotlinLogging.logger {}
 class SubmissionService(
     private val queryService: SubmissionPersistenceQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val submissionSubmitter: SubmissionSubmitter,
-    private val eventsPublisherService: EventsPublisherService,
+    private val submitter: SubmissionSubmitter,
+    private val eventsPublisher: EventsPublisherService,
     private val submissionPersistenceService: SubmissionPersistenceService,
     private val fileStorageService: FileStorageService,
     private val requestQueryService: SubmissionRequestPersistenceService,
@@ -32,8 +32,8 @@ class SubmissionService(
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
 
-        val (accNo, version) = submissionSubmitter.createRequest(rqt)
-        eventsPublisherService.requestCreated(accNo, version)
+        val (accNo, version) = submitter.createRqt(rqt)
+        if (rqt.processAll) submitter.completeRqt(accNo, version) else eventsPublisher.requestCreated(accNo, version)
 
         waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestQueryService.isRequestCompleted(accNo, version) }
         return queryService.getExtByAccNo(accNo)
@@ -41,9 +41,8 @@ class SubmissionService(
 
     suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
-        val (accNo, version) = submissionSubmitter.createRequest(rqt)
-        eventsPublisherService.requestCreated(accNo, version)
-
+        val (accNo, version) = submitter.createRqt(rqt)
+        if (rqt.processAll) submitter.completeRqt(accNo, version) else eventsPublisher.requestCreated(accNo, version)
         return AcceptedSubmission(accNo, version)
     }
 
@@ -75,7 +74,7 @@ class SubmissionService(
     ) {
         fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
         submissionPersistenceService.expireSubmission(accNo)
-        eventsPublisherService.submissionsRefresh(accNo, user)
+        eventsPublisher.submissionsRefresh(accNo, user)
     }
 
     companion object {

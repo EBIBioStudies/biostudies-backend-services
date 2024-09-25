@@ -37,7 +37,7 @@ class SubmissionRequestCleanIndexer(
     /**
      * Index submission request to clean files by creating records for each one.
      */
-    suspend fun indexRequest(
+    suspend fun indexToCleanRequest(
         accNo: String,
         version: Int,
         processId: String,

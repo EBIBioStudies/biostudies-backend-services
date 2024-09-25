@@ -28,9 +28,7 @@ class ExtendedSubmissionSubmitter(
     private val requestService: SubmissionRequestPersistenceService,
     private val queryService: SubmissionPersistenceQueryService,
 ) : ExtSubmissionSubmitter {
-    override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        return localExtSubmissionSubmitter.createRequest(rqt)
-    }
+    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> = localExtSubmissionSubmitter.createRqt(rqt)
 
     override suspend fun indexRequest(
         accNo: String,
@@ -39,6 +37,16 @@ class ExtendedSubmissionSubmitter(
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.indexRequest(accNo, version)
             else -> localExtSubmissionSubmitter.indexRequest(accNo, version)
+        }
+    }
+
+    override suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.completeRqt(accNo, version)
+            else -> localExtSubmissionSubmitter.completeRqt(accNo, version)
         }
     }
 

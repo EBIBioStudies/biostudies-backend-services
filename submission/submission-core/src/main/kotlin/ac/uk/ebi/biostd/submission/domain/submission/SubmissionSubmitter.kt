@@ -18,10 +18,17 @@ class SubmissionSubmitter(
     private val collectionValidationService: CollectionValidationService,
     private val draftService: SubmissionDraftPersistenceService,
 ) {
-    suspend fun createRequest(rqt: SubmitRequest): ExtSubmission {
+    suspend fun createRqt(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode))
+        submissionSubmitter.createRqt(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode))
         return submission
+    }
+
+    suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    ) {
+        submissionSubmitter.completeRqt(accNo, version)
     }
 
     @Suppress("TooGenericExceptionCaught")
