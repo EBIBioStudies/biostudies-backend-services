@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
@@ -98,6 +97,6 @@ class SubmissionRequestLoaderTest(
 
     private companion object {
         const val PROCESS_ID = "biostudies-prod"
-        val rqtSlot = slot<suspend (SubmissionRequest) -> RqtResponse>()
+        val rqtSlot = slot<suspend (SubmissionRequest) -> SubmissionRequest>()
     }
 }

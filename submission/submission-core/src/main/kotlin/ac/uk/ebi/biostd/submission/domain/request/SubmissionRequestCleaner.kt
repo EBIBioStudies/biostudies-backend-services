@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING_P
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -36,18 +35,15 @@ class SubmissionRequestCleaner(
         accNo: String,
         version: Int,
         processId: String,
-    ): SubmissionRequest {
-        val (rqt) =
-            requestService.onRequest(accNo, version, VALIDATED, processId) {
-                val previousVersion = it.previousVersion
-                if (previousVersion != null) {
-                    cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
-                    cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING_PAGE_TAB)
-                }
-                RqtUpdate(it.withNewStatus(CLEANED))
+    ): SubmissionRequest =
+        requestService.onRequest(accNo, version, VALIDATED, processId) {
+            val previousVersion = it.previousVersion
+            if (previousVersion != null) {
+                cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
+                cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING_PAGE_TAB)
             }
-        return rqt
-    }
+            it.withNewStatus(CLEANED)
+        }
 
     /**
      * Executes the finalize or submission processing stage when files deprecated (file not used anymore) from previous
@@ -58,7 +54,7 @@ class SubmissionRequestCleaner(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, PERSISTED, processId) {
             val previousVersion = it.previousVersion
             if (previousVersion != null) {
@@ -66,9 +62,8 @@ class SubmissionRequestCleaner(
                 cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED_PAGE_TAB)
             }
 
-            RqtUpdate(it.withNewStatus(PROCESSED))
+            it.withNewStatus(PROCESSED)
         }
-    }
 
     private suspend fun cleanFiles(
         accNo: String,

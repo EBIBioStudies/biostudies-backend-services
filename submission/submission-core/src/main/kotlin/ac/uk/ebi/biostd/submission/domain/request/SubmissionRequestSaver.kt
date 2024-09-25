@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -24,16 +23,11 @@ class SubmissionRequestSaver(
         accNo: String,
         version: Int,
         processId: String,
-    ): SubmissionRequest {
-        val (rqt) =
-            requestService.onRequest(accNo, version, CHECK_RELEASED, processId) {
-                val sub = saveRequest(it.submission)
-                RqtResponse(it.withNewStatus(PERSISTED), sub)
-            }
-        return rqt
-        // if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(submission.accNo, rqt.notifyTo)
-        // eventsPublisherService.submissionPersisted(submission.accNo, submission.version)
-    }
+    ): SubmissionRequest =
+        requestService.onRequest(accNo, version, CHECK_RELEASED, processId) {
+            saveRequest(it.submission)
+            it.withNewStatus(PERSISTED)
+        }
 
     private suspend fun saveRequest(sub: ExtSubmission): ExtSubmission {
         logger.info { "${sub.accNo} ${sub.owner} Started saving submission '${sub.accNo}', version={${sub.version}}" }

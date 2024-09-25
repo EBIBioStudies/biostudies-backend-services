@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -41,11 +41,10 @@ class SubmissionRequestCleanIndexer(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            RqtUpdate(it.cleanIndexed(indexRequest(it.submission)))
+            it.cleanIndexed(indexRequest(it.submission))
         }
-    }
 
     internal suspend fun indexRequest(new: ExtSubmission): SubmissionRequestFileChanges {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)

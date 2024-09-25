@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
-import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -24,7 +23,6 @@ import java.time.Duration.ofMinutes
 class ExtendedSubmissionSubmitter(
     private val localExtSubmissionSubmitter: LocalExtSubmissionSubmitter,
     private val remoteExtSubmissionSubmitter: RemoteExtSubmissionSubmitter,
-    private val submissionTaskProperties: SubmissionTaskProperties,
     private val requestService: SubmissionRequestPersistenceService,
     private val queryService: SubmissionPersistenceQueryService,
 ) : ExtSubmissionSubmitter {

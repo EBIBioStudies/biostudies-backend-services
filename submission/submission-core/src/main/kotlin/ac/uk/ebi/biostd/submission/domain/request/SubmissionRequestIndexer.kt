@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -30,12 +30,10 @@ class SubmissionRequestIndexer(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, REQUESTED, processId) {
-            var indexedRqt = it.indexed(indexRequest(it.submission))
-            RqtUpdate(indexedRqt)
+            it.indexed(indexRequest(it.submission))
         }
-    }
 
     private suspend fun indexRequest(sub: ExtSubmission): Int {
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }

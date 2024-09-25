@@ -71,7 +71,6 @@ class SubmitterConfig(
 ) {
     @Bean
     fun requestIndexer(
-        eventsPublisherService: EventsPublisherService,
         serializationService: ExtSerializationService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -88,7 +87,6 @@ class SubmitterConfig(
         queryService: SubmissionPersistenceQueryService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
-        eventsPublisherService: EventsPublisherService,
     ): SubmissionRequestCleanIndexer =
         SubmissionRequestCleanIndexer(
             serializationService,
@@ -140,7 +138,6 @@ class SubmitterConfig(
     @Bean
     fun requestProcessor(
         storageService: FileStorageService,
-        eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestProcessor =

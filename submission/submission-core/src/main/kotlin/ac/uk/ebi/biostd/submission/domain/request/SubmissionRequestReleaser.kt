@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.UNRELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -45,7 +44,7 @@ class SubmissionRequestReleaser(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         rqtService.onRequest(accNo, version, FILES_COPIED, processId) {
             if (it.submission.released) {
                 releaseRequest(accNo, it)
@@ -53,10 +52,8 @@ class SubmissionRequestReleaser(
                 val current = queryService.findCoreInfo(accNo)
                 if (current != null && current.released) unReleaseRequest(accNo, it)
             }
-
-            RqtUpdate(it.withNewStatus(CHECK_RELEASED))
+            it.withNewStatus(CHECK_RELEASED)
         }
-    }
 
     /**
      * Generates/refresh FTP links for a given submission.

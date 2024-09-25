@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.base.orFalse
@@ -24,15 +23,11 @@ class SubmissionRequestValidator(
         accNo: String,
         version: Int,
         processId: String,
-    ): SubmissionRequest {
-        val (request) =
-            requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
-                val requestStatus = if (properties.preventFileDeletion) validateRequest(it) else VALIDATED
-                RqtUpdate(it.withNewStatus(requestStatus))
-            }
-        return request
-        // if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
-    }
+    ): SubmissionRequest =
+        requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
+            val requestStatus = if (properties.preventFileDeletion) validateRequest(it) else VALIDATED
+            it.withNewStatus(requestStatus)
+        }
 
     internal suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
         val accNo = rqt.submission.accNo
