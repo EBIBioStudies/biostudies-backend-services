@@ -9,6 +9,7 @@ data class SubmissionTaskProperties(
     val configFileLocation: String,
     val taskMemoryMgb: Int,
     val taskCores: Int,
+    val taskMinutes: Int,
 )
 
 data class ClusterProperties(

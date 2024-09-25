@@ -114,6 +114,7 @@ class RemoteExtSubmissionSubmitter(
                 JobSpec(
                     cores = properties.taskCores,
                     ram = MemorySpec.fromMegaBytes(properties.taskMemoryMgb),
+                    minutes = properties.taskMinutes,
                     queue = DataMoverQueue,
                     command = command,
                 ),

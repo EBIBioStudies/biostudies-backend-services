@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.properties.NotificationsProperties
+import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestMessage
@@ -33,7 +33,7 @@ import java.time.ZoneOffset
 class EventsPublisherServiceTest(
     @MockK private val rabbitTemplate: RabbitTemplate,
     @MockK private val eventsProperties: EventsProperties,
-    @MockK private val notificationsProperties: NotificationsProperties,
+    @MockK private val notificationsProperties: SubmissionNotificationsProperties,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, ZoneOffset.UTC)
     private val testInstance = EventsPublisherService(rabbitTemplate, eventsProperties, notificationsProperties)
