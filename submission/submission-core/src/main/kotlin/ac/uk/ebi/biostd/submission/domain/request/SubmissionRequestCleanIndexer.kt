@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -21,7 +21,6 @@ import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
@@ -34,21 +33,18 @@ class SubmissionRequestCleanIndexer(
     private val queryService: SubmissionPersistenceQueryService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
-    private val eventsPublisherService: EventsPublisherService,
 ) {
     /**
      * Index submission request to clean files by creating records for each one.
      */
-    suspend fun indexRequest(
+    suspend fun indexToCleanRequest(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            RqtUpdate(it.cleanIndexed(indexRequest(it.submission)))
+            it.cleanIndexed(indexRequest(it.submission))
         }
-        eventsPublisherService.requestIndexedToClean(accNo, version)
-    }
 
     internal suspend fun indexRequest(new: ExtSubmission): SubmissionRequestFileChanges {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
@@ -82,7 +78,8 @@ class SubmissionRequestCleanIndexer(
             status: RequestFileStatus,
         ) = SubRqtFile(new, idx.incrementAndGet(), file, status, true)
 
-        serializationService.filesFlow(current)
+        serializationService
+            .filesFlow(current)
             .mapNotNull { file ->
                 when (newFiles.findMatch(file)) {
                     MatchType.CONFLICTING -> fileUpdate(conflictIdx, file, CONFLICTING)
@@ -91,8 +88,7 @@ class SubmissionRequestCleanIndexer(
                     MatchType.DEPRECATED_PAGE_TAB -> fileUpdate(deprecatedPageTabIdx, file, DEPRECATED_PAGE_TAB)
                     MatchType.REUSED -> fileUpdate(reusedIdx, file, REUSED)
                 }
-            }
-            .collect {
+            }.collect {
                 logger.info { "${new.accNo} ${new.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
             }
@@ -157,4 +153,8 @@ private enum class MatchType {
     REUSED,
 }
 
-private data class FileRecord(val md5: String, val storageMode: StorageMode, val isPageTab: Boolean)
+private data class FileRecord(
+    val md5: String,
+    val storageMode: StorageMode,
+    val isPageTab: Boolean,
+)

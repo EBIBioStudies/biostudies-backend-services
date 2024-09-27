@@ -32,7 +32,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -41,7 +40,6 @@ class SubmissionRequestCleanIndexerTest(
     @MockK val newSub: ExtSubmission,
     @MockK val currentSub: ExtSubmission,
     @MockK val serializationService: ExtSerializationService,
-    @MockK val eventsPublisherService: EventsPublisherService,
     @MockK val queryService: SubmissionPersistenceQueryService,
     @MockK val requestService: SubmissionRequestPersistenceService,
     @MockK val fileRqtService: SubmissionRequestFilesPersistenceService,
@@ -52,7 +50,6 @@ class SubmissionRequestCleanIndexerTest(
             queryService,
             fileRqtService,
             requestService,
-            eventsPublisherService,
         )
 
     @Test

@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.UNRELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -24,7 +23,6 @@ import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -35,7 +33,6 @@ class SubmissionRequestReleaser(
     private val concurrency: Int,
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
-    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val rqtService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -47,7 +44,7 @@ class SubmissionRequestReleaser(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         rqtService.onRequest(accNo, version, FILES_COPIED, processId) {
             if (it.submission.released) {
                 releaseRequest(accNo, it)
@@ -55,12 +52,8 @@ class SubmissionRequestReleaser(
                 val current = queryService.findCoreInfo(accNo)
                 if (current != null && current.released) unReleaseRequest(accNo, it)
             }
-
-            RqtUpdate(it.withNewStatus(CHECK_RELEASED))
+            it.withNewStatus(CHECK_RELEASED)
         }
-
-        eventsPublisherService.requestCheckedRelease(accNo, version)
-    }
 
     /**
      * Generates/refresh FTP links for a given submission.
@@ -161,7 +154,8 @@ class SubmissionRequestReleaser(
 
     private suspend fun generateFtpLinks(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        serializationService.filesFlow(sub)
+        serializationService
+            .filesFlow(sub)
             .filterNot { it is FireFile && it.published }
             .collectIndexed { idx, file -> release(sub, idx, file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }

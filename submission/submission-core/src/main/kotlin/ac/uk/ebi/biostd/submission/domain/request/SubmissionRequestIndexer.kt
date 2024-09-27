@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -10,7 +10,6 @@ import ebi.ac.uk.model.RequestStatus.REQUESTED
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestIndexer(
-    private val eventsPublisherService: EventsPublisherService,
     private val extSerializationService: ExtSerializationService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -32,13 +30,10 @@ class SubmissionRequestIndexer(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, REQUESTED, processId) {
-            var indexedRqt = it.indexed(indexRequest(it.submission))
-            RqtUpdate(indexedRqt)
+            it.indexed(indexRequest(it.submission))
         }
-        eventsPublisherService.requestIndexed(accNo, version)
-    }
 
     private suspend fun indexRequest(sub: ExtSubmission): Int {
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }

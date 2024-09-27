@@ -19,15 +19,15 @@ class RemoteExtSubmissionSubmitter(
     private val clusterClient: ClusterClient,
     private val properties: SubmissionTaskProperties,
 ) : ExtSubmissionSubmitter {
-    override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        TODO("Remote execution not required")
+    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun indexRequest(
         accNo: String,
         version: Int,
     ) {
-        TODO("Remote execution not required")
+        executeRemotely(accNo, version, Mode.INDEX)
     }
 
     override suspend fun loadRequest(
@@ -76,21 +76,28 @@ class RemoteExtSubmissionSubmitter(
         accNo: String,
         version: Int,
     ) {
-        TODO("Remote execution not required")
+        executeRemotely(accNo, version, Mode.SAVE)
     }
 
     override suspend fun finalizeRequest(
         accNo: String,
         version: Int,
     ) {
-        TODO("Remote execution not required")
+        executeRemotely(accNo, version, Mode.FINALIZE)
     }
 
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
     ): ExtSubmission {
-        TODO("Remote execution not required")
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    ) {
+        executeRemotely(accNo, version, Mode.COMPLETE)
     }
 
     private suspend fun executeRemotely(
@@ -114,6 +121,7 @@ class RemoteExtSubmissionSubmitter(
                 JobSpec(
                     cores = properties.taskCores,
                     ram = MemorySpec.fromMegaBytes(properties.taskMemoryMgb),
+                    minutes = properties.taskMinutes,
                     queue = DataMoverQueue,
                     command = command,
                 ),

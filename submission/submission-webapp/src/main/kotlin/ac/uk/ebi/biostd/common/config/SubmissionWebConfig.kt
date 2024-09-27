@@ -40,6 +40,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 import java.time.Clock
 
@@ -63,6 +64,7 @@ class SubmissionWebConfig {
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         submissionQueryService: ExtSubmissionQueryService,
+        eventsPublisherService: EventsPublisherService,
     ): ExtSubmissionSubmitter {
         val local =
             LocalExtSubmissionSubmitter(
@@ -79,6 +81,7 @@ class SubmissionWebConfig {
                 submissionCleaner,
                 submissionSaver,
                 submissionQueryService,
+                eventsPublisherService,
             )
         val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
         return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService, queryService)

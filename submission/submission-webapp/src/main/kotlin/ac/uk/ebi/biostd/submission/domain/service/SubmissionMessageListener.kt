@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
+import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.events.RequestCheckedReleased
@@ -27,6 +28,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionMessageListener(
     private val statsService: SubmissionStatsService,
     private val submissionSubmitter: ExtSubmissionSubmitter,
+    private val properties: SubmissionNotificationsProperties,
     private val eventsPublisherService: EventsPublisherService,
 ) {
     @RabbitHandler
@@ -131,6 +133,6 @@ class SubmissionMessageListener(
         rqt: RequestMessage,
     ) {
         logger.error(exception) { "${rqt.accNo}, Problem processing request '${rqt.accNo}': ${exception.message}" }
-        eventsPublisherService.submissionFailed(rqt)
+        if (properties.errorNotificationsEnabled) eventsPublisherService.submissionFailed(rqt)
     }
 }

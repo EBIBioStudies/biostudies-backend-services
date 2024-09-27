@@ -156,6 +156,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.submissionTask.configFileLocation", configFile)
         properties.addProperty("app.submissionTask.taskMemoryMgb", 4096)
         properties.addProperty("app.submissionTask.taskCores", 2)
+        properties.addProperty("app.submissionTask.taskMinutes", 60)
     }
 
     private fun clusterSetup() {

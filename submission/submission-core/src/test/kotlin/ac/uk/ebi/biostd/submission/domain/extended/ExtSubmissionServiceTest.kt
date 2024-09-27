@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -34,7 +34,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-    @MockK private val submissionSubmitter: LocalExtSubmissionSubmitter,
+    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionRepository: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val securityQueryService: ISecurityQueryService,
@@ -68,7 +68,7 @@ class ExtSubmissionServiceTest(
             val submitRequestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
             testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
@@ -78,7 +78,7 @@ class ExtSubmissionServiceTest(
             assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
             coVerify(exactly = 1) {
                 submissionRepository.existByAccNo("ArrayExpress")
-                submissionSubmitter.createRequest(submissionRequest)
+                submissionSubmitter.createRqt(submissionRequest)
                 submissionSubmitter.handleRequest(extSubmission.accNo, 1)
                 securityQueryService.existsByEmail("owner@email.org", false)
             }
@@ -90,7 +90,7 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 1)
             every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
             testInstance.submitExtAsync("user@mail.com", extSubmission)
@@ -154,7 +154,7 @@ class ExtSubmissionServiceTest(
             coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
             coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
             coEvery {
-                submissionSubmitter.createRequest(capture(requestSlot))
+                submissionSubmitter.createRqt(capture(requestSlot))
             } returns (collection.accNo to collection.version)
 
             testInstance.submitExt("user@mail.com", collection)
@@ -175,7 +175,7 @@ class ExtSubmissionServiceTest(
 
             every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
             coEvery { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
-            coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 2)
 
             testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
 
@@ -185,7 +185,7 @@ class ExtSubmissionServiceTest(
             assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
 
             coVerify(exactly = 1) {
-                submissionSubmitter.createRequest(submissionRequest)
+                submissionSubmitter.createRqt(submissionRequest)
                 eventsPublisher.submissionRequest(extSubmission.accNo, 2)
             }
         }

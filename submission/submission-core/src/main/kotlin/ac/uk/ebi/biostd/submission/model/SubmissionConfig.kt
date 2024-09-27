@@ -14,6 +14,7 @@ data class SubmissionConfig(
     val attrs: List<ExtAttributeDetail>,
     val storageMode: StorageMode?,
     val silentMode: Boolean,
+    val processAll: Boolean,
 )
 
 data class SubmissionFilesConfig(

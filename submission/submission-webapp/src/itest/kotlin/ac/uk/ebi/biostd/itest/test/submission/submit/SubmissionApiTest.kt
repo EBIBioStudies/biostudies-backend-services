@@ -460,6 +460,24 @@ class SubmissionApiTest(
             assertThat(testMessageService.findSubmittedMessages(accNo)).isNull()
         }
 
+    @Test
+    fun `16-17 Submit study with singleJobMode`() =
+        runTest {
+            val accNo = "PROCESS_ALL-123"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "DataFile.PROCESS_ALL.txt")
+                }.toString()
+
+            val file = tempFolder.createFile("DataFile.PROCESS_ALL.txt", "An example content")
+            webClient.uploadFiles(listOf(file))
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(singleJobMode = true))).isSuccessful()
+        }
+
     private suspend fun getSimpleSubmission(accNo: String) =
         toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 }

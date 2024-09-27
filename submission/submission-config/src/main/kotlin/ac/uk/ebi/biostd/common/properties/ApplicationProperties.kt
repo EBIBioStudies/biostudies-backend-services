@@ -17,7 +17,7 @@ data class ApplicationProperties(
     val fire: FireProperties,
     val validator: ValidatorProperties,
     val persistence: PersistenceProperties,
-    val notifications: NotificationsProperties,
+    val notifications: SubmissionNotificationsProperties,
     val doi: DoiProperties,
     val submissionTask: SubmissionTaskProperties,
     val cluster: ClusterProperties,
@@ -63,9 +63,10 @@ data class PersistenceProperties(
     val tempDirPath: String,
 )
 
-data class NotificationsProperties(
+data class SubmissionNotificationsProperties(
     val requestQueue: String,
     val requestRoutingKey: String,
+    val errorNotificationsEnabled: Boolean = false,
 )
 
 data class DoiProperties(

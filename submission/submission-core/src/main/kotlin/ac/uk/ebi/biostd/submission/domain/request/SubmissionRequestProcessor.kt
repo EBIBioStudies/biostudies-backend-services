@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -14,14 +14,12 @@ import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
     private val concurrency: Int,
     private val storageService: FileStorageService,
-    private val eventsPublisherService: EventsPublisherService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
@@ -32,13 +30,11 @@ class SubmissionRequestProcessor(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, CLEANED, processId) {
             processRequest(it.submission)
-            RqtUpdate(it.withNewStatus(FILES_COPIED))
+            it.withNewStatus(FILES_COPIED)
         }
-        eventsPublisherService.requestFilesCopied(accNo, version)
-    }
 
     private suspend fun processRequest(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started persisting submission files on ${sub.storageMode}" }

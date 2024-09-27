@@ -50,5 +50,11 @@ class JmsConfig(
         statsService: SubmissionStatsService,
         submissionSubmitter: ExtSubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-    ): SubmissionMessageListener = SubmissionMessageListener(statsService, submissionSubmitter, eventsPublisherService)
+    ): SubmissionMessageListener =
+        SubmissionMessageListener(
+            statsService,
+            submissionSubmitter,
+            properties.notifications,
+            eventsPublisherService,
+        )
 }

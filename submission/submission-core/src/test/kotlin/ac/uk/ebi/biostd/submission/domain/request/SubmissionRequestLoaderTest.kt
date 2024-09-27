@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
@@ -19,7 +18,6 @@ import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -33,14 +31,12 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
@@ -50,7 +46,6 @@ class SubmissionRequestLoaderTest(
         SubmissionRequestLoader(
             TEST_CONCURRENCY,
             fireTempDirPath,
-            eventsPublisherService,
             filesService,
             requestService,
         )
@@ -80,7 +75,6 @@ class SubmissionRequestLoaderTest(
         every { indexedRequest.submission } returns sub
         every { indexedRequest.currentIndex } returns 3
         every { indexedRequest.withNewStatus(RequestStatus.LOADED) } returns indexedRequest
-        every { eventsPublisherService.requestLoaded(sub.accNo, sub.version) } answers { nothing }
         every {
             filesService.getSubmissionRequestFiles(
                 sub.accNo,
@@ -99,14 +93,10 @@ class SubmissionRequestLoaderTest(
         assertThat(requestFile.status).isEqualTo(LOADED)
         assertThat(requestFile.file.md5).isEqualTo(file.md5())
         assertThat(requestFile.file.size).isEqualTo(file.size())
-
-        coVerify(exactly = 1) {
-            eventsPublisherService.requestLoaded(sub.accNo, sub.version)
-        }
     }
 
     private companion object {
         const val PROCESS_ID = "biostudies-prod"
-        val rqtSlot = slot<suspend (SubmissionRequest) -> RqtResponse>()
+        val rqtSlot = slot<suspend (SubmissionRequest) -> SubmissionRequest>()
     }
 }
