@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.OptResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -95,13 +94,13 @@ class SubmissionRequestMongoPersistenceService(
         return asRequest(docSubmissionRequest)
     }
 
-    override suspend fun <T> onRequest(
+    override suspend fun onRequest(
         accNo: String,
         version: Int,
         status: RequestStatus,
         processId: String,
-        handler: suspend (SubmissionRequest) -> OptResponse<T>,
-    ): OptResponse<T> {
+        handler: suspend (SubmissionRequest) -> SubmissionRequest,
+    ): SubmissionRequest {
         suspend fun loadRequest(): SubmissionRqt {
             val (changeId, request) = requestRepository.getRequest(accNo, version, status, processId)
             val stored = serializationService.deserialize(request.submission.toString())
@@ -125,12 +124,12 @@ class SubmissionRequestMongoPersistenceService(
             return changeId to subRequest
         }
 
-        suspend fun <T> onSuccess(
-            it: OptResponse<T>,
+        suspend fun onSuccess(
+            rqt: SubmissionRequest,
             changeId: String,
         ) {
             logger.info { "Succefully completed request accNo='$accNo', version='$version', $status" }
-            saveRequest(it.rqt, changeId, ProcessResult.SUCCESS)
+            saveRequest(rqt, changeId, ProcessResult.SUCCESS)
         }
 
         suspend fun onError(

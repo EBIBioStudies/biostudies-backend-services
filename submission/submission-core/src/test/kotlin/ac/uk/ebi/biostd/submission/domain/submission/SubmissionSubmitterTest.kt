@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
-import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
     @MockK private val request: SubmitRequest,
-    @MockK private val submitter: LocalExtSubmissionSubmitter,
+    @MockK private val submitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
     @MockK private val collectionValidationService: CollectionValidationService,
     @MockK private val draftService: SubmissionDraftPersistenceService,
@@ -55,9 +55,9 @@ class SubmissionSubmitterTest(
 
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
-            coEvery { submitter.createRequest(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
+            coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
 
-            testInstance.createRequest(request)
+            testInstance.createRqt(request)
 
             val extRequest = extRequestSlot.captured
             assertThat(extRequest.draftKey).isEqualTo("TMP_123")
@@ -66,7 +66,7 @@ class SubmissionSubmitterTest(
                 submissionProcessor.processSubmission(request)
                 collectionValidationService.executeCollectionValidators(sub)
                 draftService.setProcessingStatus(sub.owner, "TMP_123")
-                submitter.createRequest(extRequest)
+                submitter.createRqt(extRequest)
                 draftService.setAcceptedStatus("TMP_123")
             }
             coVerify(exactly = 0) {
@@ -82,7 +82,7 @@ class SubmissionSubmitterTest(
 
             coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
-            assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
+            assertThrows<InvalidSubmissionException> { testInstance.createRqt(request) }
 
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
@@ -91,7 +91,7 @@ class SubmissionSubmitterTest(
             }
             coVerify(exactly = 0) {
                 collectionValidationService.executeCollectionValidators(submission)
-                submitter.createRequest(capture(extRequestSlot))
+                submitter.createRqt(capture(extRequestSlot))
                 draftService.setAcceptedStatus("TMP_123")
             }
         }

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode.CALC_STATS
 import ac.uk.ebi.biostd.common.properties.Mode.CHECK_RELEASED
 import ac.uk.ebi.biostd.common.properties.Mode.CLEAN
+import ac.uk.ebi.biostd.common.properties.Mode.COMPLETE
 import ac.uk.ebi.biostd.common.properties.Mode.COPY
 import ac.uk.ebi.biostd.common.properties.Mode.FINALIZE
 import ac.uk.ebi.biostd.common.properties.Mode.INDEX
@@ -31,11 +32,11 @@ import kotlin.system.exitProcess
 @SpringBootApplication
 @EnableConfigurationProperties(value = [ApplicationProperties::class, TaskProperties::class])
 @Import(value = [SubmissionConfig::class])
-class SubmissionApp
+class SubmissionTaskApp
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
-    SpringApplicationBuilder(SubmissionApp::class.java)
+    SpringApplicationBuilder(SubmissionTaskApp::class.java)
         .web(WebApplicationType.NONE)
         .run(*args)
 }
@@ -75,6 +76,7 @@ class Execute(
             SAVE -> submissionSubmitter.saveRequest(accNo, version)
             FINALIZE -> submissionSubmitter.finalizeRequest(accNo, version)
             CALC_STATS -> statsService.calculateSubFilesSize(accNo)
+            COMPLETE -> submissionSubmitter.completeRqt(accNo, version)
         }
     }
 }

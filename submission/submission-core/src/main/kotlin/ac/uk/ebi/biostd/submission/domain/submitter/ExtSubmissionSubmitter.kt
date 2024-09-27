@@ -5,7 +5,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 @Suppress("TooManyFunctions")
 interface ExtSubmissionSubmitter {
-    suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int>
+    suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int>
 
     suspend fun indexRequest(
         accNo: String,
@@ -56,4 +56,9 @@ interface ExtSubmissionSubmitter {
         accNo: String,
         version: Int,
     ): ExtSubmission
+
+    suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    )
 }

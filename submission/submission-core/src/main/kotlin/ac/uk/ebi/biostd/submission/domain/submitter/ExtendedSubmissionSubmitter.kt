@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
+import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
@@ -26,7 +27,29 @@ class ExtendedSubmissionSubmitter(
     private val submissionTaskProperties: SubmissionTaskProperties,
     private val requestService: SubmissionRequestPersistenceService,
     private val queryService: SubmissionPersistenceQueryService,
-) : ExtSubmissionSubmitter by localExtSubmissionSubmitter {
+) : ExtSubmissionSubmitter {
+    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> = localExtSubmissionSubmitter.createRqt(rqt)
+
+    override suspend fun indexRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.indexRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.indexRequest(accNo, version)
+        }
+    }
+
+    override suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.completeRqt(accNo, version)
+            else -> localExtSubmissionSubmitter.completeRqt(accNo, version)
+        }
+    }
+
     override suspend fun loadRequest(
         accNo: String,
         version: Int,
@@ -44,6 +67,16 @@ class ExtendedSubmissionSubmitter(
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.indexToCleanRequest(accNo, version)
             else -> localExtSubmissionSubmitter.indexToCleanRequest(accNo, version)
+        }
+    }
+
+    override suspend fun validateRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.validateRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.validateRequest(accNo, version)
         }
     }
 
@@ -77,21 +110,40 @@ class ExtendedSubmissionSubmitter(
         }
     }
 
+    override suspend fun saveRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.saveRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.saveRequest(accNo, version)
+        }
+    }
+
+    override suspend fun finalizeRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.finalizeRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.finalizeRequest(accNo, version)
+        }
+    }
+
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
-        return when (submissionTaskProperties.enabled) {
+    ): ExtSubmission =
+        when (submissionTaskProperties.enabled) {
             true -> handleRemoteRequest(accNo, version)
             else -> localExtSubmissionSubmitter.handleRequest(accNo, version)
         }
-    }
 
     private suspend fun handleRemoteRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
-        return when (requestService.getRequestStatus(accNo, version)) {
+    ): ExtSubmission =
+        when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> triggerAndWait(accNo, version) { indexRequest(accNo, version) }
             INDEXED -> triggerAndWait(accNo, version) { loadRequest(accNo, version) }
             LOADED -> triggerAndWait(accNo, version) { indexToCleanRequest(accNo, version) }
@@ -104,7 +156,6 @@ class ExtendedSubmissionSubmitter(
             INVALID -> error("Request accNo=$accNo, version=$version is in an invalid state")
             PROCESSED -> error("Request accNo=$accNo, version=$version has been already processed")
         }
-    }
 
     private suspend fun triggerAndWait(
         accNo: String,

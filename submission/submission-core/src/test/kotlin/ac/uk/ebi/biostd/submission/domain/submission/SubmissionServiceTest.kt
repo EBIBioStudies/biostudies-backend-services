@@ -69,7 +69,8 @@ class SubmissionServiceTest(
             every { request.accNo } returns "S-TEST123"
             every { request.owner } returns "owner@mail.org"
             every { request.draftKey } returns "TMP_123456"
-            coEvery { submissionSubmitter.createRequest(request) } returns basicExtSubmission
+            every { request.processAll } returns false
+            coEvery { submissionSubmitter.createRqt(request) } returns basicExtSubmission
             every { eventsPublisherService.requestCreated("S-TEST123", 1) } answers { nothing }
 
             val response = testInstance.submitAsync(request)
@@ -77,7 +78,7 @@ class SubmissionServiceTest(
             assertThat(response.version).isEqualTo(1)
             assertThat(response.accNo).isEqualTo("S-TEST123")
             coVerify(exactly = 1) {
-                submissionSubmitter.createRequest(request)
+                submissionSubmitter.createRqt(request)
                 eventsPublisherService.requestCreated("S-TEST123", 1)
             }
         }

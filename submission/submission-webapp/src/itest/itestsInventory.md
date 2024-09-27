@@ -104,6 +104,7 @@ Contains test related to submission
 | SubmissionApiTest      | 16-14   | Submit study when the system has the basePath property configured         |
 | SubmissionApiTest      | 16-15   | Submit study publish SubmissionSubmitted message                          |
 | SubmissionApiTest      | 16-16   | Submit study with silentMode does not publish SubmissionSubmitted message |
+| SubmissionApiTest      | 16-17   | Submit study with singleJobMode                                           |
 | AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                               | 
 | AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                              | 
 

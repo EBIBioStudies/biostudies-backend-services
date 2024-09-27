@@ -61,7 +61,7 @@ class SubmitWebHandler(
     }
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
-        val (submitter, onBehalfUser, attrs, storageMode, silentMode) = rqt.config
+        val (submitter, onBehalfUser, attrs, storageMode, silentMode, processAll) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
 
         /**
@@ -129,6 +129,7 @@ class SubmitWebHandler(
                 previousVersion = previous,
                 storageMode = storageMode,
                 silentMode = silentMode,
+                processAll = processAll,
             )
         }
 
