@@ -84,7 +84,7 @@ class PmcSubmitter(
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
 
             logger.info { "submitting accNo='${submission.accNo}', docId='${submission.id}' with ${files.size} files" }
-            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true)
+            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
             return bioWebClient.submitMultipart(submission.body, SubmissionFormat.JSON, params, files)
         }
 
