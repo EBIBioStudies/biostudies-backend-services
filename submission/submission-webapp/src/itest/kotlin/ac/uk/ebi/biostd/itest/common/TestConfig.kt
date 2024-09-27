@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.service.SecurityService
 import org.springframework.amqp.core.Binding
@@ -32,10 +31,6 @@ class TestConfig {
 
     @Bean(name = ["FailCollectionValidator"])
     fun failCollectionValidator(): FailCollectionValidator = FailCollectionValidator()
-
-    @Bean
-    fun testUserDataService(userDataDataRepository: UserDataDataRepository): TestUserDataService =
-        TestUserDataService(userDataDataRepository)
 
     @Bean
     fun testMessageService(rabbitTemplate: RabbitTemplate): TestMessageService = TestMessageService(rabbitTemplate)

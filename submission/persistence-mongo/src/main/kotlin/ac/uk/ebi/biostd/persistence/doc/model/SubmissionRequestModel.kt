@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES
 import com.mongodb.DBObject
 import ebi.ac.uk.model.RequestStatus
 import org.bson.types.ObjectId
@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.query.Update
 import java.time.Instant
 
-@Document(collection = RQT_COL)
+@Document(collection = SUB_RQT)
 data class DocSubmissionRequest(
     @Id
     val id: ObjectId,
@@ -65,7 +65,7 @@ data class DocRequestStatusChanges(
     val result: String?,
 )
 
-@Document(collection = RQT_FILE_COL)
+@Document(collection = SUB_RQT_FILES)
 data class DocSubmissionRequestFile(
     @Id
     val id: ObjectId,
@@ -77,11 +77,3 @@ data class DocSubmissionRequestFile(
     val status: RequestFileStatus,
     val previousSubFile: Boolean,
 )
-
-object CollectionsNames {
-    const val RQT_FILE_COL = "submission_request_files"
-    const val RQT_FILE_ARCH_COL = "submission_request_files_archive"
-
-    const val RQT_COL = "submission_requests"
-    const val RQT_ARCH_COL = "submission_requests_archive"
-}

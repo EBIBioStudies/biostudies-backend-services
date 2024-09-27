@@ -18,7 +18,7 @@ class SubmissionDraftMongoPersistenceService(
         key: String,
     ): SubmissionDraft? {
         return draftDocDataRepository
-            .findByUserIdAndKeyAndStatusIsNot(userEmail, key, ACCEPTED)
+            .findByOwnerAndKeyAndStatusIsNot(userEmail, key, ACCEPTED)
             ?.let { SubmissionDraft(it.key, it.content) }
     }
 
@@ -43,7 +43,7 @@ class SubmissionDraftMongoPersistenceService(
         userEmail: String,
         key: String,
     ) {
-        draftDocDataRepository.deleteByUserIdAndKey(userEmail, key)
+        draftDocDataRepository.deleteByOwnerAndKey(userEmail, key)
     }
 
     override fun getActiveSubmissionDrafts(
@@ -51,7 +51,7 @@ class SubmissionDraftMongoPersistenceService(
         filter: PageRequest,
     ): Flow<SubmissionDraft> {
         return draftDocDataRepository
-            .findAllByUserIdAndStatus(userEmail, ACTIVE, filter)
+            .findAllByOwnerAndStatus(userEmail, ACTIVE, filter)
             .map { SubmissionDraft(it.key, it.content) }
     }
 

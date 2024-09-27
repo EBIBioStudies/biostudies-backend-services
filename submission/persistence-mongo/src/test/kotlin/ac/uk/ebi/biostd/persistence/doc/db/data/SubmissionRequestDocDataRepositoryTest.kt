@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_VERSION
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_ARCH_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_ARCH_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_ARCHIVE
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCHIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.mongodb.BasicDBObject
@@ -111,10 +111,15 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(result).isEqualTo(2)
 
             val query = Query().addCriteria(where(RQT_ACC_NO).`is`("abc-123").andOperator(where(RQT_VERSION).`is`(2)))
-            val files = template.find(query, DocSubmissionRequestFile::class.java, RQT_FILE_ARCH_COL).asFlow().toList()
+            val files =
+                template.find(
+                    query,
+                    DocSubmissionRequestFile::class.java,
+                    SUB_RQT_FILES_ARCHIVE,
+                ).asFlow().toList()
             assertThat(files).containsExactlyInAnyOrder(rqtF1, rqtF2)
 
-            val requests = template.find(query, DocSubmissionRequest::class.java, RQT_ARCH_COL).asFlow().toList()
+            val requests = template.find(query, DocSubmissionRequest::class.java, SUB_RQT_ARCHIVE).asFlow().toList()
             assertThat(requests).containsExactly(request)
         }
 

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -21,22 +22,22 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.time.Instant
 
 interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft, String> {
-    suspend fun findByUserIdAndKeyAndStatusIsNot(
-        userId: String,
+    suspend fun findByOwnerAndKeyAndStatusIsNot(
+        owner: String,
         key: String,
-        deleted: DocSubmissionDraft.DraftStatus,
+        deleted: DraftStatus,
     ): DocSubmissionDraft?
 
-    fun findAllByUserIdAndStatus(
-        userId: String,
-        status: DocSubmissionDraft.DraftStatus,
+    fun findAllByOwnerAndStatus(
+        owner: String,
+        status: DraftStatus,
         pageRequest: Pageable,
     ): Flow<DocSubmissionDraft>
 
     suspend fun getById(id: String): DocSubmissionDraft
 
-    suspend fun deleteByUserIdAndKey(
-        userId: String,
+    suspend fun deleteByOwnerAndKey(
+        owner: String,
         draftKey: String,
     )
 }

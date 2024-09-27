@@ -39,10 +39,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_PREVIOUS_SUB_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_ARCH_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_ARCH_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_ARCHIVE
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCHIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
@@ -109,7 +109,7 @@ class SubmissionRequestDocDataRepository(
             var mergeOperation =
                 Aggregation
                     .merge()
-                    .intoCollection(RQT_FILE_ARCH_COL)
+                    .intoCollection(SUB_RQT_FILES_ARCHIVE)
                     .on(Fields.UNDERSCORE_ID)
                     .whenMatched(WhenDocumentsMatch.replaceDocument())
                     .whenNotMatched(WhenDocumentsDontMatch.insertNewDocument())
@@ -128,16 +128,16 @@ class SubmissionRequestDocDataRepository(
                             .build(),
                     )
             mongoTemplate
-                .aggregate(aggregation, RQT_FILE_COL, Document::class.java)
+                .aggregate(aggregation, SUB_RQT_FILES, Document::class.java)
                 .awaitFirstOrNull()
-            return mongoTemplate.count(Query().addCriteria(criteria), RQT_FILE_ARCH_COL).awaitSingle()
+            return mongoTemplate.count(Query().addCriteria(criteria), SUB_RQT_FILES_ARCHIVE).awaitSingle()
         }
 
         suspend fun archiveRequest() {
             var mergeOperation =
                 Aggregation
                     .merge()
-                    .intoCollection(RQT_ARCH_COL)
+                    .intoCollection(SUB_RQT_ARCHIVE)
                     .on(Fields.UNDERSCORE_ID)
                     .whenMatched(WhenDocumentsMatch.replaceDocument())
                     .whenNotMatched(WhenDocumentsDontMatch.insertNewDocument())
@@ -156,7 +156,7 @@ class SubmissionRequestDocDataRepository(
                             .build(),
                     )
             mongoTemplate
-                .aggregate(aggregation, RQT_COL, Document::class.java)
+                .aggregate(aggregation, SUB_RQT, Document::class.java)
                 .awaitFirstOrNull()
         }
 
