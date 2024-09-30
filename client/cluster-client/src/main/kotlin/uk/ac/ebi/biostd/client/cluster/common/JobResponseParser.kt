@@ -11,6 +11,7 @@ fun toLsfJob(response: String): Job {
     error("could not parse response, '$response'")
 }
 
+@Suppress("MagicNumber")
 fun toSlurmJob(
     response: String,
     logsPath: String,
