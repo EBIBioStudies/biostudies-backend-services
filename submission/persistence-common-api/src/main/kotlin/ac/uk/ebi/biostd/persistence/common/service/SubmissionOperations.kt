@@ -117,13 +117,13 @@ interface SubmissionRequestPersistenceService {
         version: Int,
     ): SubmissionRequest
 
-    suspend fun <T> onRequest(
+    suspend fun onRequest(
         accNo: String,
         version: Int,
         status: RequestStatus,
         processId: String,
-        handler: suspend (SubmissionRequest) -> OptResponse<T>,
-    ): OptResponse<T>
+        handler: suspend (SubmissionRequest) -> SubmissionRequest,
+    ): SubmissionRequest
 
     suspend fun isRequestCompleted(
         accNo: String,
@@ -135,25 +135,6 @@ interface SubmissionRequestPersistenceService {
         version: Int,
     )
 }
-
-sealed interface OptResponse<T> {
-    val rqt: SubmissionRequest
-    val value: T
-
-    operator fun component1(): SubmissionRequest = rqt
-
-    operator fun component2(): T = value
-}
-
-class RqtUpdate(
-    override val rqt: SubmissionRequest,
-    override val value: Unit = Unit,
-) : OptResponse<Unit>
-
-class RqtResponse(
-    override val rqt: SubmissionRequest,
-    override val value: ExtSubmission,
-) : OptResponse<ExtSubmission>
 
 interface SubmissionRequestFilesPersistenceService {
     suspend fun saveSubmissionRequestFile(file: SubmissionRequestFile)

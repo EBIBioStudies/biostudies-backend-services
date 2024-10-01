@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.UNRELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -38,7 +37,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(MockKExtension::class)
@@ -48,7 +46,6 @@ class SubmissionRequestReleaserTest(
     @MockK private val rqt: SubmissionRequest,
     @MockK private val submission: ExtSubmission,
     @MockK private val storageService: FileStorageService,
-    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
@@ -59,7 +56,6 @@ class SubmissionRequestReleaserTest(
             TEST_CONCURRENCY,
             storageService,
             ExtSerializationService(),
-            eventsPublisherService,
             queryService,
             requestService,
             filesService,
@@ -82,8 +78,6 @@ class SubmissionRequestReleaserTest(
         every { submission.relPath } returns REL_PATH
         every { submission.secretKey } returns SECRET_KEY
         every { submission.storageMode } returns FIRE
-
-        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
 
         coEvery {
             requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
@@ -129,7 +123,6 @@ class SubmissionRequestReleaserTest(
                 coVerify(exactly = 1) {
                     storageService.releaseSubmissionFile(submission, nfsFile)
                     storageService.releaseSubmissionFile(submission, fireFile)
-                    eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
                 }
             }
 
@@ -142,7 +135,6 @@ class SubmissionRequestReleaserTest(
 
                 coVerify(exactly = 1) {
                     storageService.releaseSubmissionFile(submission, nfsFile)
-                    eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
                 }
                 coVerify(exactly = 0) {
                     storageService.releaseSubmissionFile(submission, fireFile)
@@ -161,9 +153,6 @@ class SubmissionRequestReleaserTest(
                 verify {
                     storageService wasNot called
                     persistenceService wasNot called
-                }
-                coVerify(exactly = 1) {
-                    eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
                 }
             }
     }
@@ -221,9 +210,6 @@ class SubmissionRequestReleaserTest(
                     storageService wasNot called
                     persistenceService wasNot called
                 }
-                coVerify(exactly = 1) {
-                    eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
-                }
             }
 
         @Test
@@ -238,7 +224,6 @@ class SubmissionRequestReleaserTest(
                 coVerify(exactly = 1) {
                     storageService.unReleaseSubmissionFile(submission, nfsFile)
                     storageService.unReleaseSubmissionFile(submission, fireFile)
-                    eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
                 }
             }
 
@@ -261,7 +246,6 @@ class SubmissionRequestReleaserTest(
 
                 coVerify(exactly = 1) {
                     storageService.unReleaseSubmissionFile(submission, nfsFile)
-                    eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
                 }
                 coVerify(exactly = 0) {
                     storageService.unReleaseSubmissionFile(submission, fireFile)
@@ -293,6 +277,6 @@ class SubmissionRequestReleaserTest(
         const val REL_PATH = "sub-relpath"
         const val SECRET_KEY = "secret-key"
         const val VERSION = 1
-        private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
+        private val rqtSlot = slot<suspend (SubmissionRequest) -> SubmissionRequest>()
     }
 }

@@ -30,6 +30,7 @@ import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration.ofMinutes
 
 private val logger = KotlinLogging.logger {}
@@ -49,8 +50,9 @@ class LocalExtSubmissionSubmitter(
     private val requestCleaner: SubmissionRequestCleaner,
     private val requestSaver: SubmissionRequestSaver,
     private val submissionQueryService: ExtSubmissionQueryService,
+    private val eventsPublisherService: EventsPublisherService,
 ) : ExtSubmissionSubmitter {
-    override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
+    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
@@ -63,11 +65,78 @@ class LocalExtSubmissionSubmitter(
         return requestService.createRequest(request)
     }
 
+    @Suppress("CyclomaticComplexMethod")
+    override suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+    ) {
+        suspend fun fromSavedSubmission() {
+            requestCleaner.finalizeRequest(accNo, version, properties.processId)
+        }
+
+        suspend fun fromCheckReleased() {
+            val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
+            if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+            fromSavedSubmission()
+        }
+
+        suspend fun fromFilesCopied() {
+            requestReleaser.checkReleased(accNo, version, properties.processId)
+            fromCheckReleased()
+        }
+
+        suspend fun fromCleaned() {
+            requestProcessor.processRequest(accNo, version, properties.processId)
+            fromFilesCopied()
+        }
+
+        suspend fun fromValidated() {
+            requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
+            fromCleaned()
+        }
+
+        suspend fun fromIndexedToClean() {
+            val rqt = requestValidator.validateRequest(accNo, version, properties.processId)
+            if (rqt.status == VALIDATED) fromValidated()
+        }
+
+        suspend fun fromLoaded() {
+            requestToCleanIndexer.indexToCleanRequest(accNo, version, properties.processId)
+            fromIndexedToClean()
+        }
+
+        suspend fun fromIndexed() {
+            requestLoader.loadRequest(accNo, version, properties.processId)
+            fromLoaded()
+        }
+
+        suspend fun fromRequested() {
+            requestIndexer.indexRequest(accNo, version, properties.processId)
+            fromIndexed()
+        }
+
+        val status = requestService.getRequestStatus(accNo, version)
+        when (status) {
+            REQUESTED -> fromRequested()
+            INDEXED -> fromIndexed()
+            LOADED -> fromLoaded()
+            INDEXED_CLEANED -> fromIndexedToClean()
+            VALIDATED -> fromValidated()
+            CLEANED -> fromCleaned()
+            FILES_COPIED -> fromFilesCopied()
+            CHECK_RELEASED -> fromCheckReleased()
+            PERSISTED -> fromSavedSubmission()
+            PROCESSED -> logger.info { "Submission, $accNo, $version has been already processed." }
+            INVALID -> logger.info { "Submission, $accNo, $version is in INVALID. Errors need to be fixed." }
+        }
+    }
+
     override suspend fun indexRequest(
         accNo: String,
         version: Int,
     ) {
         requestIndexer.indexRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestIndexed(accNo, version)
     }
 
     override suspend fun loadRequest(
@@ -75,20 +144,23 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         requestLoader.loadRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestLoaded(accNo, version)
     }
 
     override suspend fun indexToCleanRequest(
         accNo: String,
         version: Int,
     ) {
-        requestToCleanIndexer.indexRequest(accNo, version, properties.processId)
+        requestToCleanIndexer.indexToCleanRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestIndexedToClean(accNo, version)
     }
 
     override suspend fun validateRequest(
         accNo: String,
         version: Int,
     ) {
-        requestValidator.validateRequest(accNo, version, properties.processId)
+        val request = requestValidator.validateRequest(accNo, version, properties.processId)
+        if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
     }
 
     override suspend fun cleanRequest(
@@ -96,6 +168,7 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
+        eventsPublisherService.requestCleaned(accNo, version)
     }
 
     override suspend fun processRequest(
@@ -103,6 +176,7 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         requestProcessor.processRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestFilesCopied(accNo, version)
     }
 
     override suspend fun checkReleased(
@@ -110,13 +184,16 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         requestReleaser.checkReleased(accNo, version, properties.processId)
+        eventsPublisherService.requestCheckedRelease(accNo, version)
     }
 
     override suspend fun saveRequest(
         accNo: String,
         version: Int,
     ) {
-        requestSaver.saveRequest(accNo, version, properties.processId)
+        val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
+        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+        eventsPublisherService.submissionPersisted(accNo, version)
     }
 
     override suspend fun finalizeRequest(
@@ -124,6 +201,7 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         requestCleaner.finalizeRequest(accNo, version, properties.processId)
+        eventsPublisherService.submissionFinalized(accNo, version)
     }
 
     override suspend fun handleRequest(

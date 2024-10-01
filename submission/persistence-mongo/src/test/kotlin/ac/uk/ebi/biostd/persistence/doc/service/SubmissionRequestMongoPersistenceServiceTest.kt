@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
@@ -103,7 +102,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     "processId",
                 ) {
                     operation++
-                    RqtUpdate(it.copy(status = PERSISTED))
+                    it.copy(status = PERSISTED)
                 }
 
                 assertThat(operation).isOne()
@@ -137,7 +136,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val exception = IllegalStateException("opps something wrong")
                 val throwException =
                     assertThrows<IllegalStateException> {
-                        testInstance.onRequest<RqtUpdate>(accNo, version, REQUESTED, "processId", { throw exception })
+                        testInstance.onRequest(accNo, version, REQUESTED, "processId", { throw exception })
                     }
 
                 assertThat(throwException).isEqualTo(exception)

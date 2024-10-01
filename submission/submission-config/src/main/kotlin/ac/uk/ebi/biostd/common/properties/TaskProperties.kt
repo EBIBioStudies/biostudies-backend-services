@@ -25,4 +25,5 @@ enum class Mode {
     SAVE,
     FINALIZE,
     CALC_STATS,
+    COMPLETE,
 }
