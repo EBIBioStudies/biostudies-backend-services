@@ -23,7 +23,6 @@ import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val TIMEOUT = 180_000L
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(

@@ -26,6 +26,7 @@ import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 class SubmissionService(
     private val subRepository: SubmissionDataRepository,
     private val fileRepository: SubFileDataRepository,
@@ -118,13 +119,6 @@ class SubmissionService(
         }
 
     suspend fun findById(submissionId: String): SubmissionDocument = subRepository.getById(ObjectId(submissionId))
-
-    suspend fun changeStatus(
-        sub: SubmissionDocument,
-        status: SubmissionStatus,
-    ) {
-        subRepository.update(sub.copy(status = status))
-    }
 
     fun getSubFiles(files: List<ObjectId>): Flow<SubFileDocument> = fileRepository.findByIds(files)
 }
