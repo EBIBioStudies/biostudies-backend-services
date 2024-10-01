@@ -8,6 +8,7 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSING
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTING
 import ac.uk.ebi.pmc.persistence.repository.SubFileDataRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionDataRepository
@@ -54,6 +55,17 @@ class SubmissionService(
         val newVersion = sub.copy(files = saveFiles(sub.accNo, files), status = PROCESSED)
         subRepository.update(newVersion)
         logger.info { "Finish processing submission with accNo = '${sub.accNo}' from file ${sub.sourceFile}" }
+    }
+
+    suspend fun saveSubmittingSubmission(
+        sub: SubmissionDocument,
+        version: Int,
+    ) {
+        subRepository.update(sub.copy(version = version, status = SUBMITTED))
+    }
+
+    suspend fun saveCompletedSubmission(sub: SubmissionDocument) {
+        subRepository.update(sub.copy(status = SUBMITTED))
     }
 
     fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDocument> =

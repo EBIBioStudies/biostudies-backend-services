@@ -10,7 +10,6 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_SUBMIT
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileDocRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionDocRepository
-import ac.uk.ebi.pmc.prcoessedSubmissionBody
 import ac.uk.ebi.pmc.processedSubmission
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aMultipart
@@ -61,7 +60,9 @@ import java.time.Duration.ofSeconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSingleSubmissionSubmitterTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val mongoContainer: MongoDBContainer =
         MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
             .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -85,9 +86,10 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                             "password" to "123456"
                         }.toString(),
                     ),
-                )
-                .willReturn(
-                    aResponse().withStatus(HTTP_OK).withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                ).willReturn(
+                    aResponse()
+                        .withStatus(HTTP_OK)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(
                             jsonObj {
                                 "sessid" to "sessid"
@@ -105,7 +107,7 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                 ),
         )
         wireMockWebServer.stubFor(
-            post(urlEqualTo("/submissions"))
+            post(urlEqualTo("/submissions/async"))
                 .withHeader(CONTENT_TYPE, containing(MULTIPART_FORM_DATA))
                 .withHeader(ACCEPT, equalTo("$APPLICATION_JSON, $APPLICATION_JSON"))
                 .withHeader(SUBMISSION_TYPE, equalTo(APPLICATION_JSON))
@@ -115,18 +117,21 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                         .withHeader(CONTENT_TYPE, equalTo("$TEXT_PLAIN;charset=UTF-8"))
                         .withHeader(CONTENT_LENGTH, equalTo("225"))
                         .withBody(equalToJson(processedSubmission.body)),
-                )
-                .withMultipartRequestBody(
+                ).withMultipartRequestBody(
                     aMultipart()
                         .withName("files")
                         .withHeader(CONTENT_TYPE, equalTo(TEXT_PLAIN))
                         .withHeader(CONTENT_LENGTH, equalTo("19")),
-                )
-                .willReturn(
+                ).willReturn(
                     aResponse()
                         .withStatus(HTTP_OK)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody(prcoessedSubmissionBody.toString()),
+                        .withBody(
+                            jsonObj {
+                                "accNo" to "S-EPMC1234567"
+                                "version" to 3
+                            }.toString(),
+                        ),
                 ),
         )
         wireMockWebServer.start()
@@ -205,6 +210,7 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
 
                 val submission = submissions.first()
                 assertThat(submission.status).isEqualTo(SubmissionStatus.SUBMITTED)
+                assertThat(submission.version).isEqualTo(3)
                 assertThat(submission.files).hasSize(1)
             }
         }
