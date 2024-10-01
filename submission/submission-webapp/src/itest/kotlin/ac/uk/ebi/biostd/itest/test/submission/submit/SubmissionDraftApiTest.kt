@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import com.fasterxml.jackson.databind.ObjectMapper
+import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -132,22 +133,48 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to "ABC-129"
                     "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "Source"
+                                "value" to "PageTab"
+                                "reference" to false
+                                "nameAttrs" to jsonArray()
+                                "valueAttrs" to jsonArray()
+                            },
+                        )
                 }.toString(),
                 JSON,
             )
 
+            val version1 = webClient.getExtByAccNo("ABC-129")
+            assertThat(version1.attributes.first().name).isEqualTo("Source")
+            assertThat(version1.attributes.first().value).isEqualTo("PageTab")
+
+            webClient.getSubmissionDraft("ABC-129")
             webClient.updateSubmissionDraft(
                 "ABC-129",
                 jsonObj {
                     "accno" to "ABC-129"
-                    "ReleaseDate" to "2021-09-21"
                     "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "Source"
+                                "value" to "Draft"
+                                "reference" to false
+                                "nameAttrs" to jsonArray()
+                                "valueAttrs" to jsonArray()
+                            },
+                        )
                 }.toString(),
             )
 
             webClient.submitFromDraft("ABC-129")
 
-            assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-129")).isNull()
+            val version2 = webClient.getExtByAccNo("ABC-129")
+            assertThat(version2.attributes.first().name).isEqualTo("Source")
+            assertThat(version2.attributes.first().value).isEqualTo("Draft")
             assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-129")).isNull()
         }
 

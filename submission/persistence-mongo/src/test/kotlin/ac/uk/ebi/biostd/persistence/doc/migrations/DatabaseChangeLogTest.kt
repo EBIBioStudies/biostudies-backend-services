@@ -33,12 +33,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_DRAFTS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTENT
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.OWNER
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -49,7 +45,6 @@ import ebi.ac.uk.db.MONGO_VERSION
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
@@ -60,7 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.collectionExists
-import org.springframework.data.mongodb.core.createCollection
 import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -229,26 +223,6 @@ internal class DatabaseChangeLogTest(
                 )
             }
 
-            suspend fun testSubmissionDrafts() {
-                val docDraft = Document(mapOf(USER_ID to "owner@mail.org", KEY to "draftKey", CONTENT to "content"))
-                mongoTemplate.createCollection<DocSubmissionDraft>()
-                mongoTemplate.insert(docDraft, SUB_DRAFTS).awaitSingleOrNull()
-
-                val drafts = mongoTemplate.findAll(Document::class.java, SUB_DRAFTS).asFlow().toList()
-                assertThat(drafts).hasSize(1)
-                assertThat(drafts.first()[OWNER]).isNull()
-                assertThat(drafts.first()[USER_ID]).isEqualTo("owner@mail.org")
-            }
-
-            suspend fun assertSubmissionDrafts() {
-                val drafts = mongoTemplate.findAll(Document::class.java, SUB_DRAFTS).asFlow().toList()
-                assertThat(drafts).hasSize(1)
-                assertThat(drafts.first()[USER_ID]).isNull()
-                assertThat(drafts.first()[OWNER]).isEqualTo("owner@mail.org")
-            }
-
-            testSubmissionDrafts()
-
             mongoTemplate.executeMigrations()
 
             assertSubmissionIndexes()
@@ -256,7 +230,6 @@ internal class DatabaseChangeLogTest(
             assertRequestFileIndexes()
             assertFileListIndexes()
             assertStatsIndexes()
-            assertSubmissionDrafts()
         }
 
     companion object {

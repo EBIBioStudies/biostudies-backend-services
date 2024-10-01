@@ -32,9 +32,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_DRAFTS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.OWNER
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -45,11 +43,7 @@ import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.index.Index
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
-
-internal const val USER_ID = "userId"
 
 suspend fun ReactiveMongoTemplate.executeMigrations() {
     ensureExists(DocSubmission::class.java)
@@ -61,8 +55,6 @@ suspend fun ReactiveMongoTemplate.executeMigrations() {
 
     ensureFileListIndexes()
     ensureStatsIndexes()
-
-    renameDraftOwnerField()
 }
 
 suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
@@ -204,12 +196,4 @@ suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     indexOps(DocSubmissionStats::class.java).apply {
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
     }
-}
-
-/**
- * Rename the field userId to owner in the submission_drafts collection
- */
-suspend fun ReactiveMongoOperations.renameDraftOwnerField() {
-    val update = Update().rename(USER_ID, OWNER)
-    updateMulti(Query(), update, SUB_DRAFTS).awaitSingleOrNull()
 }
