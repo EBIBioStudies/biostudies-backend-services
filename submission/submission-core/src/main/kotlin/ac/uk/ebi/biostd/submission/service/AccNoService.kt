@@ -23,14 +23,15 @@ class AccNoService(
         val submitter = rqt.submitter.email
         val isNew = rqt.previousVersion == null
         val accNo = rqt.submission.accNo.ifBlank { null }
+        val collection = rqt.collection?.accNo
 
         if (accNo != null && isNew.not()) {
             checkCanReSubmit(accNo, submitter)
             return patternUtil.toAccNumber(accNo)
         }
 
-        checkCanSubmitToCollection(rqt.collection?.accNo, submitter)
-        checkCanProvideAcc(accNo, isNew, submitter)
+        checkCanSubmitToCollection(collection, submitter)
+        checkCanProvideAcc(accNo, collection, isNew, submitter)
         return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(rqt.collection?.accNoPattern))
     }
 
@@ -50,12 +51,13 @@ class AccNoService(
         if (privilegesService.canResubmit(submitter, accNo).not()) throw UserCanNotUpdateSubmit(accNo, submitter)
     }
 
-    private fun checkCanProvideAcc(
+    private suspend fun checkCanProvideAcc(
         accNo: String?,
+        collection: String?,
         isNew: Boolean,
         submitter: String,
     ) {
-        if (isNew && accNo != null && privilegesService.canProvideAccNo(submitter).not()) {
+        if (isNew && accNo != null && privilegesService.canProvideAccNo(submitter, collection.orEmpty()).not()) {
             throw UserCanNotProvideAccessNumber(submitter)
         }
     }
