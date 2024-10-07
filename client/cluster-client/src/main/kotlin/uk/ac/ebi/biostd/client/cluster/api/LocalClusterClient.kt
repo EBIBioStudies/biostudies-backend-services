@@ -13,15 +13,14 @@ class LocalClusterClient : ClusterClient {
     private val activeProcess = ConcurrentHashMap<Long, Process>()
     private val jobLogs = ConcurrentHashMap<Long, File>()
 
-    override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
-        return withContext(Dispatchers.IO) {
+    override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> =
+        withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
             val processId = executeProcess(jobSpec.command, logFile)
 
             jobLogs[processId] = logFile
-            success(Job(processId.toString(), LOCAL_QUEUE))
+            success(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
         }
-    }
 
     override suspend fun triggerJobSync(
         jobSpec: JobSpec,
@@ -32,7 +31,7 @@ class LocalClusterClient : ClusterClient {
             val logFile = createTempFile().toFile()
             val processId = executeProcess(jobSpec.command, logFile)
             waitProcess(processId)
-            return@withContext Job(processId.toString(), LOCAL_QUEUE)
+            return@withContext Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath)
         }
     }
 
@@ -41,9 +40,7 @@ class LocalClusterClient : ClusterClient {
         return if (process.isAlive) "RUNNING" else "DONE"
     }
 
-    override suspend fun jobLogs(jobId: String): String {
-        return jobLogs.getValue(jobId.toLong()).readText()
-    }
+    override suspend fun jobLogs(jobId: String): String = jobLogs.getValue(jobId.toLong()).readText()
 
     companion object {
         internal const val LOCAL_QUEUE = "local"

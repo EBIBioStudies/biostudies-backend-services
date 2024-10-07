@@ -127,7 +127,7 @@ class RemoteExtSubmissionSubmitter(
                 ),
             )
         job.fold(
-            { logger.info { "$accNo Triggered submission task $mode. Job Id: ${it.id}." } },
+            { logger.info { "$accNo Triggered submission task $mode. Job Id: ${it.id}. ${it.logsPath}" } },
             { throw it },
         )
     }

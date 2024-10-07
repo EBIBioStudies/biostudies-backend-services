@@ -20,6 +20,7 @@ class PmcImporterProperties : JavaAppProperties {
     var loadFolder: String? = null
     var loadFile: String? = null
     var sourceFile: String? = null
+    var limit: Int? = null
     var bioStudiesUrl: String? = null
 
     override fun asCmd(
@@ -44,6 +45,7 @@ class PmcImporterProperties : JavaAppProperties {
             loadFile?.let { add("--app.data.loadFile=$it") }
             sourceFile?.let { add("--app.data.sourceFile=$it") }
             submissionId?.let { add("--app.data.submissionId=$it") }
+            limit?.let { add("--app.data.limit=$it") }
         }.joinToString(separator = " \\\n")
 
     companion object {
