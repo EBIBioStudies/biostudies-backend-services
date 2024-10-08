@@ -97,7 +97,7 @@ class SlurmClusterClient(
         exitCode: Int,
         response: String,
     ): Result<Job> {
-        if (exitCode == 0) return success(toSlurmJob(response))
+        if (exitCode == 0) return success(toSlurmJob(response, logsPath))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
         return failure(JobSubmitFailException(response))
@@ -109,14 +109,13 @@ class SlurmClusterClient(
             sshMachine: String,
             logsPath: String,
             wrapperPath: String,
-        ): SlurmClusterClient {
-            return SlurmClusterClient(
+        ): SlurmClusterClient =
+            SlurmClusterClient(
                 logsPath = logsPath,
                 wrapperPath = wrapperPath,
                 sshServer = sshMachine,
                 sshKey = sshKey,
             )
-        }
 
         private fun JobSpec.asParameter(
             wrapperPath: String,

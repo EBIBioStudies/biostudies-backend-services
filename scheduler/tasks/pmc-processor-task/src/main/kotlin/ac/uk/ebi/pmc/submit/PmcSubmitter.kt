@@ -1,10 +1,9 @@
 package ac.uk.ebi.pmc.submit
 
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionResponse
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcMode
@@ -13,20 +12,17 @@ import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.ExperimentalTime
-import kotlin.time.TimedValue
-import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val TIMEOUT = 60_000L
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(
@@ -34,9 +30,12 @@ class PmcSubmitter(
     private val errorService: ErrorsService,
     private val submissionService: SubmissionService,
 ) {
-    fun submitAll(sourceFile: String?): Unit =
+    fun submitAll(
+        sourceFile: String?,
+        limit: Int?,
+    ): Unit =
         runBlocking {
-            submitSubmissions(sourceFile)
+            submitSubmissions(sourceFile, limit)
         }
 
     fun submitSingle(submissionId: String): Unit =
@@ -45,11 +44,15 @@ class PmcSubmitter(
             submitSubmission(submission, 1)
         }
 
-    private suspend fun submitSubmissions(sourceFile: String?) {
+    private suspend fun submitSubmissions(
+        sourceFile: String?,
+        limit: Int?,
+    ) {
         val counter = AtomicInteger(0)
         supervisorScope {
             submissionService
                 .findReadyToSubmit(sourceFile)
+                .take(limit ?: Int.MAX_VALUE)
                 .concurrently(CONCURRENCY) { submitSubmission(it, counter.incrementAndGet()) }
                 .collect()
         }
@@ -62,8 +65,8 @@ class PmcSubmitter(
         submit(sub)
             .fold(
                 {
-                    logger.info { "submitted $idx, accNo='${sub.accNo}', in ${it.duration.inWholeMilliseconds} ms" }
-                    submissionService.changeStatus(sub, SubmissionStatus.SUBMITTED)
+                    logger.info { "submitted $idx, accNo='${sub.accNo}', version='${sub.version}'" }
+                    submissionService.saveSubmittingSubmission(sub, it.version)
                 },
                 {
                     logger.error(it) { "failed to submit accNo='${sub.accNo}'" }
@@ -71,15 +74,15 @@ class PmcSubmitter(
                 },
             )
 
-    private suspend fun submit(submission: SubmissionDocument): Result<TimedValue<SubmissionResponse>> {
-        suspend fun submit(): SubmissionResponse {
+    private suspend fun submit(submission: SubmissionDocument): Result<AcceptedSubmission> {
+        suspend fun submit(): AcceptedSubmission {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
 
             logger.info { "submitting accNo='${submission.accNo}', docId='${submission.id}' with ${files.size} files" }
-            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true)
-            return bioWebClient.submitMultipart(submission.body, SubmissionFormat.JSON, params, files)
+            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
+            return bioWebClient.submitMultipartAsync(submission.body, SubmissionFormat.JSON, params, files)
         }
 
-        return runCatching { withTimeout(TIMEOUT) { measureTimedValue { submit() } } }
+        return runCatching { submit() }
     }
 }

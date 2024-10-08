@@ -48,14 +48,24 @@ class UserPrivilegesServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `super user provides acc no`() {
-        assertThat(testInstance.canProvideAccNo("superuser@mail.com")).isTrue()
-    }
+    fun `super user provides acc no`() =
+        runTest {
+            assertThat(testInstance.canProvideAccNo("superuser@mail.com", "A-Collection")).isTrue()
+        }
 
     @Test
-    fun `regular user provides acc no`() {
-        assertThat(testInstance.canProvideAccNo("author@mail.com")).isFalse()
-    }
+    fun `admin user provides acc no`() =
+        runTest {
+            every { userPermissionsService.isAdmin("author@mail.com", "A-Collection") } returns true
+            assertThat(testInstance.canProvideAccNo("author@mail.com", "A-Collection")).isTrue()
+        }
+
+    @Test
+    fun `regular user provides acc no`() =
+        runTest {
+            every { userPermissionsService.isAdmin("author@mail.com", "A-Collection") } returns false
+            assertThat(testInstance.canProvideAccNo("author@mail.com", "A-Collection")).isFalse()
+        }
 
     @Test
     fun `super user submits to collection`() =
@@ -187,9 +197,10 @@ class UserPrivilegesServiceTest(
         }
 
     @Test
-    fun `non existing user`() {
-        assertThrows<UserNotFoundByEmailException> { testInstance.canProvideAccNo("empty@mail.com") }
-    }
+    fun `non existing user`() =
+        runTest {
+            assertThrows<UserNotFoundByEmailException> { testInstance.canProvideAccNo("empty@mail.com", "Collection") }
+        }
 
     @Test
     fun `super user release`() {

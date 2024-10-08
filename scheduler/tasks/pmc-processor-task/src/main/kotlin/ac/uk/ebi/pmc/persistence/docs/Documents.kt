@@ -36,6 +36,7 @@ data class SubmissionDocument(
     @Id
     val id: ObjectId = ObjectId(),
     val accNo: String,
+    val version: Int? = null,
     var body: String,
     var status: SubmissionStatus,
     val sourceFile: String,

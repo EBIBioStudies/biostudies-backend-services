@@ -75,7 +75,7 @@ class AccNoServiceTest(
         fun `when user cannot provide accession`() =
             runTest {
                 every { request.collection } returns null
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+                coEvery { privilegesService.canProvideAccNo(SUBMITTER, "") } returns false
 
                 val error = assertThrows<UserCanNotProvideAccessNumber> { testInstance.calculateAccNo(request) }
                 assertThat(error.message)
@@ -98,7 +98,7 @@ class AccNoServiceTest(
             fun `when no project`() =
                 runTest {
                     every { request.collection } returns null
-                    every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                    coEvery { privilegesService.canProvideAccNo(SUBMITTER, "") } returns true
 
                     assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
                 }
@@ -106,7 +106,7 @@ class AccNoServiceTest(
             @Test
             fun `when project`() =
                 runTest {
-                    every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                    coEvery { privilegesService.canProvideAccNo(SUBMITTER, COLLECTION) } returns true
                     coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
                     assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
@@ -131,7 +131,7 @@ class AccNoServiceTest(
                     every { request.collection } returns null
                     every { request.submission.accNo } returns ""
                     every { service.getSequenceNextValue("S-BSST") } returns 99
-                    every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                    coEvery { privilegesService.canProvideAccNo(SUBMITTER, "") } returns true
                     coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
                     assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("S-BSST", "99"))
@@ -161,7 +161,7 @@ class AccNoServiceTest(
         @Test
         fun `superuser resubmit`() =
             runTest {
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                coEvery { privilegesService.canProvideAccNo(SUBMITTER, COLLECTION) } returns true
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
@@ -171,7 +171,7 @@ class AccNoServiceTest(
         @Test
         fun `owner regular user resubmit`() =
             runTest {
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+                coEvery { privilegesService.canProvideAccNo(SUBMITTER, COLLECTION) } returns false
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
 
@@ -181,7 +181,7 @@ class AccNoServiceTest(
         @Test
         fun `non owner regular user resubmit`() =
             runTest {
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+                coEvery { privilegesService.canProvideAccNo(SUBMITTER, COLLECTION) } returns false
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 

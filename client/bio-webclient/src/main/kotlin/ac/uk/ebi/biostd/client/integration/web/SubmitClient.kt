@@ -288,6 +288,7 @@ interface MultipartAsyncSubmitOperations {
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): AcceptedSubmission
 
     fun submitMultipartAsync(

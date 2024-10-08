@@ -40,9 +40,10 @@ class MultiPartAsyncSubmitClient(
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
+        files: List<File>,
     ): AcceptedSubmission {
         val headers = createHeaders(format)
-        val body = multipartBody(submission, parameters)
+        val body = multipartBody(submission, parameters, files)
         return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
     }
 

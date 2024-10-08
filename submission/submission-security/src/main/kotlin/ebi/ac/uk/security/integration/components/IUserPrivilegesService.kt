@@ -3,7 +3,10 @@ package ebi.ac.uk.security.integration.components
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 
 interface IUserPrivilegesService {
-    fun canProvideAccNo(email: String): Boolean
+    suspend fun canProvideAccNo(
+        submitter: String,
+        collection: String,
+    ): Boolean
 
     fun canSubmitCollections(email: String): Boolean
 
