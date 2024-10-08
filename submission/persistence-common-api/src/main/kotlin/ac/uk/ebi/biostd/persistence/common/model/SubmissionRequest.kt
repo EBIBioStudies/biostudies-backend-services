@@ -11,11 +11,7 @@ data class SubmissionRequest(
     val notifyTo: String,
     val status: RequestStatus,
     val totalFiles: Int,
-    val conflictingFiles: Int,
-    val conflictingPageTab: Int,
-    val deprecatedFiles: Int,
-    val deprecatedPageTab: Int,
-    val reusedFiles: Int,
+    val fileChanges: SubmissionRequestFileChanges,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
     val silentMode: Boolean,
@@ -27,11 +23,7 @@ data class SubmissionRequest(
         notifyTo,
         status = REQUESTED,
         totalFiles = 0,
-        conflictingFiles = 0,
-        conflictingPageTab = 0,
-        deprecatedFiles = 0,
-        deprecatedPageTab = 0,
-        reusedFiles = 0,
+        fileChanges = SubmissionRequestFileChanges(),
         currentIndex = 0,
         previousVersion = null,
         silentMode = silentMode,
@@ -63,27 +55,25 @@ data class SubmissionRequest(
      * Create a Submission Request after clean indexing stage setting conflicted, deprecated files and previous version
      * fields.
      */
-    fun cleanIndexed(fileChanges: SubmissionRequestFileChanges): SubmissionRequest =
+    fun cleanIndexed(
+        fileChanges: SubmissionRequestFileChanges,
+        previousVersion: Int?,
+    ): SubmissionRequest =
         copy(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
-            conflictingFiles = fileChanges.conflictingFiles,
-            conflictingPageTab = fileChanges.conflictingPageTab,
-            deprecatedFiles = fileChanges.deprecatedFiles,
-            deprecatedPageTab = fileChanges.deprecatedPageTab,
-            reusedFiles = fileChanges.reusedFiles,
-            previousVersion = fileChanges.previousVersion,
+            fileChanges = fileChanges,
+            previousVersion = previousVersion,
         )
 }
 
 data class SubmissionRequestFileChanges(
-    val reusedFiles: Int,
-    val deprecatedFiles: Int,
-    val deprecatedPageTab: Int,
-    val conflictingFiles: Int,
-    val conflictingPageTab: Int,
-    val previousVersion: Int?,
+    val reusedFiles: Int = 0,
+    val deprecatedFiles: Int = 0,
+    val deprecatedPageTab: Int = 0,
+    val conflictingFiles: Int = 0,
+    val conflictingPageTab: Int = 0,
 )
 
 /**

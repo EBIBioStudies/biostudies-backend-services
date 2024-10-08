@@ -29,7 +29,7 @@ class SubmissionRequestValidator(
             it.withNewStatus(requestStatus)
         }
 
-    internal suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
+    private suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
         val accNo = rqt.submission.accNo
         val submitter = rqt.submission.submitter
         val currentReleased = queryService.findCoreInfo(rqt.submission.accNo)?.released.orFalse()
@@ -48,5 +48,5 @@ class SubmissionRequestValidator(
      * - Any file has been replaced (conflictingFiles > 0)
      */
     private val SubmissionRequest.hasFilesChanges: Boolean
-        get() = deprecatedFiles > 0 || conflictingFiles > 0
+        get() = fileChanges.deprecatedFiles > 0 || fileChanges.conflictingFiles > 0
 }

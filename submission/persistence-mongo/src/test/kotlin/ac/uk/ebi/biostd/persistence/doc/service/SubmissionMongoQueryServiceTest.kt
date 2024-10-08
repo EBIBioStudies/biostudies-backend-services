@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
@@ -431,11 +432,7 @@ internal class SubmissionMongoQueryServiceTest(
             notifyTo = submission.owner,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
             totalFiles = 6,
-            conflictingFiles = 1,
-            conflictingPageTab = 0,
-            deprecatedFiles = 10,
-            deprecatedPageTab = 2,
-            reusedFiles = 2,
+            fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
             currentIndex = 0,
             modificationTime = Instant.now(),
             statusChanges = emptyList(),

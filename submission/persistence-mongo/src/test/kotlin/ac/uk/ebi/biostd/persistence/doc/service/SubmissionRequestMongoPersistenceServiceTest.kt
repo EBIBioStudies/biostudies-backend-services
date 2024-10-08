@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
@@ -165,11 +166,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
-                    deprecatedFiles = 10,
-                    deprecatedPageTab = 3,
-                    conflictingFiles = 12,
-                    conflictingPageTab = 8,
-                    reusedFiles = 5,
+                    fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
                     currentIndex = 6,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                     previousVersion = 1,
@@ -215,11 +212,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 notifyTo = "user@test.org",
                 submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                 totalFiles = 5,
-                conflictingFiles = 1,
-                conflictingPageTab = 0,
-                deprecatedFiles = 10,
-                deprecatedPageTab = 3,
-                reusedFiles = 2,
+                fileChanges = DocFilesChanges(1, 0, 10, 3, 2),
                 currentIndex = 0,
                 modificationTime = modificationTime,
                 statusChanges = emptyList(),
@@ -269,11 +262,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             notifyTo = "user@test.org",
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
             totalFiles = 5,
-            conflictingFiles = 1,
-            conflictingPageTab = 0,
-            deprecatedFiles = 10,
-            deprecatedPageTab = 2,
-            reusedFiles = 2,
+            fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
             currentIndex = 0,
             modificationTime = Instant.ofEpochMilli(1664981300),
             statusChanges = emptyList(),

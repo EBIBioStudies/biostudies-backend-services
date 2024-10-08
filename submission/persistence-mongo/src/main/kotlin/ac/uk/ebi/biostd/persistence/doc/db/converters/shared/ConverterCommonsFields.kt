@@ -154,11 +154,7 @@ object DocRequestFields {
     const val RQT_STATUS = "status"
     const val RQT_SUBMISSION = "submission"
     const val RQT_TOTAL_FILES = "totalFiles"
-    const val RQT_DEPRECATED_FILES = "deprecatedFiles"
-    const val RQT_DEPRECATED_PAGE_TAB = "deprecatedPageTab"
-    const val RQT_CONFLICTING_FILES = "conflictingFiles"
-    const val RQT_CONFLICTING_PAGE_TAB = "conflictingPageTab"
-    const val RQT_REUSED_FILES = "reusedFiles"
+    const val RQT_FILE_CHANGES = "fileChanges"
     const val RQT_IDX = "currentIndex"
     const val RQT_MODIFICATION_TIME = "modificationTime"
     const val RQT_SILENT_MODE = "silentMode"
@@ -167,10 +163,4 @@ object DocRequestFields {
     const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"
     const val RQT_STATUS_CHANGE_END_TIME = "endTime"
     const val RQT_STATUS_CHANGE_RESULT = "result"
-}
-
-object DocRequestFileFields {
-    const val RQT_FILE_ACC_NO = "accNo"
-    const val RQT_FILE_VERSION = "version"
-    const val RQT_FILE_PATH = "path"
 }

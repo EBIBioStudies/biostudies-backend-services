@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_ARCHIVE
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCHIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.mongodb.BasicDBObject
@@ -69,11 +70,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
-                    deprecatedFiles = 10,
-                    deprecatedPageTab = 3,
-                    conflictingFiles = 12,
-                    conflictingPageTab = 8,
-                    reusedFiles = 5,
+                    fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
                     currentIndex = 6,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                     previousVersion = 1,
@@ -137,11 +134,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
-                    deprecatedFiles = 10,
-                    deprecatedPageTab = 3,
-                    conflictingFiles = 12,
-                    conflictingPageTab = 8,
-                    reusedFiles = 5,
+                    fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
                     currentIndex = 6,
                     modificationTime = Instant.now(),
                     previousVersion = 1,
@@ -159,8 +152,8 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRequest.notifyTo).isEqualTo(request.notifyTo)
             assertThat(newRequest.submission).isEqualTo(request.submission)
             assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
-            assertThat(newRequest.deprecatedFiles).isEqualTo(request.deprecatedFiles)
-            assertThat(newRequest.conflictingFiles).isEqualTo(request.conflictingFiles)
+            assertThat(newRequest.fileChanges.deprecatedFiles).isEqualTo(request.fileChanges.deprecatedFiles)
+            assertThat(newRequest.fileChanges.conflictingFiles).isEqualTo(request.fileChanges.conflictingFiles)
             assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
             assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
             assertThat(newRequest.previousVersion).isEqualTo(request.previousVersion)
@@ -181,11 +174,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         notifyTo = "user@test.org",
                         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                         totalFiles = 5,
-                        conflictingFiles = 1,
-                        conflictingPageTab = 3,
-                        deprecatedFiles = 10,
-                        deprecatedPageTab = 7,
-                        reusedFiles = 2,
+                        fileChanges = DocFilesChanges(1, 3, 10, 7, 2),
                         currentIndex = 6,
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
@@ -204,11 +193,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
-                    conflictingFiles = 1,
-                    conflictingPageTab = 3,
-                    deprecatedFiles = 10,
-                    deprecatedPageTab = 8,
-                    reusedFiles = 2,
+                    fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
@@ -248,11 +233,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
-                    conflictingFiles = 1,
-                    conflictingPageTab = 3,
-                    deprecatedFiles = 10,
-                    deprecatedPageTab = 8,
-                    reusedFiles = 2,
+                    fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),

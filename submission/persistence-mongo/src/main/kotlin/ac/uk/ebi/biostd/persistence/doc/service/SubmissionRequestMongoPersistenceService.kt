@@ -3,10 +3,12 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
@@ -104,23 +106,8 @@ class SubmissionRequestMongoPersistenceService(
         suspend fun loadRequest(): SubmissionRqt {
             val (changeId, request) = requestRepository.getRequest(accNo, version, status, processId)
             val stored = serializationService.deserialize(request.submission.toString())
-            val subRequest =
-                SubmissionRequest(
-                    submission = stored,
-                    draftKey = request.draftKey,
-                    silentMode = request.silentMode,
-                    notifyTo = request.notifyTo,
-                    status = request.status,
-                    conflictingFiles = request.conflictingFiles,
-                    conflictingPageTab = request.conflictingPageTab,
-                    deprecatedFiles = request.deprecatedFiles,
-                    deprecatedPageTab = request.deprecatedPageTab,
-                    reusedFiles = request.reusedFiles,
-                    totalFiles = request.totalFiles,
-                    currentIndex = request.currentIndex,
-                    previousVersion = request.previousVersion,
-                    modificationTime = request.modificationTime.atOffset(UTC),
-                )
+            val subRequest = asRequest(request).copy(submission = stored)
+
             return changeId to subRequest
         }
 
@@ -128,7 +115,7 @@ class SubmissionRequestMongoPersistenceService(
             rqt: SubmissionRequest,
             changeId: String,
         ) {
-            logger.info { "Succefully completed request accNo='$accNo', version='$version', $status" }
+            logger.info { "Successfully completed request accNo='$accNo', version='$version', $status" }
             saveRequest(rqt, changeId, ProcessResult.SUCCESS)
         }
 
@@ -166,6 +153,15 @@ class SubmissionRequestMongoPersistenceService(
 
     private fun asDocRequest(rqt: SubmissionRequest): DocSubmissionRequest {
         val content = serializationService.serialize(rqt.submission, Properties(includeFileListFiles = true))
+        val fileChanges =
+            DocFilesChanges(
+                rqt.fileChanges.conflictingFiles,
+                rqt.fileChanges.conflictingPageTab,
+                rqt.fileChanges.deprecatedFiles,
+                rqt.fileChanges.deprecatedPageTab,
+                rqt.fileChanges.reusedFiles,
+            )
+
         return DocSubmissionRequest(
             id = ObjectId(),
             accNo = rqt.submission.accNo,
@@ -175,11 +171,7 @@ class SubmissionRequestMongoPersistenceService(
             status = rqt.status,
             submission = BasicDBObject.parse(content),
             totalFiles = rqt.totalFiles,
-            conflictingFiles = rqt.conflictingFiles,
-            conflictingPageTab = rqt.conflictingPageTab,
-            deprecatedFiles = rqt.deprecatedFiles,
-            deprecatedPageTab = rqt.deprecatedPageTab,
-            reusedFiles = rqt.reusedFiles,
+            fileChanges = fileChanges,
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
             silentMode = rqt.silentMode,
@@ -187,25 +179,28 @@ class SubmissionRequestMongoPersistenceService(
         )
     }
 
-    private fun asRequest(request: DocSubmissionRequest): SubmissionRequest {
-        val stored = serializationService.deserialize(request.submission.toString())
-        val subRequest =
-            SubmissionRequest(
-                submission = stored,
-                draftKey = request.draftKey,
-                silentMode = request.silentMode,
-                notifyTo = request.notifyTo,
-                status = request.status,
-                totalFiles = request.totalFiles,
-                conflictingFiles = request.conflictingFiles,
-                conflictingPageTab = request.deprecatedPageTab,
-                deprecatedFiles = request.deprecatedFiles,
-                deprecatedPageTab = request.deprecatedPageTab,
-                reusedFiles = request.reusedFiles,
-                currentIndex = request.currentIndex,
-                previousVersion = request.previousVersion,
-                modificationTime = request.modificationTime.atOffset(UTC),
+    private fun asRequest(rqt: DocSubmissionRequest): SubmissionRequest {
+        val stored = serializationService.deserialize(rqt.submission.toString())
+        val fileChanges =
+            SubmissionRequestFileChanges(
+                rqt.fileChanges.reusedFiles,
+                rqt.fileChanges.deprecatedFiles,
+                rqt.fileChanges.deprecatedPageTab,
+                rqt.fileChanges.conflictingFiles,
+                rqt.fileChanges.conflictingPageTab,
             )
-        return subRequest
+
+        return SubmissionRequest(
+            submission = stored,
+            draftKey = rqt.draftKey,
+            silentMode = rqt.silentMode,
+            notifyTo = rqt.notifyTo,
+            status = rqt.status,
+            totalFiles = rqt.totalFiles,
+            fileChanges = fileChanges,
+            currentIndex = rqt.currentIndex,
+            previousVersion = rqt.previousVersion,
+            modificationTime = rqt.modificationTime.atOffset(UTC),
+        )
     }
 }
