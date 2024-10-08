@@ -5,10 +5,12 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitAttribute
@@ -217,6 +219,43 @@ class SubmissionToCollectionsTest(
         val exception = assertFailsWith<WebClientException> { webClient.submit(submission, TSV) }
         assertThat(exception.message!!.contains("Testing failure"))
     }
+
+    @Test
+    fun `8-9 admin user provides accNo`() =
+        runTest {
+            securityTestService.ensureUserRegistration(RegularUser)
+            val regularClient = getWebClient(serverPort, RegularUser)
+            val submission =
+                tsv {
+                    line("Submission", "S-PROVIDED1")
+                    line("AttachTo", "Test-Project")
+                    line()
+                    line("Study")
+                    line()
+                }.toString()
+
+            webClient.grantPermission(RegularUser.email, "Test-Project", ADMIN.name)
+            assertThat(regularClient.submit(submission, TSV)).isSuccessful()
+        }
+
+    @Test
+    fun `8-10 regular user provides accNo`() =
+        runTest {
+            securityTestService.ensureUserRegistration(RegularUser)
+            val regularClient = getWebClient(serverPort, RegularUser)
+            val submission =
+                tsv {
+                    line("Submission", "S-PROVIDED2")
+                    line("AttachTo", "Private-Project")
+                    line()
+                    line("Study")
+                    line()
+                }.toString()
+
+            val errorMessage = "The user regular@ebi.ac.uk is not allowed to submit to Private-Project collection"
+            val exception = assertFailsWith<WebClientException> { regularClient.submit(submission, TSV) }
+            assertThat(exception.message!!.contains(errorMessage))
+        }
 
     private fun setUpCollections() {
         val testProject =

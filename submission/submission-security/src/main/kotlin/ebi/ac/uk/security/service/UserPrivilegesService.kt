@@ -21,7 +21,10 @@ internal class UserPrivilegesService(
     private val submissionQueryService: SubmissionMetaQueryService,
     private val permissionsService: UserPermissionsService,
 ) : IUserPrivilegesService {
-    override fun canProvideAccNo(email: String) = isSuperUser(email)
+    override suspend fun canProvideAccNo(
+        submitter: String,
+        collection: String,
+    ): Boolean = isSuperUser(submitter) || isAdmin(submitter, collection)
 
     override fun canSubmitCollections(email: String) = isSuperUser(email)
 
