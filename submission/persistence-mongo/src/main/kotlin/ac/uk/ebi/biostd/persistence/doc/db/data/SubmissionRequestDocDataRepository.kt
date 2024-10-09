@@ -7,12 +7,10 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_CONFLICTING_FILES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DEPRECATED_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_FILE_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PREV_SUB_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_REUSED_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_END_TIME
@@ -39,10 +37,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_PREVIOUS_SUB_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_ARCH_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_ARCH_COL
-import ac.uk.ebi.biostd.persistence.doc.model.CollectionsNames.RQT_FILE_COL
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_ARCHIVE
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCHIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
@@ -109,7 +107,7 @@ class SubmissionRequestDocDataRepository(
             var mergeOperation =
                 Aggregation
                     .merge()
-                    .intoCollection(RQT_FILE_ARCH_COL)
+                    .intoCollection(SUB_RQT_FILES_ARCHIVE)
                     .on(Fields.UNDERSCORE_ID)
                     .whenMatched(WhenDocumentsMatch.replaceDocument())
                     .whenNotMatched(WhenDocumentsDontMatch.insertNewDocument())
@@ -128,16 +126,16 @@ class SubmissionRequestDocDataRepository(
                             .build(),
                     )
             mongoTemplate
-                .aggregate(aggregation, RQT_FILE_COL, Document::class.java)
+                .aggregate(aggregation, SUB_RQT_FILES, Document::class.java)
                 .awaitFirstOrNull()
-            return mongoTemplate.count(Query().addCriteria(criteria), RQT_FILE_ARCH_COL).awaitSingle()
+            return mongoTemplate.count(Query().addCriteria(criteria), SUB_RQT_FILES_ARCHIVE).awaitSingle()
         }
 
         suspend fun archiveRequest() {
             var mergeOperation =
                 Aggregation
                     .merge()
-                    .intoCollection(RQT_ARCH_COL)
+                    .intoCollection(SUB_RQT_ARCHIVE)
                     .on(Fields.UNDERSCORE_ID)
                     .whenMatched(WhenDocumentsMatch.replaceDocument())
                     .whenNotMatched(WhenDocumentsDontMatch.insertNewDocument())
@@ -156,7 +154,7 @@ class SubmissionRequestDocDataRepository(
                             .build(),
                     )
             mongoTemplate
-                .aggregate(aggregation, RQT_COL, Document::class.java)
+                .aggregate(aggregation, SUB_RQT, Document::class.java)
                 .awaitFirstOrNull()
         }
 
@@ -301,9 +299,7 @@ class SubmissionRequestDocDataRepository(
                 .set(RQT_TOTAL_FILES, rqt.totalFiles)
                 .set(RQT_IDX, rqt.currentIndex)
                 .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_CONFLICTING_FILES, rqt.conflictingFiles)
-                .set(RQT_DEPRECATED_FILES, rqt.deprecatedFiles)
-                .set(RQT_REUSED_FILES, rqt.reusedFiles)
+                .set(RQT_FILE_CHANGES, rqt.fileChanges)
                 .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
                 .set(RQT_PREV_SUB_VERSION, rqt.previousVersion)
                 .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_END_TIME", processEndTime)
@@ -332,10 +328,6 @@ class SubmissionRequestDocDataRepository(
                 where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*"),
             ),
         )
-
-    companion object {
-        const val REPORT_RATE = 200
-    }
 }
 
 enum class ProcessResult {

@@ -8,15 +8,12 @@ import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
-import ac.uk.ebi.biostd.persistence.model.UserDataId
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
-import org.springframework.data.jpa.repository.Modifying
 import javax.persistence.LockModeType
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
@@ -88,19 +85,6 @@ interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
         type: AccessType,
         accessTag: String,
     ): Boolean
-}
-
-interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-    fun findByUserEmailAndKey(
-        userEmail: String,
-        key: String,
-    ): DbUserData?
-
-    @Modifying
-    fun deleteByUserEmailAndKey(
-        email: String,
-        key: String,
-    )
 }
 
 interface SubmissionRtRepository : JpaRepository<DbSubmissionRT, Long> {

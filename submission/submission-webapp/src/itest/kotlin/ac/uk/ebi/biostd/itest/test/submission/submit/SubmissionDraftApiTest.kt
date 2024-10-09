@@ -4,12 +4,14 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.common.TestUserDataService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import com.fasterxml.jackson.databind.ObjectMapper
+import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -29,7 +31,7 @@ import uk.ac.ebi.serialization.extensions.getProperty
 @Transactional
 class SubmissionDraftApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val dataService: TestUserDataService,
+    @Autowired val draftPersistenceService: SubmissionDraftPersistenceService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -110,43 +112,71 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-6 delete a draft directly`() {
-        val pageTab =
-            jsonObj {
-                "accno" to "ABC-128"
-                "type" to "Study"
-            }.toString()
-        webClient.submit(pageTab, JSON)
+    fun `12-6 delete a draft directly`() =
+        runTest {
+            val pageTab =
+                jsonObj {
+                    "accno" to "ABC-128"
+                    "type" to "Study"
+                }.toString()
+            webClient.submit(pageTab, JSON)
 
-        webClient.deleteSubmissionDraft("ABC-128")
+            webClient.deleteSubmissionDraft("ABC-128")
 
-        assertThat(dataService.getUserData(SuperUser.email, "ABC-128")).isNull()
-    }
+            assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-128")).isNull()
+        }
 
     @Test
-    fun `12-7 re submit from draft`() {
-        webClient.submit(
-            jsonObj {
-                "accno" to "ABC-129"
-                "type" to "Study"
-            }.toString(),
-            JSON,
-        )
+    fun `12-7 re submit from draft`() =
+        runTest {
+            webClient.submit(
+                jsonObj {
+                    "accno" to "ABC-129"
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "Source"
+                                "value" to "PageTab"
+                                "reference" to false
+                                "nameAttrs" to jsonArray()
+                                "valueAttrs" to jsonArray()
+                            },
+                        )
+                }.toString(),
+                JSON,
+            )
 
-        webClient.updateSubmissionDraft(
-            "ABC-129",
-            jsonObj {
-                "accno" to "ABC-129"
-                "ReleaseDate" to "2021-09-21"
-                "type" to "Study"
-            }.toString(),
-        )
+            val version1 = webClient.getExtByAccNo("ABC-129")
+            assertThat(version1.attributes.first().name).isEqualTo("Source")
+            assertThat(version1.attributes.first().value).isEqualTo("PageTab")
 
-        webClient.submitFromDraft("ABC-129")
+            webClient.getSubmissionDraft("ABC-129")
+            webClient.updateSubmissionDraft(
+                "ABC-129",
+                jsonObj {
+                    "accno" to "ABC-129"
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "Source"
+                                "value" to "Draft"
+                                "reference" to false
+                                "nameAttrs" to jsonArray()
+                                "valueAttrs" to jsonArray()
+                            },
+                        )
+                }.toString(),
+            )
 
-        assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
-        assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
-    }
+            webClient.submitFromDraft("ABC-129")
+
+            val version2 = webClient.getExtByAccNo("ABC-129")
+            assertThat(version2.attributes.first().name).isEqualTo("Source")
+            assertThat(version2.attributes.first().value).isEqualTo("Draft")
+            assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-129")).isNull()
+        }
 
     @Test
     fun `12-8 update a submission already submitted draft`(

@@ -48,7 +48,7 @@ class SubmissionDraftDocDataRepositoryTest(
             testInstance.save(testDocDraft)
 
             val result =
-                testInstance.findByUserIdAndKeyAndStatusIsNot(
+                testInstance.findByOwnerAndKeyAndStatusIsNot(
                     USER_ID,
                     DRAFT_KEY,
                     DocSubmissionDraft.DraftStatus.ACCEPTED,
@@ -62,7 +62,7 @@ class SubmissionDraftDocDataRepositoryTest(
         runBlocking {
             testInstance.saveDraft("user@test.org", "TMP_123", "{ type: 'submission' }")
             val saved =
-                testInstance.findByUserIdAndKeyAndStatusIsNot(
+                testInstance.findByOwnerAndKeyAndStatusIsNot(
                     "user@test.org",
                     "TMP_123",
                     DocSubmissionDraft.DraftStatus.ACCEPTED,
@@ -79,7 +79,7 @@ class SubmissionDraftDocDataRepositoryTest(
             testInstance.saveDraft("user@test.org", "TMP_124", "{ type: 'submission' }")
             testInstance.updateDraftContent("user@test.org", "TMP_124", "{ type: 'study' }")
             val updated =
-                testInstance.findByUserIdAndKeyAndStatusIsNot(
+                testInstance.findByOwnerAndKeyAndStatusIsNot(
                     "user@test.org",
                     "TMP_124",
                     DocSubmissionDraft.DraftStatus.ACCEPTED,
@@ -96,7 +96,7 @@ class SubmissionDraftDocDataRepositoryTest(
 
             assertThat(testInstance.findById(testDocDraft.id)).isNotNull()
 
-            testInstance.deleteByUserIdAndKey(testDocDraft.userId, testDocDraft.key)
+            testInstance.deleteByOwnerAndKey(testDocDraft.owner, testDocDraft.key)
 
             assertThat(testInstance.findById(testDocDraft.id)).isNull()
         }
@@ -107,16 +107,16 @@ class SubmissionDraftDocDataRepositoryTest(
             testInstance.save(testActiveDocDraft)
             testInstance.save(testProcessingDocDraft)
 
-            val activeDrafts = testInstance.findAllByUserIdAndStatus(USER_ID, ACTIVE, PageRequest()).toList()
+            val activeDrafts = testInstance.findAllByOwnerAndStatus(USER_ID, ACTIVE, PageRequest()).toList()
             assertThat(activeDrafts).hasSize(1)
             assertThat(activeDrafts.first()).isEqualTo(testActiveDocDraft)
 
-            val processingDrafts = testInstance.findAllByUserIdAndStatus(USER_ID1, PROCESSING, PageRequest()).toList()
+            val processingDrafts = testInstance.findAllByOwnerAndStatus(USER_ID1, PROCESSING, PageRequest()).toList()
             assertThat(processingDrafts).hasSize(1)
             assertThat(processingDrafts.first()).isEqualTo(testProcessingDocDraft)
 
-            testInstance.deleteByUserIdAndKey(testActiveDocDraft.userId, testActiveDocDraft.key)
-            testInstance.deleteByUserIdAndKey(testProcessingDocDraft.userId, testProcessingDocDraft.key)
+            testInstance.deleteByOwnerAndKey(testActiveDocDraft.owner, testActiveDocDraft.key)
+            testInstance.deleteByOwnerAndKey(testProcessingDocDraft.owner, testProcessingDocDraft.key)
 
             assertThat(testInstance.findById(testActiveDocDraft.id)).isNull()
             assertThat(testInstance.findById(testProcessingDocDraft.id)).isNull()

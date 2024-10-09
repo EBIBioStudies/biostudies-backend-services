@@ -53,7 +53,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.ApplicationContext
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.collectionExists
 import org.springframework.data.mongodb.core.dropCollection
@@ -72,7 +71,6 @@ import java.util.AbstractMap.SimpleEntry
 @SpringBootTest(classes = [MongoDbReactiveConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
-    @Autowired private val springContext: ApplicationContext,
     @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach
@@ -229,6 +227,7 @@ internal class DatabaseChangeLogTest(
 
             assertSubmissionIndexes()
             assertRequestIndexes()
+            assertRequestFileIndexes()
             assertFileListIndexes()
             assertStatsIndexes()
         }
