@@ -45,37 +45,39 @@ class GroupFilesApiTest(
         }
 
     @Test
-    fun `18-1 upload download delete file and retrieve in user root folder`() {
-        val file = tempFolder.createFile("FileList1.txt", "An example content")
-        webClient.uploadGroupFiles(TEST_GROUP_NAME, listOf(file))
+    fun `18-1 upload download delete file and retrieve in user root folder`() =
+        runTest {
+            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            webClient.uploadGroupFiles(TEST_GROUP_NAME, listOf(file))
 
-        val files = webClient.listGroupFiles(TEST_GROUP_NAME)
-        assertThat(files).hasSize(1)
-        assertFile(files.first(), webClient.downloadGroupFile(TEST_GROUP_NAME, file.name), file, "")
+            val files = webClient.listGroupFiles(TEST_GROUP_NAME)
+            assertThat(files).hasSize(1)
+            assertFile(files.first(), webClient.downloadGroupFile(TEST_GROUP_NAME, file.name), file, "")
 
-        webClient.deleteGroupFile(TEST_GROUP_NAME, "FileList1.txt")
-        assertThat(webClient.listGroupFiles(TEST_GROUP_NAME)).isEmpty()
-    }
+            webClient.deleteGroupFile(TEST_GROUP_NAME, "FileList1.txt")
+            assertThat(webClient.listGroupFiles(TEST_GROUP_NAME)).isEmpty()
+        }
 
     @Test
-    fun `18-2 upload download delete file and retrieve in user folder`() {
-        val file = tempFolder.createFile("FileList1.txt", "An example content")
+    fun `18-2 upload download delete file and retrieve in user folder`() =
+        runTest {
+            val file = tempFolder.createFile("FileList1.txt", "An example content")
 
-        webClient.uploadGroupFiles(TEST_GROUP_NAME, listOf(file), relativePath = "test-folder")
-        val files = webClient.listGroupFiles(TEST_GROUP_NAME, relativePath = "test-folder")
+            webClient.uploadGroupFiles(TEST_GROUP_NAME, listOf(file), relativePath = "test-folder")
+            val files = webClient.listGroupFiles(TEST_GROUP_NAME, relativePath = "test-folder")
 
-        assertThat(files).hasSize(1)
-        assertFile(
-            files.first(),
-            webClient.downloadGroupFile(TEST_GROUP_NAME, file.name, relativePath = "test-folder"),
-            file,
-            path = "test-folder",
-        )
-        webClient.deleteGroupFile(TEST_GROUP_NAME, "FileList1.txt", relativePath = "test-folder")
-        assertThat(webClient.listGroupFiles(TEST_GROUP_NAME, relativePath = "test-folder")).isEmpty()
+            assertThat(files).hasSize(1)
+            assertFile(
+                files.first(),
+                webClient.downloadGroupFile(TEST_GROUP_NAME, file.name, relativePath = "test-folder"),
+                file,
+                path = "test-folder",
+            )
+            webClient.deleteGroupFile(TEST_GROUP_NAME, "FileList1.txt", relativePath = "test-folder")
+            assertThat(webClient.listGroupFiles(TEST_GROUP_NAME, relativePath = "test-folder")).isEmpty()
 
-        webClient.deleteGroupFile(TEST_GROUP_NAME, "test-folder")
-    }
+            webClient.deleteGroupFile(TEST_GROUP_NAME, "test-folder")
+        }
 
     private fun assertFile(
         resultFile: UserFile,

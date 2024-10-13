@@ -277,33 +277,34 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-10 Submit study with invalid characters file path`() {
-        tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
-        tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
+    fun `16-10 Submit study with invalid characters file path`() =
+        runTest {
+            tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
+            tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
 
-        val file1 = tempFolder.createFile("file_16-10.txt")
-        val file2 = tempFolder.createFile("merged-%.tif")
-        val submission =
-            tsv {
-                line("Submission", "S-BSST1610")
-                line("Title", "Submission")
-                line("ReleaseDate", "2030-01-25")
-                line()
+            val file1 = tempFolder.createFile("file_16-10.txt")
+            val file2 = tempFolder.createFile("merged-%.tif")
+            val submission =
+                tsv {
+                    line("Submission", "S-BSST1610")
+                    line("Title", "Submission")
+                    line("ReleaseDate", "2030-01-25")
+                    line()
 
-                line("Study")
-                line()
+                    line("Study")
+                    line()
 
-                line("Files")
-                line("file_16-10.txt")
-                line("h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
-                line()
-            }.toString()
+                    line("Files")
+                    line("file_16-10.txt")
+                    line("h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
+                    line()
+                }.toString()
 
-        webClient.uploadFiles(listOf(file1, file2))
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submit(submission, TSV) }
-            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
-    }
+            webClient.uploadFiles(listOf(file1, file2))
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { webClient.submit(submission, TSV) }
+                .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
+        }
 
     @Test
     fun `16-11 Submit study containing folder with trailing slash`() {
@@ -330,32 +331,33 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-12 Submit study containing filelist with invalid name`() {
-        val fileList =
-            tsv {
-                line("Files", "Type")
-                line("file.txt", "test")
-                line()
-            }.toString()
-        val submission =
-            tsv {
-                line("Submission", "S-BSST1612")
-                line("Title", "Submission With Invalid File List")
-                line("ReleaseDate", "2030-01-25")
-                line()
+    fun `16-12 Submit study containing filelist with invalid name`() =
+        runTest {
+            val fileList =
+                tsv {
+                    line("Files", "Type")
+                    line("file.txt", "test")
+                    line()
+                }.toString()
+            val submission =
+                tsv {
+                    line("Submission", "S-BSST1612")
+                    line("Title", "Submission With Invalid File List")
+                    line("ReleaseDate", "2030-01-25")
+                    line()
 
-                line("Study")
-                line("File List", "MS%20Raw%20data%20figures.tsv")
-                line()
-            }.toString()
-        val file1 = tempFolder.createFile("file.txt")
-        val file2 = tempFolder.createFile("MS%20Raw%20data%20figures.tsv", fileList)
+                    line("Study")
+                    line("File List", "MS%20Raw%20data%20figures.tsv")
+                    line()
+                }.toString()
+            val file1 = tempFolder.createFile("file.txt")
+            val file2 = tempFolder.createFile("MS%20Raw%20data%20figures.tsv", fileList)
 
-        webClient.uploadFiles(listOf(file1, file2))
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submit(submission, TSV) }
-            .withMessageContaining("The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv")
-    }
+            webClient.uploadFiles(listOf(file1, file2))
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { webClient.submit(submission, TSV) }
+                .withMessageContaining("The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv")
+        }
 
     @Test
     fun `16-13 Submit study by Regular user with Ftp home directory`() =
