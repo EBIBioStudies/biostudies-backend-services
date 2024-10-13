@@ -7,14 +7,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
 import java.nio.file.Path
 import java.nio.file.Paths
 import ebi.ac.uk.system.tempFolder as systemTempFolder
 
 private val logger = KotlinLogging.logger {}
 
-@Component
 class ArchiveScheduler(
     private val props: ApplicationProperties,
     private val persistenceService: SubmissionRequestPersistenceService,
