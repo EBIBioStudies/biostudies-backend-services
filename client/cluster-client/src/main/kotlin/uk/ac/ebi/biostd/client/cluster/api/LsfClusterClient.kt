@@ -42,13 +42,12 @@ class LsfClusterClient(
         return job
     }
 
-    override suspend fun jobStatus(jobId: String): String {
-        return sshClient.runInSession {
+    override suspend fun jobStatus(jobId: String): String =
+        sshClient.runInSession {
             val status = executeCommand("bjobs -o STAT -noheader $jobId").second
             logger.info { "Job $jobId status $status" }
             status
         }
-    }
 
     override suspend fun jobLogs(jobId: String): String {
         return sshClient.runInSession {
@@ -84,7 +83,7 @@ class LsfClusterClient(
         if (exitCode == 0) return success(toLsfJob(response))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
-        return failure(JobSubmitFailException(response))
+        return failure(JobSubmitFailException(exitCode, response))
     }
 
     companion object {
@@ -95,9 +94,7 @@ class LsfClusterClient(
             sshKey: String,
             sshMachine: String,
             logsPath: String,
-        ): LsfClusterClient {
-            return LsfClusterClient(logsPath = logsPath, sshKey = sshKey, sshServer = sshMachine)
-        }
+        ): LsfClusterClient = LsfClusterClient(logsPath = logsPath, sshKey = sshKey, sshServer = sshMachine)
     }
 
     private fun JobSpec.asParameter(): List<String> =
