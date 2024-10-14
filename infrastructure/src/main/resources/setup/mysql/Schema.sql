@@ -62,17 +62,6 @@ CREATE TABLE User
     CONSTRAINT login_index UNIQUE (login)
 );
 
-
-CREATE TABLE UserData
-(
-    dataKey     VARCHAR(255) NOT NULL,
-    userId      BIGINT       NOT NULL,
-    data        LONGTEXT NULL,
-    contentType VARCHAR(255) NULL,
-    topic       VARCHAR(255) NULL,
-    PRIMARY KEY (dataKey, userId)
-);
-
 CREATE TABLE UserGroup
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,

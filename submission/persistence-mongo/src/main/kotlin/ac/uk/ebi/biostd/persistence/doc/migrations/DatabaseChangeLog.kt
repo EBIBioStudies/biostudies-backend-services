@@ -183,7 +183,7 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
                 .on(RQT_FILE_STATUS, ASC),
-        )
+        ).awaitSingleOrNull()
     }
 }
 

@@ -36,7 +36,7 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
     fun `get draft when exists`() =
         runTest {
             coEvery {
-                draftDocDataRepository.findByUserIdAndKeyAndStatusIsNot(
+                draftDocDataRepository.findByOwnerAndKeyAndStatusIsNot(
                     USER_ID,
                     DRAFT_KEY,
                     DocSubmissionDraft.DraftStatus.ACCEPTED,
@@ -54,7 +54,7 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
     fun `get draft when doesn't exist`() =
         runTest {
             coEvery {
-                draftDocDataRepository.findByUserIdAndKeyAndStatusIsNot(
+                draftDocDataRepository.findByOwnerAndKeyAndStatusIsNot(
                     USER_ID,
                     DRAFT_KEY,
                     DocSubmissionDraft.DraftStatus.ACCEPTED,
@@ -79,18 +79,18 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
     @Test
     fun `delete submission draft by user and key`() =
         runTest {
-            coEvery { draftDocDataRepository.deleteByUserIdAndKey(USER_ID, DRAFT_KEY) } returns Unit
+            coEvery { draftDocDataRepository.deleteByOwnerAndKey(USER_ID, DRAFT_KEY) } returns Unit
 
             testInstance.deleteSubmissionDraft(USER_ID, DRAFT_KEY)
 
-            coVerify(exactly = 1) { draftDocDataRepository.deleteByUserIdAndKey(USER_ID, DRAFT_KEY) }
+            coVerify(exactly = 1) { draftDocDataRepository.deleteByOwnerAndKey(USER_ID, DRAFT_KEY) }
         }
 
     @Test
     fun `get draft list`() =
         runTest {
             val someFilter = PageRequest()
-            every { draftDocDataRepository.findAllByUserIdAndStatus(USER_ID, ACTIVE, someFilter) } returns
+            every { draftDocDataRepository.findAllByOwnerAndStatus(USER_ID, ACTIVE, someFilter) } returns
                 flowOf(
                     testDocDraft,
                 )

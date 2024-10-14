@@ -59,14 +59,14 @@ class SubmissionRequestCleanIndexerTest(
             every { newSub.version } returns CURRENT_VERSION
             coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns null
 
-            val requestChanges = testInstance.indexRequest(newSub)
+            val (previousVersion, requestChanges) = testInstance.indexRequest(newSub)
 
+            assertThat(previousVersion).isNull()
             assertThat(requestChanges.reusedFiles).isZero()
             assertThat(requestChanges.deprecatedFiles).isZero()
             assertThat(requestChanges.deprecatedPageTab).isZero()
             assertThat(requestChanges.conflictingFiles).isZero()
             assertThat(requestChanges.conflictingPageTab).isZero()
-            assertThat(requestChanges.previousVersion).isNull()
             verify { serializationService wasNot Called }
         }
 
@@ -128,14 +128,14 @@ class SubmissionRequestCleanIndexerTest(
                 every { file.filePath } returns FILE_PATH_2
                 coEvery { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlots)) } coAnswers { nothing }
 
-                val requestChanges = testInstance.indexRequest(newSub)
+                val (previousVersion, requestChanges) = testInstance.indexRequest(newSub)
 
                 assertThat(requestChanges.reusedFiles).isOne()
                 assertThat(requestChanges.deprecatedFiles).isOne()
                 assertThat(requestChanges.deprecatedPageTab).isZero()
                 assertThat(requestChanges.conflictingFiles).isZero()
                 assertThat(requestChanges.conflictingPageTab).isZero()
-                assertThat(requestChanges.previousVersion).isEqualTo(CURRENT_VERSION)
+                assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
                 assertThat(requestFileSlots).hasSize(2)
                 assertThat(requestFileSlots.first().status).isEqualTo(DEPRECATED)
                 assertThat(requestFileSlots.first().file).isEqualTo(file)
@@ -151,14 +151,14 @@ class SubmissionRequestCleanIndexerTest(
                 every { file.filePath } returns FILE_PATH_2
                 coEvery { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlots)) } coAnswers { nothing }
 
-                val requestChanges = testInstance.indexRequest(newSub)
+                val (previousVersion, requestChanges) = testInstance.indexRequest(newSub)
 
                 assertThat(requestChanges.reusedFiles).isZero()
                 assertThat(requestChanges.deprecatedFiles).isOne()
                 assertThat(requestChanges.deprecatedPageTab).isOne()
                 assertThat(requestChanges.conflictingFiles).isZero()
                 assertThat(requestChanges.conflictingPageTab).isZero()
-                assertThat(requestChanges.previousVersion).isEqualTo(CURRENT_VERSION)
+                assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
                 assertThat(requestFileSlots).hasSize(2)
                 assertThat(requestFileSlots.first().status).isEqualTo(DEPRECATED)
                 assertThat(requestFileSlots.first().file).isEqualTo(file)
@@ -172,14 +172,14 @@ class SubmissionRequestCleanIndexerTest(
                 val requestFileSlots = mutableListOf<SubmissionRequestFile>()
                 coEvery { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlots)) } coAnswers { nothing }
 
-                val requestChanges = testInstance.indexRequest(newSub)
+                val (previousVersion, requestChanges) = testInstance.indexRequest(newSub)
 
                 assertThat(requestChanges.reusedFiles).isEqualTo(2)
                 assertThat(requestChanges.deprecatedFiles).isZero()
                 assertThat(requestChanges.deprecatedPageTab).isZero()
                 assertThat(requestChanges.conflictingFiles).isZero()
                 assertThat(requestChanges.conflictingPageTab).isZero()
-                assertThat(requestChanges.previousVersion).isEqualTo(CURRENT_VERSION)
+                assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
                 assertThat(requestFileSlots).hasSize(2)
                 assertThat(requestFileSlots.first().status).isEqualTo(REUSED)
                 assertThat(requestFileSlots.first().file).isEqualTo(file)
@@ -195,14 +195,14 @@ class SubmissionRequestCleanIndexerTest(
                 every { newPageTabFile.md5 } returns PAGE_TAB_MD5_2
                 coEvery { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlots)) } coAnswers { nothing }
 
-                val requestChanges = testInstance.indexRequest(newSub)
+                val (previousVersion, requestChanges) = testInstance.indexRequest(newSub)
 
                 assertThat(requestChanges.reusedFiles).isZero()
                 assertThat(requestChanges.deprecatedFiles).isZero()
                 assertThat(requestChanges.deprecatedPageTab).isZero()
                 assertThat(requestChanges.conflictingFiles).isOne()
                 assertThat(requestChanges.conflictingPageTab).isOne()
-                assertThat(requestChanges.previousVersion).isEqualTo(CURRENT_VERSION)
+                assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
                 assertThat(requestFileSlots).hasSize(2)
                 assertThat(requestFileSlots.first().status).isEqualTo(CONFLICTING)
                 assertThat(requestFileSlots.first().file).isEqualTo(file)

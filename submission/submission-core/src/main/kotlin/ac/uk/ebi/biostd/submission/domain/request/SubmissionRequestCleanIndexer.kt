@@ -43,10 +43,14 @@ class SubmissionRequestCleanIndexer(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            it.cleanIndexed(indexRequest(it.submission))
+            val indexedRequest = indexRequest(it.submission)
+            it.cleanIndexed(
+                previousVersion = indexedRequest.first,
+                fileChanges = indexedRequest.second,
+            )
         }
 
-    internal suspend fun indexRequest(new: ExtSubmission): SubmissionRequestFileChanges {
+    internal suspend fun indexRequest(new: ExtSubmission): Pair<Int?, SubmissionRequestFileChanges> {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
 
         if (current != null) {
@@ -55,10 +59,10 @@ class SubmissionRequestCleanIndexer(
             val response = indexToCleanFiles(new = new, newFiles = newFiles, current = current)
             logger.info { "${new.accNo} ${new.owner} Finished indexing submission files to be cleaned" }
 
-            return response
+            return current.version to response
         }
 
-        return SubmissionRequestFileChanges(0, 0, 0, 0, 0, null)
+        return null to SubmissionRequestFileChanges(0, 0, 0, 0, 0)
     }
 
     private suspend fun indexToCleanFiles(
@@ -99,7 +103,6 @@ class SubmissionRequestCleanIndexer(
             deprecatedPageTabIdx.get(),
             conflictIdx.get(),
             conflictPageTabIdx.get(),
-            current.version,
         )
     }
 
