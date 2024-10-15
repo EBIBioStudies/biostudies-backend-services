@@ -5,7 +5,7 @@ import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 
 data class Contributor(
-    val name: String,
+    val name: String?,
     val surname: String,
     val affiliation: String,
     val orcid: String?,
@@ -52,7 +52,7 @@ class DoiRequest(
                                     "person_name" {
                                         attribute("contributor_role", "author")
                                         attribute("sequence", "first")
-                                        "given_name" { -contributor.name }
+                                        contributor.name?.let { "given_name" { -it } }
                                         "surname" { -contributor.surname }
                                         "affiliation" { -contributor.affiliation }
                                         contributor.orcid?.let { orcid ->

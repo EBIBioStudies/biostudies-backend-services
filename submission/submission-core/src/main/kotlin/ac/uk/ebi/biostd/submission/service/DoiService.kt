@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.base.isNotBlank
+import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
@@ -83,10 +84,7 @@ class DoiService(
     }
 
     private fun getContributors(submission: Submission): List<Contributor> {
-        fun isNameValid(author: Section): Boolean {
-            val name = author.findAttr(NAME_ATTR)
-            return name.isNotBlank() && name!!.contains(" ")
-        }
+        fun isNameValid(author: Section): Boolean = author.findAttr(NAME_ATTR).isNotBlank()
 
         val organizations = getOrganizations(submission)
         val contributors =
@@ -104,7 +102,7 @@ class DoiService(
         val org = organizations[affiliation] ?: throw InvalidAuthorAffiliationException(names, affiliation)
 
         return Contributor(
-            name = names.substringBeforeLast(" ", ""),
+            name = names.substringBeforeLast(" ", "").nullIfBlank(),
             surname = names.substringAfterLast(" "),
             affiliation = org,
             orcid = find(ORCID_ATTR),

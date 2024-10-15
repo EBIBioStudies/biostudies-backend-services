@@ -115,7 +115,7 @@ class DoiServiceTest(
     }
 
     @Test
-    fun `doi registration with incomplete author name`(
+    fun `doi registration with single author name`(
         @MockK requestSpec: RequestBodySpec,
     ) {
         val headersSlot = slot<Consumer<HttpHeaders>>()
@@ -151,7 +151,7 @@ class DoiServiceTest(
         val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
 
         assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
-        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITHOUT_CONTRIBUTORS)
+        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITH_SINGLE_NAME)
         assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
         assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
         assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
@@ -493,6 +493,49 @@ class DoiServiceTest(
                             <contributors>
                                 <person_name contributor_role="author" sequence="first">
                                     <given_name>John</given_name>
+                                    <surname>Doe</surname>
+                                    <affiliation>EMBL</affiliation>
+                                    <ORCID authenticated="false">https://orcid.org/12-32-45-82</ORCID>
+                                </person_name>
+                            </contributors>
+                            <titles>
+                                <title>Test Submission</title>
+                            </titles>
+                            <doi_data>
+                                <doi>10.6019/S-TEST123</doi>
+                                <resource>https://www.biostudies.ac.uk/studies/S-TEST123</resource>
+                            </doi_data>
+                        </dataset>
+                    </database>
+                </body>
+            </doi_batch>
+        """
+
+        private const val EXPECTED_DOI_REQUEST_WITH_SINGLE_NAME = """
+            <doi_batch
+                xmlns="http://www.crossref.org/schema/4.4.1"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                version="4.4.1" xsi:schemaLocation="http://www.crossref.org/schema/4.4.1
+                http://www.crossref.org/schema/deposit/crossref4.4.1.xsd">
+                <head>
+                    <doi_batch_id>1600683060</doi_batch_id>
+                    <timestamp>1600683060</timestamp>
+                    <depositor>
+                        <depositor_name>EMBL-EBI</depositor_name>
+                        <email_address>biostudies@ebi.ac.uk</email_address>
+                    </depositor>
+                    <registrant>EMBL-EBI</registrant>
+                </head>
+                <body>
+                    <database>
+                        <database_metadata language="en">
+                            <titles>
+                                <title>BioStudies Database</title>
+                            </titles>
+                        </database_metadata>
+                        <dataset>
+                            <contributors>
+                                <person_name contributor_role="author" sequence="first">
                                     <surname>Doe</surname>
                                     <affiliation>EMBL</affiliation>
                                     <ORCID authenticated="false">https://orcid.org/12-32-45-82</ORCID>
