@@ -21,5 +21,5 @@ class MultipartBuilder {
         return this
     }
 
-    fun build(): LinkedMultiValueMap<String, Any> = LinkedMultiValueMap(map.toMap())
+    fun build(): LinkedMultiValueMap<String, Any> = LinkedMultiValueMap(map)
 }

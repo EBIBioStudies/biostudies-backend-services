@@ -19,7 +19,7 @@ internal fun multipartBody(
 ): LinkedMultiValueMap<String, Any> =
     MultipartBuilder()
         .add(SUBMISSION, submission)
-        .add(STORAGE_MODE, parameters.storageMode)
+        .add(STORAGE_MODE, parameters.storageMode?.value)
         .add(SILENT_MODE, parameters.silentMode)
         .add(SINGLE_JOB_MODE, parameters.singleJobMode)
         .addAll(PREFERRED_SOURCES, parameters.preferredSources.map { it.name })
