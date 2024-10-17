@@ -4,7 +4,6 @@ import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.SINGLE_JOB_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
-import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.PREFERRED_SOURCES
@@ -17,19 +16,13 @@ internal fun multipartBody(
     submission: Any,
     parameters: SubmitParameters,
     files: List<File> = emptyList(),
-): LinkedMultiValueMap<String, Any> {
-    val (sources, attributes, storageMode, silentMode, singleJobMode) = parameters
-    val pairs =
-        buildList<Pair<String, Any>> {
-            add(SUBMISSION to submission)
-
-            addAll(sources.orEmpty().map { PREFERRED_SOURCES to it.name })
-            addAll(attributes.orEmpty().map { ATTRIBUTES to it })
-            storageMode?.let { add(STORAGE_MODE to it.value) }
-            silentMode?.let { add(SILENT_MODE to it) }
-            singleJobMode?.let { add(SINGLE_JOB_MODE to it) }
-
-            addAll(files.map { FILES to FileSystemResource(it) })
-        }
-    return linkedMultiValueMapOf(pairs)
-}
+): LinkedMultiValueMap<String, Any> =
+    MultipartBuilder()
+        .add(SUBMISSION, submission)
+        .add(STORAGE_MODE, parameters.storageMode?.value)
+        .add(SILENT_MODE, parameters.silentMode)
+        .add(SINGLE_JOB_MODE, parameters.singleJobMode)
+        .addAll(PREFERRED_SOURCES, parameters.preferredSources.map { it.name })
+        .addAll(ATTRIBUTES, parameters.attributes)
+        .addAll(FILES, files.map { FileSystemResource(it) })
+        .build()

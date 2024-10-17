@@ -97,13 +97,18 @@ class SlurmClusterClient(
         exitCode: Int,
         response: String,
     ): Result<Job> {
-        if (exitCode == 0) return success(toSlurmJob(response, logsPath))
+        if (SUCCESS_EXITS_CODE.contains(exitCode)) return success(toSlurmJob(response, logsPath))
 
-        logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
-        return failure(JobSubmitFailException(response))
+        logger.error { "Error submission job, exitCode='$exitCode', response='$response'" }
+        return failure(JobSubmitFailException(exitCode, response))
     }
 
     companion object {
+        /**
+         * Empirically it was found that both -1, 0 means job was submitted sucefully.
+         */
+        val SUCCESS_EXITS_CODE = setOf(-1, 0)
+
         fun create(
             sshKey: String,
             sshMachine: String,

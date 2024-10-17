@@ -46,59 +46,59 @@ interface SubmitClient :
 typealias SubmissionResponse = ClientResponse<Submission>
 
 interface FilesOperations {
-    fun uploadFiles(
+    suspend fun uploadFiles(
         files: List<File>,
         relativePath: String = EMPTY,
     )
 
-    fun uploadFile(
+    suspend fun uploadFile(
         file: File,
         relativePath: String = EMPTY,
     )
 
-    fun downloadFile(
+    suspend fun downloadFile(
         fileName: String,
         relativePath: String = EMPTY,
     ): File
 
-    fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
+    suspend fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
 
-    fun deleteFile(
+    suspend fun deleteFile(
         fileName: String,
         relativePath: String = EMPTY,
     )
 
-    fun createFolder(
+    suspend fun createFolder(
         folderName: String,
         relativePath: String = EMPTY,
     )
 }
 
 interface GroupFilesOperations {
-    fun uploadGroupFiles(
+    suspend fun uploadGroupFiles(
         groupName: String,
         files: List<File>,
         relativePath: String = EMPTY,
     )
 
-    fun downloadGroupFile(
+    suspend fun downloadGroupFile(
         groupName: String,
         fileName: String,
         relativePath: String = EMPTY,
     ): File
 
-    fun listGroupFiles(
+    suspend fun listGroupFiles(
         groupName: String,
         relativePath: String = EMPTY,
     ): List<UserFile>
 
-    fun deleteGroupFile(
+    suspend fun deleteGroupFile(
         groupName: String,
         fileName: String,
         relativePath: String = EMPTY,
     )
 
-    fun createGroupFolder(
+    suspend fun createGroupFolder(
         groupName: String,
         folderName: String,
         relativePath: String = EMPTY,

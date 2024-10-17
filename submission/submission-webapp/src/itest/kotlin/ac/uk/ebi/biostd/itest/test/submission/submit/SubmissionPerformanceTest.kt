@@ -12,6 +12,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -46,38 +47,39 @@ class SubmissionPerformanceTest(
     @Test
     @EnabledIfEnvironmentVariable(named = FIXED_DELAY_ENV, matches = "\\d+")
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `With many files`() {
-        val files = 100
-        val delay = System.getenv(FIXED_DELAY_ENV).toLong()
+    fun `With many files`() =
+        runTest {
+            val files = 100
+            val delay = System.getenv(FIXED_DELAY_ENV).toLong()
 
-        val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
-        webClient.uploadFiles(subFiles)
+            val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
+            webClient.uploadFiles(subFiles)
 
-        val fileList =
-            tempFolder.createFile(
-                "FileList.tsv",
+            val fileList =
+                tempFolder.createFile(
+                    "FileList.tsv",
+                    tsv {
+                        line("Files")
+                        subFiles.forEach { line(it.name) }
+                    }.toString(),
+                )
+            webClient.uploadFile(fileList)
+
+            val submission =
                 tsv {
-                    line("Files")
-                    subFiles.forEach { line(it.name) }
-                }.toString(),
-            )
-        webClient.uploadFile(fileList)
+                    line("Submission", "SPER-1")
+                    line("Title", "Performance Submission")
+                    line()
 
-        val submission =
-            tsv {
-                line("Submission", "SPER-1")
-                line("Title", "Performance Submission")
-                line()
+                    line("Study")
+                    line("File List", "FileList.tsv")
+                    line()
+                }.toString()
 
-                line("Study")
-                line("File List", "FileList.tsv")
-                line()
-            }.toString()
+            val executionTime = measureTime { webClient.submit(submission, SubmissionFormat.TSV) }
 
-        val executionTime = measureTime { webClient.submit(submission, SubmissionFormat.TSV) }
-
-        // Execution time is bounded by 9 times the delay on each Fire operation
-        val expectedTime = (9.0 * (files * delay)).toLong()
-        assertThat(executionTime.inWholeMilliseconds).isLessThan(expectedTime)
-    }
+            // Execution time is bounded by 9 times the delay on each Fire operation
+            val expectedTime = (9.0 * (files * delay)).toLong()
+            assertThat(executionTime.inWholeMilliseconds).isLessThan(expectedTime)
+        }
 }
