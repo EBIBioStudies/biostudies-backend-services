@@ -23,7 +23,9 @@ internal class PathSource(
     }
 
     override suspend fun getFileList(path: String): File? {
-        return findFile(path)
+        // TODO this doesn't only affect submission source. We'll need to patch the environment
+        val filePath = Path.of(path)
+        return if (Files.exists(filePath)) filePath.toFile() else null
     }
 
     private fun findFile(path: String): File? {

@@ -54,7 +54,7 @@ internal class SubmissionFilesSource(
 
     private suspend fun getFile(file: ExtFile): File? {
         return when (file) {
-            is NfsFile -> nfsFiles.getFileList(file.filePath)
+            is NfsFile -> nfsFiles.getFileList(file.fullPath)
             is FireFile -> fireClient.downloadByPath(file.firePath)
         }
     }

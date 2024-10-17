@@ -10,3 +10,10 @@ internal data class SubmissionRequest(
     val parameters: SubmitParameters,
     val files: List<File>,
 )
+
+internal data class ResubmissionRequest(
+    val accNo: String,
+    val await: Boolean,
+    val securityConfig: SecurityConfig,
+    val parameters: SubmitParameters,
+)

@@ -253,6 +253,13 @@ interface SubmitOperations {
         register: OnBehalfParameters? = null,
     ): AcceptedSubmission
 
+    suspend fun resubmit(
+        accNo: String,
+        format: SubmissionFormat = JSON,
+        submitParameters: SubmitParameters? = null,
+        register: OnBehalfParameters? = null,
+    ): AcceptedSubmission
+
     fun submitFromDraftAsync(draftKey: String)
 
     fun submitFromDraft(

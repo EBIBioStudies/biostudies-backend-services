@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
 
 internal class SubmitClient(
@@ -79,6 +80,21 @@ internal class SubmitClient(
         return client.postForObject(url, RequestParams(headers, submission))
     }
 
+    // TODO try to remove all the non-blocking operations
+    override suspend fun resubmit(
+        accNo: String,
+        format: SubmissionFormat,
+        submitParameters: SubmitParameters?,
+        register: OnBehalfParameters?
+    ): AcceptedSubmission {
+        val uri = buildUrl(register, submitParameters, "$SUBMISSIONS_URL/$accNo/resubmit")
+            return client
+                .post()
+                .uri(uri)
+                .retrieve()
+                .awaitBody<AcceptedSubmission>()
+    }
+
     override fun submitFromDraftAsync(draftKey: String) {
         client.post("$SUBMISSIONS_URL/drafts/$draftKey/submit")
     }
@@ -100,10 +116,11 @@ internal class SubmitClient(
     private fun buildUrl(
         config: OnBehalfParameters?,
         submitParameters: SubmitParameters?,
+        url: String = SUBMISSIONS_URL
     ): String {
         val builder =
             UriComponentsBuilder
-                .fromUriString(SUBMISSIONS_URL)
+                .fromUriString(url)
                 .optionalQueryParam(STORAGE_MODE, submitParameters?.storageMode)
                 .optionalQueryParam(SILENT_MODE, submitParameters?.silentMode)
                 .optionalQueryParam(SINGLE_JOB_MODE, submitParameters?.singleJobMode)
