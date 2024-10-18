@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
  */
 data class SubmissionCollections(val collections: List<DocCollection>?)
 
-data class MigrationData(val accNo: String)
+data class MigrationData(val accNo: String, val version: Int)
 
 data class ReleaseData(
     val accNo: String,

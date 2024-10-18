@@ -10,10 +10,10 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface SubmissionMigratorRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query(
-        value = "{ accNo: { \$regex: ?0 }, storageMode: 'NFS', version: { \$gte: 0 } }",
-        fields = "{ accNo: 1 }",
+        value = "{ storageMode: 'NFS', version: { \$gte: 0 } }",
+        fields = "{ accNo: 1, version: 1 }",
     )
-    suspend fun findReadyToMigrate(accNoPattern: String): Flow<MigrationData>
+    suspend fun findReadyToMigrate(): Flow<MigrationData>
 
     @ExistsQuery(value = "{ accNo: ?0, storageMode: 'FIRE', version: { \$gte: 0 } }")
     suspend fun isMigrated(accNo: String): Boolean

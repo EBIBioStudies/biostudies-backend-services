@@ -80,7 +80,6 @@ internal class SubmitClient(
         return client.postForObject(url, RequestParams(headers, submission))
     }
 
-    // TODO try to remove all the non-blocking operations
     override suspend fun resubmit(
         accNo: String,
         format: SubmissionFormat,
