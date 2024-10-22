@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
+import uk.ac.ebi.extended.serialization.service.filesFlowExt
 
 @ExtendWith(MockKExtension::class)
 class SubmissionRequestCleanIndexerTest(
@@ -116,7 +117,7 @@ class SubmissionRequestCleanIndexerTest(
                 )
             } returns flowOf(newRqtFile, newPageTabRqtFile)
             every { newSub.allPageTabFiles } returns listOf(newPageTabFile)
-            coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file, pageTabFile)
+            coEvery { serializationService.filesFlowExt(currentSub) } returns flowOf(false to file, true to pageTabFile)
 
             coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns currentSub
         }
