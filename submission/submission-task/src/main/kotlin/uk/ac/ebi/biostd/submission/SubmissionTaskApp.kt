@@ -2,17 +2,9 @@ package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode.CALC_STATS
-import ac.uk.ebi.biostd.common.properties.Mode.CHECK_RELEASED
-import ac.uk.ebi.biostd.common.properties.Mode.CLEAN
-import ac.uk.ebi.biostd.common.properties.Mode.COMPLETE
-import ac.uk.ebi.biostd.common.properties.Mode.COPY
-import ac.uk.ebi.biostd.common.properties.Mode.FINALIZE
-import ac.uk.ebi.biostd.common.properties.Mode.INDEX
-import ac.uk.ebi.biostd.common.properties.Mode.INDEX_TO_CLEAN
-import ac.uk.ebi.biostd.common.properties.Mode.LOAD
-import ac.uk.ebi.biostd.common.properties.Mode.SAVE
-import ac.uk.ebi.biostd.common.properties.Mode.VALIDATE
+import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.TaskProperties
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
@@ -49,6 +41,7 @@ class Execute(
     private val statsService: SubmissionStatsService,
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
+    private val requestService: SubmissionRequestPersistenceService,
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
         val accNo = properties.accNo
@@ -65,18 +58,11 @@ class Execute(
         accNo: String,
         version: Int,
     ) {
+        submissionSubmitter.handleRequest(accNo, version)
+
         when (properties.taskMode) {
-            INDEX -> submissionSubmitter.indexRequest(accNo, version)
-            LOAD -> submissionSubmitter.loadRequest(accNo, version)
-            INDEX_TO_CLEAN -> submissionSubmitter.indexToCleanRequest(accNo, version)
-            VALIDATE -> submissionSubmitter.validateRequest(accNo, version)
-            CLEAN -> submissionSubmitter.cleanRequest(accNo, version)
-            COPY -> submissionSubmitter.processRequest(accNo, version)
-            CHECK_RELEASED -> submissionSubmitter.checkReleased(accNo, version)
-            SAVE -> submissionSubmitter.saveRequest(accNo, version)
-            FINALIZE -> submissionSubmitter.finalizeRequest(accNo, version)
+            HANDLE_REQUEST -> submissionSubmitter.handleRequest(accNo, version)
             CALC_STATS -> statsService.calculateSubFilesSize(accNo)
-            COMPLETE -> submissionSubmitter.completeRqt(accNo, version)
         }
     }
 }

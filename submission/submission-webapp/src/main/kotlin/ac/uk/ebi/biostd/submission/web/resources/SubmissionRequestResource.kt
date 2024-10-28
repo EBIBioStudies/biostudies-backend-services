@@ -22,14 +22,14 @@ class SubmissionRequestResource(
     suspend fun getSubmissionRequest(
         @PathVariable accNo: String,
         @PathVariable version: Int,
-    ): SubmissionRequest = submissionRequestService.getSubmissionRequest(accNo, version)
+    ): SubmissionRequest = submissionRequestService.getRequest(accNo, version)
 
     @GetMapping("/{accNo}/{version}/status")
     @ResponseBody
     suspend fun getSubmissionRequestStatus(
         @PathVariable accNo: String,
         @PathVariable version: Int,
-    ): RequestStatus = submissionRequestService.getSubmissionRequest(accNo, version).status
+    ): RequestStatus = submissionRequestService.getRequest(accNo, version).status
 
     @PostMapping("/{accNo}/{version}/archive")
     @ResponseBody

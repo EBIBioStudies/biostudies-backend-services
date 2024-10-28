@@ -48,7 +48,7 @@ class SubmitRequestBuilder(
                 attrs = attributes.map { ExtAttributeDetail(it.name, it.value) },
                 storageMode = storageMode,
                 silentMode = silentMode.orFalse(),
-                processAll = processAll.orFalse(),
+                processAll = processAll ?: true,
             )
         val filesConfig =
             SubmissionFilesConfig(

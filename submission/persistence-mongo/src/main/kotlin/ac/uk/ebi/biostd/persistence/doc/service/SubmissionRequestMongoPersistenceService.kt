@@ -78,17 +78,12 @@ class SubmissionRequestMongoPersistenceService(
         return request.accNo to request.version
     }
 
-    override suspend fun getRequestStatus(
-        accNo: String,
-        version: Int,
-    ): RequestStatus = requestRepository.getByAccNoAndVersion(accNo, version).status
-
     override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
         requestRepository.updateSubRqtFile(rqt)
         requestRepository.increaseIndex(rqt.accNo, rqt.version)
     }
 
-    override suspend fun getSubmissionRequest(
+    override suspend fun getRequest(
         accNo: String,
         version: Int,
     ): SubmissionRequest {
@@ -175,6 +170,7 @@ class SubmissionRequestMongoPersistenceService(
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
             silentMode = rqt.silentMode,
+            processAll = rqt.processAll,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -194,6 +190,7 @@ class SubmissionRequestMongoPersistenceService(
             submission = stored,
             draftKey = rqt.draftKey,
             silentMode = rqt.silentMode,
+            processAll = rqt.processAll,
             notifyTo = rqt.notifyTo,
             status = rqt.status,
             totalFiles = rqt.totalFiles,

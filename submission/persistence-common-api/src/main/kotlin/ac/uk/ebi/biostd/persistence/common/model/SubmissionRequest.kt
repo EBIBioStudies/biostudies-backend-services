@@ -15,9 +15,16 @@ data class SubmissionRequest(
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
     val silentMode: Boolean,
+    val processAll: Boolean,
     val previousVersion: Int?,
 ) {
-    constructor(submission: ExtSubmission, notifyTo: String, silentMode: Boolean, draftKey: String? = null) : this(
+    constructor(
+        submission: ExtSubmission,
+        notifyTo: String,
+        silentMode: Boolean,
+        processAll: Boolean,
+        draftKey: String? = null,
+    ) : this(
         submission,
         draftKey,
         notifyTo,
@@ -27,6 +34,7 @@ data class SubmissionRequest(
         currentIndex = 0,
         previousVersion = null,
         silentMode = silentMode,
+        processAll = processAll,
         modificationTime = OffsetDateTime.now(),
     )
 

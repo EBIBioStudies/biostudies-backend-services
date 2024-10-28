@@ -99,11 +99,6 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    suspend fun getRequestStatus(
-        accNo: String,
-        version: Int,
-    ): RequestStatus
-
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
     /**
@@ -112,7 +107,7 @@ interface SubmissionRequestPersistenceService {
      */
     suspend fun updateRqtFile(rqt: SubmissionRequestFile)
 
-    suspend fun getSubmissionRequest(
+    suspend fun getRequest(
         accNo: String,
         version: Int,
     ): SubmissionRequest
