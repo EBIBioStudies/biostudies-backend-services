@@ -54,7 +54,6 @@ class SubmissionWebConfig {
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
-        queryService: SubmissionPersistenceQueryService,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
         requestCleanIndexer: SubmissionRequestCleanIndexer,

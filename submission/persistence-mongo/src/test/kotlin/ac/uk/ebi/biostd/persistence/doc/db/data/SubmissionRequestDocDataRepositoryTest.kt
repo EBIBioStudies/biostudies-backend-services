@@ -111,11 +111,8 @@ class SubmissionRequestDocDataRepositoryTest(
             val query = Query().addCriteria(where(RQT_ACC_NO).`is`("abc-123").andOperator(where(RQT_VERSION).`is`(2)))
             val files =
                 template
-                    .find(
-                        query,
-                        DocSubmissionRequestFile::class.java,
-                        SUB_RQT_FILES_ARCHIVE,
-                    ).asFlow()
+                    .find(query, DocSubmissionRequestFile::class.java, SUB_RQT_FILES_ARCHIVE)
+                    .asFlow()
                     .toList()
             assertThat(files).containsExactlyInAnyOrder(rqtF1, rqtF2)
 

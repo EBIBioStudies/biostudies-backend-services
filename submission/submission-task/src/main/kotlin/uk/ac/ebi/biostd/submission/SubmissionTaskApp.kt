@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode.CALC_STATS
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.TaskProperties
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
@@ -41,7 +40,6 @@ class Execute(
     private val statsService: SubmissionStatsService,
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
-    private val requestService: SubmissionRequestPersistenceService,
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
         val accNo = properties.accNo

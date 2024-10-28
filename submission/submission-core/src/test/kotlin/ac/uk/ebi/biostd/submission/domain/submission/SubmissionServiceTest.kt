@@ -49,7 +49,6 @@ class SubmissionServiceTest(
             eventsPublisherService,
             submissionPersistenceService,
             fileStorageService,
-            requestQueryService,
         )
 
     @AfterEach
