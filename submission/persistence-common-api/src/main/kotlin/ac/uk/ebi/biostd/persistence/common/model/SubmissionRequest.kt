@@ -5,6 +5,10 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import java.time.OffsetDateTime
 
+data class SubmissionRequestStatusChange(
+    val status: String,
+)
+
 data class SubmissionRequest(
     val submission: ExtSubmission,
     val draftKey: String?,
@@ -17,6 +21,7 @@ data class SubmissionRequest(
     val silentMode: Boolean,
     val processAll: Boolean,
     val previousVersion: Int?,
+    val statusChanges: List<SubmissionRequestStatusChange>,
 ) {
     constructor(
         submission: ExtSubmission,
@@ -36,6 +41,7 @@ data class SubmissionRequest(
         silentMode = silentMode,
         processAll = processAll,
         modificationTime = OffsetDateTime.now(),
+        statusChanges = emptyList(),
     )
 
     /**

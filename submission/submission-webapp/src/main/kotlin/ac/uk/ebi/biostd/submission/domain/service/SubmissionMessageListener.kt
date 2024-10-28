@@ -36,7 +36,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received index message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -45,7 +45,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received load message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -54,7 +54,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received index to clean message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -63,7 +63,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received validation message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -72,7 +72,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received clean message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -81,7 +81,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received persist files message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -90,7 +90,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received check release status message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -99,7 +99,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received save submission message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 
@@ -108,7 +108,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received finalize submission message for submission $accNo, version: $version" }
-            submissionSubmitter.handleRequest(accNo, version)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 

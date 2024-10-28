@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -198,6 +199,7 @@ class SubmissionRequestMongoPersistenceService(
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
             modificationTime = rqt.modificationTime.atOffset(UTC),
+            statusChanges = rqt.statusChanges.map { SubmissionRequestStatusChange(it.status) },
         )
     }
 }
