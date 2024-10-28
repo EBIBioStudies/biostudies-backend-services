@@ -149,7 +149,10 @@ class SubmissionWebConfig {
     fun extPageMapper(properties: ApplicationProperties): ExtendedPageMapper = ExtendedPageMapper(URI.create(properties.instanceBaseUrl))
 
     @Bean
-    fun submitRequestBuilder(onBehalfUtils: OnBehalfUtils): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils)
+    fun submitRequestBuilder(
+        onBehalfUtils: OnBehalfUtils,
+        properties: ApplicationProperties,
+    ): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils, properties.submissionTask)
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
