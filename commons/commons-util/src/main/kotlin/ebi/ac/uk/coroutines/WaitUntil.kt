@@ -11,7 +11,6 @@ val FOREVER = Duration.ofMillis(Long.MAX_VALUE)
 
 suspend fun waitUntil(
     timeout: Duration,
-    description: String = "Await condition expired",
     checkInterval: Duration = ofMillis(DEFAULT_INTERVAL),
     conditionEvaluator: suspend () -> Boolean,
 ) {
@@ -25,7 +24,7 @@ suspend fun waitUntil(
         interval: Long,
     ) {
         withContext(Dispatchers.Default) {
-            require(available >= interval) { description }
+            require(available >= interval) { "Await condition expired" }
             val result = runCatching { conditionEvaluator() }.getOrElse { false }
             if (result.not()) {
                 delay(interval)
