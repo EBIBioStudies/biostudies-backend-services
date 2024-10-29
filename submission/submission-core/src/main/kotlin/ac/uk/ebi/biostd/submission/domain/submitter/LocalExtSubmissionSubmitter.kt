@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
@@ -52,6 +53,7 @@ class LocalExtSubmissionSubmitter(
     private val requestSaver: SubmissionRequestSaver,
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
+    private val submissionStatsService: SubmissionStatsService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
@@ -95,6 +97,7 @@ class LocalExtSubmissionSubmitter(
     ) {
         suspend fun fromSavedSubmission() {
             requestCleaner.finalizeRequest(accNo, version, properties.processId)
+            submissionStatsService.calculateSubFilesSize(accNo)
         }
 
         suspend fun fromCheckReleased() {

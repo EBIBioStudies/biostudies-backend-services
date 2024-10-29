@@ -70,7 +70,7 @@ class SubmissionServiceTest(
             every { request.draftKey } returns "TMP_123456"
             every { request.processAll } returns false
             coEvery { submissionSubmitter.createRqt(request) } returns basicExtSubmission
-            every { eventsPublisherService.requestCreated("S-TEST123", 1) } answers { nothing }
+            coEvery { submissionSubmitter.handleRequestAsync("S-TEST123", 1) } returns Unit
 
             val response = testInstance.submitAsync(request)
 
@@ -78,7 +78,7 @@ class SubmissionServiceTest(
             assertThat(response.accNo).isEqualTo("S-TEST123")
             coVerify(exactly = 1) {
                 submissionSubmitter.createRqt(request)
-                eventsPublisherService.requestCreated("S-TEST123", 1)
+                submissionSubmitter.handleRequestAsync("S-TEST123", 1)
             }
         }
 
