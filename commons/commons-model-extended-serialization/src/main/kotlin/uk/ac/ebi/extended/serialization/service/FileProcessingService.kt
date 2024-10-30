@@ -12,7 +12,6 @@ import ebi.ac.uk.util.collections.mapLeft
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Allow to process the given section, and it subsections by updating a specific attribute or modified data
@@ -45,14 +44,6 @@ class FileProcessingService(
     private val serializationService: ExtSerializationService,
     private val fileResolver: FilesResolver,
 ) {
-    suspend fun processFilesIndexed(
-        submission: ExtSubmission,
-        processFile: ProcessFunctionIndexed,
-    ): ExtSubmission {
-        val index = AtomicInteger()
-        return processFiles(submission) { file -> processFile(file, index.incrementAndGet()) }
-    }
-
     suspend fun processFiles(
         submission: ExtSubmission,
         processFile: ProcessFunction,

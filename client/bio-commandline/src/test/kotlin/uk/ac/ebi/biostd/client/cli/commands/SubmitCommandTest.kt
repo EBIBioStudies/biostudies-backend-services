@@ -43,7 +43,7 @@ internal class SubmitCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val params = SubmitParameters(storageMode = StorageMode.FIRE)
+        val params = SubmitParameters(storageMode = StorageMode.FIRE, singleJobMode = true)
         val request =
             SubmissionRequest(
                 submissionFile = submission,
@@ -81,7 +81,12 @@ internal class SubmitCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.USER_SPACE)
-        val params = SubmitParameters(storageMode = StorageMode.NFS, preferredSources = sources)
+        val params =
+            SubmitParameters(
+                storageMode = StorageMode.NFS,
+                preferredSources = sources,
+                singleJobMode = false,
+            )
         val request =
             SubmissionRequest(
                 submissionFile = submission,
@@ -109,6 +114,7 @@ internal class SubmitCommandTest(
                 "SUBMISSION,USER_SPACE",
                 "-sm",
                 "NFS",
+                "-sj",
             ),
         )
 
@@ -120,7 +126,7 @@ internal class SubmitCommandTest(
         val submission = temporaryFolder.createFile("Submission.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val params = SubmitParameters(storageMode = StorageMode.FIRE)
+        val params = SubmitParameters(storageMode = StorageMode.FIRE, singleJobMode = true)
         val request =
             SubmissionRequest(
                 submission,
