@@ -76,7 +76,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     previousVersion = 1,
                     statusChanges = emptyList(),
                     silentMode = false,
-                    processAll = false,
+                    singleJobMode = false,
                 )
             val rqtF1 =
                 DocSubmissionRequestFile(
@@ -139,7 +139,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     modificationTime = Instant.now(),
                     previousVersion = 1,
                     statusChanges = emptyList(),
-                    processAll = false,
+                    singleJobMode = false,
                 )
 
             val (_, created) = testInstance.saveRequest(request)
@@ -180,7 +180,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
                         previousVersion = 1,
-                        processAll = false,
+                        singleJobMode = false,
                     ),
                 )
 
@@ -200,7 +200,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
                     previousVersion = 1,
-                    processAll = true,
+                    singleJobMode = true,
                 )
             val (_, created) = testInstance.saveRequest(newRequest)
 
@@ -240,7 +240,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
-                    processAll = true,
+                    singleJobMode = true,
                     previousVersion = 1,
                 )
             testInstance.saveRequest(rqt)

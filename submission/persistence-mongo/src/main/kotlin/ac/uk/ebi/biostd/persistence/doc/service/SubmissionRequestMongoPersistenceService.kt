@@ -171,7 +171,7 @@ class SubmissionRequestMongoPersistenceService(
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
             silentMode = rqt.silentMode,
-            processAll = rqt.processAll,
+            singleJobMode = rqt.processAll,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -191,7 +191,7 @@ class SubmissionRequestMongoPersistenceService(
             submission = stored,
             draftKey = rqt.draftKey,
             silentMode = rqt.silentMode,
-            processAll = rqt.processAll,
+            processAll = rqt.singleJobMode,
             notifyTo = rqt.notifyTo,
             status = rqt.status,
             totalFiles = rqt.totalFiles,

@@ -429,7 +429,7 @@ internal class SubmissionMongoQueryServiceTest(
             status = status,
             draftKey = null,
             silentMode = false,
-            processAll = false,
+            singleJobMode = false,
             notifyTo = submission.owner,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
             totalFiles = 6,

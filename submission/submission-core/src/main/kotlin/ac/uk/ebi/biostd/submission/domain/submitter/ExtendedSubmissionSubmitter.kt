@@ -16,18 +16,20 @@ class ExtendedSubmissionSubmitter(
         accNo: String,
         version: Int,
     ): ExtSubmission =
-        when (submissionTaskProperties.enabled) {
-            true -> remoteExtSubmissionSubmitter.handleRequest(accNo, version)
-            else -> localExtSubmissionSubmitter.handleRequest(accNo, version)
+        if (submissionTaskProperties.enabled) {
+            remoteExtSubmissionSubmitter.handleRequest(accNo, version)
+        } else {
+            localExtSubmissionSubmitter.handleRequest(accNo, version)
         }
 
     override suspend fun handleRequestAsync(
         accNo: String,
         version: Int,
     ) {
-        when (submissionTaskProperties.enabled) {
-            true -> remoteExtSubmissionSubmitter.handleRequestAsync(accNo, version)
-            else -> localExtSubmissionSubmitter.handleRequestAsync(accNo, version)
+        if (submissionTaskProperties.enabled) {
+            remoteExtSubmissionSubmitter.handleRequestAsync(accNo, version)
+        } else {
+            localExtSubmissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 }
