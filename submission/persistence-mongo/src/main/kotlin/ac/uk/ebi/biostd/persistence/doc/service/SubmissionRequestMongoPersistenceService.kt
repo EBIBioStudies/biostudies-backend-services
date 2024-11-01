@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -78,17 +79,12 @@ class SubmissionRequestMongoPersistenceService(
         return request.accNo to request.version
     }
 
-    override suspend fun getRequestStatus(
-        accNo: String,
-        version: Int,
-    ): RequestStatus = requestRepository.getByAccNoAndVersion(accNo, version).status
-
     override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
         requestRepository.updateSubRqtFile(rqt)
         requestRepository.increaseIndex(rqt.accNo, rqt.version)
     }
 
-    override suspend fun getSubmissionRequest(
+    override suspend fun getRequest(
         accNo: String,
         version: Int,
     ): SubmissionRequest {
@@ -175,6 +171,7 @@ class SubmissionRequestMongoPersistenceService(
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
             silentMode = rqt.silentMode,
+            singleJobMode = rqt.processAll,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -194,6 +191,7 @@ class SubmissionRequestMongoPersistenceService(
             submission = stored,
             draftKey = rqt.draftKey,
             silentMode = rqt.silentMode,
+            processAll = rqt.singleJobMode,
             notifyTo = rqt.notifyTo,
             status = rqt.status,
             totalFiles = rqt.totalFiles,
@@ -201,6 +199,7 @@ class SubmissionRequestMongoPersistenceService(
             currentIndex = rqt.currentIndex,
             previousVersion = rqt.previousVersion,
             modificationTime = rqt.modificationTime.atOffset(UTC),
+            statusChanges = rqt.statusChanges.map { SubmissionRequestStatusChange(it.status) },
         )
     }
 }

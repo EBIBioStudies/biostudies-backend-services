@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.filesFlow
+import uk.ac.ebi.extended.serialization.service.filesFlowExt
 import java.util.concurrent.atomic.AtomicInteger
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile as SubRqtFile
 
@@ -83,9 +83,9 @@ class SubmissionRequestCleanIndexer(
         ) = SubRqtFile(new, idx.incrementAndGet(), file, status, true)
 
         serializationService
-            .filesFlow(current)
-            .mapNotNull { file ->
-                when (newFiles.findMatch(file)) {
+            .filesFlowExt(current)
+            .mapNotNull { (isPageTab, file) ->
+                when (newFiles.findMatch(file, isPageTab)) {
                     MatchType.CONFLICTING -> fileUpdate(conflictIdx, file, CONFLICTING)
                     MatchType.CONFLICTING_PAGE_TAB -> fileUpdate(conflictPageTabIdx, file, CONFLICTING_PAGE_TAB)
                     MatchType.DEPRECATED -> fileUpdate(deprecatedIdx, file, DEPRECATED)
@@ -132,11 +132,13 @@ private class FilesRecords(
      * - CONFLICTING_PAGE_TAB: The existing pagetab file is present in the new version but with different content
      * - REUSED: The existing file hasn't changed in the new version, so it can be reused
      */
-    fun findMatch(existing: ExtFile): MatchType {
+    fun findMatch(
+        existing: ExtFile,
+        isPageTab: Boolean,
+    ): MatchType {
         val newFile = newFiles[existing.filePath]
         val storageModeChanged = newFile?.storageMode != existing.storageMode
         val md5Changed = newFile?.md5 != existing.md5
-        val isPageTab = newFile?.isPageTab ?: false
 
         return when {
             newFile != null && storageModeChanged && isPageTab -> MatchType.DEPRECATED_PAGE_TAB

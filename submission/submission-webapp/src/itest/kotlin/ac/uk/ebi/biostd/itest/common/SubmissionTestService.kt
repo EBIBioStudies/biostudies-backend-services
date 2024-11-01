@@ -10,8 +10,8 @@ class SubmissionTestService(
 ) {
     suspend fun verifyDeleted(accNo: String) {
         waitUntil(
-            ofSeconds(60),
-            ofMillis(200),
+            timeout = ofSeconds(60),
+            checkInterval = ofMillis(200),
         ) { submissionRepository.existActiveByAccNo(accNo).not() }
     }
 }

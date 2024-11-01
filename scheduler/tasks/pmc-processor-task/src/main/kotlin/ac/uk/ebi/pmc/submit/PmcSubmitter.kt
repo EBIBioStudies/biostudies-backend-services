@@ -77,8 +77,6 @@ class PmcSubmitter(
     private suspend fun submit(submission: SubmissionDocument): Result<AcceptedSubmission> {
         suspend fun submit(): AcceptedSubmission {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
-
-            logger.info { "submitting accNo='${submission.accNo}', docId='${submission.id}' with ${files.size} files" }
             val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
             return bioWebClient.submitMultipartAsync(submission.body, SubmissionFormat.JSON, params, files)
         }

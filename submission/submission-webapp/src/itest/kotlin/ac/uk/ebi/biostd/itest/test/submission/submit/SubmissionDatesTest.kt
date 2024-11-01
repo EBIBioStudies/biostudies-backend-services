@@ -51,7 +51,9 @@ class SubmissionDatesTest(
         runBlocking {
             securityTestService.ensureUserRegistration(DefaultUser)
             securityTestService.ensureUserRegistration(SuperUser)
+
             securityTestService.ensureSequence("S-BSST")
+            securityTestService.ensureSequence("S-PERMISIONT")
 
             userWebClient = getWebClient(serverPort, DefaultUser)
             adminWebClient = getWebClient(serverPort, SuperUser)

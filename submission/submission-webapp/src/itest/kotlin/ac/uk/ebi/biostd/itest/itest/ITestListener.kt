@@ -153,6 +153,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.submissionTask.enabled", enableTask)
         properties.addProperty("app.submissionTask.jarLocation", jarLocation)
         properties.addProperty("app.submissionTask.javaLocation", javaLocation)
+        properties.addProperty("app.submissionTask.singleJobMode", true)
         properties.addProperty("app.submissionTask.configFileLocation", configFile)
         properties.addProperty("app.submissionTask.taskMemoryMgb", 4096)
         properties.addProperty("app.submissionTask.taskCores", 2)
@@ -170,7 +171,11 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.cluster.wrapperPath", clusterWrapperPath.absolutePath)
     }
 
-    private fun findResource(resource: String): File? = this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
+    private fun findResource(resource: String): File? =
+        this::class.java
+            .getResource("/$resource")
+            ?.toURI()
+            ?.let { File(it) }
 
     companion object {
         private const val ENVIRONMENT = "TEST"
@@ -223,9 +228,7 @@ class ITestListener : TestExecutionListener {
             MongoDBContainer(parse(MONGO_VERSION))
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-        private fun createRabbitMqContainer(): RabbitMQContainer {
-            return RabbitMQContainer(parse(RABBIT_VERSION))
-        }
+        private fun createRabbitMqContainer(): RabbitMQContainer = RabbitMQContainer(parse(RABBIT_VERSION))
 
         private fun createMysqlContainer(): SpecificMySQLContainer =
             SpecificMySQLContainer(MYSQL_VERSION)
@@ -237,15 +240,14 @@ class ITestListener : TestExecutionListener {
             S3MockContainer("latest")
                 .withInitialBuckets(DEFAULT_BUCKET)
 
-        private fun createFtpServer(): FtpServer {
-            return FtpServer.createServer(
+        private fun createFtpServer(): FtpServer =
+            FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks").toURI()), "123456"),
                     userName = FTP_USER,
                     password = FTP_PASSWORD,
                 ),
             )
-        }
 
         private fun createDoiApiMock(): WireMockServer {
             val doiServer = WireMockServer(WireMockConfiguration().dynamicPort())

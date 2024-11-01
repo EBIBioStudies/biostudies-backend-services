@@ -184,29 +184,30 @@ class ResubmissionApiTest(
             }
 
         @Test
-        fun `5-3 Resubmit study with rootPath`() {
-            val rootPath = "The-RootPath"
-            val dataFile = "DataFile1.txt"
+        fun `5-3 Resubmit study with rootPath`() =
+            runTest {
+                val rootPath = "The-RootPath"
+                val dataFile = "DataFile1.txt"
 
-            val submission =
-                tsv {
-                    line("Submission", "S-RSTST3")
-                    line("Title", "Sample Submission")
-                    line("RootPath", rootPath)
-                    line()
-                    line("Study")
-                    line()
-                    line("File", "DataFile1.txt")
-                    line()
-                }.toString()
+                val submission =
+                    tsv {
+                        line("Submission", "S-RSTST3")
+                        line("Title", "Sample Submission")
+                        line("RootPath", rootPath)
+                        line()
+                        line("Study")
+                        line()
+                        line("File", "DataFile1.txt")
+                        line()
+                    }.toString()
 
-            webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt")), rootPath)
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt")), rootPath)
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
-            webClient.deleteFile(dataFile, rootPath)
+                webClient.deleteFile(dataFile, rootPath)
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-        }
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            }
     }
 
     @Test
@@ -390,7 +391,7 @@ class ResubmissionApiTest(
 
             waitUntil(
                 timeout = java.time.Duration.ofSeconds(10),
-            ) { requestRepository.getRequestStatus(accNo, version) == RequestStatus.INVALID }
+            ) { requestRepository.getRequest(accNo, version).status == RequestStatus.INVALID }
 
             val exception =
                 assertThrows<WebClientException> {

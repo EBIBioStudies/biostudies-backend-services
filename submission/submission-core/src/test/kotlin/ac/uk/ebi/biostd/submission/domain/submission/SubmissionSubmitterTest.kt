@@ -102,6 +102,7 @@ class SubmissionSubmitterTest(
         every { request.accNo } returns basicExtSubmission.accNo
         every { request.previousVersion } returns null
         every { request.silentMode } returns false
+        every { request.processAll } returns true
     }
 
     private fun setUpDraftService() {

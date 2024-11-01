@@ -30,11 +30,11 @@ class SubmissionRequestSaver(
         }
 
     private suspend fun saveRequest(sub: ExtSubmission): ExtSubmission {
-        logger.info { "${sub.accNo} ${sub.owner} Started saving submission '${sub.accNo}', version={${sub.version}}" }
+        logger.info { "${sub.accNo} ${sub.owner} Started saving submission '${sub.accNo}', version=${sub.version}" }
         val assembled = assembleSubmission(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
         val saved = persistenceService.saveSubmission(assembled)
-        logger.info { "${sub.accNo} ${sub.owner} Finished saving submission '${sub.accNo}', version={${sub.version}}" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished saving submission '${sub.accNo}', version=${sub.version}" }
         return saved
     }
 

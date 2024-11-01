@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
+import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
@@ -15,6 +16,7 @@ import java.io.File
 
 class SubmitRequestBuilder(
     private val onBehalfUtils: OnBehalfUtils,
+    private val submissionTaskProperties: SubmissionTaskProperties,
 ) {
     fun buildContentRequest(
         submission: String,
@@ -48,7 +50,7 @@ class SubmitRequestBuilder(
                 attrs = attributes.map { ExtAttributeDetail(it.name, it.value) },
                 storageMode = storageMode,
                 silentMode = silentMode.orFalse(),
-                processAll = processAll.orFalse(),
+                processAll = processAll ?: submissionTaskProperties.singleJobMode,
             )
         val filesConfig =
             SubmissionFilesConfig(
