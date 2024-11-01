@@ -30,6 +30,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtendedSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -54,7 +55,6 @@ class SubmissionWebConfig {
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
-        queryService: SubmissionPersistenceQueryService,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
         requestCleanIndexer: SubmissionRequestCleanIndexer,
@@ -65,6 +65,7 @@ class SubmissionWebConfig {
         submissionSaver: SubmissionRequestSaver,
         submissionQueryService: ExtSubmissionQueryService,
         eventsPublisherService: EventsPublisherService,
+        submissionStatsService: SubmissionStatsService,
     ): ExtSubmissionSubmitter {
         val local =
             LocalExtSubmissionSubmitter(
@@ -82,9 +83,16 @@ class SubmissionWebConfig {
                 submissionSaver,
                 submissionQueryService,
                 eventsPublisherService,
+                submissionStatsService,
             )
-        val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
-        return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService, queryService)
+        val remote =
+            RemoteExtSubmissionSubmitter(
+                clusterClient,
+                appProperties.submissionTask,
+                submissionQueryService,
+                requestService,
+            )
+        return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask)
     }
 
     @Bean
@@ -144,7 +152,10 @@ class SubmissionWebConfig {
     fun extPageMapper(properties: ApplicationProperties): ExtendedPageMapper = ExtendedPageMapper(URI.create(properties.instanceBaseUrl))
 
     @Bean
-    fun submitRequestBuilder(onBehalfUtils: OnBehalfUtils): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils)
+    fun submitRequestBuilder(
+        onBehalfUtils: OnBehalfUtils,
+        properties: ApplicationProperties,
+    ): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils, properties.submissionTask)
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)

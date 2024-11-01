@@ -96,7 +96,7 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-6-2.txt", "5-6-2 file updated content"))
             webClient.submitAsync(version2, TSV)
 
-            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequestStatus("S-RSTST6", 2) == INVALID }
+            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest("S-RSTST6", 2).status == INVALID }
         }
 
     @Test
@@ -180,7 +180,7 @@ class DeleteFilesPermissionTest(
 
             webClient.submitAsync(version2, TSV)
 
-            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequestStatus("S-RSTST8", 2) == INVALID }
+            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest("S-RSTST8", 2).status == INVALID }
         }
 
     @Nested

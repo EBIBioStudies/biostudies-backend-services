@@ -76,6 +76,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     previousVersion = 1,
                     statusChanges = emptyList(),
                     silentMode = false,
+                    singleJobMode = false,
                 )
             val rqtF1 =
                 DocSubmissionRequestFile(
@@ -109,11 +110,10 @@ class SubmissionRequestDocDataRepositoryTest(
 
             val query = Query().addCriteria(where(RQT_ACC_NO).`is`("abc-123").andOperator(where(RQT_VERSION).`is`(2)))
             val files =
-                template.find(
-                    query,
-                    DocSubmissionRequestFile::class.java,
-                    SUB_RQT_FILES_ARCHIVE,
-                ).asFlow().toList()
+                template
+                    .find(query, DocSubmissionRequestFile::class.java, SUB_RQT_FILES_ARCHIVE)
+                    .asFlow()
+                    .toList()
             assertThat(files).containsExactlyInAnyOrder(rqtF1, rqtF2)
 
             val requests = template.find(query, DocSubmissionRequest::class.java, SUB_RQT_ARCHIVE).asFlow().toList()
@@ -139,6 +139,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     modificationTime = Instant.now(),
                     previousVersion = 1,
                     statusChanges = emptyList(),
+                    singleJobMode = false,
                 )
 
             val (_, created) = testInstance.saveRequest(request)
@@ -179,6 +180,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
                         previousVersion = 1,
+                        singleJobMode = false,
                     ),
                 )
 
@@ -198,6 +200,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
                     previousVersion = 1,
+                    singleJobMode = true,
                 )
             val (_, created) = testInstance.saveRequest(newRequest)
 
@@ -237,6 +240,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
+                    singleJobMode = true,
                     previousVersion = 1,
                 )
             testInstance.saveRequest(rqt)

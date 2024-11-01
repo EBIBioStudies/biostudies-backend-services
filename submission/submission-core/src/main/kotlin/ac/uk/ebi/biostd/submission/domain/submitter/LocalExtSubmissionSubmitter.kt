@@ -16,8 +16,10 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
@@ -51,6 +53,7 @@ class LocalExtSubmissionSubmitter(
     private val requestSaver: SubmissionRequestSaver,
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
+    private val submissionStatsService: SubmissionStatsService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
@@ -61,17 +64,40 @@ class LocalExtSubmissionSubmitter(
                 notifyTo = rqt.notifyTo,
                 draftKey = rqt.draftKey,
                 silentMode = rqt.silentMode,
+                processAll = rqt.processAll,
             )
         return requestService.createRequest(request)
     }
 
-    @Suppress("CyclomaticComplexMethod")
-    override suspend fun completeRqt(
+    override suspend fun handleRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
+        handleRequestAsync(accNo, version)
+        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        return submissionQueryService.getExtendedSubmission(accNo)
+    }
+
+    override suspend fun handleRequestAsync(
         accNo: String,
         version: Int,
     ) {
+        val rqt = requestService.getRequest(accNo, version)
+        when {
+            rqt.processAll -> completeRqt(accNo, version, rqt.status)
+            else -> completeStage(accNo, version, rqt.status)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod")
+    private suspend fun completeRqt(
+        accNo: String,
+        version: Int,
+        status: RequestStatus,
+    ) {
         suspend fun fromSavedSubmission() {
             requestCleaner.finalizeRequest(accNo, version, properties.processId)
+            submissionStatsService.calculateSubFilesSize(accNo)
         }
 
         suspend fun fromCheckReleased() {
@@ -115,7 +141,6 @@ class LocalExtSubmissionSubmitter(
             fromIndexed()
         }
 
-        val status = requestService.getRequestStatus(accNo, version)
         when (status) {
             REQUESTED -> fromRequested()
             INDEXED -> fromIndexed()
@@ -131,84 +156,12 @@ class LocalExtSubmissionSubmitter(
         }
     }
 
-    override suspend fun indexRequest(
+    private suspend fun completeStage(
         accNo: String,
         version: Int,
+        status: RequestStatus,
     ) {
-        requestIndexer.indexRequest(accNo, version, properties.processId)
-        eventsPublisherService.requestIndexed(accNo, version)
-    }
-
-    override suspend fun loadRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        requestLoader.loadRequest(accNo, version, properties.processId)
-        eventsPublisherService.requestLoaded(accNo, version)
-    }
-
-    override suspend fun indexToCleanRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        requestToCleanIndexer.indexToCleanRequest(accNo, version, properties.processId)
-        eventsPublisherService.requestIndexedToClean(accNo, version)
-    }
-
-    override suspend fun validateRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        val request = requestValidator.validateRequest(accNo, version, properties.processId)
-        if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
-    }
-
-    override suspend fun cleanRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
-        eventsPublisherService.requestCleaned(accNo, version)
-    }
-
-    override suspend fun processRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        requestProcessor.processRequest(accNo, version, properties.processId)
-        eventsPublisherService.requestFilesCopied(accNo, version)
-    }
-
-    override suspend fun checkReleased(
-        accNo: String,
-        version: Int,
-    ) {
-        requestReleaser.checkReleased(accNo, version, properties.processId)
-        eventsPublisherService.requestCheckedRelease(accNo, version)
-    }
-
-    override suspend fun saveRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
-        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
-        eventsPublisherService.submissionPersisted(accNo, version)
-    }
-
-    override suspend fun finalizeRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        requestCleaner.finalizeRequest(accNo, version, properties.processId)
-        eventsPublisherService.submissionFinalized(accNo, version)
-    }
-
-    override suspend fun handleRequest(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        when (requestService.getRequestStatus(accNo, version)) {
+        when (status) {
             REQUESTED -> indexRequest(accNo, version)
             INDEXED -> loadRequest(accNo, version)
             LOADED -> indexToCleanRequest(accNo, version)
@@ -221,8 +174,78 @@ class LocalExtSubmissionSubmitter(
             INVALID -> logger.info { "Submission $accNo, $version is in an invalid state" }
             PROCESSED -> logger.info { "Submission $accNo, $version has been already processed." }
         }
+    }
 
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
-        return submissionQueryService.getExtendedSubmission(accNo)
+    private suspend fun indexRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestIndexer.indexRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestIndexed(accNo, version)
+    }
+
+    private suspend fun loadRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestLoader.loadRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestLoaded(accNo, version)
+    }
+
+    private suspend fun indexToCleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestToCleanIndexer.indexToCleanRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestIndexedToClean(accNo, version)
+    }
+
+    private suspend fun validateRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        val request = requestValidator.validateRequest(accNo, version, properties.processId)
+        if (request.status == VALIDATED) eventsPublisherService.requestValidated(accNo, version)
+    }
+
+    private suspend fun cleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
+        eventsPublisherService.requestCleaned(accNo, version)
+    }
+
+    private suspend fun processRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestProcessor.processRequest(accNo, version, properties.processId)
+        eventsPublisherService.requestFilesCopied(accNo, version)
+    }
+
+    private suspend fun checkReleased(
+        accNo: String,
+        version: Int,
+    ) {
+        requestReleaser.checkReleased(accNo, version, properties.processId)
+        eventsPublisherService.requestCheckedRelease(accNo, version)
+    }
+
+    private suspend fun saveRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
+        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+        eventsPublisherService.submissionPersisted(accNo, version)
+    }
+
+    private suspend fun finalizeRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestCleaner.finalizeRequest(accNo, version, properties.processId)
+        eventsPublisherService.submissionFinalized(accNo, version)
     }
 }

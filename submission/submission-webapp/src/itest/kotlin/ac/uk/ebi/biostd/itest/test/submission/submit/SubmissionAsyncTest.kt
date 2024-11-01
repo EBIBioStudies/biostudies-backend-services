@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -16,7 +17,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.INDEXED
@@ -25,12 +26,12 @@ import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.model.RequestStatus.VALIDATED
 import ebi.ac.uk.model.extensions.title
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Durations.ONE_SECOND
-import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,6 +40,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Duration
 import java.time.Duration.ofMillis
 
 @Import(FilePersistenceConfig::class)
@@ -87,8 +89,8 @@ class SubmissionAsyncTest(
         }
 
     @Test
-    fun `19-2 check submission stages`() =
-        runTest {
+    fun `19-2 check submission stages`(): Unit =
+        runBlocking {
             val submission =
                 tsv {
                     line("Submission", "SimpleAsync2")
@@ -102,26 +104,28 @@ class SubmissionAsyncTest(
             webClient.submit(submission, TSV)
 
             val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
-            val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email)
+            val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email, processAll = false)
 
             extSubmissionSubmitter.createRqt(extSubmitRequest)
-            val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)
-            assertThat(statusAfterCreation).isEqualTo(REQUESTED)
+            val statusAfterCreation = requestRepository.getRequest("SimpleAsync2", 2)
+            assertThat(statusAfterCreation.status).isEqualTo(REQUESTED)
 
-            suspend fun assertStageExecution(status: RequestStatus) {
-                waitUntil(checkInterval = ofMillis(10), timeout = TWO_SECONDS) {
-                    requestRepository.getRequestStatus("SimpleAsync2", 2) == status
-                }
+            extSubmissionSubmitter.handleRequestAsync("SimpleAsync2", 2)
+            waitUntil(timeout = Duration.ofMinutes(1), checkInterval = ofMillis(100)) {
+                requestRepository.getRequest("SimpleAsync2", 2).status == PROCESSED
             }
-
-            extSubmissionSubmitter.indexRequest("SimpleAsync2", 2)
-            assertStageExecution(INDEXED)
-            assertStageExecution(LOADED)
-            assertStageExecution(INDEXED_CLEANED)
-            assertStageExecution(CLEANED)
-            assertStageExecution(FILES_COPIED)
-            assertStageExecution(PERSISTED)
-            assertStageExecution(PROCESSED)
+            val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).statusChanges
+            assertThat(requestStatus.map { it.status }).containsExactly(
+                REQUESTED.action,
+                INDEXED.action,
+                LOADED.action,
+                INDEXED_CLEANED.action,
+                VALIDATED.action,
+                CLEANED.action,
+                FILES_COPIED.action,
+                CHECK_RELEASED.action,
+                PERSISTED.action,
+            )
 
             assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
             assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()

@@ -15,15 +15,6 @@ data class TaskProperties(
 }
 
 enum class Mode {
-    INDEX,
-    LOAD,
-    INDEX_TO_CLEAN,
-    VALIDATE,
-    CLEAN,
-    COPY,
-    CHECK_RELEASED,
-    SAVE,
-    FINALIZE,
+    HANDLE_REQUEST,
     CALC_STATS,
-    COMPLETE,
 }

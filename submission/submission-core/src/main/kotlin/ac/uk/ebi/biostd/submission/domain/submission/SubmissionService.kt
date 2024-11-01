@@ -2,20 +2,17 @@ package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
-import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.Duration.ofMinutes
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,22 +24,18 @@ class SubmissionService(
     private val eventsPublisher: EventsPublisherService,
     private val submissionPersistenceService: SubmissionPersistenceService,
     private val fileStorageService: FileStorageService,
-    private val requestQueryService: SubmissionRequestPersistenceService,
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
 
         val (accNo, version) = submitter.createRqt(rqt)
-        if (rqt.processAll) submitter.completeRqt(accNo, version) else eventsPublisher.requestCreated(accNo, version)
-
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestQueryService.isRequestCompleted(accNo, version) }
-        return queryService.getExtByAccNo(accNo)
+        return submitter.handleRequest(accNo, version)
     }
 
     suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
         val (accNo, version) = submitter.createRqt(rqt)
-        if (rqt.processAll) submitter.completeRqt(accNo, version) else eventsPublisher.requestCreated(accNo, version)
+        submitter.handleRequestAsync(accNo, version)
         return AcceptedSubmission(accNo, version)
     }
 

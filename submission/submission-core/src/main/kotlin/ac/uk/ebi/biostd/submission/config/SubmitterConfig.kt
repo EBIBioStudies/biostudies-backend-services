@@ -34,6 +34,7 @@ import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
@@ -197,6 +198,7 @@ class SubmitterConfig(
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         eventsPublisherService: EventsPublisherService,
+        submissionStatsService: SubmissionStatsService,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
@@ -213,6 +215,7 @@ class SubmitterConfig(
             submissionSaver,
             submissionQueryService,
             eventsPublisherService,
+            submissionStatsService,
         )
 
     @Bean
