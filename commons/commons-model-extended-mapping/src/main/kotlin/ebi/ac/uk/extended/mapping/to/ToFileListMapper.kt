@@ -42,7 +42,7 @@ class ToFileListMapper(
     }
 
     private suspend fun emptyFile(fileName: String): File {
-        val targetFile = filesResolver.createEmptyFile(fileName = fileName)
+        val targetFile = filesResolver.createTempFile(fileName = fileName)
         targetFile.outputStream().use { serializationService.serializeFileList(emptyFlow(), SubFormat.JSON, it) }
         return targetFile
     }

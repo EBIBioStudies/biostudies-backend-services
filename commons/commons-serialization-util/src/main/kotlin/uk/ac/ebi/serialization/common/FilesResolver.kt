@@ -5,7 +5,7 @@ import java.io.File
 import java.nio.file.Files
 
 class FilesResolver(private val basePath: File) {
-    fun createExtEmptyFile(
+    fun createRequestTempFile(
         subAccNo: String,
         version: Int,
         fileName: String,
@@ -17,7 +17,11 @@ class FilesResolver(private val basePath: File) {
         return baseFolder.createTempFile(name, ".json")
     }
 
-    fun createEmptyFile(fileName: String): File {
+    /**
+     * This method is intended to create temporary json files. The files will be created in the system tmp folder and
+     * will be periodically cleaned.
+     */
+    fun createTempFile(fileName: String): File {
         val name = fileName.replace("/", "-")
         return Files.createTempFile(name, ".json").toFile()
     }
