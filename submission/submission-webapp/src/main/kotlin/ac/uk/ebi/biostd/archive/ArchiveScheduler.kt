@@ -27,8 +27,12 @@ class ArchiveScheduler(
                 .findAllProcessed()
                 .onEach { (accNo, version) -> logger.info { "Deleting request files $accNo, $version" } }
                 .collect { (accNo, version) ->
-                    val subTempFolder = Paths.get(props.fire.tempDirPath).resolve("$accNo/$version").toFile()
+                    val subPath = "$accNo/$version"
+                    val fireTempFolder = Paths.get(props.fire.tempDirPath).resolve(subPath).toFile()
+                    val subTempFolder = Paths.get(props.persistence.requestFilesPath).resolve(subPath).toFile()
+
                     FileUtils.deleteFile(subTempFolder)
+                    FileUtils.deleteFile(fireTempFolder)
                     logger.info { "Deleted request files for $accNo, $version" }
                 }
         }

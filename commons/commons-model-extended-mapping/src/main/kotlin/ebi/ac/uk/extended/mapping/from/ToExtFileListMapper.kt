@@ -32,7 +32,7 @@ class ToExtFileListMapper(
         fileSource: FileSourcesList,
     ): ExtFileList {
         val name = fileList.canonicalName
-        val target = filesResolver.createExtEmptyFile(accNo, version, name)
+        val target = filesResolver.createRequestTempFile(accNo, version, name)
         return ExtFileList(name, toExtFile(accNo, fileList.file, SubFormat.fromFile(fileList.file), target, fileSource))
     }
 
