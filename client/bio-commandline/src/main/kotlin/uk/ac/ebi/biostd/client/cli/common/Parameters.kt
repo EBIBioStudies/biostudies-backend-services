@@ -19,6 +19,7 @@ internal object SubmissionParameters {
         """
     const val STORAGE_MODE = "Submission storage mode. Determines where submission need to be saved FIRE/NFS"
     const val FILE_LIST_PATH = "Path to the file list to be validated. The path is relative to the user folder"
+    const val SPLIT_JOBS = "Indicate whether the submission should be processed in individual jobs per each stage"
     const val AWAIT = "Indicate whether to wait for the submission processing"
 }
 

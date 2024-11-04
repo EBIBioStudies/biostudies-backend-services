@@ -24,18 +24,6 @@ suspend inline fun <reified T> WebClient.putForObjectAsync(
     return put().retrieveAsync<T>(url, params)!!
 }
 
-suspend fun WebClient.postAsync(
-    url: String,
-    params: RequestParams? = null,
-) {
-    val uriSpec = post().uri(url)
-    params?.headers?.let { headers -> uriSpec.headers { it.addAll(headers) } }
-    params?.body?.let { body -> uriSpec.bodyValue(body) }
-
-    val response = uriSpec.awaitExchange()
-    require(response.statusCode().isError.not()) { response.toString() }
-}
-
 suspend fun WebClient.deleteAsync(url: String) {
     val response = delete().uri(url).awaitExchange()
     require(response.statusCode().isError.not()) { response.toString() }

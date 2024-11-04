@@ -9,8 +9,6 @@ import java.time.Instant
 
 const val FILE1_CONTENT = "that is the content"
 const val FILE2_CONTENT = "that is another the content"
-const val FILE1_PATH = "/1234567/file1.txt"
-const val FILE2_PATH = "/1234567/file2.txt"
 const val FILE3_PATH = "/8901234/file3.txt"
 const val ERROR_ACCNO = "S-EPMC8901234"
 const val ERROR_SOURCE_FILE = "sourceFile2"

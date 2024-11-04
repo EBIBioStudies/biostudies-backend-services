@@ -18,6 +18,7 @@ import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.AWAIT
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.PREFERRED_SOURCES
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.SPLIT_JOBS
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.STORAGE_MODE
 import uk.ac.ebi.biostd.client.cli.common.splitFiles
 import uk.ac.ebi.biostd.client.cli.common.splitPreferredSources
@@ -36,6 +37,7 @@ internal class SubmitCommand(
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
     private val preferredSources by option("-ps", "--preferredSources", help = PREFERRED_SOURCES)
     private val storageMode by option("-sm", "--storageMode", help = STORAGE_MODE).default(FIRE.value)
+    private val splitJobs by option("-sj", "--splitJobs", help = SPLIT_JOBS).flag(default = false)
     private val await by option("-aw", "--await", help = AWAIT).flag(default = false)
 
     override fun run() {
@@ -45,7 +47,12 @@ internal class SubmitCommand(
     private suspend fun submit() {
         val mode = StorageMode.fromString(storageMode)
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
-        val params = SubmitParameters(storageMode = mode, preferredSources = splitPreferredSources(preferredSources))
+        val params =
+            SubmitParameters(
+                storageMode = mode,
+                singleJobMode = splitJobs.not(),
+                preferredSources = splitPreferredSources(preferredSources),
+            )
         val files = splitFiles(attached)
         submissionService.submit(SubmissionRequest(input, await, securityConfig, params, files))
     }
