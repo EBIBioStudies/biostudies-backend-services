@@ -232,14 +232,14 @@ interface PermissionOperations {
 }
 
 interface SubmitOperations {
-    fun submit(
+    suspend fun submit(
         submission: Submission,
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
-    fun submit(
+    suspend fun submit(
         submission: String,
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
@@ -253,9 +253,9 @@ interface SubmitOperations {
         register: OnBehalfParameters? = null,
     ): AcceptedSubmission
 
-    fun submitFromDraftAsync(draftKey: String)
+    suspend fun submitFromDraftAsync(draftKey: String)
 
-    fun submitFromDraft(
+    suspend fun submitFromDraft(
         draftKey: String,
         preferredSources: List<PreferredSource>? = null,
     ): SubmissionResponse

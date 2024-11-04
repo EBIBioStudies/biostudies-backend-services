@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -31,8 +32,6 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -47,7 +46,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.time.OffsetDateTime
-import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -161,29 +159,31 @@ class SubmissionApiTest(
         }
 
     @Test
-    fun `16-5 Submit study with invalid link Url`() {
-        val exception =
-            assertThrows(WebClientException::class.java) {
-                webClient.submit(invalidLinkUrl().toString(), TSV)
-            }
+    fun `16-5 Submit study with invalid link Url`() =
+        runTest {
+            val exception =
+                assertThrows<WebClientException> {
+                    webClient.submit(invalidLinkUrl().toString(), TSV)
+                }
 
-        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-    }
+            assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
 
     @Test
-    fun `16-6 Submit study with validation error`() {
-        val submission =
-            submission("S-400") {
-                title = "Submission with invalid file"
-                section("Study") { file("invalidfile.txt") }
-            }
+    fun `16-6 Submit study with validation error`() =
+        runTest {
+            val submission =
+                submission("S-400") {
+                    title = "Submission with invalid file"
+                    section("Study") { file("invalidfile.txt") }
+                }
 
-        val exception =
-            assertFailsWith<WebClientException> {
-                webClient.submit(submission)
-            }
-        assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
-    }
+            val exception =
+                assertThrows<WebClientException> {
+                    webClient.submit(submission)
+                }
+            assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
+        }
 
     @Test
     @EnabledIfSystemProperty(
@@ -301,34 +301,35 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFiles(listOf(file1, file2))
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { webClient.submit(submission, TSV) }
-                .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
+            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            assertThat(exception).hasMessageContaining(
+                "The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif",
+            )
         }
 
     @Test
-    fun `16-11 Submit study containing folder with trailing slash`() {
-        val submission =
-            tsv {
-                line("Submission", "S-BSST1611")
-                line("Title", "Submission")
-                line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                line()
+    fun `16-11 Submit study containing folder with trailing slash`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-BSST1611")
+                    line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
 
-                line("Study")
-                line()
+                    line("Study")
+                    line()
 
-                line("File", "inner/directory/")
-                line()
-            }.toString()
+                    line("File", "inner/directory/")
+                    line()
+                }.toString()
 
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submit(submission, TSV) }
-            .withMessageContainingAll(
+            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            assertThat(exception).hasMessageContainingAll(
                 "The given file path contains invalid characters: inner/directory/",
                 "For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list",
             )
-    }
+        }
 
     @Test
     fun `16-12 Submit study containing filelist with invalid name`() =
@@ -354,9 +355,11 @@ class SubmissionApiTest(
             val file2 = tempFolder.createFile("MS%20Raw%20data%20figures.tsv", fileList)
 
             webClient.uploadFiles(listOf(file1, file2))
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { webClient.submit(submission, TSV) }
-                .withMessageContaining("The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv")
+
+            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            assertThat(exception).hasMessageContaining(
+                "The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv",
+            )
         }
 
     @Test
