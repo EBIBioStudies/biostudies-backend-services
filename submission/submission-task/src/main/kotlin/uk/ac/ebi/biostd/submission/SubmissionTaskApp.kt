@@ -1,7 +1,6 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Mode.CALC_STATS
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
@@ -41,26 +40,20 @@ class Execute(
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
 ) : CommandLineRunner {
-    override fun run(vararg args: String?) {
-        val accNo = properties.accNo
-        val version = properties.version
-
-        logger.info { "Running ${properties.taskMode} for submission '$accNo', version : '$version'" }
-        runBlocking { runProcess(accNo, version) }
-        logger.info { "Command line ${properties.taskMode} completed for submission '$accNo', version : '$version'" }
-
-        exitProcess(SpringApplication.exit(context))
-    }
+    override fun run(vararg args: String?) =
+        runBlocking {
+            when (properties.taskMode) {
+                HANDLE_REQUEST -> runProcess(requireNotNull(properties.accNo), requireNotNull(properties.version))
+            }
+            exitProcess(SpringApplication.exit(context))
+        }
 
     private suspend fun runProcess(
         accNo: String,
         version: Int,
     ) {
+        logger.info { "Running ${properties.taskMode} for submission '$accNo', version : '$version'" }
         submissionSubmitter.handleRequest(accNo, version)
-
-        when (properties.taskMode) {
-            HANDLE_REQUEST -> submissionSubmitter.handleRequest(accNo, version)
-            CALC_STATS -> statsService.calculateSubFilesSize(accNo)
-        }
+        logger.info { "Command line ${properties.taskMode} completed for submission '$accNo', version : '$version'" }
     }
 }
