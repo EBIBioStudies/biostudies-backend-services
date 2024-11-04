@@ -66,7 +66,7 @@ class SubmissionDraftListApiTest(
         assertDraft(testDrafts.third().key, "ABC-2", page2.first())
     }
 
-    private fun createDrafts(): List<WebSubmissionDraft> {
+    private suspend fun createDrafts(): List<WebSubmissionDraft> {
         val drafts = mutableListOf<WebSubmissionDraft>()
 
         for (idx in 0..2) {

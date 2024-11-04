@@ -59,7 +59,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-2 create and get submission draft`() {
+    suspend fun `12-2 create and get submission draft`() {
         val pageTab =
             jsonObj {
                 "accno" to "ABC-124"
@@ -74,7 +74,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-3 create and update submission draft`() {
+    suspend fun `12-3 create and update submission draft`() {
         val updatedValue = "{ \"value\": 1 }"
         val pageTab =
             jsonObj {
@@ -91,7 +91,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-4 delete submission draft after submission`() {
+    suspend fun `12-4 delete submission draft after submission`() {
         val pageTab =
             jsonObj {
                 "accno" to "ABC-126"
