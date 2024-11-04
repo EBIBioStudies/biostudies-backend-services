@@ -391,7 +391,7 @@ class ResubmissionApiTest(
 
             waitUntil(
                 timeout = java.time.Duration.ofSeconds(10),
-            ) { requestRepository.getRequestStatus(accNo, version) == RequestStatus.INVALID }
+            ) { requestRepository.getRequest(accNo, version).status == RequestStatus.INVALID }
 
             val exception =
                 assertThrows<WebClientException> {

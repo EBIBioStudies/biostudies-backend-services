@@ -78,7 +78,7 @@ class FileProcessingService(
         fileList: ExtFileList,
         processFile: ProcessFunction,
     ): ExtFileList {
-        val newFileList = fileResolver.createExtEmptyFile(subAccNo, subVersion, fileList.fileName)
+        val newFileList = fileResolver.createRequestTempFile(subAccNo, subVersion, fileList.fileName)
         return fileList.copy(
             file = copyFile(fileList.file, newFileList, processFile),
             pageTabFiles = fileList.pageTabFiles.map { processFile(it) },

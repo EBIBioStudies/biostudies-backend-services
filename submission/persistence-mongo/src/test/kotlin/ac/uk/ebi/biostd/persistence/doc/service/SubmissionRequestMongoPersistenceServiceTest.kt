@@ -88,6 +88,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         draftKey = "draftKey",
                         silentMode = false,
+                        processAll = false,
                     )
 
                 val (accNo, version) = testInstance.createRequest(rqt)
@@ -128,6 +129,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         draftKey = "draftKey",
                         silentMode = false,
+                        processAll = false,
                     )
 
                 val (accNo, version) = testInstance.createRequest(rqt)
@@ -172,6 +174,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     previousVersion = 1,
                     statusChanges = emptyList(),
                     silentMode = false,
+                    singleJobMode = false,
                 )
             val rqtF1 =
                 DocSubmissionRequestFile(
@@ -209,6 +212,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 status = status,
                 draftKey = null,
                 silentMode = false,
+                singleJobMode = false,
                 notifyTo = "user@test.org",
                 submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                 totalFiles = 5,
@@ -259,6 +263,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             status = CLEANED,
             draftKey = null,
             silentMode = false,
+            singleJobMode = false,
             notifyTo = "user@test.org",
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
             totalFiles = 5,

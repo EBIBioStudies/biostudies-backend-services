@@ -64,7 +64,7 @@ class ToExtFileListMapper(
         }
 
         logger.info { "accNo:'$accNo' version: '$version', serializing file list '$name'" }
-        val file = extFilesResolver.createExtEmptyFile(accNo, version, name)
+        val file = extFilesResolver.createRequestTempFile(accNo, version, name)
         file.outputStream().use { serializationService.serialize(asLogeableFlow(files), it) }
         logger.info { "accNo:'$accNo' version: '$version', completed file list '$name' serialization" }
         return file

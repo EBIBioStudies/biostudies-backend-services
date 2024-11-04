@@ -38,7 +38,7 @@ internal class ToFileListMapperTest(
     @Test
     fun convert() =
         runTest {
-            every { filesResolver.createEmptyFile("fileList") } returns temporaryFolder.createFile("target-file-list.json")
+            every { filesResolver.createTempFile("fileList") } returns temporaryFolder.createFile("target-file-list.json")
             coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
                 val flow = arg<Flow<BioFile>>(0)
                 val format = arg<SubFormat>(1)

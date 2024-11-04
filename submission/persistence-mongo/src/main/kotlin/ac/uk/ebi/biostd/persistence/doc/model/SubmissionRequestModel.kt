@@ -28,6 +28,7 @@ data class DocSubmissionRequest(
     val previousVersion: Int?,
     val modificationTime: Instant,
     val silentMode: Boolean,
+    val singleJobMode: Boolean,
     val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
     fun asSetOnInsert(): Update =
@@ -45,6 +46,7 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
             .setOnInsert(DocRequestFields.RQT_SILENT_MODE, silentMode)
+            .setOnInsert(DocRequestFields.RQT_SINGLE_JOB_MODE, singleJobMode)
             .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
 }
 

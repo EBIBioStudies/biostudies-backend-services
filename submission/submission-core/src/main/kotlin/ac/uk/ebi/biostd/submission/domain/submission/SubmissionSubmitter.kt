@@ -20,16 +20,20 @@ class SubmissionSubmitter(
 ) {
     suspend fun createRqt(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        submissionSubmitter.createRqt(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode))
+        val request = ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode, rqt.processAll)
+        submissionSubmitter.createRqt(request)
         return submission
     }
 
-    suspend fun completeRqt(
+    suspend fun handleRequest(
         accNo: String,
         version: Int,
-    ) {
-        submissionSubmitter.completeRqt(accNo, version)
-    }
+    ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
+
+    suspend fun handleRequestAsync(
+        accNo: String,
+        version: Int,
+    ): Unit = submissionSubmitter.handleRequestAsync(accNo, version)
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {

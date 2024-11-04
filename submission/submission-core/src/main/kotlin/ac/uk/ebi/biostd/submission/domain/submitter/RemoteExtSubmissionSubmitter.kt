@@ -3,6 +3,10 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,6 +15,7 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
+import java.time.Duration.ofMinutes
 
 private val logger = KotlinLogging.logger {}
 
@@ -18,86 +23,28 @@ private val logger = KotlinLogging.logger {}
 class RemoteExtSubmissionSubmitter(
     private val clusterClient: ClusterClient,
     private val properties: SubmissionTaskProperties,
+    private val submissionQueryService: ExtSubmissionQueryService,
+    private val requestService: SubmissionRequestPersistenceService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         TODO("Not yet implemented")
-    }
-
-    override suspend fun indexRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.INDEX)
-    }
-
-    override suspend fun loadRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.LOAD)
-    }
-
-    override suspend fun indexToCleanRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.INDEX_TO_CLEAN)
-    }
-
-    override suspend fun validateRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.VALIDATE)
-    }
-
-    override suspend fun cleanRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.CLEAN)
-    }
-
-    override suspend fun processRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.COPY)
-    }
-
-    override suspend fun checkReleased(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.CHECK_RELEASED)
-    }
-
-    override suspend fun saveRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.SAVE)
-    }
-
-    override suspend fun finalizeRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        executeRemotely(accNo, version, Mode.FINALIZE)
     }
 
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
     ): ExtSubmission {
-        TODO("Not yet implemented")
+        executeRemotely(accNo, version, Mode.HANDLE_REQUEST)
+
+        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        return submissionQueryService.getExtendedSubmission(accNo)
     }
 
-    override suspend fun completeRqt(
+    override suspend fun handleRequestAsync(
         accNo: String,
         version: Int,
     ) {
-        executeRemotely(accNo, version, Mode.COMPLETE)
+        executeRemotely(accNo, version, Mode.HANDLE_REQUEST)
     }
 
     private suspend fun executeRemotely(

@@ -11,9 +11,9 @@ internal class FilesResolverTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = FilesResolver(tempFolder.createDirectory("test-files"))
 
     @Test
-    fun createExtEmptyFile() {
-        val file = testInstance.createExtEmptyFile("accNo", 15, "file.json")
-        val anotherFile = testInstance.createExtEmptyFile("accNo", 15, "file.json")
+    fun createRequestTempFile() {
+        val file = testInstance.createRequestTempFile("accNo", 15, "file.json")
+        val anotherFile = testInstance.createRequestTempFile("accNo", 15, "file.json")
 
         assertThat(file).exists()
         assertThat(anotherFile).exists()
@@ -21,9 +21,9 @@ internal class FilesResolverTest(private val tempFolder: TemporaryFolder) {
     }
 
     @Test
-    fun createEmptyFile() {
-        val file = testInstance.createEmptyFile("file.json")
-        val anotherFile = testInstance.createEmptyFile("file.json")
+    fun createTempFile() {
+        val file = testInstance.createTempFile("file.json")
+        val anotherFile = testInstance.createTempFile("file.json")
 
         assertThat(file).exists()
         assertThat(anotherFile).exists()

@@ -66,7 +66,8 @@ class DoiService(
         val title = rqt.submission.find(TITLE) ?: rqt.submission.section.find(TITLE) ?: throw MissingTitleException()
         val request = DoiRequest(accNo, title, properties.email, timestamp, properties.uiUrl, getContributors(sub))
         val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_$accNo", ".xml").toFile()
-        FileUtils.writeContent(requestFile, request.asXmlRequest())
+        val xmlRequest = request.asXmlRequest()
+        FileUtils.writeContent(requestFile, xmlRequest)
 
         val headers = httpHeadersOf(CONTENT_TYPE to MULTIPART_FORM_DATA)
         val body =
@@ -78,7 +79,7 @@ class DoiService(
             )
 
         webClient.post(properties.endpoint, RequestParams(headers, body))
-        logger.info { "$accNo ${rqt.owner} Registered DOI: '${request.doi}'" }
+        logger.info { "$accNo ${rqt.owner} Registered DOI: '${request.doi}' with request:\n $xmlRequest" }
 
         return request.doi
     }
@@ -97,7 +98,7 @@ class DoiService(
     }
 
     private fun Section.asContributor(organizations: Map<String, String>): Contributor {
-        val names = findAttr(NAME_ATTR) ?: throw InvalidAuthorNameException()
+        val names = findAttr(NAME_ATTR)?.trim() ?: throw InvalidAuthorNameException()
         val affiliation = findAttr(AFFILIATION_ATTR) ?: throw MissingAuthorAffiliationException()
         val org = organizations[affiliation] ?: throw InvalidAuthorAffiliationException(names, affiliation)
 

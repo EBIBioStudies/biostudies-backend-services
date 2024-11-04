@@ -7,6 +7,7 @@ data class SubmissionTaskProperties(
     val jarLocation: String,
     val javaLocation: String,
     val configFileLocation: String,
+    val singleJobMode: Boolean,
     val taskMemoryMgb: Int,
     val taskCores: Int,
     val taskMinutes: Int,
