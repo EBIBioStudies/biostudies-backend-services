@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.CommandLineRunner
@@ -36,7 +35,6 @@ private val logger = KotlinLogging.logger {}
 @Component
 class Execute(
     private val properties: TaskProperties,
-    private val statsService: SubmissionStatsService,
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
 ) : CommandLineRunner {
