@@ -25,6 +25,7 @@ Make a submission to BioStudies
   The order of the list indicates the priority in which the sources will be used
 * **sm or --storageMode:** Submission storage mode. Determines where submission need to be saved FIRE/NFS
 * **aw or --await:** Indicates whether to wait for the submission processing
+* **sj or --splitJobs:** Indicates whether the submission should be processed in individual jobs per each stage
 
 **Notes:**
 
