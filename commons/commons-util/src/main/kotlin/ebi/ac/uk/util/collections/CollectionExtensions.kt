@@ -43,13 +43,6 @@ fun <T> List<T>.findThird(): T? = if (this.size > 2) this[2] else null
 /**
  * Obtains the second element of the list or returns the given default value if the element doesn't exist.
  *
- * @param value Default value to return if the second element doesn't exist.
- */
-fun <T> List<T>.secondOrElse(value: T): T = if (this.size > 1) this[1] else value
-
-/**
- * Obtains the second element of the list or returns the given default value if the element doesn't exist.
- *
  * @param defaultFunc Default lambda to calculate return if the second element doesn't exist.
  */
 fun <T> List<T>.secondOrElse(defaultFunc: () -> T): T = if (this.size > 1) this[1] else defaultFunc()

@@ -24,7 +24,7 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
-import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTYFOUR_GB
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTY_FOUR_GB
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.BioStudies
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
@@ -99,7 +99,7 @@ class ExporterTriggerTest(
         fileName: String,
         outputPath: String,
     ) {
-        assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
+        assertThat(specs.ram).isEqualTo(TWENTY_FOUR_GB)
         assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """

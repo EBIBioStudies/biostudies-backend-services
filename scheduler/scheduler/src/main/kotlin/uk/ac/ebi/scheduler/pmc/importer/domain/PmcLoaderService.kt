@@ -165,7 +165,7 @@ private class PmcLoader(
                 JobSpec(
                     minutes = JOB_MINUTES,
                     cores = EIGHT_CORES,
-                    ram = MemorySpec.TWENTYFOUR_GB,
+                    ram = MemorySpec.TWENTY_FOUR_GB,
                     command = properties.asCmd(appProperties.appsFolder, debugPort),
                 ),
             )
@@ -183,7 +183,7 @@ private class PmcLoader(
                 JobSpec(
                     minutes = JOB_MINUTES,
                     cores = EIGHT_CORES,
-                    ram = MemorySpec.TWENTYFOUR_GB,
+                    ram = MemorySpec.TWENTY_FOUR_GB,
                     command = properties.asCmd(appProperties.appsFolder, debugPort),
                 ),
             )

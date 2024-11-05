@@ -15,11 +15,6 @@ data class FireApiFile(
     val published: Boolean = filesystemEntry?.published.orFalse()
 }
 
-enum class FileType(val key: String) {
-    FILE("file"),
-    DIR("directory"),
-}
-
 data class FileSystemEntry(
     val path: String?,
     val published: Boolean,

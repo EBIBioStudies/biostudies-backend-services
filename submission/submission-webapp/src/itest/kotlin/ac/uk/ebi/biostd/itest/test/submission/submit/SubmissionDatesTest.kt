@@ -209,17 +209,6 @@ class SubmissionDatesTest(
         @Test
         fun `28-5 Regular user re-submit a private submission with a new release date in the past`() =
             runTest {
-                fun submission(releaseDate: String): String =
-                    tsv {
-                        line("Submission")
-                        line("Title", "Sample Submission")
-                        line("ReleaseDate", releaseDate)
-                        line()
-
-                        line("Study")
-                        line()
-                    }.toString()
-
                 val v1 =
                     tsv {
                         line("Submission")

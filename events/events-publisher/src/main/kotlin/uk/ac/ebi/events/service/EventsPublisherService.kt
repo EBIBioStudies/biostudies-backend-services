@@ -31,15 +31,6 @@ class EventsPublisherService(
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
 
-    fun requestCreated(
-        accNo: String,
-        version: Int,
-    ) = rabbitTemplate.convertAndSend(
-        BIOSTUDIES_EXCHANGE,
-        notificationsProperties.requestRoutingKey,
-        RequestCreated(accNo, version),
-    )
-
     fun requestFilesCopied(
         accNo: String,
         version: Int,
