@@ -72,6 +72,7 @@ Contains test related to file list.
 | FileListSubmissionTest | 3-5     | Filelist Submission with files reusing previous version file list |
 | FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
 | FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
+| FileListSubmissionTest | 3-8     | Filelist Submission with empty accNo                              |
 | FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
 | FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
 | FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |

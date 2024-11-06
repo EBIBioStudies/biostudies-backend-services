@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.requestFilesPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -64,6 +65,7 @@ class FileListSubmissionTest(
     @BeforeAll
     fun init() =
         runBlocking {
+            securityTestService.ensureSequence("S-BSST")
             securityTestService.ensureUserRegistration(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
@@ -281,6 +283,45 @@ class FileListSubmissionTest(
             val secondVersion = submission(fileList = "reusable-file-list.json")
             assertThat(webClient.submit(secondVersion, TSV)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+        }
+
+    @Test
+    fun `3-8 Filelist Submission with empty accNo`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Empty AccNo")
+                    line()
+
+                    line("Study")
+                    line("File List", "empty-accNo-file-list.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tsv {
+                    line("Files", "GEN")
+                    line("File8.txt", "ABC")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("File8.txt", "file 8 content"),
+                    tempFolder.createFile("empty-accNo-file-list.tsv", fileList),
+                ),
+            )
+
+            val response = webClient.submit(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            val extSub = subRepository.getExtByAccNo(response.body.accNo)
+            val requestFiles = File("$requestFilesPath/${extSub.accNo}/${extSub.version}")
+
+            assertSubmissionFiles(extSub.accNo, "File8.txt", "empty-accNo-file-list")
+            assertThat(requestFiles).exists()
+            assertThat(requestFiles.listFiles()).anyMatch{ it.name.startsWith("empty-accNo-file-list") }
+
         }
 
     @Nested
