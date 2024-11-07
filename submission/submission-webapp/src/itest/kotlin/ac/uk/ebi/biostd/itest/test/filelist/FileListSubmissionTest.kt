@@ -320,8 +320,7 @@ class FileListSubmissionTest(
 
             assertSubmissionFiles(extSub.accNo, "File8.txt", "empty-accNo-file-list")
             assertThat(requestFiles).exists()
-            assertThat(requestFiles.listFiles()).anyMatch{ it.name.startsWith("empty-accNo-file-list") }
-
+            assertThat(requestFiles.listFiles()).anyMatch { it.name.startsWith("empty-accNo-file-list") }
         }
 
     @Nested
