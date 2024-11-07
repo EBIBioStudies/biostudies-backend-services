@@ -25,7 +25,7 @@ class SubmissionRequestSaver(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, CHECK_RELEASED, processId) {
-            saveRequest(it.submission)
+            saveRequest(it.process.submission)
             it.withNewStatus(PERSISTED)
         }
 

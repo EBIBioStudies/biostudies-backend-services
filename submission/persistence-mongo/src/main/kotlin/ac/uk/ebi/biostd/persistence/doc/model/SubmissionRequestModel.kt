@@ -18,36 +18,18 @@ data class DocSubmissionRequest(
     val id: ObjectId,
     val accNo: String,
     val version: Int,
-    val draftKey: String?,
-    val notifyTo: String,
+    val process: DocRequestProcessing,
     val status: RequestStatus,
-    val submission: DBObject,
-    val totalFiles: Int,
-    val fileChanges: DocFilesChanges,
-    val currentIndex: Int,
-    val previousVersion: Int?,
     val modificationTime: Instant,
-    val silentMode: Boolean,
-    val singleJobMode: Boolean,
-    val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
     fun asSetOnInsert(): Update =
         Update()
             .setOnInsert("_id", id)
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_VERSION, version)
-            .setOnInsert(DocRequestFields.RQT_DRAFT_KEY, draftKey)
-            .setOnInsert(DocRequestFields.RQT_NOTIFY_TO, notifyTo)
+            .setOnInsert(DocRequestFields.RQT_PROCESSING_INFO, process)
             .setOnInsert(DocRequestFields.RQT_STATUS, status)
-            .setOnInsert(DocRequestFields.RQT_SUBMISSION, submission)
-            .setOnInsert(DocRequestFields.RQT_TOTAL_FILES, totalFiles)
-            .setOnInsert(DocRequestFields.RQT_FILE_CHANGES, fileChanges)
-            .setOnInsert(DocRequestFields.RQT_PREV_SUB_VERSION, previousVersion)
-            .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
-            .setOnInsert(DocRequestFields.RQT_SILENT_MODE, silentMode)
-            .setOnInsert(DocRequestFields.RQT_SINGLE_JOB_MODE, singleJobMode)
-            .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
 }
 
 data class DocFilesChanges(
@@ -65,6 +47,19 @@ data class DocRequestStatusChanges(
     val startTime: Instant,
     val endTime: Instant?,
     val result: String?,
+)
+
+data class DocRequestProcessing(
+    val draftKey: String?,
+    val notifyTo: String,
+    val submission: DBObject,
+    val totalFiles: Int,
+    val fileChanges: DocFilesChanges,
+    val currentIndex: Int,
+    val previousVersion: Int?,
+    val silentMode: Boolean,
+    val singleJobMode: Boolean,
+    val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 )
 
 @Document(collection = SUB_RQT_FILES)

@@ -4,14 +4,17 @@ import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestProcessing
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
+import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
@@ -68,7 +71,7 @@ class SubmissionRequestMongoPersistenceService(
         val archivedFiles = requestRepository.archiveRequest(accNo, version)
         val countFiles = requestFilesRepository.countByAccNoAndVersion(accNo, version)
 
-        if (archivedFiles != countFiles) error("More files that archived identitified in request $accNo, $version")
+        if (archivedFiles != countFiles) error("More files that archived identified in request $accNo, $version")
         requestRepository.deleteByAccNoAndVersion(accNo, version)
         requestFilesRepository.deleteByAccNoAndVersion(accNo, version)
     }
@@ -100,9 +103,9 @@ class SubmissionRequestMongoPersistenceService(
         handler: suspend (SubmissionRequest) -> SubmissionRequest,
     ): SubmissionRequest {
         suspend fun loadRequest(): SubmissionRqt {
-            val (changeId, request) = requestRepository.getRequest(accNo, version, status, processId)
-            val stored = serializationService.deserialize(request.submission.toString())
-            val subRequest = asRequest(request).copy(submission = stored)
+            val (changeId, docRequest) = requestRepository.getRequest(accNo, version, status, processId)
+            val stored = serializationService.deserialize(docRequest.process.submission.toString())
+            val subRequest = asRequest(docRequest, stored)
 
             return changeId to subRequest
         }
@@ -144,62 +147,74 @@ class SubmissionRequestMongoPersistenceService(
         result: ProcessResult,
     ): Pair<String, Int> {
         requestRepository.updateSubmissionRequest(asDocRequest(rqt), changeId, Instant.now(), result)
-        return rqt.submission.accNo to rqt.submission.version
+        return rqt.process.submission.accNo to rqt.process.submission.version
     }
 
     private fun asDocRequest(rqt: SubmissionRequest): DocSubmissionRequest {
-        val content = serializationService.serialize(rqt.submission, Properties(includeFileListFiles = true))
+        val content = serializationService.serialize(rqt.process.submission, Properties(includeFileListFiles = true))
         val fileChanges =
             DocFilesChanges(
-                rqt.fileChanges.conflictingFiles,
-                rqt.fileChanges.conflictingPageTab,
-                rqt.fileChanges.deprecatedFiles,
-                rqt.fileChanges.deprecatedPageTab,
-                rqt.fileChanges.reusedFiles,
+                reusedFiles = rqt.process.fileChanges.reusedFiles,
+                deprecatedFiles = rqt.process.fileChanges.deprecatedFiles,
+                deprecatedPageTab = rqt.process.fileChanges.deprecatedPageTab,
+                conflictingFiles = rqt.process.fileChanges.conflictingFiles,
+                conflictingPageTab = rqt.process.fileChanges.conflictingPageTab,
+            )
+        val process =
+            DocRequestProcessing(
+                draftKey = rqt.process.draftKey,
+                notifyTo = rqt.process.notifyTo,
+                submission = BasicDBObject.parse(content),
+                totalFiles = rqt.process.totalFiles,
+                fileChanges = fileChanges,
+                currentIndex = rqt.process.currentIndex,
+                previousVersion = rqt.process.previousVersion,
+                silentMode = rqt.process.silentMode,
+                singleJobMode = rqt.process.singleJobMode,
+                // TODO status changes missing
             )
 
         return DocSubmissionRequest(
             id = ObjectId(),
-            accNo = rqt.submission.accNo,
-            version = rqt.submission.version,
-            draftKey = rqt.draftKey,
-            notifyTo = rqt.notifyTo,
+            accNo = rqt.process.submission.accNo,
+            version = rqt.process.submission.version,
+            process = process,
             status = rqt.status,
-            submission = BasicDBObject.parse(content),
-            totalFiles = rqt.totalFiles,
-            fileChanges = fileChanges,
-            currentIndex = rqt.currentIndex,
-            previousVersion = rqt.previousVersion,
-            silentMode = rqt.silentMode,
-            singleJobMode = rqt.processAll,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
 
-    private fun asRequest(rqt: DocSubmissionRequest): SubmissionRequest {
-        val stored = serializationService.deserialize(rqt.submission.toString())
+    private fun asRequest(
+        rqt: DocSubmissionRequest,
+        sub: ExtSubmission? = null,
+    ): SubmissionRequest {
+        val stored = sub ?: serializationService.deserialize(rqt.process.submission.toString())
         val fileChanges =
             SubmissionRequestFileChanges(
-                rqt.fileChanges.reusedFiles,
-                rqt.fileChanges.deprecatedFiles,
-                rqt.fileChanges.deprecatedPageTab,
-                rqt.fileChanges.conflictingFiles,
-                rqt.fileChanges.conflictingPageTab,
+                reusedFiles = rqt.process.fileChanges.reusedFiles,
+                deprecatedFiles = rqt.process.fileChanges.deprecatedFiles,
+                deprecatedPageTab = rqt.process.fileChanges.deprecatedPageTab,
+                conflictingFiles = rqt.process.fileChanges.conflictingFiles,
+                conflictingPageTab = rqt.process.fileChanges.conflictingPageTab,
+            )
+        val process =
+            SubmissionRequestProcessing(
+                submission = stored,
+                draftKey = rqt.process.draftKey,
+                silentMode = rqt.process.silentMode,
+                singleJobMode = rqt.process.singleJobMode,
+                notifyTo = rqt.process.notifyTo,
+                totalFiles = rqt.process.totalFiles,
+                fileChanges = fileChanges,
+                currentIndex = rqt.process.currentIndex,
+                previousVersion = rqt.process.previousVersion,
+                statusChanges = rqt.process.statusChanges.map { SubmissionRequestStatusChange(it.status) },
             )
 
         return SubmissionRequest(
-            submission = stored,
-            draftKey = rqt.draftKey,
-            silentMode = rqt.silentMode,
-            processAll = rqt.singleJobMode,
-            notifyTo = rqt.notifyTo,
+            process = process,
             status = rqt.status,
-            totalFiles = rqt.totalFiles,
-            fileChanges = fileChanges,
-            currentIndex = rqt.currentIndex,
-            previousVersion = rqt.previousVersion,
             modificationTime = rqt.modificationTime.atOffset(UTC),
-            statusChanges = rqt.statusChanges.map { SubmissionRequestStatusChange(it.status) },
         )
     }
 }
