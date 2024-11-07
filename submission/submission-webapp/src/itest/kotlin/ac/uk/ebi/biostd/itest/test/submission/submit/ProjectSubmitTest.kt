@@ -11,13 +11,13 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -98,28 +98,28 @@ class ProjectSubmitTest(
         }
 
     @Test
-    fun `7-3 submit duplicated accNo template`() {
-        val aProject =
-            tsv {
-                line("Submission", "A-Project")
-                line("AccNoTemplate", "!{S-APRJ}")
-                line()
+    fun `7-3 submit duplicated accNo template`() =
+        runTest {
+            val aProject =
+                tsv {
+                    line("Submission", "A-Project")
+                    line("AccNoTemplate", "!{S-APRJ}")
+                    line()
 
-                line("Project")
-            }.toString()
+                    line("Project")
+                }.toString()
 
-        val anotherProject =
-            tsv {
-                line("Submission", "Another-Project")
-                line("AccNoTemplate", "!{S-APRJ}")
-                line()
+            val anotherProject =
+                tsv {
+                    line("Submission", "Another-Project")
+                    line("AccNoTemplate", "!{S-APRJ}")
+                    line()
 
-                line("Project")
-            }.toString()
+                    line("Project")
+                }.toString()
 
-        assertThat(webClient.submit(aProject, TSV)).isSuccessful()
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submit(anotherProject, TSV) }
-            .withMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
-    }
+            assertThat(webClient.submit(aProject, TSV)).isSuccessful()
+            val exception = assertThrows<WebClientException> { webClient.submit(anotherProject, TSV) }
+            assertThat(exception).hasMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
+        }
 }
