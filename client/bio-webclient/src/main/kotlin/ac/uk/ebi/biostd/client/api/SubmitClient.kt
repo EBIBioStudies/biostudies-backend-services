@@ -17,22 +17,23 @@ import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.SINGLE_JOB_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
 import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.web.optionalQueryParam
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.util.UriComponentsBuilder
 
 internal class SubmitClient(
     private val client: WebClient,
     private val serializationService: SerializationService,
 ) : SubmitOperations {
-    override fun submit(
+    override suspend fun submit(
         submission: Submission,
         format: SubmissionFormat,
         submitParameters: SubmitParameters?,
@@ -47,10 +48,10 @@ internal class SubmitClient(
                 .headers { it.addAll(formatHeaders(format)) }
                 .retrieve()
 
-        return serializationService.deserializeResponse(response, JSON).block()!!
+        return serializationService.deserializeResponse(response, JSON).awaitSingle()
     }
 
-    override fun submit(
+    override suspend fun submit(
         submission: String,
         format: SubmissionFormat,
         submitParameters: SubmitParameters?,
@@ -64,7 +65,7 @@ internal class SubmitClient(
                 .headers { it.addAll(formatHeaders(format)) }
                 .retrieve()
 
-        return serializationService.deserializeResponse(response, JSON).block()!!
+        return serializationService.deserializeResponse(response, JSON).awaitSingle()
     }
 
     override fun submitAsync(
@@ -79,11 +80,15 @@ internal class SubmitClient(
         return client.postForObject(url, RequestParams(headers, submission))
     }
 
-    override fun submitFromDraftAsync(draftKey: String) {
-        client.post("$SUBMISSIONS_URL/drafts/$draftKey/submit")
+    override suspend fun submitFromDraftAsync(draftKey: String) {
+        client
+            .post()
+            .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit")
+            .retrieve()
+            .awaitBodilessEntity()
     }
 
-    override fun submitFromDraft(
+    override suspend fun submitFromDraft(
         draftKey: String,
         preferredSources: List<PreferredSource>?,
     ): SubmissionResponse {
@@ -93,8 +98,7 @@ internal class SubmitClient(
                 .post()
                 .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync$source")
                 .retrieve()
-
-        return serializationService.deserializeResponse(response, JSON).block()!!
+        return serializationService.deserializeResponse(response, JSON).awaitSingle()
     }
 
     private fun buildUrl(
