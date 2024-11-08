@@ -29,6 +29,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtendedSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -49,8 +50,14 @@ import java.time.Clock
 @Configuration
 class SubmissionWebConfig {
     @Bean
-    fun extendedSubmissionSubmitter(
+    fun remoteSubmitterExecutor(
+        appProperties: ApplicationProperties,
         clusterClient: ClusterClient,
+    ): RemoteSubmitterExecutor = RemoteSubmitterExecutor(appProperties.submissionTask, clusterClient)
+
+    @Bean
+    fun extendedSubmissionSubmitter(
+        remoteSubmitterExecutor: RemoteSubmitterExecutor,
         appProperties: ApplicationProperties,
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
@@ -87,8 +94,7 @@ class SubmissionWebConfig {
             )
         val remote =
             RemoteExtSubmissionSubmitter(
-                clusterClient,
-                appProperties.submissionTask,
+                remoteSubmitterExecutor,
                 submissionQueryService,
                 requestService,
             )

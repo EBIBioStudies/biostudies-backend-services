@@ -8,13 +8,15 @@ import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.model.Submission
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 import java.io.File
 
 private const val SUBMIT_URL = "/submissions/async"
@@ -23,7 +25,7 @@ class MultiPartAsyncSubmitClient(
     private val client: WebClient,
     private val serializationService: SerializationService,
 ) : MultipartAsyncSubmitOperations {
-    override fun submitMultipartAsync(
+    override suspend fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
     ): AcceptedSubmission {
@@ -33,10 +35,10 @@ class MultiPartAsyncSubmitClient(
                 parameters = parameters,
                 submission = FileSystemResource(submission),
             )
-        return client.postForObject("$SUBMIT_URL/direct", RequestParams(headers, multiPartBody))
+        return submit("$SUBMIT_URL/direct", headers, multiPartBody)
     }
 
-    override fun submitMultipartAsync(
+    override suspend fun submitMultipartAsync(
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
@@ -44,10 +46,10 @@ class MultiPartAsyncSubmitClient(
     ): AcceptedSubmission {
         val headers = createHeaders(format)
         val body = multipartBody(submission, parameters, files)
-        return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
+        return submit(SUBMIT_URL, headers, body)
     }
 
-    override fun submitMultipartAsync(
+    override suspend fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
@@ -55,8 +57,22 @@ class MultiPartAsyncSubmitClient(
         val headers = createHeaders(format)
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
         val body = multipartBody(serializedSubmission, parameters)
-        return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
+        return submit(SUBMIT_URL, headers, body)
     }
+
+    private suspend fun submit(
+        url: String,
+        headers: HttpHeaders,
+        body: LinkedMultiValueMap<String, Any>,
+    ): AcceptedSubmission =
+        client
+            .post()
+            .uri(url)
+            .body(BodyInserters.fromMultipartData(body))
+            .headers { it.addAll(headers) }
+            .retrieve()
+            .bodyToMono<AcceptedSubmission>()
+            .awaitSingle()
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders =
         HttpHeaders().apply {

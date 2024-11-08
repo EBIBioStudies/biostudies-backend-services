@@ -191,7 +191,7 @@ interface DraftSubmissionOperations {
         content: String,
     )
 
-    fun createSubmissionDraft(content: String): WebSubmissionDraft
+    suspend fun createSubmissionDraft(content: String): WebSubmissionDraft
 }
 
 interface ExtSubmissionOperations {
@@ -232,14 +232,14 @@ interface PermissionOperations {
 }
 
 interface SubmitOperations {
-    fun submit(
+    suspend fun submit(
         submission: Submission,
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
-    fun submit(
+    suspend fun submit(
         submission: String,
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
@@ -253,9 +253,9 @@ interface SubmitOperations {
         register: OnBehalfParameters? = null,
     ): AcceptedSubmission
 
-    fun submitFromDraftAsync(draftKey: String)
+    suspend fun submitFromDraftAsync(draftKey: String)
 
-    fun submitFromDraft(
+    suspend fun submitFromDraft(
         draftKey: String,
         preferredSources: List<PreferredSource>? = null,
     ): SubmissionResponse
@@ -284,20 +284,20 @@ interface MultipartSubmitOperations {
 }
 
 interface MultipartAsyncSubmitOperations {
-    fun submitMultipartAsync(
+    suspend fun submitMultipartAsync(
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
     ): AcceptedSubmission
 
-    fun submitMultipartAsync(
+    suspend fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
     ): AcceptedSubmission
 
-    fun submitMultipartAsync(
+    suspend fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
     ): AcceptedSubmission

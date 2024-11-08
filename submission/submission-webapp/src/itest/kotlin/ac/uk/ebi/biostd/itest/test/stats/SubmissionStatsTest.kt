@@ -227,130 +227,135 @@ class SubmissionStatsTest(
         }
 
     @Test
-    fun `26-3 find stats by accNo`() {
-        val accNo = "STATS-0001"
-        val submission =
-            tsv {
-                line("Submission", accNo)
-            }.toString()
+    fun `26-3 find stats by accNo`() =
+        runTest {
+            val accNo = "STATS-0001"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
 
-        webClient.submit(submission, TSV)
+            webClient.submit(submission, TSV)
 
-        val stat =
-            SubmissionStat(
-                accNo = accNo,
-                value = 10L,
-                type = "VIEWS",
-            )
-        webClient.registerStat(stat)
+            val stat =
+                SubmissionStat(
+                    accNo = accNo,
+                    value = 10L,
+                    type = "VIEWS",
+                )
+            webClient.registerStat(stat)
 
-        val stats = webClient.getStatsByAccNo(accNo)
-        assertThat(stats).contains(stat)
-    }
-
-    @Test
-    fun `26-4 find stats by type`() {
-        val accNo = "STATS-0002"
-        val submission =
-            tsv {
-                line("Submission", accNo)
-            }.toString()
-
-        webClient.submit(submission, TSV)
-
-        val vStat =
-            SubmissionStat(
-                accNo = accNo,
-                value = 10L,
-                type = "VIEWS",
-            )
-        webClient.registerStat(vStat)
-
-        val stats = webClient.getStatsByType("VIEWS")
-        assertThat(stats).contains(vStat)
-    }
+            val stats = webClient.getStatsByAccNo(accNo)
+            assertThat(stats).contains(stat)
+        }
 
     @Test
-    fun `26-5 find stats by type and AccNo`() {
-        val accNo1 = "STATS-0003"
-        val submission1 =
-            tsv {
-                line("Submission", accNo1)
-            }.toString()
-        webClient.submit(submission1, TSV)
+    fun `26-4 find stats by type`() =
+        runTest {
+            val accNo = "STATS-0002"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
 
-        val accNo2 = "STATS-0004"
-        val submission2 =
-            tsv {
-                line("Submission", accNo2)
-            }.toString()
-        webClient.submit(submission2, TSV)
+            webClient.submit(submission, TSV)
 
-        val vStat =
-            SubmissionStat(
-                accNo = accNo1,
-                value = 10L,
-                type = "VIEWS",
-            )
-        webClient.registerStat(vStat)
+            val vStat =
+                SubmissionStat(
+                    accNo = accNo,
+                    value = 10L,
+                    type = "VIEWS",
+                )
+            webClient.registerStat(vStat)
 
-        val dStat =
-            SubmissionStat(
-                accNo = accNo2,
-                value = 10L,
-                type = "VIEWS",
-            )
-        webClient.registerStat(dStat)
-
-        val stat = webClient.getStatsByTypeAndAccNo("VIEWS", accNo1)
-        assertThat(stat).isEqualTo(vStat)
-    }
+            val stats = webClient.getStatsByType("VIEWS")
+            assertThat(stats).contains(vStat)
+        }
 
     @Test
-    fun `26-6 register stats by file`() {
-        val accNo = "STATS-0005"
-        val submission1 =
-            tsv {
-                line("Submission", accNo)
-            }.toString()
-        webClient.submit(submission1, TSV)
+    fun `26-5 find stats by type and AccNo`() =
+        runTest {
+            val accNo1 = "STATS-0003"
+            val submission1 =
+                tsv {
+                    line("Submission", accNo1)
+                }.toString()
+            webClient.submit(submission1, TSV)
 
-        val statsFile =
-            kotlin.io.path
-                .createTempFile()
-                .toFile()
-        statsFile.writeText("STATS-0005\t150")
+            val accNo2 = "STATS-0004"
+            val submission2 =
+                tsv {
+                    line("Submission", accNo2)
+                }.toString()
+            webClient.submit(submission2, TSV)
 
-        webClient.registerStats("VIEWS", statsFile)
-        val stats = webClient.getStatsByTypeAndAccNo("VIEWS", accNo)
-        assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
-    }
+            val vStat =
+                SubmissionStat(
+                    accNo = accNo1,
+                    value = 10L,
+                    type = "VIEWS",
+                )
+            webClient.registerStat(vStat)
+
+            val dStat =
+                SubmissionStat(
+                    accNo = accNo2,
+                    value = 10L,
+                    type = "VIEWS",
+                )
+            webClient.registerStat(dStat)
+
+            val stat = webClient.getStatsByTypeAndAccNo("VIEWS", accNo1)
+            assertThat(stat).isEqualTo(vStat)
+        }
 
     @Test
-    fun `26-7 increment stats by file`() {
-        val accNo = "STATS-0006"
-        val submission1 =
-            tsv {
-                line("Submission", accNo)
-            }.toString()
-        webClient.submit(submission1, TSV)
+    fun `26-6 register stats by file`() =
+        runTest {
+            val accNo = "STATS-0005"
+            val submission1 =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
+            webClient.submit(submission1, TSV)
 
-        val dStat =
-            SubmissionStat(
-                accNo = accNo,
-                value = 10L,
-                type = "VIEWS",
-            )
-        webClient.registerStat(dStat)
+            val statsFile =
+                kotlin.io.path
+                    .createTempFile()
+                    .toFile()
+            statsFile.writeText("STATS-0005\t150")
 
-        val statsFile =
-            kotlin.io.path
-                .createTempFile()
-                .toFile()
-        statsFile.writeText("$accNo\t150")
+            webClient.registerStats("VIEWS", statsFile)
+            val stats = webClient.getStatsByTypeAndAccNo("VIEWS", accNo)
+            assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
+        }
 
-        webClient.incrementStats("VIEWS", statsFile)
-        val stats = webClient.getStatsByTypeAndAccNo("VIEWS", accNo)
-        assertThat(stats).isEqualTo(SubmissionStat(accNo, 160L, "VIEWS"))
-    }
+    @Test
+    fun `26-7 increment stats by file`() =
+        runTest {
+            val accNo = "STATS-0006"
+            val submission1 =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
+            webClient.submit(submission1, TSV)
+
+            val dStat =
+                SubmissionStat(
+                    accNo = accNo,
+                    value = 10L,
+                    type = "VIEWS",
+                )
+            webClient.registerStat(dStat)
+
+            val statsFile =
+                kotlin.io.path
+                    .createTempFile()
+                    .toFile()
+            statsFile.writeText("$accNo\t150")
+
+            webClient.incrementStats("VIEWS", statsFile)
+            val stats = webClient.getStatsByTypeAndAccNo("VIEWS", accNo)
+            assertThat(stats).isEqualTo(SubmissionStat(accNo, 160L, "VIEWS"))
+        }
 }

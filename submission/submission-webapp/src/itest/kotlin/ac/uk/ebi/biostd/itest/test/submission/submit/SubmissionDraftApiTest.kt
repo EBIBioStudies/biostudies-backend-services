@@ -44,22 +44,23 @@ class SubmissionDraftApiTest(
         }
 
     @Test
-    fun `12-1 get draft submission when draft does not exist but submission does`() {
-        val pageTab =
-            jsonObj {
-                "accno" to "ABC-123"
-                "type" to "Study"
-            }.toString()
+    fun `12-1 get draft submission when draft does not exist but submission does`() =
+        runTest {
+            val pageTab =
+                jsonObj {
+                    "accno" to "ABC-123"
+                    "type" to "Study"
+                }.toString()
 
-        webClient.submit(pageTab, JSON)
+            webClient.submit(pageTab, JSON)
 
-        val draftSubmission = webClient.getSubmissionDraft("ABC-123")
-        assertThat(draftSubmission.key).isEqualTo("ABC-123")
-        webClient.deleteSubmissionDraft(draftSubmission.key)
-    }
+            val draftSubmission = webClient.getSubmissionDraft("ABC-123")
+            assertThat(draftSubmission.key).isEqualTo("ABC-123")
+            webClient.deleteSubmissionDraft(draftSubmission.key)
+        }
 
     @Test
-    fun `12-2 create and get submission draft`() {
+    suspend fun `12-2 create and get submission draft`() {
         val pageTab =
             jsonObj {
                 "accno" to "ABC-124"
@@ -74,7 +75,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-3 create and update submission draft`() {
+    suspend fun `12-3 create and update submission draft`() {
         val updatedValue = "{ \"value\": 1 }"
         val pageTab =
             jsonObj {
@@ -91,18 +92,19 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-4 delete submission draft after submission`() {
-        val pageTab =
-            jsonObj {
-                "accno" to "ABC-126"
-                "title" to "From Draft"
-            }.toString()
-        val draft = webClient.createSubmissionDraft(pageTab)
+    fun `12-4 delete submission draft after submission`() =
+        runTest {
+            val pageTab =
+                jsonObj {
+                    "accno" to "ABC-126"
+                    "title" to "From Draft"
+                }.toString()
+            val draft = webClient.createSubmissionDraft(pageTab)
 
-        webClient.submitFromDraft(draft.key)
+            webClient.submitFromDraft(draft.key)
 
-        assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
-    }
+            assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
+        }
 
     @Test
     fun `12-5 get draft submission when neither draft nor submission exists`() {
@@ -181,7 +183,7 @@ class SubmissionDraftApiTest(
     @Test
     fun `12-8 update a submission already submitted draft`(
         @Autowired mapper: ObjectMapper,
-    ) {
+    ) = runTest {
         val accNo = "ABC-130"
         val newSubmission =
             webClient
