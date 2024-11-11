@@ -31,35 +31,27 @@ class StatsResource(
     @ResponseBody
     suspend fun findByAccNo(
         @PathVariable accNo: String,
-    ): List<SubmissionStat> {
-        return submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
-    }
+    ): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
 
     @GetMapping("/{type}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun findByType(
         @PathVariable type: String,
         @ModelAttribute filter: PageRequest,
-    ): Flow<SubmissionStat> {
-        return submissionStatsService.findByType(type, filter).map { it.toStatDto() }
-    }
+    ): Flow<SubmissionStat> = submissionStatsService.findByType(type, filter).map { it.toStatDto() }
 
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     suspend fun findByTypeAndAccNo(
         @PathVariable type: String,
         @PathVariable accNo: String,
-    ): SubmissionStat {
-        return submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
-    }
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
 
     @PostMapping
     @ResponseBody
     suspend fun register(
         @RequestBody stat: SubmissionStat,
-    ): SubmissionStat {
-        return submissionStatsService.register(stat.toStat()).toStatDto()
-    }
+    ): SubmissionStat = submissionStatsService.register(stat.toStat()).toStatDto()
 
     @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
@@ -81,11 +73,9 @@ class StatsResource(
         return submissionStatsService.increment(type, statFile).map { it.toStatDto() }
     }
 
-    @PostMapping("/submission/{accNo}/files-size")
+    @PostMapping("/submission/{accNo}")
     @ResponseBody
-    suspend fun calculateSubFilesSize(
+    suspend fun calculateSubStats(
         @PathVariable accNo: String,
-    ): SubmissionStat {
-        return submissionStatsService.calculateSubFilesSize(accNo).toStatDto()
-    }
+    ): List<SubmissionStat> = submissionStatsService.calculateStats(accNo).map { it.toStatDto() }
 }

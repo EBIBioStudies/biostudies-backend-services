@@ -122,6 +122,10 @@ class ExtSubmissionService(
             }
         }
     }
+
+    suspend fun refreshAllStats() {
+        submissionSubmitter.refreshAllStats()
+    }
 }
 
 class InvalidTransferTargetException : RuntimeException("The target and current storage mode must be different")
