@@ -65,10 +65,6 @@ class SubmissionService(
         subRepository.update(sub.copy(version = version, status = SUBMITTED))
     }
 
-    suspend fun saveCompletedSubmission(sub: SubmissionDocument) {
-        subRepository.update(sub.copy(status = SUBMITTED))
-    }
-
     fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDocument> =
         flow {
             while (true) {

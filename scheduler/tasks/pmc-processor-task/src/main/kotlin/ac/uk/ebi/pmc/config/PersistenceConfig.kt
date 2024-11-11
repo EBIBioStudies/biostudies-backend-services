@@ -22,9 +22,6 @@ import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguratio
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 
-const val CHANGE_LOG_COLLECTION = "pmc_mongockChangeLog"
-const val CHANGE_LOG_LOCK = "pmc_mongockLock"
-
 const val ERRORS_COL = "pmc_errors"
 const val SUBMISSION_COL = "pmc_submissions"
 const val SUB_FILES_COL = "pmc_submissions_files"

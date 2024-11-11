@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.shared
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
@@ -50,11 +49,6 @@ object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
-}
-
-object DocFileRefFields {
-    val DOC_FILE_REF_CLASS: String = DocFileRef::class.java.canonicalName
-    const val FILE_REF_DOC_FILE_ID = "fileId"
 }
 
 object FileListDocFileFields {
