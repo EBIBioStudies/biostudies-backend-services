@@ -68,7 +68,7 @@ class SubmissionProcessor(
             creationTime = creationTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
-            section = toExtSectionMapper.convert(submission.accNo, version, submission.section, sources),
+            section = toExtSectionMapper.convert(accNoString, version, submission.section, sources),
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
             storageMode = storageMode ?: if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS,
         )
