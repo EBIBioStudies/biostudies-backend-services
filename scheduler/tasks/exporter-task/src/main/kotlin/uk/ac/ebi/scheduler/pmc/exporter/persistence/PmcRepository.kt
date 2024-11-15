@@ -13,7 +13,7 @@ interface PmcRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query(
         value = "{ accNo: { \$regex: \"$PMC_COLLECTION.*\" }, version: { \$gte: 0 } }",
         fields = "{ accNo: 1, title: 1 }",
-        sort = "{ accNo: \"ASC\" }",
+        sort = "{ accNo: 1 }",
     )
     fun findAllPmc(): Flow<PmcData>
 }

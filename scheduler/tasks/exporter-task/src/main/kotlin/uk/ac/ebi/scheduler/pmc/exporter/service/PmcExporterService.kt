@@ -13,6 +13,7 @@ import uk.ac.ebi.scheduler.pmc.exporter.model.Link
 import uk.ac.ebi.scheduler.pmc.exporter.model.Links
 import uk.ac.ebi.scheduler.pmc.exporter.model.PmcData
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository
+import java.util.concurrent.atomic.AtomicInteger
 
 internal const val CHUNK_SIZE = 4000
 
@@ -27,14 +28,18 @@ class PmcExporterService(
     suspend fun exportPmcLinks() {
         logger.info { "Started exporting PMC links" }
         ftpClient.login()
+        val totalLinks = AtomicInteger(0)
 
         pmcRepository
             .findAllPmc()
             .chunked(CHUNK_SIZE)
-            .collectIndexed { index, value -> writeLinks(index + 1, value) }
+            .collectIndexed { index, linksChunk ->
+                totalLinks.addAndGet(linksChunk.size)
+                writeLinks(index + 1, linksChunk)
+            }
 
         ftpClient.logout()
-        logger.info { "Finished exporting PMC links" }
+        logger.info { "Finished exporting PMC links. Total links: ${totalLinks.get()}" }
     }
 
     private suspend fun writeLinks(
@@ -50,11 +55,10 @@ class PmcExporterService(
         part: Int,
         links: List<Link>,
     ) = withContext(Dispatchers.IO) {
-        logger.info { "Writing file part $part" }
-
         val xml = xmlWriter.writeValueAsString(Links(links)).byteInputStream()
         val path = "${appProperties.outputPath}/${String.format(appProperties.fileName, part)}"
 
+        logger.info { "Writing file part $part, path='$path'. ${links.size} Links." }
         ftpClient.storeFile(path, xml)
     }
 }
