@@ -63,7 +63,7 @@ class SubmissionDraftService(
         key: String,
         content: String,
     ): SubmissionDraft {
-        val updated = draftPersistenceService.updateSubmissionDraft(userEmail, key, content)
+        val updated = draftPersistenceService.updateSubmissionDraft(userEmail, key, content, Instant.now(clock))
         logger.info { "$key $userEmail Draft with key '$key' UPDATED for user '$userEmail'" }
 
         return updated
@@ -73,8 +73,9 @@ class SubmissionDraftService(
         userEmail: String,
         content: String,
     ): SubmissionDraft {
-        val draftKey = "TMP_${Instant.now(clock).toEpochMilli()}"
-        val draft = draftPersistenceService.createSubmissionDraft(userEmail, draftKey, content)
+        val creationTime = Instant.now(clock)
+        val draftKey = "TMP_$creationTime"
+        val draft = draftPersistenceService.createSubmissionDraft(userEmail, draftKey, content, creationTime)
         logger.info { "$draftKey $userEmail Draft with key '$draftKey' CREATED for user '$userEmail'" }
 
         return draft
@@ -115,6 +116,6 @@ class SubmissionDraftService(
         require(userPrivilegesService.canResubmit(userEmail, accNo)) { throw UserCanNotUpdateSubmit(accNo, userEmail) }
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val content = serializationService.serializeSubmission(submission, JsonPretty)
-        return draftPersistenceService.createSubmissionDraft(userEmail, accNo, content)
+        return draftPersistenceService.createSubmissionDraft(userEmail, accNo, content, Instant.now(clock))
     }
 }

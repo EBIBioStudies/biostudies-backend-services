@@ -3,7 +3,7 @@ schema:
   properties:
     key:
       type: string
-      example: "TMP_123456"
+      example: "TMP_2024-09-21T10:12:00.002Z"
     content:
       type: string
       example: "{ 'type': 'Submission', 'section': { 'type': 'Study' } }"

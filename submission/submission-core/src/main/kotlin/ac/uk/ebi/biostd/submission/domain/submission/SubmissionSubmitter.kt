@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -58,7 +59,7 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-        draftService.setAcceptedStatus(draftKey)
+        draftService.setAcceptedStatus(draftKey, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
     }
 
@@ -67,7 +68,7 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-        draftService.setProcessingStatus(owner, draftKey)
+        draftService.setProcessingStatus(owner, draftKey, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
     }
 
@@ -76,7 +77,7 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-        draftService.setActiveStatus(draftKey)
+        draftService.setActiveStatus(draftKey, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }
 }

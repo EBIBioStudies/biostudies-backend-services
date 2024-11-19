@@ -1,13 +1,10 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.DraftSubmissionOperations
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.delete
-import ebi.ac.uk.commons.http.ext.getForObject
-import ebi.ac.uk.commons.http.ext.put
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -25,22 +22,45 @@ class SubmissionDraftClient(
             .bodyToMono<WebSubmissionDraft>()
             .awaitSingle()
 
-    override fun getSubmissionDraft(accNo: String): WebSubmissionDraft = client.getForObject("$SUBMISSION_DRAFT_URL/$accNo")
+    override suspend fun getSubmissionDraft(accNo: String): WebSubmissionDraft =
+        client
+            .get()
+            .uri("$SUBMISSION_DRAFT_URL/$accNo")
+            .retrieve()
+            .bodyToMono<WebSubmissionDraft>()
+            .awaitSingle()
 
-    override fun getAllSubmissionDrafts(
+    override suspend fun getAllSubmissionDrafts(
         limit: Int,
         offset: Int,
-    ): List<WebSubmissionDraft> = client.getForObject<Array<WebSubmissionDraft>>(buildDraftsUrl(limit, offset)).toList()
+    ): List<WebSubmissionDraft> =
+        client
+            .get()
+            .uri(buildDraftsUrl(limit, offset))
+            .retrieve()
+            .bodyToMono<Array<WebSubmissionDraft>>()
+            .awaitSingle()
+            .toList()
 
-    override fun deleteSubmissionDraft(accNo: String) {
-        client.delete("$SUBMISSION_DRAFT_URL/$accNo")
+    override suspend fun deleteSubmissionDraft(accNo: String) {
+        client
+            .delete()
+            .uri("$SUBMISSION_DRAFT_URL/$accNo")
+            .retrieve()
+            .awaitBodilessEntity()
     }
 
-    override fun updateSubmissionDraft(
+    override suspend fun updateSubmissionDraft(
         accNo: String,
         content: String,
     ) {
-        client.put("$SUBMISSION_DRAFT_URL/$accNo", RequestParams(body = content))
+        client
+            .put()
+            .uri("$SUBMISSION_DRAFT_URL/$accNo")
+            .bodyValue(content)
+            .retrieve()
+            .bodyToMono<WebSubmissionDraft>()
+            .awaitSingle()
     }
 
     private fun buildDraftsUrl(

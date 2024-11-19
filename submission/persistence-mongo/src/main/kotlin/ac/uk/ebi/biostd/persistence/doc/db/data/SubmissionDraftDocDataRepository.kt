@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTENT
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.OWNER
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
+import java.time.Instant
 
 class SubmissionDraftDocDataRepository(
     private val submissionDraftRepository: SubmissionDraftRepository,
@@ -26,8 +28,9 @@ class SubmissionDraftDocDataRepository(
         owner: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ): DocSubmissionDraft {
-        val draft = DocSubmissionDraft(owner, key, content, ACTIVE)
+        val draft = DocSubmissionDraft(owner, key, content, ACTIVE, modificationTime)
         return mongoTemplate.replaceOrCreate(
             Query(where(OWNER).`is`(owner).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
             draft,
@@ -38,30 +41,41 @@ class SubmissionDraftDocDataRepository(
         owner: String,
         key: String,
         newStatus: DraftStatus,
+        modificationTime: Instant,
     ) {
         val query =
             Query(
                 where(OWNER).`is`(owner).andOperator(where(KEY).`is`(key), where(STATUS).ne(ACCEPTED)),
             )
-        mongoTemplate.updateFirst(query, update(STATUS, newStatus), DocSubmissionDraft::class.java).awaitSingle()
+        mongoTemplate.updateFirst(
+            query,
+            update(STATUS, newStatus).set(MODIFICATION_TIME, modificationTime),
+            DocSubmissionDraft::class.java,
+        ).awaitSingle()
     }
 
     suspend fun setStatus(
         key: String,
         status: DraftStatus,
+        modificationTime: Instant,
     ) {
         val query = Query(where(KEY).`is`(key).andOperator(where(STATUS).ne(ACCEPTED)))
-        mongoTemplate.updateMulti(query, update(STATUS, status), DocSubmissionDraft::class.java).awaitSingle()
+        mongoTemplate.updateMulti(
+            query,
+            update(STATUS, status).set(MODIFICATION_TIME, modificationTime),
+            DocSubmissionDraft::class.java,
+        ).awaitSingle()
     }
 
     suspend fun updateDraftContent(
         owner: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ) {
         mongoTemplate.updateFirst(
             Query(where(OWNER).`is`(owner).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
-            update(CONTENT, content),
+            update(CONTENT, content).set(MODIFICATION_TIME, modificationTime),
             DocSubmissionDraft::class.java,
         ).awaitSingle()
     }
@@ -70,8 +84,9 @@ class SubmissionDraftDocDataRepository(
         owner: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ): DocSubmissionDraft {
-        val draft = DocSubmissionDraft(owner, key, content, ACTIVE)
+        val draft = DocSubmissionDraft(owner, key, content, ACTIVE, modificationTime)
         return submissionDraftRepository.save(draft)
     }
 

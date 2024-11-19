@@ -177,16 +177,16 @@ interface StatsOperations {
 }
 
 interface DraftSubmissionOperations {
-    fun getAllSubmissionDrafts(
+    suspend fun getAllSubmissionDrafts(
         limit: Int = 15,
         offset: Int = 0,
     ): List<WebSubmissionDraft>
 
-    fun getSubmissionDraft(accNo: String): WebSubmissionDraft
+    suspend fun getSubmissionDraft(accNo: String): WebSubmissionDraft
 
-    fun deleteSubmissionDraft(accNo: String)
+    suspend fun deleteSubmissionDraft(accNo: String)
 
-    fun updateSubmissionDraft(
+    suspend fun updateSubmissionDraft(
         accNo: String,
         content: String,
     )

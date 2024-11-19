@@ -24,6 +24,7 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration.ofSeconds
+import java.time.Instant
 import kotlin.test.assertNotNull
 
 @ExtendWith(SpringExtension::class)
@@ -32,9 +33,16 @@ import kotlin.test.assertNotNull
 class SubmissionDraftDocDataRepositoryTest(
     @Autowired val testInstance: SubmissionDraftDocDataRepository,
 ) {
-    private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
-    private val testActiveDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
-    private val testProcessingDocDraft = DocSubmissionDraft(USER_ID1, DRAFT_KEY1, DRAFT_CONTENT1, PROCESSING)
+    private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE, MODIFICATION_TIME)
+    private val testActiveDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE, MODIFICATION_TIME)
+    private val testProcessingDocDraft =
+        DocSubmissionDraft(
+            USER_ID_1,
+            DRAFT_KEY_1,
+            DRAFT_CONTENT_1,
+            PROCESSING,
+            MODIFICATION_TIME_1,
+        )
 
     @BeforeEach
     fun beforeEach() =
@@ -60,7 +68,7 @@ class SubmissionDraftDocDataRepositoryTest(
     @Test
     fun saveSubmissionDraft(): Unit =
         runBlocking {
-            testInstance.saveDraft("user@test.org", "TMP_123", "{ type: 'submission' }")
+            testInstance.saveDraft("user@test.org", "TMP_123", "{ type: 'submission' }", MODIFICATION_TIME)
             val saved =
                 testInstance.findByOwnerAndKeyAndStatusIsNot(
                     "user@test.org",
@@ -76,8 +84,8 @@ class SubmissionDraftDocDataRepositoryTest(
     @Test
     fun updateSubmissionDraft(): Unit =
         runBlocking {
-            testInstance.saveDraft("user@test.org", "TMP_124", "{ type: 'submission' }")
-            testInstance.updateDraftContent("user@test.org", "TMP_124", "{ type: 'study' }")
+            testInstance.saveDraft("user@test.org", "TMP_124", "{ type: 'submission' }", MODIFICATION_TIME)
+            testInstance.updateDraftContent("user@test.org", "TMP_124", "{ type: 'study' }", MODIFICATION_TIME_1)
             val updated =
                 testInstance.findByOwnerAndKeyAndStatusIsNot(
                     "user@test.org",
@@ -111,7 +119,7 @@ class SubmissionDraftDocDataRepositoryTest(
             assertThat(activeDrafts).hasSize(1)
             assertThat(activeDrafts.first()).isEqualTo(testActiveDocDraft)
 
-            val processingDrafts = testInstance.findAllByOwnerAndStatus(USER_ID1, PROCESSING, PageRequest()).toList()
+            val processingDrafts = testInstance.findAllByOwnerAndStatus(USER_ID_1, PROCESSING, PageRequest()).toList()
             assertThat(processingDrafts).hasSize(1)
             assertThat(processingDrafts.first()).isEqualTo(testProcessingDocDraft)
 
@@ -125,7 +133,7 @@ class SubmissionDraftDocDataRepositoryTest(
     @Test
     fun createSubmissionDraft(): Unit =
         runBlocking {
-            val result = testInstance.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+            val result = testInstance.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
 
             assertThat(testInstance.getById(result.id)).isEqualTo(result)
             assertThat(result.status).isEqualTo(ACTIVE)
@@ -134,13 +142,13 @@ class SubmissionDraftDocDataRepositoryTest(
     @Test
     fun setProcessingStatus(): Unit =
         runBlocking {
-            testInstance.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+            testInstance.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
 
             val beforeChangeStatus = testInstance.findAll().toList()
             assertThat(beforeChangeStatus).hasSize(1)
             assertThat(beforeChangeStatus.first().status).isEqualTo(ACTIVE)
 
-            testInstance.setStatus(USER_ID, DRAFT_KEY, PROCESSING)
+            testInstance.setStatus(USER_ID, DRAFT_KEY, PROCESSING, MODIFICATION_TIME_1)
 
             val afterChangeStatus = testInstance.findAll().toList()
             assertThat(afterChangeStatus).hasSize(1)
@@ -163,9 +171,11 @@ class SubmissionDraftDocDataRepositoryTest(
         const val USER_ID = "jhon.doe@ebi.ac.uk"
         const val DRAFT_KEY = "key"
         const val DRAFT_CONTENT = "content"
+        private val MODIFICATION_TIME = Instant.ofEpochMilli(2)
 
-        const val USER_ID1 = "jhon.doe1@ebi.ac.uk"
-        const val DRAFT_KEY1 = "key1"
-        const val DRAFT_CONTENT1 = "content1"
+        const val USER_ID_1 = "jhon.doe1@ebi.ac.uk"
+        const val DRAFT_KEY_1 = "key1"
+        const val DRAFT_CONTENT_1 = "content1"
+        private val MODIFICATION_TIME_1 = Instant.ofEpochMilli(3)
     }
 }
