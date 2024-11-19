@@ -72,6 +72,7 @@ Contains test related to file list.
 | FileListSubmissionTest | 3-5     | Filelist Submission with files reusing previous version file list |
 | FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
 | FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
+| FileListSubmissionTest | 3-8     | Filelist Submission with empty accNo                              |
 | FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
 | FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
 | FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |
@@ -178,6 +179,7 @@ Contains test related to resubmission
 | SubmissionOnBehalfTest          | 14-2    | submission on behalf new user                                                    |                                                                                               |
 | SubmissionOnBehalfTest          | 14-3    | submission on behalf created user with files in his folder                       |                                                                                               |
 | SubmissionOnBehalfTest          | 14-4    | submission on behalf when owner and submitter has the same file                  |                                                                                               |
+| SubmissionOnBehalfTest          | 14- 5   | On behalf with manager with another user submission update user Owner            |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-2    | submission with tags                                                             |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-3    | new submission with empty accNo subsection table                                 |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-4    | new submission with empty-null attributes                                        |                                                                                               |

@@ -18,18 +18,12 @@ import javax.persistence.ManyToMany
 import javax.persistence.NamedAttributeNode
 import javax.persistence.NamedEntityGraph
 import javax.persistence.NamedEntityGraphs
-import javax.persistence.NamedSubgraph
 import javax.persistence.OneToMany
 import javax.persistence.Table
-import javax.xml.bind.annotation.XmlAccessType
-import javax.xml.bind.annotation.XmlAccessorType
-import javax.xml.bind.annotation.XmlElement
-import javax.xml.bind.annotation.XmlRootElement
 
 internal const val USER_DATA_GRAPH = "DbUser.fullData"
 
 typealias Node = NamedAttributeNode
-typealias Graph = NamedSubgraph
 
 @NamedEntityGraphs(
     value = [
@@ -86,26 +80,6 @@ class DbUser(
 
     @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
     val permissions: Set<DbAccessPermission> = emptySet()
-}
-
-@XmlRootElement(name = "aux")
-@XmlAccessorType(XmlAccessType.NONE)
-class AuxInfo {
-    @XmlElement(name = "param")
-    val parameters: MutableList<Parameter> = mutableListOf()
-
-    operator fun get(name: String): String {
-        return parameters.firstOrNull { it.name == name }?.value.orEmpty()
-    }
-}
-
-@XmlAccessorType(XmlAccessType.NONE)
-class Parameter {
-    @XmlElement(name = "name")
-    var name: String? = null
-
-    @XmlElement(name = "value")
-    var value: String? = null
 }
 
 fun DbUser.addGroup(userGroup: DbUserGroup): DbUser = also { groups.add(userGroup) }

@@ -1,12 +1,9 @@
 package ebi.ac.uk.io
 
-import mu.KotlinLogging
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
-
-private val logger = KotlinLogging.logger {}
 
 internal class HardLinkFileVisitor(
     private var sourcePath: Path,

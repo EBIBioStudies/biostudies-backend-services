@@ -10,7 +10,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
-import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTYFOUR_GB
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTY_FOUR_GB
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties as ExporterProps
@@ -75,7 +75,7 @@ class ExporterTrigger(
         val (mode, fileName, outputPath, debugPort, _) = config
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
         val cmd = exporterProperties.asCmd(appProperties.appsFolder, debugPort)
-        val jobTry = clusterClient.triggerJobAsync(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
+        val jobTry = clusterClient.triggerJobAsync(JobSpec(cores = EXPORTER_CORES, ram = TWENTY_FOUR_GB, command = cmd))
         return jobTry.fold({ it.apply { logger.info { "submitted job $it" } } }, { throw it })
     }
 

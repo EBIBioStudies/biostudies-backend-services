@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties
 data class TaskProperties(
-    val accNo: String,
-    val version: Int,
+    val accNo: String?,
+    val version: Int?,
     private val mode: String,
 ) {
     val taskMode: Mode
@@ -16,5 +16,4 @@ data class TaskProperties(
 
 enum class Mode {
     HANDLE_REQUEST,
-    CALC_STATS,
 }

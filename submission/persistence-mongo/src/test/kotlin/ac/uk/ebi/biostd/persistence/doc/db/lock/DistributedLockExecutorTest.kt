@@ -87,8 +87,6 @@ class DistributedLockExecutorTest(
         }
 
     companion object {
-        const val OWNER = "manuserager@ebi.ac.uk"
-
         @Container
         val mongoContainer: MongoDBContainer =
             MongoDBContainer(DockerImageName.parse(MONGO_VERSION))

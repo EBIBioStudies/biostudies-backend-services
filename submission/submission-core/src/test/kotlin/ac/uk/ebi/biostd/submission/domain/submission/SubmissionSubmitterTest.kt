@@ -14,6 +14,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Instant
 
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
@@ -43,6 +45,7 @@ class SubmissionSubmitterTest(
 
     @BeforeEach
     fun beforeEach() {
+        setUpTime()
         setUpRequest()
         setUpDraftService()
     }
@@ -60,17 +63,17 @@ class SubmissionSubmitterTest(
             testInstance.createRqt(request)
 
             val extRequest = extRequestSlot.captured
-            assertThat(extRequest.draftKey).isEqualTo("TMP_123")
+            assertThat(extRequest.draftKey).isEqualTo(DRAFT_KEY)
             assertThat(extRequest.submission).isEqualTo(sub)
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
                 collectionValidationService.executeCollectionValidators(sub)
-                draftService.setProcessingStatus(sub.owner, "TMP_123")
+                draftService.setProcessingStatus(sub.owner, DRAFT_KEY, MODIFICATION_TIME)
                 submitter.createRqt(extRequest)
-                draftService.setAcceptedStatus("TMP_123")
+                draftService.setAcceptedStatus(DRAFT_KEY, MODIFICATION_TIME)
             }
             coVerify(exactly = 0) {
-                draftService.setActiveStatus("TMP_123")
+                draftService.setActiveStatus(any(), any())
             }
         }
 
@@ -78,7 +81,6 @@ class SubmissionSubmitterTest(
     fun `create with failure on validation`() =
         runTest {
             val submission = basicExtSubmission
-            val extRequestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
@@ -86,18 +88,23 @@ class SubmissionSubmitterTest(
 
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
-                draftService.setProcessingStatus(submission.owner, "TMP_123")
-                draftService.setActiveStatus("TMP_123")
+                draftService.setActiveStatus(DRAFT_KEY, MODIFICATION_TIME)
+                draftService.setProcessingStatus(submission.owner, DRAFT_KEY, MODIFICATION_TIME)
             }
             coVerify(exactly = 0) {
-                collectionValidationService.executeCollectionValidators(submission)
-                submitter.createRqt(capture(extRequestSlot))
-                draftService.setAcceptedStatus("TMP_123")
+                submitter.createRqt(any())
+                draftService.setAcceptedStatus(any(), any())
+                collectionValidationService.executeCollectionValidators(any())
             }
         }
 
+    private fun setUpTime() {
+        mockkStatic(Instant::class)
+        coEvery { Instant.now() } returns MODIFICATION_TIME
+    }
+
     private fun setUpRequest() {
-        every { request.draftKey } returns "TMP_123"
+        every { request.draftKey } returns DRAFT_KEY
         every { request.owner } returns basicExtSubmission.owner
         every { request.accNo } returns basicExtSubmission.accNo
         every { request.previousVersion } returns null
@@ -106,10 +113,18 @@ class SubmissionSubmitterTest(
     }
 
     private fun setUpDraftService() {
-        coEvery { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
-        coEvery { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        coEvery { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
-        coEvery { draftService.setProcessingStatus(basicExtSubmission.owner, "TMP_123") } answers { nothing }
-        coEvery { draftService.deleteSubmissionDraft(basicExtSubmission.submitter, "S-TEST123") } answers { nothing }
+        coEvery { draftService.setAcceptedStatus(ACC_NO, MODIFICATION_TIME) } answers { nothing }
+        coEvery { draftService.setActiveStatus(DRAFT_KEY, MODIFICATION_TIME) } answers { nothing }
+        coEvery { draftService.setAcceptedStatus(DRAFT_KEY, MODIFICATION_TIME) } answers { nothing }
+        coEvery { draftService.deleteSubmissionDraft(basicExtSubmission.submitter, ACC_NO) } answers { nothing }
+        coEvery {
+            draftService.setProcessingStatus(basicExtSubmission.owner, DRAFT_KEY, MODIFICATION_TIME)
+        } answers { nothing }
+    }
+
+    companion object {
+        private const val ACC_NO = "S-TEST123"
+        private const val DRAFT_KEY = "TMP_1970-01-01T00:00:00.002Z"
+        private val MODIFICATION_TIME = Instant.ofEpochMilli(2)
     }
 }

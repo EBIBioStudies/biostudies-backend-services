@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitAttribute
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -208,17 +209,18 @@ class SubmissionToCollectionsTest(
         }
 
     @Test
-    fun `8-8 submit to collection with failling validator`() {
-        val submission =
-            tsv {
-                line("Submission", "S-FLC0")
-                line("AttachTo", "FailCollection")
-                line("Title", "A Fail Submission")
-            }.toString()
+    fun `8-8 submit to collection with failling validator`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-FLC0")
+                    line("AttachTo", "FailCollection")
+                    line("Title", "A Fail Submission")
+                }.toString()
 
-        val exception = assertFailsWith<WebClientException> { webClient.submit(submission, TSV) }
-        assertThat(exception.message!!.contains("Testing failure"))
-    }
+            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            assertThat(exception.message!!.contains("Testing failure"))
+        }
 
     @Test
     fun `8-9 admin user provides accNo`() =
@@ -257,7 +259,7 @@ class SubmissionToCollectionsTest(
             assertThat(exception.message!!.contains(errorMessage))
         }
 
-    private fun setUpCollections() {
+    private suspend fun setUpCollections() {
         val testProject =
             tsv {
                 line("Submission", "Test-Project")

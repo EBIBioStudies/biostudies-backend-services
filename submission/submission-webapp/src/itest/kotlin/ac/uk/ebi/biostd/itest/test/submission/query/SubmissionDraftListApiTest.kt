@@ -11,6 +11,7 @@ import ebi.ac.uk.model.WebSubmissionDraft
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -40,33 +41,36 @@ class SubmissionDraftListApiTest(
         }
 
     @Test
-    fun `23-1 get draft by key`() {
-        val draft = webClient.getSubmissionDraft(testDrafts.first().key)
-        assertDraft(testDrafts.first().key, "ABC-0", draft)
-    }
+    fun `23-1 get draft by key`() =
+        runTest {
+            val draft = webClient.getSubmissionDraft(testDrafts.first().key)
+            assertDraft(testDrafts.first().key, "ABC-0", draft)
+        }
 
     @Test
-    fun `23-2 get drafts without pagination`() {
-        val drafts = webClient.getAllSubmissionDrafts()
+    fun `23-2 get drafts without pagination`() =
+        runTest {
+            val drafts = webClient.getAllSubmissionDrafts()
 
-        assertThat(drafts).hasSize(3)
-        drafts.forEachIndexed { idx, draft -> assertDraft(drafts[idx].key, "ABC-$idx", draft) }
-    }
+            assertThat(drafts).hasSize(3)
+            drafts.forEachIndexed { idx, draft -> assertDraft(drafts[idx].key, "ABC-$idx", draft) }
+        }
 
     @Test
-    fun `23-3 get drafts with pagination`() {
-        val page1 = webClient.getAllSubmissionDrafts(offset = 0, limit = 2)
-        val page2 = webClient.getAllSubmissionDrafts(offset = 2, limit = 2)
+    fun `23-3 get drafts with pagination`() =
+        runTest {
+            val page1 = webClient.getAllSubmissionDrafts(offset = 0, limit = 2)
+            val page2 = webClient.getAllSubmissionDrafts(offset = 2, limit = 2)
 
-        assertThat(page1).hasSize(2)
-        assertDraft(testDrafts.first().key, "ABC-0", page1.first())
-        assertDraft(testDrafts.second().key, "ABC-1", page1.second())
+            assertThat(page1).hasSize(2)
+            assertDraft(testDrafts.first().key, "ABC-0", page1.first())
+            assertDraft(testDrafts.second().key, "ABC-1", page1.second())
 
-        assertThat(page2).hasSize(1)
-        assertDraft(testDrafts.third().key, "ABC-2", page2.first())
-    }
+            assertThat(page2).hasSize(1)
+            assertDraft(testDrafts.third().key, "ABC-2", page2.first())
+        }
 
-    private fun createDrafts(): List<WebSubmissionDraft> {
+    private suspend fun createDrafts(): List<WebSubmissionDraft> {
         val drafts = mutableListOf<WebSubmissionDraft>()
 
         for (idx in 0..2) {

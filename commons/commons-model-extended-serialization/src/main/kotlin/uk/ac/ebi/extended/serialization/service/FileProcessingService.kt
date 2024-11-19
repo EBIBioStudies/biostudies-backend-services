@@ -38,7 +38,6 @@ fun iterateSections(
 }
 
 typealias ProcessFunction = suspend (file: ExtFile) -> ExtFile
-typealias ProcessFunctionIndexed = (file: ExtFile, index: Int) -> ExtFile
 
 class FileProcessingService(
     private val serializationService: ExtSerializationService,

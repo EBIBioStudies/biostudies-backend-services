@@ -9,6 +9,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACT
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.ZoneOffset.UTC
 
 class SubmissionDraftMongoPersistenceService(
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
@@ -19,24 +21,31 @@ class SubmissionDraftMongoPersistenceService(
     ): SubmissionDraft? {
         return draftDocDataRepository
             .findByOwnerAndKeyAndStatusIsNot(userEmail, key, ACCEPTED)
-            ?.let { SubmissionDraft(it.key, it.content) }
+            ?.let { SubmissionDraft(it.key, it.content, it.modificationTime.atOffset(UTC)) }
     }
 
     override suspend fun updateSubmissionDraft(
         userEmail: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ): SubmissionDraft {
-        draftDocDataRepository.updateDraftContent(userEmail, key, content)
-        return SubmissionDraft(key, content)
+        draftDocDataRepository.updateDraftContent(userEmail, key, content, modificationTime)
+        return SubmissionDraft(key, content, modificationTime.atOffset(UTC))
     }
 
-    override suspend fun setAcceptedStatus(key: String) {
-        draftDocDataRepository.setStatus(key, ACCEPTED)
+    override suspend fun setAcceptedStatus(
+        key: String,
+        modificationTime: Instant,
+    ) {
+        draftDocDataRepository.setStatus(key, ACCEPTED, modificationTime)
     }
 
-    override suspend fun setActiveStatus(key: String) {
-        draftDocDataRepository.setStatus(key, ACTIVE)
+    override suspend fun setActiveStatus(
+        key: String,
+        modificationTime: Instant,
+    ) {
+        draftDocDataRepository.setStatus(key, ACTIVE, modificationTime)
     }
 
     override suspend fun deleteSubmissionDraft(
@@ -52,20 +61,22 @@ class SubmissionDraftMongoPersistenceService(
     ): Flow<SubmissionDraft> {
         return draftDocDataRepository
             .findAllByOwnerAndStatus(userEmail, ACTIVE, filter)
-            .map { SubmissionDraft(it.key, it.content) }
+            .map { SubmissionDraft(it.key, it.content, it.modificationTime.atOffset(UTC)) }
     }
 
     override suspend fun createSubmissionDraft(
         userEmail: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ): SubmissionDraft {
-        val draft = draftDocDataRepository.createDraft(userEmail, key, content)
-        return SubmissionDraft(draft.key, draft.content)
+        val draft = draftDocDataRepository.createDraft(userEmail, key, content, modificationTime)
+        return SubmissionDraft(draft.key, draft.content, modificationTime.atOffset(UTC))
     }
 
     override suspend fun setProcessingStatus(
         userEmail: String,
         key: String,
-    ) = draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
+        modificationTime: Instant,
+    ) = draftDocDataRepository.setStatus(userEmail, key, PROCESSING, modificationTime)
 }
