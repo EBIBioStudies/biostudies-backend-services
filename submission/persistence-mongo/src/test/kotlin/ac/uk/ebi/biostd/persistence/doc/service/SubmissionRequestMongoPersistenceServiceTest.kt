@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRep
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
-import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
@@ -111,9 +110,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 assertThat(operation).isOne()
                 val request = requestRepository.getByAccNoAndVersion(accNo, version)
                 assertThat(request.status).isEqualTo(PERSISTED)
-                assertThat(request.process.statusChanges).hasSize(1)
+                assertThat(request.statusChanges).hasSize(1)
 
-                val statusChange = request.process.statusChanges.first()
+                val statusChange = request.statusChanges.first()
                 assertThat(statusChange.processId).isEqualTo("processId")
                 assertThat(statusChange.startTime).isNotNull()
                 assertThat(statusChange.endTime).isNotNull()
@@ -146,9 +145,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 assertThat(throwException).isEqualTo(exception)
                 val request = requestRepository.getByAccNoAndVersion(accNo, version)
                 assertThat(request.status).isEqualTo(REQUESTED)
-                assertThat(request.process.statusChanges).hasSize(1)
+                assertThat(request.statusChanges).hasSize(1)
 
-                val statusChange = request.process.statusChanges.first()
+                val statusChange = request.statusChanges.first()
                 assertThat(statusChange.processId).isEqualTo("processId")
                 assertThat(statusChange.startTime).isNotNull()
                 assertThat(statusChange.endTime).isNotNull()
@@ -159,27 +158,23 @@ class SubmissionRequestMongoPersistenceServiceTest(
     @Test
     fun archiveRequest() =
         runTest {
-            val processingInfo =
-                DocRequestProcessing(
-                    draftKey = "temp-123",
-                    notifyTo = "user@test.org",
-                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-                    totalFiles = 5,
-                    fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
-                    currentIndex = 6,
-                    previousVersion = 1,
-                    statusChanges = emptyList(),
-                    silentMode = false,
-                    singleJobMode = false,
-                )
             val request =
                 DocSubmissionRequest(
                     id = ObjectId(),
                     accNo = "abc-123",
                     version = 2,
                     status = PROCESSED,
-                    process = processingInfo,
+                    draftKey = "temp-123",
+                    notifyTo = "user@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                    totalFiles = 5,
+                    fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
+                    currentIndex = 6,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    previousVersion = 1,
+                    statusChanges = emptyList(),
+                    silentMode = false,
+                    singleJobMode = false,
                 )
             val rqtF1 =
                 DocSubmissionRequestFile(
@@ -215,20 +210,17 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 accNo = accNo,
                 version = version,
                 status = status,
+                draftKey = null,
+                silentMode = false,
+                singleJobMode = false,
+                notifyTo = "user@test.org",
+                submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                totalFiles = 5,
+                fileChanges = DocFilesChanges(1, 0, 10, 3, 2),
+                currentIndex = 0,
                 modificationTime = modificationTime,
-                process =
-                    DocRequestProcessing(
-                        draftKey = null,
-                        silentMode = false,
-                        singleJobMode = false,
-                        notifyTo = "user@test.org",
-                        submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-                        totalFiles = 5,
-                        fileChanges = DocFilesChanges(1, 0, 10, 3, 2),
-                        currentIndex = 0,
-                        statusChanges = emptyList(),
-                        previousVersion = 1,
-                    ),
+                statusChanges = emptyList(),
+                previousVersion = 1,
             )
 
             requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
@@ -255,7 +247,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
 
             val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
             assertThat(request.modificationTime).isNotNull()
-            assertThat(request.process.currentIndex).isEqualTo(1)
+            assertThat(request.currentIndex).isEqualTo(1)
 
             val savedFile =
                 requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
@@ -269,20 +261,17 @@ class SubmissionRequestMongoPersistenceServiceTest(
             accNo = "S-BSST0",
             version = 1,
             status = CLEANED,
+            draftKey = null,
+            silentMode = false,
+            singleJobMode = false,
+            notifyTo = "user@test.org",
+            submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+            totalFiles = 5,
+            fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
+            currentIndex = 0,
             modificationTime = Instant.ofEpochMilli(1664981300),
-            process =
-                DocRequestProcessing(
-                    draftKey = null,
-                    silentMode = false,
-                    singleJobMode = false,
-                    notifyTo = "user@test.org",
-                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-                    totalFiles = 5,
-                    fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
-                    currentIndex = 0,
-                    statusChanges = emptyList(),
-                    previousVersion = 1,
-                ),
+            statusChanges = emptyList(),
+            previousVersion = 1,
         )
 
     companion object {

@@ -5,7 +5,6 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import java.time.OffsetDateTime
 
-// TODO why are the fields from the database not in the model?
 data class SubmissionRequestStatusChange(
     val status: String,
 )
@@ -51,9 +50,6 @@ data class SubmissionRequestProcessing(
 }
 
 data class SubmissionRequest(
-    // TODO drafts will be moved here in the next PR
-    // TODO the key will be TMP_readable_date_time
-    // TODO accNo / version will be generated on draft creation
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
     val process: SubmissionRequestProcessing,

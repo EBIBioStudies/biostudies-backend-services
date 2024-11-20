@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_ARCHIVE
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCHIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
-import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.mongodb.BasicDBObject
@@ -61,27 +60,23 @@ class SubmissionRequestDocDataRepositoryTest(
     @Test
     fun archiveRequest() =
         runTest {
-            val processingInfo =
-                DocRequestProcessing(
+            val request =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    status = RequestStatus.CLEANED,
                     draftKey = "temp-123",
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
                     fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
                     currentIndex = 6,
+                    modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                     previousVersion = 1,
                     statusChanges = emptyList(),
                     silentMode = false,
                     singleJobMode = false,
-                )
-            val request =
-                DocSubmissionRequest(
-                    id = ObjectId(),
-                    accNo = "abc-123",
-                    version = 2,
-                    process = processingInfo,
-                    status = RequestStatus.CLEANED,
-                    modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                 )
             val rqtF1 =
                 DocSubmissionRequestFile(
@@ -128,8 +123,12 @@ class SubmissionRequestDocDataRepositoryTest(
     @Test
     fun saveRequestWhenNew() =
         runTest {
-            val processingInfo =
-                DocRequestProcessing(
+            val request =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    status = RequestStatus.CLEANED,
                     draftKey = "temp-123",
                     silentMode = false,
                     notifyTo = "user@test.org",
@@ -137,66 +136,60 @@ class SubmissionRequestDocDataRepositoryTest(
                     totalFiles = 5,
                     fileChanges = DocFilesChanges(10, 3, 12, 8, 5),
                     currentIndex = 6,
+                    modificationTime = Instant.now(),
                     previousVersion = 1,
                     statusChanges = emptyList(),
                     singleJobMode = false,
                 )
-            val rqt =
-                DocSubmissionRequest(
-                    id = ObjectId(),
-                    accNo = "abc-123",
-                    version = 2,
-                    process = processingInfo,
-                    status = RequestStatus.CLEANED,
-                    modificationTime = Instant.now(),
-                )
 
-            val (_, created) = testInstance.saveRequest(rqt)
+            val (_, created) = testInstance.saveRequest(request)
 
             assertThat(created).isTrue()
-            val newRqt = testInstance.getById(rqt.id)
-            assertThat(newRqt.accNo).isEqualTo(rqt.accNo)
-            assertThat(newRqt.version).isEqualTo(rqt.version)
-            assertThat(newRqt.status).isEqualTo(rqt.status)
-            assertThat(newRqt.modificationTime).isCloseTo(rqt.modificationTime, within(100, ChronoUnit.MILLIS))
-            assertThat(newRqt.process.draftKey).isEqualTo(rqt.process.draftKey)
-            assertThat(newRqt.process.notifyTo).isEqualTo(rqt.process.notifyTo)
-            assertThat(newRqt.process.submission).isEqualTo(rqt.process.submission)
-            assertThat(newRqt.process.totalFiles).isEqualTo(rqt.process.totalFiles)
-            assertThat(newRqt.process.fileChanges.deprecatedFiles).isEqualTo(rqt.process.fileChanges.deprecatedFiles)
-            assertThat(newRqt.process.fileChanges.conflictingFiles).isEqualTo(rqt.process.fileChanges.conflictingFiles)
-            assertThat(newRqt.process.currentIndex).isEqualTo(rqt.process.currentIndex)
-            assertThat(newRqt.process.previousVersion).isEqualTo(rqt.process.previousVersion)
+            val newRequest = testInstance.getById(request.id)
+            assertThat(newRequest.accNo).isEqualTo(request.accNo)
+            assertThat(newRequest.version).isEqualTo(request.version)
+            assertThat(newRequest.status).isEqualTo(request.status)
+            assertThat(newRequest.draftKey).isEqualTo(request.draftKey)
+            assertThat(newRequest.notifyTo).isEqualTo(request.notifyTo)
+            assertThat(newRequest.submission).isEqualTo(request.submission)
+            assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
+            assertThat(newRequest.fileChanges.deprecatedFiles).isEqualTo(request.fileChanges.deprecatedFiles)
+            assertThat(newRequest.fileChanges.conflictingFiles).isEqualTo(request.fileChanges.conflictingFiles)
+            assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
+            assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
+            assertThat(newRequest.previousVersion).isEqualTo(request.previousVersion)
         }
 
     @Test
     fun saveRequestWhenExists() =
         runTest {
-            val processingInfo =
-                DocRequestProcessing(
-                    draftKey = "temp-123",
-                    silentMode = false,
-                    notifyTo = "user@test.org",
-                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-                    totalFiles = 5,
-                    fileChanges = DocFilesChanges(1, 3, 10, 7, 2),
-                    currentIndex = 6,
-                    statusChanges = emptyList(),
-                    previousVersion = 1,
-                    singleJobMode = false,
+            val (existing, _) =
+                testInstance.saveRequest(
+                    DocSubmissionRequest(
+                        id = ObjectId(),
+                        accNo = "abc-123",
+                        version = 2,
+                        status = RequestStatus.CLEANED,
+                        draftKey = "temp-123",
+                        silentMode = false,
+                        notifyTo = "user@test.org",
+                        submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                        totalFiles = 5,
+                        fileChanges = DocFilesChanges(1, 3, 10, 7, 2),
+                        currentIndex = 6,
+                        modificationTime = Instant.now(),
+                        statusChanges = emptyList(),
+                        previousVersion = 1,
+                        singleJobMode = false,
+                    ),
                 )
-            val rqt =
+
+            val newRequest =
                 DocSubmissionRequest(
                     id = ObjectId(),
                     accNo = "abc-123",
                     version = 2,
-                    process = processingInfo,
-                    status = RequestStatus.CLEANED,
-                    modificationTime = Instant.now(),
-                )
-            val (existing, _) = testInstance.saveRequest(rqt)
-            val newProcessingInfo =
-                DocRequestProcessing(
+                    status = REQUESTED,
                     draftKey = "temp-987-b",
                     silentMode = false,
                     notifyTo = "user-b@test.org",
@@ -204,18 +197,10 @@ class SubmissionRequestDocDataRepositoryTest(
                     totalFiles = 51,
                     fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
                     currentIndex = 61,
+                    modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
                     previousVersion = 1,
                     singleJobMode = true,
-                )
-            val newRequest =
-                DocSubmissionRequest(
-                    id = ObjectId(),
-                    accNo = "abc-123",
-                    version = 2,
-                    status = REQUESTED,
-                    process = newProcessingInfo,
-                    modificationTime = Instant.now().plusSeconds(10),
                 )
             val (_, created) = testInstance.saveRequest(newRequest)
 
@@ -228,11 +213,11 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(request.accNo).isEqualTo(existing.accNo)
             assertThat(request.version).isEqualTo(existing.version)
             assertThat(request.status).isEqualTo(existing.status)
-            assertThat(request.process.draftKey).isEqualTo(existing.process.draftKey)
-            assertThat(request.process.notifyTo).isEqualTo(existing.process.notifyTo)
-            assertThat(request.process.submission).isEqualTo(existing.process.submission)
-            assertThat(request.process.totalFiles).isEqualTo(existing.process.totalFiles)
-            assertThat(request.process.currentIndex).isEqualTo(existing.process.currentIndex)
+            assertThat(request.draftKey).isEqualTo(existing.draftKey)
+            assertThat(request.notifyTo).isEqualTo(existing.notifyTo)
+            assertThat(request.submission).isEqualTo(existing.submission)
+            assertThat(request.totalFiles).isEqualTo(existing.totalFiles)
+            assertThat(request.currentIndex).isEqualTo(existing.currentIndex)
             assertThat(request.modificationTime).isCloseTo(existing.modificationTime, within(100, ChronoUnit.MILLIS))
         }
 
@@ -240,8 +225,12 @@ class SubmissionRequestDocDataRepositoryTest(
     fun loadRequest() =
         runTest {
             val processId = "processId"
-            val processingInfo =
-                DocRequestProcessing(
+            val rqt =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    status = REQUESTED,
                     draftKey = "temp-987-b",
                     silentMode = false,
                     notifyTo = "user-b@test.org",
@@ -249,24 +238,16 @@ class SubmissionRequestDocDataRepositoryTest(
                     totalFiles = 51,
                     fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
                     currentIndex = 61,
+                    modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
                     singleJobMode = true,
                     previousVersion = 1,
-                )
-            val rqt =
-                DocSubmissionRequest(
-                    id = ObjectId(),
-                    accNo = "abc-123",
-                    version = 2,
-                    status = REQUESTED,
-                    process = processingInfo,
-                    modificationTime = Instant.now().plusSeconds(10),
                 )
             testInstance.saveRequest(rqt)
 
             val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, processId)
 
-            val statusChange = request.process.statusChanges.first { it.statusId.toString() == changeId }
+            val statusChange = request.statusChanges.filter { it.statusId.toString() == changeId }.first()
             assertThat(statusChange.status).isEqualTo(REQUESTED.action)
             assertThat(statusChange.startTime).isNotNull()
             assertThat(statusChange.endTime).isNull()
