@@ -4,8 +4,7 @@ import Dependencies.JacksonCore
 import Dependencies.JacksonDataBind
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
-import Dependencies.KMongoAsync
-import Dependencies.KMongoCoroutine
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.ClientBioWebClient
@@ -42,9 +41,8 @@ dependencies {
     api(project(SubmissionPersistenceMongo))
 
     implementation(CommonsNet)
-    implementation(KMongoCoroutine)
-    implementation(KMongoAsync)
     implementation(KotlinLogging)
+    implementation(KotlinCoroutines)
     implementation(KotlinStdLib)
     implementation(JacksonAnnotations)
     implementation(JacksonCore)

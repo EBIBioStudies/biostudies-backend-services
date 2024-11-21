@@ -26,7 +26,6 @@ import Versions.JSONOrgVersion
 import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
-import Versions.KMongoCoroutineVersion
 import Versions.KotlinCoroutinesVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
@@ -69,9 +68,7 @@ object Versions {
     const val KotlinVersion = "1.9.23"
     const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
-
     const val KotlinLoggingVersion = "3.0.5"
-    const val KMongoCoroutineVersion = "4.6.1"
 
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
@@ -160,8 +157,6 @@ object Dependencies {
 
     // Persistence
     const val MySql = "com.mysql:mysql-connector-j:$MySqlVersion"
-    const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
-    const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
 
     // Misc
     const val AwsS3K = "aws.sdk.kotlin:s3:$S3KVersion"
