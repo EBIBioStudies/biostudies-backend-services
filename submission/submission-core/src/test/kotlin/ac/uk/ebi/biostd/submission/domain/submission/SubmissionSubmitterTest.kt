@@ -64,6 +64,7 @@ class SubmissionSubmitterTest(
 
             val extRequest = extRequestSlot.captured
             assertThat(extRequest.draftKey).isEqualTo(DRAFT_KEY)
+            assertThat(extRequest.draftContent).isEqualTo(DRAFT_CONTENT)
             assertThat(extRequest.submission).isEqualTo(sub)
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
@@ -105,6 +106,7 @@ class SubmissionSubmitterTest(
 
     private fun setUpRequest() {
         every { request.draftKey } returns DRAFT_KEY
+        every { request.draftContent } returns DRAFT_CONTENT
         every { request.owner } returns basicExtSubmission.owner
         every { request.accNo } returns basicExtSubmission.accNo
         every { request.previousVersion } returns null
@@ -124,6 +126,7 @@ class SubmissionSubmitterTest(
 
     companion object {
         private const val ACC_NO = "S-TEST123"
+        private const val DRAFT_CONTENT = "submission-draft"
         private const val DRAFT_KEY = "TMP_1970-01-01T00:00:00.002Z"
         private val MODIFICATION_TIME = Instant.ofEpochMilli(2)
     }

@@ -88,7 +88,7 @@ class SubmissionDraftService(
         parameters: SubmitParameters,
     ) {
         val submission = getOrCreateSubmissionDraft(user.email, key).content
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key, submission)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
         submitWebHandler.submitAsync(request)
         logger.info { "$key ${user.email} Draft with key '$key' SUBMITTED" }
@@ -101,7 +101,7 @@ class SubmissionDraftService(
         parameters: SubmitParameters,
     ): Submission {
         val submission = getOrCreateSubmissionDraft(user.email, key).content
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key, submission)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
 
         logger.info { "$key ${user.email} Started SUBMITTED process draft with key '$key'" }

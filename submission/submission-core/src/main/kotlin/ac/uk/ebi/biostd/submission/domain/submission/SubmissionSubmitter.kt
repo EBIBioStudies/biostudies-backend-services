@@ -20,10 +20,11 @@ class SubmissionSubmitter(
     private val draftService: SubmissionDraftPersistenceService,
 ) {
     suspend fun createRqt(rqt: SubmitRequest): ExtSubmission {
-        val submission = processRequest(rqt)
-        val request = ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode, rqt.singleJobMode)
-        submissionSubmitter.createRqt(request)
-        return submission
+        val sub = processRequest(rqt)
+        val extRqt = ExtSubmitRequest(sub, rqt.owner, rqt.draftKey, rqt.draftContent, rqt.silentMode, rqt.singleJobMode)
+        submissionSubmitter.createRqt(extRqt)
+
+        return sub
     }
 
     suspend fun handleRequest(

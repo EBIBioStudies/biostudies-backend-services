@@ -67,6 +67,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     version = 2,
                     status = RequestStatus.CLEANED,
                     draftKey = "temp-123",
+                    draftContent = "draft-content",
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
@@ -130,6 +131,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     version = 2,
                     status = RequestStatus.CLEANED,
                     draftKey = "temp-123",
+                    draftContent = "draft-content",
                     silentMode = false,
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
@@ -150,6 +152,7 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRequest.version).isEqualTo(request.version)
             assertThat(newRequest.status).isEqualTo(request.status)
             assertThat(newRequest.draftKey).isEqualTo(request.draftKey)
+            assertThat(newRequest.draftContent).isEqualTo(request.draftContent)
             assertThat(newRequest.notifyTo).isEqualTo(request.notifyTo)
             assertThat(newRequest.submission).isEqualTo(request.submission)
             assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
@@ -171,6 +174,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         version = 2,
                         status = RequestStatus.CLEANED,
                         draftKey = "temp-123",
+                        draftContent = "draft-content",
                         silentMode = false,
                         notifyTo = "user@test.org",
                         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
@@ -191,6 +195,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     version = 2,
                     status = REQUESTED,
                     draftKey = "temp-987-b",
+                    draftContent = "draft-content",
                     silentMode = false,
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
@@ -214,6 +219,7 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(request.version).isEqualTo(existing.version)
             assertThat(request.status).isEqualTo(existing.status)
             assertThat(request.draftKey).isEqualTo(existing.draftKey)
+            assertThat(request.draftContent).isEqualTo(existing.draftContent)
             assertThat(request.notifyTo).isEqualTo(existing.notifyTo)
             assertThat(request.submission).isEqualTo(existing.submission)
             assertThat(request.totalFiles).isEqualTo(existing.totalFiles)
@@ -232,6 +238,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     version = 2,
                     status = REQUESTED,
                     draftKey = "temp-987-b",
+                    draftContent = "draft-content",
                     silentMode = false,
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),

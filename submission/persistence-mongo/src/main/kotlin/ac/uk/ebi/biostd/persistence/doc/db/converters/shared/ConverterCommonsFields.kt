@@ -144,6 +144,7 @@ object DocRequestFields {
     const val RQT_ACC_NO = "accNo"
     const val RQT_VERSION = "version"
     const val RQT_DRAFT_KEY = "draftKey"
+    const val RQT_DRAFT_CONTENT = "draftContent"
     const val RQT_NOTIFY_TO = "notifyTo"
     const val RQT_STATUS = "status"
     const val RQT_SUBMISSION = "submission"
