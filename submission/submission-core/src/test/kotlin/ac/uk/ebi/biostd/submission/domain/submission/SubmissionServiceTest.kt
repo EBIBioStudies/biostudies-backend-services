@@ -64,7 +64,7 @@ class SubmissionServiceTest(
             every { request.accNo } returns "S-TEST123"
             every { request.owner } returns "owner@mail.org"
             every { request.draftKey } returns "TMP_123456"
-            every { request.processAll } returns false
+            every { request.singleJobMode } returns false
             coEvery { submissionSubmitter.createRqt(request) } returns basicExtSubmission
             coEvery { submissionSubmitter.handleRequestAsync("S-TEST123", 1) } returns Unit
 

@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -23,6 +22,7 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -88,7 +88,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         draftKey = "draftKey",
                         silentMode = false,
-                        processAll = false,
+                        singleJobMode = false,
                     )
 
                 val (accNo, version) = testInstance.createRequest(rqt)
@@ -129,7 +129,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         draftKey = "draftKey",
                         silentMode = false,
-                        processAll = false,
+                        singleJobMode = false,
                     )
 
                 val (accNo, version) = testInstance.createRequest(rqt)
@@ -163,7 +163,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     id = ObjectId(),
                     accNo = "abc-123",
                     version = 2,
-                    status = RequestStatus.PROCESSED,
+                    status = PROCESSED,
                     draftKey = "temp-123",
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
@@ -183,7 +183,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     version = 2,
                     path = "file-path",
                     index = 1,
-                    status = RequestFileStatus.LOADED,
+                    status = LOADED,
                     previousSubFile = false,
                     file = BasicDBObject("property", "value"),
                 )

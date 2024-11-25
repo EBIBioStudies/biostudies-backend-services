@@ -64,7 +64,7 @@ class LocalExtSubmissionSubmitter(
                 notifyTo = rqt.notifyTo,
                 draftKey = rqt.draftKey,
                 silentMode = rqt.silentMode,
-                processAll = rqt.processAll,
+                singleJobMode = rqt.singleJobMode,
             )
         return requestService.createRequest(request)
     }
@@ -84,7 +84,7 @@ class LocalExtSubmissionSubmitter(
     ) {
         val rqt = requestService.getRequest(accNo, version)
         when {
-            rqt.processAll -> completeRqt(accNo, version, rqt.status)
+            rqt.process.singleJobMode -> completeRqt(accNo, version, rqt.status)
             else -> completeStage(accNo, version, rqt.status)
         }
     }
@@ -102,7 +102,7 @@ class LocalExtSubmissionSubmitter(
 
         suspend fun fromCheckReleased() {
             val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
-            if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+            if (rqt.process.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.process.notifyTo)
             fromSavedSubmission()
         }
 
@@ -237,7 +237,7 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
-        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+        if (rqt.process.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.process.notifyTo)
         eventsPublisherService.submissionPersisted(accNo, version)
     }
 
