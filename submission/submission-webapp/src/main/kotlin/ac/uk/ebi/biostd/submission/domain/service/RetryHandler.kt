@@ -24,7 +24,8 @@ class RetryHandler(
     fun onStart() =
         runBlocking {
             logger.info { "Re processing pending submission on application start" }
-            requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
+            requestService
+                .getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
                 .collect { (accNo, version) -> reTriggerSafely(accNo, version) }
         }
 
@@ -32,15 +33,16 @@ class RetryHandler(
     fun onSchedule() =
         runBlocking {
             logger.info { "Scheduled re processing of pending submission" }
-            requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
+            requestService
+                .getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
                 .collect { (accNo, version) -> reTriggerSafely(accNo, version) }
         }
 
-    private fun reTriggerSafely(
+    private suspend fun reTriggerSafely(
         accNo: String,
         version: Int,
     ) {
-        runCatching { runBlocking { extSubmissionService.reTriggerSubmission(accNo, version) } }
+        runCatching { extSubmissionService.reTriggerSubmissionAsync(accNo, version) }
             .onFailure { logger.error { "Failed to re triggering request accNo='$accNo', version='$version'" } }
             .onSuccess { logger.info { "Completed processing of request accNo='$accNo', version='$version'" } }
     }

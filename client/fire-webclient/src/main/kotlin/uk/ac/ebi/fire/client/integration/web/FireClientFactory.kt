@@ -3,6 +3,7 @@ package uk.ac.ebi.fire.client.integration.web
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
+import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
@@ -33,6 +34,7 @@ class FireClientFactory private constructor() {
         private fun createS3Client(s3Config: S3Config): S3Client {
             val credentials = StaticCredentialsProvider(Credentials(s3Config.accessKey, s3Config.secretKey))
             return S3Client {
+                httpClient = CrtHttpEngine()
                 region = s3Config.region
                 endpointUrl = Url.parse(s3Config.endpoint)
                 forcePathStyle = true
