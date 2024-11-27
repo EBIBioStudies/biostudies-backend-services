@@ -22,7 +22,6 @@ import Versions.CommonsLang3Version
 import Versions.CommonsNetVersion
 import Versions.CommonsPoolVersion
 import Versions.GuavaVersion
-import Versions.H2Version
 import Versions.HttpCrtVersion
 import Versions.JSONOrgVersion
 import Versions.JetBrainsAnnotationsVersion
