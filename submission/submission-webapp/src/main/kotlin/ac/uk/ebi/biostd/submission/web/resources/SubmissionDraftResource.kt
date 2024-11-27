@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import java.time.OffsetDateTime
 
 @RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
@@ -96,10 +97,11 @@ internal class SubmissionDraftResource(
 internal class ResponseSubmissionDraft(
     val key: String,
     @JsonRawValue val content: String,
+    val modificationTime: OffsetDateTime,
 )
 
 internal class ResponseSubmissionDraftContent(
     @JsonRawValue @JsonValue val value: String,
 )
 
-internal fun SubmissionDraft.asResponseDraft() = ResponseSubmissionDraft(key, content)
+internal fun SubmissionDraft.asResponseDraft() = ResponseSubmissionDraft(key, content, modificationTime)

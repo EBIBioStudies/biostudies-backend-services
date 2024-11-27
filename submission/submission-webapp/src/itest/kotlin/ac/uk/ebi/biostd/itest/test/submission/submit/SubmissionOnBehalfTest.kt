@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -15,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -52,14 +54,14 @@ class SubmissionOnBehalfTest(
     fun init() =
         runBlocking {
             securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureUserRegistration(RegularUser)
+            securityTestService.ensureSequence("S-BSST")
             webClient = getWebClient(serverPort, SuperUser)
         }
 
     @Test
     fun `14-1 submission on behalf another user`() =
         runTest {
-            securityTestService.ensureUserRegistration(RegularUser)
-
             val submission =
                 tsv {
                     line("Submission", "ON-BEHALF-001")
@@ -114,7 +116,6 @@ class SubmissionOnBehalfTest(
     @Test
     fun `14-3 submission on behalf created user with files in his folder`() =
         runTest {
-            securityTestService.ensureUserRegistration(RegularUser)
             val regularClient = getWebClient(serverPort, RegularUser)
 
             regularClient.uploadFile(tempFolder.createFile("ownerFile.txt"))
@@ -149,7 +150,6 @@ class SubmissionOnBehalfTest(
     @Test
     fun `14-4 submission on behalf when owner and submitter has the same file`() =
         runTest {
-            securityTestService.ensureUserRegistration(RegularUser)
             val regularClient = getWebClient(serverPort, RegularUser)
 
             regularClient.uploadFile(tempFolder.createDirectory("a").createNewFile("file.txt", "owner data"))
@@ -181,4 +181,48 @@ class SubmissionOnBehalfTest(
             assertThat(testFile).exists()
             assertThat(testFile).hasContent("submitter data")
         }
+
+    @Test
+    fun `14-5 On behalf with manager with another user submission update user Owner`() =
+        runTest {
+            securityTestService.ensureUserRegistration(AnohterUser)
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Submission Title")
+                }.toString()
+
+            val anotherUserClient = getWebClient(serverPort, AnohterUser)
+            val response = anotherUserClient.submit(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            val accNo = response.body.accNo
+            val onBehalfClient =
+                SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+            val submissionUpdated =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "Submission Title Updated")
+                }.toString()
+
+            val updated = onBehalfClient.submit(submissionUpdated, TSV)
+            assertThat(updated).isSuccessful()
+
+            val result = submissionRepository.getExtByAccNo(accNo)
+            assertThat(result.title).isEqualTo("Submission Title Updated")
+            assertThat(result.owner).isEqualTo(RegularUser.email)
+            assertThat(result.submitter).isEqualTo(SuperUser.email)
+        }
+
+    object AnohterUser : TestUser {
+        override val username = "Another User"
+        override val email = "another@ebi.ac.uk"
+        override val password = "678910"
+        override val superUser = false
+
+        override fun asRegisterRequest() = RegisterRequest(username, email, password, notificationsEnabled = true)
+    }
 }

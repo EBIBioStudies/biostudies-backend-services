@@ -7,14 +7,6 @@ import java.io.File
 
 sealed class SubFormat(private val description: String) {
     companion object {
-        fun valueOf(format: String): SubFormat {
-            return when (format) {
-                "TSV" -> TSV
-                "JSON" -> JSON
-                else -> throw InvalidExtensionException(format)
-            }
-        }
-
         fun fromFile(file: File): SubFormat {
             return when (file.extension) {
                 "tsv" -> TsvFormat.Tsv

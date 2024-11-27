@@ -104,7 +104,7 @@ class SubmissionAsyncTest(
             webClient.submit(submission, TSV)
 
             val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
-            val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email, processAll = false)
+            val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email, singleJobMode = false)
 
             extSubmissionSubmitter.createRqt(extSubmitRequest)
             val statusAfterCreation = requestRepository.getRequest("SimpleAsync2", 2)
@@ -114,7 +114,7 @@ class SubmissionAsyncTest(
             waitUntil(timeout = Duration.ofMinutes(1), checkInterval = ofMillis(100)) {
                 requestRepository.getRequest("SimpleAsync2", 2).status == PROCESSED
             }
-            val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).statusChanges
+            val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).process.statusChanges
             assertThat(requestStatus.map { it.status }).containsExactly(
                 REQUESTED.action,
                 INDEXED.action,

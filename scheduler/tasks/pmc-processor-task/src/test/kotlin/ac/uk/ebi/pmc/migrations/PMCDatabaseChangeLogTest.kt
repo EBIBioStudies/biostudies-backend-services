@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.index.Index
@@ -50,7 +49,6 @@ import java.time.Duration.ofSeconds
 @SpringBootTest(classes = [PropConfig::class, PersistenceConfig::class])
 @Testcontainers
 internal class PMCDatabaseChangeLogTest(
-    @Autowired private val springContext: ApplicationContext,
     @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach

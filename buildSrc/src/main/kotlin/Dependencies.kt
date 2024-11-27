@@ -9,7 +9,6 @@ import TestVersions.JunitEngineVersion
 import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
-import TestVersions.RabbitmqMockVersion
 import TestVersions.Slf4jVersion
 import TestVersions.TestContainerS3mockVersion
 import TestVersions.TestContainerVersion
@@ -29,12 +28,10 @@ import Versions.JSONOrgVersion
 import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
-import Versions.KMongoCoroutineVersion
 import Versions.KotlinCoroutinesVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
-import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpVersion
 import Versions.PoiVersion
@@ -61,7 +58,6 @@ object TestVersions {
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
     const val WiremockVersion = "2.27.2"
-    const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.16.2"
     const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.1"
@@ -73,10 +69,7 @@ object Versions {
     const val KotlinVersion = "1.9.23"
     const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
-
     const val KotlinLoggingVersion = "3.0.5"
-    const val KMongoCoroutineVersion = "4.6.1"
-    const val MongockVersion = "4.3.8"
 
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
@@ -89,7 +82,6 @@ object Versions {
     const val WoodstoxVersion = "5.1.0"
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
-    const val H2Version = "1.4.197"
     const val S3Version = "1.12.772"
     const val S3KVersion = "1.3.83"
     const val HttpCrtVersion = "1.3.26"
@@ -117,7 +109,6 @@ object TestDependencies {
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
-    const val rabitMqMock = "com.github.fridujo:rabbitmq-mock:$RabbitmqMockVersion"
 
     val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
     val BaseTestRuntimeDependencies = arrayOf(Junit5Console, KotlinCoroutinesTest)
@@ -131,7 +122,6 @@ object TestDependencies {
     const val KotlinXmlBuilder = "org.redundent:kotlin-xml-builder:$XmlBuilderVersion"
     const val Woodstox = "com.fasterxml.woodstox:woodstox-core:$WoodstoxVersion"
 
-    const val H2 = "com.h2database:h2:$H2Version"
     const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
     const val FtpServer = "org.apache.ftpserver:ftpserver:$FtpServerVersion"
     const val slf4jApi = "org.slf4j:slf4j-api:$Slf4jVersion"
@@ -168,11 +158,6 @@ object Dependencies {
 
     // Persistence
     const val MySql = "com.mysql:mysql-connector-j:$MySqlVersion"
-    const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
-    const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
-    const val MongockBom = "com.github.cloudyrock.mongock:mongock-bom:$MongockVersion"
-    const val MongockSpringV5 = "com.github.cloudyrock.mongock:mongock-spring-v5:$MongockVersion"
-    const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
 
     // Misc
     const val AwsS3K = "aws.sdk.kotlin:s3:$S3KVersion"

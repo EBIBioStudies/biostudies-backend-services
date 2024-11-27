@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -20,7 +21,6 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -138,24 +138,23 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { userWebClient.submit(submission, TSV) }
-                    .withMessage(
-                        """
-                        {
-                          "log": {
-                            "level": "ERROR",
-                            "message": "Submission validation errors",
-                            "subnodes": [{
-                              "level": "ERROR",
-                              "message": "Release date cannot be in the past",
-                              "subnodes": []
-                            }]
-                          },
-                          "status": "FAIL"
-                        }
-                        """.trimIndent(),
-                    )
+                val exception = assertThrows<WebClientException> { userWebClient.submit(submission, TSV) }
+                assertThat(exception).hasMessage(
+                    """
+                    {
+                      "log": {
+                        "level": "ERROR",
+                        "message": "Submission validation errors",
+                        "subnodes": [{
+                          "level": "ERROR",
+                          "message": "Release date cannot be in the past",
+                          "subnodes": []
+                        }]
+                      },
+                      "status": "FAIL"
+                    }
+                    """.trimIndent(),
+                )
             }
 
         @Test
@@ -186,40 +185,28 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { userWebClient.submit(v2, TSV) }
-                    .withMessage(
-                        """
-                        {
-                          "log": {
-                            "level": "ERROR",
-                            "message": "Submission validation errors",
-                            "subnodes": [{
-                              "level": "ERROR",
-                              "message": "The release date of a public study cannot be changed",
-                              "subnodes": []
-                            }]
-                          },
-                          "status": "FAIL"
-                        }
-                        """.trimIndent(),
-                    )
+                val exception = assertThrows<WebClientException> { userWebClient.submit(v2, TSV) }
+                assertThat(exception).hasMessage(
+                    """
+                    {
+                      "log": {
+                        "level": "ERROR",
+                        "message": "Submission validation errors",
+                        "subnodes": [{
+                          "level": "ERROR",
+                          "message": "The release date of a public study cannot be changed",
+                          "subnodes": []
+                        }]
+                      },
+                      "status": "FAIL"
+                    }
+                    """.trimIndent(),
+                )
             }
 
         @Test
         fun `28-5 Regular user re-submit a private submission with a new release date in the past`() =
             runTest {
-                fun submission(releaseDate: String): String =
-                    tsv {
-                        line("Submission")
-                        line("Title", "Sample Submission")
-                        line("ReleaseDate", releaseDate)
-                        line()
-
-                        line("Study")
-                        line()
-                    }.toString()
-
                 val v1 =
                     tsv {
                         line("Submission")
@@ -245,24 +232,23 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThatExceptionOfType(WebClientException::class.java)
-                    .isThrownBy { userWebClient.submit(v2, TSV) }
-                    .withMessage(
-                        """
-                        {
-                          "log": {
-                            "level": "ERROR",
-                            "message": "Submission validation errors",
-                            "subnodes": [{
-                              "level": "ERROR",
-                              "message": "The release date of a public study cannot be changed",
-                              "subnodes": []
-                            }]
-                          },
-                          "status": "FAIL"
-                        }
-                        """.trimIndent(),
-                    )
+                val exception = assertThrows<WebClientException> { userWebClient.submit(v2, TSV) }
+                assertThat(exception).hasMessage(
+                    """
+                    {
+                      "log": {
+                        "level": "ERROR",
+                        "message": "Submission validation errors",
+                        "subnodes": [{
+                          "level": "ERROR",
+                          "message": "The release date of a public study cannot be changed",
+                          "subnodes": []
+                        }]
+                      },
+                      "status": "FAIL"
+                    }
+                    """.trimIndent(),
+                )
             }
     }
 

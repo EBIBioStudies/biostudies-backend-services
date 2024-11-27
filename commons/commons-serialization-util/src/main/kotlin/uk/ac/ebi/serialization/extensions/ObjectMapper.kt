@@ -11,12 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.atomic.AtomicInteger
-
-private val logger = KotlinLogging.logger {}
 
 fun <T : Any> ObjectMapper.serializeList(
     files: Sequence<T>,

@@ -15,10 +15,6 @@ fun WebClient.post(
     post().retrieveBlocking<String>(url, params)
 }
 
-fun WebClient.delete(url: String) {
-    delete().uri(url).retrieveBlocking<String>()
-}
-
 inline fun <reified T> RequestHeadersSpec<*>.retrieveBlocking(): T? {
     return retrieve().bodyToMono(T::class.java).block()
 }

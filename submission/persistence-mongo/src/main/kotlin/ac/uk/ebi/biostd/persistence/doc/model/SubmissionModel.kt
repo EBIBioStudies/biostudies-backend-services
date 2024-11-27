@@ -108,10 +108,6 @@ data class DocFileList(
     val pageTabFiles: List<DocFile> = listOf(),
 )
 
-data class DocFileRef(
-    val fileId: ObjectId,
-)
-
 @Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id

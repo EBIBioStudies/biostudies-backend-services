@@ -48,14 +48,14 @@ internal class SubmissionServiceTest {
             val accepted = AcceptedSubmission("S-BSST1", 2)
 
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-            every {
+            coEvery {
                 bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
             } returns accepted
 
             testInstance.submit(subRequest)
 
             coVerify(exactly = 0) { bioWebClient.getSubmissionRequestStatus(any(), any()) }
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
                 bioWebClient.submitMultipartAsync(
                     subRequest.submissionFile,
@@ -71,7 +71,7 @@ internal class SubmissionServiceTest {
 
             coEvery { bioWebClient.getSubmissionRequestStatus("S-BSST1", 2) } returns PROCESSED
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-            every {
+            coEvery {
                 bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
             } returns accepted
 

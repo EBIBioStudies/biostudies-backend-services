@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.common.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
 
 interface SubmissionDraftPersistenceService {
     suspend fun findSubmissionDraft(
@@ -14,11 +15,24 @@ interface SubmissionDraftPersistenceService {
         userEmail: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ): SubmissionDraft
 
-    suspend fun setAcceptedStatus(key: String)
+    suspend fun setAcceptedStatus(
+        key: String,
+        modificationTime: Instant,
+    )
 
-    suspend fun setActiveStatus(key: String)
+    suspend fun setActiveStatus(
+        key: String,
+        modificationTime: Instant,
+    )
+
+    suspend fun setProcessingStatus(
+        userEmail: String,
+        key: String,
+        modificationTime: Instant,
+    )
 
     suspend fun deleteSubmissionDraft(
         userEmail: String,
@@ -34,10 +48,6 @@ interface SubmissionDraftPersistenceService {
         userEmail: String,
         key: String,
         content: String,
+        modificationTime: Instant,
     ): SubmissionDraft
-
-    suspend fun setProcessingStatus(
-        userEmail: String,
-        key: String,
-    )
 }

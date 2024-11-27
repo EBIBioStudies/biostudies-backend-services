@@ -2,9 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
@@ -34,12 +32,10 @@ class SubmissionServiceTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val submissionPersistenceService: SubmissionPersistenceService,
     @MockK private val fileStorageService: FileStorageService,
-    @MockK private val requestQueryService: SubmissionRequestPersistenceService,
 ) {
     private val testInstance =
         SubmissionService(
@@ -68,7 +64,7 @@ class SubmissionServiceTest(
             every { request.accNo } returns "S-TEST123"
             every { request.owner } returns "owner@mail.org"
             every { request.draftKey } returns "TMP_123456"
-            every { request.processAll } returns false
+            every { request.singleJobMode } returns false
             coEvery { submissionSubmitter.createRqt(request) } returns basicExtSubmission
             coEvery { submissionSubmitter.handleRequestAsync("S-TEST123", 1) } returns Unit
 

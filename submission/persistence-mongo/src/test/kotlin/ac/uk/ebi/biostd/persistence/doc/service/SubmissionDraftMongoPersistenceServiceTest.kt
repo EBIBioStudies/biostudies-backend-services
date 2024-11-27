@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Instant
 import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -27,7 +28,7 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
     @MockK private val draftDocDataRepository: SubmissionDraftDocDataRepository,
 ) {
     private val testInstance = SubmissionDraftMongoPersistenceService(draftDocDataRepository)
-    private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
+    private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE, MODIFICATION_TIME)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -67,13 +68,17 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
     @Test
     fun `update submission draft`() =
         runTest {
-            coEvery { draftDocDataRepository.updateDraftContent(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } answers { nothing }
+            coEvery {
+                draftDocDataRepository.updateDraftContent(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
+            } answers { nothing }
 
-            val result = testInstance.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+            val result = testInstance.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
 
             assertThat(result.key).isEqualTo(DRAFT_KEY)
             assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-            coVerify(exactly = 1) { draftDocDataRepository.updateDraftContent(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
+            coVerify(exactly = 1) {
+                draftDocDataRepository.updateDraftContent(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
+            }
         }
 
     @Test
@@ -110,39 +115,47 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
                     USER_ID,
                     DRAFT_KEY,
                     DRAFT_CONTENT,
+                    MODIFICATION_TIME,
                 )
             } returns testDocDraft
 
-            val result = testInstance.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+            val result = testInstance.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
 
             assertThat(result.key).isEqualTo(DRAFT_KEY)
             assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-            coVerify(exactly = 1) { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
+            coVerify(exactly = 1) {
+                draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, MODIFICATION_TIME)
+            }
         }
 
     @Test
     fun setActiveStatus() =
         runTest {
-            coEvery { draftDocDataRepository.setStatus(DRAFT_KEY, ACTIVE) } answers { nothing }
+            coEvery { draftDocDataRepository.setStatus(DRAFT_KEY, ACTIVE, MODIFICATION_TIME) } answers { nothing }
 
-            testInstance.setActiveStatus(DRAFT_KEY)
+            testInstance.setActiveStatus(DRAFT_KEY, MODIFICATION_TIME)
 
-            coVerify(exactly = 1) { draftDocDataRepository.setStatus(DRAFT_KEY, ACTIVE) }
+            coVerify(exactly = 1) { draftDocDataRepository.setStatus(DRAFT_KEY, ACTIVE, MODIFICATION_TIME) }
         }
 
     @Test
     fun setProcessingStatus() =
         runTest {
-            coEvery { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, PROCESSING) } answers { nothing }
+            coEvery {
+                draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, PROCESSING, MODIFICATION_TIME)
+            } answers { nothing }
 
-            testInstance.setProcessingStatus(USER_ID, DRAFT_KEY)
+            testInstance.setProcessingStatus(USER_ID, DRAFT_KEY, MODIFICATION_TIME)
 
-            coVerify(exactly = 1) { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, PROCESSING) }
+            coVerify(exactly = 1) {
+                draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, PROCESSING, MODIFICATION_TIME)
+            }
         }
 
     companion object {
         const val USER_ID = "jhon.doe@ebi.ac.uk"
         const val DRAFT_KEY = "key"
         const val DRAFT_CONTENT = "content"
+        private val MODIFICATION_TIME = Instant.ofEpochMilli(2)
     }
 }

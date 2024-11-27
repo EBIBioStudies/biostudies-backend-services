@@ -32,15 +32,6 @@ interface Fields {
     val value: String?
 }
 
-enum class OtherFields(override val value: String) : Fields {
-    TABLE("table"),
-    ;
-
-    override fun toString(): String {
-        return value
-    }
-}
-
 enum class SubFields(override val value: String) : Fields {
     SUBMISSION("submission"),
     TYPE("type"),
