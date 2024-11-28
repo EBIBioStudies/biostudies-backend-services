@@ -1,3 +1,4 @@
+import Dependencies.AwsS3
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
 import Dependencies.CommonsNet
@@ -140,6 +141,7 @@ dependencies {
     testImplementation(XmlUnitMatchers)
     testImplementation(SnakeYaml)
 
+    testImplementation(AwsS3)
     testImplementation(TestContainerRabbitMq)
     testImplementation(TestContainerMysql)
     testImplementation(testFixtures(project(FtpWebClient)))
