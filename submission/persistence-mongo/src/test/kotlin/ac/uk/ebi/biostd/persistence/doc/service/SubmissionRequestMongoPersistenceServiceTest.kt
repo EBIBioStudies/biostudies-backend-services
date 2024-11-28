@@ -84,9 +84,13 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val submission = fullExtSubmission
                 val rqt =
                     SubmissionRequest(
+                        key = "draftKey",
+                        accNo = "S-BSST1",
+                        version = 1,
+                        owner = "owner@mail.com",
+                        draft = "draftContent",
                         submission = submission,
                         notifyTo = "notifyTo",
-                        draftKey = "draftKey",
                         silentMode = false,
                         singleJobMode = false,
                     )
@@ -125,9 +129,13 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val submission = fullExtSubmission
                 val rqt =
                     SubmissionRequest(
+                        key = "draftKey",
+                        accNo = "S-BSST1",
+                        version = 1,
+                        owner = "owner@mail.com",
+                        draft = "draftContent",
                         submission = submission,
                         notifyTo = "notifyTo",
-                        draftKey = "draftKey",
                         silentMode = false,
                         singleJobMode = false,
                     )
@@ -165,6 +173,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     version = 2,
                     status = PROCESSED,
                     draftKey = "temp-123",
+                    draftContent = "draft-content",
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
@@ -211,6 +220,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 version = version,
                 status = status,
                 draftKey = null,
+                draftContent = null,
                 silentMode = false,
                 singleJobMode = false,
                 notifyTo = "user@test.org",
@@ -262,6 +272,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             version = 1,
             status = CLEANED,
             draftKey = null,
+            draftContent = null,
             silentMode = false,
             singleJobMode = false,
             notifyTo = "user@test.org",

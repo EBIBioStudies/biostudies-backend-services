@@ -41,9 +41,17 @@ val SubmitWebRequest.draftKey: String?
             is FileSubmitWebRequest -> null
         }
 
+val SubmitWebRequest.draftContent: String?
+    get() =
+        when (this) {
+            is ContentSubmitWebRequest -> draftContent
+            is FileSubmitWebRequest -> null
+        }
+
 class ContentSubmitWebRequest(
     val submission: String,
     val draftKey: String? = null,
+    val draftContent: String? = null,
     val format: SubFormat,
     submissionConfig: SubmissionConfig,
     filesConfig: SubmissionFilesConfig,

@@ -428,6 +428,7 @@ internal class SubmissionMongoQueryServiceTest(
             version = submission.version,
             status = status,
             draftKey = null,
+            draftContent = null,
             silentMode = false,
             singleJobMode = false,
             notifyTo = submission.owner,

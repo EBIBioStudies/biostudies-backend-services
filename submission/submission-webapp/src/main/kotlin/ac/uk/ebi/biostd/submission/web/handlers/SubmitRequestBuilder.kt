@@ -28,6 +28,7 @@ class SubmitRequestBuilder(
             submission = submission,
             format = format,
             draftKey = request.draftKey,
+            draftContent = request.draftContent,
             submissionConfig = submitConfig.first,
             filesConfig = submitConfig.second,
         )
@@ -66,5 +67,6 @@ data class SubmitBuilderRequest(
     val onBehalfRequest: OnBehalfParameters?,
     val submissionRequestParameters: SubmitParameters,
     val draftKey: String? = null,
+    val draftContent: String? = null,
     val files: List<File>? = null,
 )

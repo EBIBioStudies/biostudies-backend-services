@@ -15,6 +15,7 @@ data class SubmitRequest(
     val method: SubmissionMethod,
     val onBehalfUser: SecurityUser?,
     val draftKey: String?,
+    val draftContent: String?,
     val collection: BasicCollection?,
     val previousVersion: ExtSubmission?,
     val storageMode: StorageMode?,

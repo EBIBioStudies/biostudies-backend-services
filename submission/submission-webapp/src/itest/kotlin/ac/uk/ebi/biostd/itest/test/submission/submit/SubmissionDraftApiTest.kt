@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import kotlinx.coroutines.runBlocking
@@ -30,6 +31,7 @@ import uk.ac.ebi.serialization.extensions.getProperty
 @Transactional
 class SubmissionDraftApiTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val requestRepository: SubmissionRequestPersistenceService,
     @Autowired val draftPersistenceService: SubmissionDraftPersistenceService,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -155,9 +157,7 @@ class SubmissionDraftApiTest(
             assertThat(version1.attributes.first().name).isEqualTo("Source")
             assertThat(version1.attributes.first().value).isEqualTo("PageTab")
 
-            webClient.getSubmissionDraft("ABC-129")
-            webClient.updateSubmissionDraft(
-                "ABC-129",
+            val updatedDraft =
                 jsonObj {
                     "accno" to "ABC-129"
                     "type" to "Study"
@@ -171,8 +171,9 @@ class SubmissionDraftApiTest(
                                 "valueAttrs" to jsonArray()
                             },
                         )
-                }.toString(),
-            )
+                }.toString()
+            webClient.getSubmissionDraft("ABC-129")
+            webClient.updateSubmissionDraft("ABC-129", updatedDraft)
 
             webClient.submitFromDraft("ABC-129")
 
@@ -180,6 +181,10 @@ class SubmissionDraftApiTest(
             assertThat(version2.attributes.first().name).isEqualTo("Source")
             assertThat(version2.attributes.first().value).isEqualTo("Draft")
             assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-129")).isNull()
+
+            val request = requestRepository.getRequest("ABC-129", 2)
+            assertThat(request.key).isEqualTo("ABC-129")
+            assertThat(request.draft).isEqualTo(updatedDraft)
         }
 
     @Test

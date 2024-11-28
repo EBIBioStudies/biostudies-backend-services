@@ -19,6 +19,7 @@ data class DocSubmissionRequest(
     val accNo: String,
     val version: Int,
     val draftKey: String?,
+    val draftContent: String?,
     val notifyTo: String,
     val status: RequestStatus,
     val submission: DBObject,
@@ -37,6 +38,7 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_VERSION, version)
             .setOnInsert(DocRequestFields.RQT_DRAFT_KEY, draftKey)
+            .setOnInsert(DocRequestFields.RQT_DRAFT_CONTENT, draftContent)
             .setOnInsert(DocRequestFields.RQT_NOTIFY_TO, notifyTo)
             .setOnInsert(DocRequestFields.RQT_STATUS, status)
             .setOnInsert(DocRequestFields.RQT_SUBMISSION, submission)

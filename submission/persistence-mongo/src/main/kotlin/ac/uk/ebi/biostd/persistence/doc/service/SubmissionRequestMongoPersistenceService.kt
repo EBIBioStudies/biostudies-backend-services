@@ -164,7 +164,8 @@ class SubmissionRequestMongoPersistenceService(
             id = ObjectId(),
             accNo = rqt.process.submission.accNo,
             version = rqt.process.submission.version,
-            draftKey = rqt.process.draftKey,
+            draftKey = rqt.key,
+            draftContent = rqt.draft,
             notifyTo = rqt.process.notifyTo,
             status = rqt.status,
             submission = BasicDBObject.parse(content),
@@ -194,7 +195,6 @@ class SubmissionRequestMongoPersistenceService(
         val process =
             SubmissionRequestProcessing(
                 submission = stored,
-                draftKey = rqt.draftKey,
                 silentMode = rqt.silentMode,
                 singleJobMode = rqt.singleJobMode,
                 notifyTo = rqt.notifyTo,
@@ -206,6 +206,11 @@ class SubmissionRequestMongoPersistenceService(
             )
 
         return SubmissionRequest(
+            key = rqt.draftKey,
+            accNo = rqt.accNo,
+            version = rqt.version,
+            owner = stored.owner,
+            draft = rqt.draftContent,
             process = process,
             status = rqt.status,
             modificationTime = rqt.modificationTime.atOffset(UTC),
