@@ -32,4 +32,12 @@ class ExtendedSubmissionSubmitter(
             localExtSubmissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
+
+    override suspend fun refreshAllStats() {
+        if (submissionTaskProperties.enabled) {
+            remoteExtSubmissionSubmitter.refreshAllStats()
+        } else {
+            localExtSubmissionSubmitter.refreshAllStats()
+        }
+    }
 }

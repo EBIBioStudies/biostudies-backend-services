@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.Mode.CALCULATE_ALL_STATS
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
@@ -42,6 +43,7 @@ class Execute(
         runBlocking {
             when (properties.taskMode) {
                 HANDLE_REQUEST -> runProcess(requireNotNull(properties.accNo), requireNotNull(properties.version))
+                CALCULATE_ALL_STATS -> submissionSubmitter.refreshAllStats()
             }
             exitProcess(SpringApplication.exit(context))
         }

@@ -117,7 +117,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received calculate stats message for submission $accNo, version: $version" }
-            statsService.calculateSubFilesSize(rqt.accNo)
+            statsService.calculateStats(rqt.accNo)
         }
     }
 

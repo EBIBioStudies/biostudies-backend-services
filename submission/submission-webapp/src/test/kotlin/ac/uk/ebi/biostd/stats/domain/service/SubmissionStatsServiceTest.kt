@@ -152,7 +152,7 @@ class SubmissionStatsServiceTest(
         every { serializationService.filesFlow(submission) } returns flowOf(file1, file2)
         coEvery { queryService.getExtByAccNo("S-BIAD123", includeFileListFiles = true) } returns submission
 
-        val result = testInstance.calculateSubFilesSize("S-BIAD123")
+        val result = testInstance.calculateStats("S-BIAD123")
         val savedStat = savedStatSlot.captured
 
         assertThat(result).isEqualTo(stat)

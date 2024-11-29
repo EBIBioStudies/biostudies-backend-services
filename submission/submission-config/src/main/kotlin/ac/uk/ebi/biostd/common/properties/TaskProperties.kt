@@ -16,4 +16,5 @@ data class TaskProperties(
 
 enum class Mode {
     HANDLE_REQUEST,
+    CALCULATE_ALL_STATS,
 }

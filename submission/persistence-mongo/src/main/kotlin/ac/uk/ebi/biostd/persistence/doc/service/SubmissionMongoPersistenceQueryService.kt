@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
@@ -29,20 +30,14 @@ internal class SubmissionMongoPersistenceQueryService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionPersistenceQueryService {
-    override suspend fun existByAccNo(accNo: String): Boolean {
-        return submissionRepo.existsByAccNo(accNo)
-    }
+    override suspend fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
     override suspend fun existByAccNoAndVersion(
         accNo: String,
         version: Int,
-    ): Boolean {
-        return submissionRepo.existsByAccNoAndVersion(accNo, version)
-    }
+    ): Boolean = submissionRepo.existsByAccNoAndVersion(accNo, version)
 
-    override suspend fun existActiveByAccNo(accNo: String): Boolean {
-        return submissionRepo.existsByAccNoAndVersionGreaterThan(accNo, 0)
-    }
+    override suspend fun existActiveByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNoAndVersionGreaterThan(accNo, 0)
 
     override suspend fun findExtByAccNo(
         accNo: String,
@@ -67,6 +62,11 @@ internal class SubmissionMongoPersistenceQueryService(
         val submission = submissionRepo.getByAccNo(accNo)
         return toExtSubmissionMapper.toExtSubmission(submission, includeFileListFiles)
     }
+
+    override suspend fun findAllActive(includeFileListFiles: Boolean): Flow<ExtSubmission> =
+        submissionRepo
+            .findAllByVersionGreaterThan(0)
+            .map { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
 
     override suspend fun getExtByAccNoAndVersion(
         accNo: String,
