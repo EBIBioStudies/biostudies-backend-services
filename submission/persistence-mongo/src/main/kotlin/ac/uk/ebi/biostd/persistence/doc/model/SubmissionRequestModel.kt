@@ -16,40 +16,26 @@ import java.time.Instant
 data class DocSubmissionRequest(
     @Id
     val id: ObjectId,
+    val key: String?,
     val accNo: String,
     val version: Int,
-    val draftKey: String?,
-    val draftContent: String?,
-    val notifyTo: String,
+    val owner: String,
+    val draft: String?,
     val status: RequestStatus,
-    val submission: DBObject,
-    val totalFiles: Int,
-    val fileChanges: DocFilesChanges,
-    val currentIndex: Int,
-    val previousVersion: Int?,
     val modificationTime: Instant,
-    val silentMode: Boolean,
-    val singleJobMode: Boolean,
-    val statusChanges: List<DocRequestStatusChanges> = emptyList(),
+    val process: DocRequestProcessing,
 ) {
     fun asSetOnInsert(): Update =
         Update()
             .setOnInsert("_id", id)
+            .setOnInsert(DocRequestFields.RQT_KEY, key)
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_VERSION, version)
-            .setOnInsert(DocRequestFields.RQT_DRAFT_KEY, draftKey)
-            .setOnInsert(DocRequestFields.RQT_DRAFT_CONTENT, draftContent)
-            .setOnInsert(DocRequestFields.RQT_NOTIFY_TO, notifyTo)
+            .setOnInsert(DocRequestFields.RQT_OWNER, owner)
+            .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
             .setOnInsert(DocRequestFields.RQT_STATUS, status)
-            .setOnInsert(DocRequestFields.RQT_SUBMISSION, submission)
-            .setOnInsert(DocRequestFields.RQT_TOTAL_FILES, totalFiles)
-            .setOnInsert(DocRequestFields.RQT_FILE_CHANGES, fileChanges)
-            .setOnInsert(DocRequestFields.RQT_PREV_SUB_VERSION, previousVersion)
-            .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
-            .setOnInsert(DocRequestFields.RQT_SILENT_MODE, silentMode)
-            .setOnInsert(DocRequestFields.RQT_SINGLE_JOB_MODE, singleJobMode)
-            .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
+            .setOnInsert(DocRequestFields.RQT_PROCESS, process)
 }
 
 data class DocFilesChanges(
@@ -67,6 +53,18 @@ data class DocRequestStatusChanges(
     val startTime: Instant,
     val endTime: Instant?,
     val result: String?,
+)
+
+data class DocRequestProcessing(
+    val submission: DBObject,
+    val notifyTo: String,
+    val totalFiles: Int,
+    val fileChanges: DocFilesChanges,
+    val currentIndex: Int,
+    val silentMode: Boolean,
+    val singleJobMode: Boolean,
+    val previousVersion: Int?,
+    val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 )
 
 @Document(collection = SUB_RQT_FILES)

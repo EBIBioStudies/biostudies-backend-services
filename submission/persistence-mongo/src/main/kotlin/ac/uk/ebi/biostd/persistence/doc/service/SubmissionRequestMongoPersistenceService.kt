@@ -8,9 +8,12 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestProcessing
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
+import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult.ERROR
+import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult.SUCCESS
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
+import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -103,7 +106,7 @@ class SubmissionRequestMongoPersistenceService(
     ): SubmissionRequest {
         suspend fun loadRequest(): SubmissionRqt {
             val (changeId, docRequest) = requestRepository.getRequest(accNo, version, status, processId)
-            val stored = serializationService.deserialize(docRequest.submission.toString())
+            val stored = serializationService.deserialize(docRequest.process.submission.toString())
             val subRequest = asRequest(docRequest, stored)
 
             return changeId to subRequest
@@ -114,7 +117,7 @@ class SubmissionRequestMongoPersistenceService(
             changeId: String,
         ) {
             logger.info { "Successfully completed request accNo='$accNo', version='$version', $status" }
-            saveRequest(rqt, changeId, ProcessResult.SUCCESS)
+            saveRequest(rqt, changeId, SUCCESS)
         }
 
         suspend fun onError(
@@ -125,7 +128,7 @@ class SubmissionRequestMongoPersistenceService(
             logger.error(it) {
                 "Error on request accNo='$accNo', version='$version', changeId='$changeId', status='$status'"
             }
-            saveRequest(request, changeId, ProcessResult.ERROR)
+            saveRequest(request, changeId, ERROR)
         }
 
         val (changeId, request) = loadRequest()
@@ -159,22 +162,27 @@ class SubmissionRequestMongoPersistenceService(
                 conflictingFiles = rqt.process.fileChanges.conflictingFiles,
                 conflictingPageTab = rqt.process.fileChanges.conflictingPageTab,
             )
+        val process =
+            DocRequestProcessing(
+                submission = BasicDBObject.parse(content),
+                notifyTo = rqt.process.notifyTo,
+                totalFiles = rqt.process.totalFiles,
+                fileChanges = fileChanges,
+                currentIndex = rqt.process.currentIndex,
+                silentMode = rqt.process.silentMode,
+                singleJobMode = rqt.process.singleJobMode,
+                previousVersion = rqt.process.previousVersion,
+            )
 
         return DocSubmissionRequest(
             id = ObjectId(),
+            key = rqt.key,
             accNo = rqt.process.submission.accNo,
             version = rqt.process.submission.version,
-            draftKey = rqt.key,
-            draftContent = rqt.draft,
-            notifyTo = rqt.process.notifyTo,
+            owner = rqt.owner,
+            draft = rqt.draft,
             status = rqt.status,
-            submission = BasicDBObject.parse(content),
-            totalFiles = rqt.process.totalFiles,
-            fileChanges = fileChanges,
-            currentIndex = rqt.process.currentIndex,
-            previousVersion = rqt.process.previousVersion,
-            silentMode = rqt.process.silentMode,
-            singleJobMode = rqt.process.singleJobMode,
+            process = process,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -183,34 +191,34 @@ class SubmissionRequestMongoPersistenceService(
         rqt: DocSubmissionRequest,
         sub: ExtSubmission? = null,
     ): SubmissionRequest {
-        val stored = sub ?: serializationService.deserialize(rqt.submission.toString())
+        val stored = sub ?: serializationService.deserialize(rqt.process.submission.toString())
         val fileChanges =
             SubmissionRequestFileChanges(
-                reusedFiles = rqt.fileChanges.reusedFiles,
-                deprecatedFiles = rqt.fileChanges.deprecatedFiles,
-                deprecatedPageTab = rqt.fileChanges.deprecatedPageTab,
-                conflictingFiles = rqt.fileChanges.conflictingFiles,
-                conflictingPageTab = rqt.fileChanges.conflictingPageTab,
+                reusedFiles = rqt.process.fileChanges.reusedFiles,
+                deprecatedFiles = rqt.process.fileChanges.deprecatedFiles,
+                deprecatedPageTab = rqt.process.fileChanges.deprecatedPageTab,
+                conflictingFiles = rqt.process.fileChanges.conflictingFiles,
+                conflictingPageTab = rqt.process.fileChanges.conflictingPageTab,
             )
         val process =
             SubmissionRequestProcessing(
                 submission = stored,
-                silentMode = rqt.silentMode,
-                singleJobMode = rqt.singleJobMode,
-                notifyTo = rqt.notifyTo,
-                totalFiles = rqt.totalFiles,
+                silentMode = rqt.process.silentMode,
+                singleJobMode = rqt.process.singleJobMode,
+                notifyTo = rqt.process.notifyTo,
+                totalFiles = rqt.process.totalFiles,
                 fileChanges = fileChanges,
-                currentIndex = rqt.currentIndex,
-                previousVersion = rqt.previousVersion,
-                statusChanges = rqt.statusChanges.map { SubmissionRequestStatusChange(it.status) },
+                currentIndex = rqt.process.currentIndex,
+                previousVersion = rqt.process.previousVersion,
+                statusChanges = rqt.process.statusChanges.map { SubmissionRequestStatusChange(it.status) },
             )
 
         return SubmissionRequest(
-            key = rqt.draftKey,
+            key = rqt.key,
             accNo = rqt.accNo,
             version = rqt.version,
             owner = stored.owner,
-            draft = rqt.draftContent,
+            draft = rqt.draft,
             process = process,
             status = rqt.status,
             modificationTime = rqt.modificationTime.atOffset(UTC),
