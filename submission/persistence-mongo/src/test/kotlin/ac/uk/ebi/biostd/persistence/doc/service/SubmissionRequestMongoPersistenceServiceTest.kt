@@ -97,8 +97,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     )
 
                 val (accNo, version) = testInstance.createRequest(rqt)
-                assertThat(submission.accNo).isEqualTo(accNo)
-                assertThat(submission.version).isEqualTo(version)
+                assertThat(accNo).isEqualTo("S-BSST1")
+                assertThat(version).isEqualTo(1)
 
                 var operation = 0
 
@@ -115,9 +115,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 assertThat(operation).isOne()
                 val request = requestRepository.getByAccNoAndVersion(accNo, version)
                 assertThat(request.status).isEqualTo(PERSISTED)
-                assertThat(request.process.statusChanges).hasSize(1)
+                assertThat(request.process!!.statusChanges).hasSize(1)
 
-                val statusChange = request.process.statusChanges.first()
+                val statusChange = request.process!!.statusChanges.first()
                 assertThat(statusChange.processId).isEqualTo("processId")
                 assertThat(statusChange.startTime).isNotNull()
                 assertThat(statusChange.endTime).isNotNull()
@@ -142,8 +142,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     )
 
                 val (accNo, version) = testInstance.createRequest(rqt)
-                assertThat(submission.accNo).isEqualTo(accNo)
-                assertThat(submission.version).isEqualTo(version)
+                assertThat(accNo).isEqualTo("S-BSST1")
+                assertThat(version).isEqualTo(1)
 
                 val exception = IllegalStateException("opps something wrong")
                 val throwException =
@@ -154,9 +154,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 assertThat(throwException).isEqualTo(exception)
                 val request = requestRepository.getByAccNoAndVersion(accNo, version)
                 assertThat(request.status).isEqualTo(REQUESTED)
-                assertThat(request.process.statusChanges).hasSize(1)
+                assertThat(request.process!!.statusChanges).hasSize(1)
 
-                val statusChange = request.process.statusChanges.first()
+                val statusChange = request.process!!.statusChanges.first()
                 assertThat(statusChange.processId).isEqualTo("processId")
                 assertThat(statusChange.startTime).isNotNull()
                 assertThat(statusChange.endTime).isNotNull()
@@ -266,7 +266,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
 
             val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
             assertThat(request.modificationTime).isNotNull()
-            assertThat(request.process.currentIndex).isEqualTo(1)
+            assertThat(request.process!!.currentIndex).isEqualTo(1)
 
             val savedFile =
                 requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)

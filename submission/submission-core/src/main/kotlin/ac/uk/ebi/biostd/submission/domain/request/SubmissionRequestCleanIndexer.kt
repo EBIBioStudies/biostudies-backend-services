@@ -43,7 +43,7 @@ class SubmissionRequestCleanIndexer(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            val indexedRequest = indexRequest(it.process.submission)
+            val indexedRequest = indexRequest(it.process!!.submission)
             it.cleanIndexed(
                 previousVersion = indexedRequest.first,
                 fileChanges = indexedRequest.second,

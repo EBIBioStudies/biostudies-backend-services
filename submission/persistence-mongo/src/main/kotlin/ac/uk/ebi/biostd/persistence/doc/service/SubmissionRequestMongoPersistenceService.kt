@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionRequestDraftNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
@@ -18,8 +19,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.Companion.DRAFT_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
+import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -42,6 +45,45 @@ class SubmissionRequestMongoPersistenceService(
     private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
+    override suspend fun findRequestDrafts(owner: String): Flow<SubmissionRequest> {
+        return requestRepository.findByOwnerAndStatusIn(owner, DRAFT_STATUS).map { asRequest(it) }
+    }
+
+    override suspend fun findRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest? {
+        return requestRepository.findByKeyAndOwnerAndStatusIn(key, owner, DRAFT_STATUS)?.let { asRequest(it) }
+    }
+
+    override suspend fun getActiveRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest {
+        val requestDraft =
+            requestRepository
+                .findByKeyAndOwnerAndStatusIn(key, owner, setOf(DRAFT))
+                ?: throw SubmissionRequestDraftNotFoundException(key, owner, DRAFT)
+
+        return asRequest(requestDraft)
+    }
+
+    override suspend fun deleteRequestDraft(
+        key: String,
+        owner: String,
+    ) {
+        requestRepository.deleteByKeyAndOwnerAndStatusIn(key, owner, DRAFT_STATUS)
+    }
+
+    override suspend fun updateRequestDraft(
+        key: String,
+        owner: String,
+        draft: String,
+        modificationTime: Instant,
+    ) {
+        requestRepository.updateRqtDraft(key, owner, draft, modificationTime)
+    }
+
     override suspend fun findAllProcessed(): Flow<Pair<String, Int>> =
         requestRepository
             .findByStatusIn(PROCESSED_STATUS)
@@ -106,7 +148,7 @@ class SubmissionRequestMongoPersistenceService(
     ): SubmissionRequest {
         suspend fun loadRequest(): SubmissionRqt {
             val (changeId, docRequest) = requestRepository.getRequest(accNo, version, status, processId)
-            val stored = serializationService.deserialize(docRequest.process.submission.toString())
+            val stored = serializationService.deserialize(docRequest.process?.submission.toString())
             val subRequest = asRequest(docRequest, stored)
 
             return changeId to subRequest
@@ -149,40 +191,42 @@ class SubmissionRequestMongoPersistenceService(
         result: ProcessResult,
     ): Pair<String, Int> {
         requestRepository.updateSubmissionRequest(asDocRequest(rqt), changeId, Instant.now(), result)
-        return rqt.process.submission.accNo to rqt.process.submission.version
+        return rqt.accNo to rqt.version
     }
 
     private fun asDocRequest(rqt: SubmissionRequest): DocSubmissionRequest {
-        val content = serializationService.serialize(rqt.process.submission, Properties(includeFileListFiles = true))
-        val fileChanges =
-            DocFilesChanges(
-                reusedFiles = rqt.process.fileChanges.reusedFiles,
-                deprecatedFiles = rqt.process.fileChanges.deprecatedFiles,
-                deprecatedPageTab = rqt.process.fileChanges.deprecatedPageTab,
-                conflictingFiles = rqt.process.fileChanges.conflictingFiles,
-                conflictingPageTab = rqt.process.fileChanges.conflictingPageTab,
-            )
-        val process =
-            DocRequestProcessing(
+        fun requestProcessing(process: SubmissionRequestProcessing): DocRequestProcessing {
+            val content = serializationService.serialize(process.submission, Properties(includeFileListFiles = true))
+            val fileChanges =
+                DocFilesChanges(
+                    reusedFiles = process.fileChanges.reusedFiles,
+                    deprecatedFiles = process.fileChanges.deprecatedFiles,
+                    deprecatedPageTab = process.fileChanges.deprecatedPageTab,
+                    conflictingFiles = process.fileChanges.conflictingFiles,
+                    conflictingPageTab = process.fileChanges.conflictingPageTab,
+                )
+
+            return DocRequestProcessing(
                 submission = BasicDBObject.parse(content),
-                notifyTo = rqt.process.notifyTo,
-                totalFiles = rqt.process.totalFiles,
+                notifyTo = process.notifyTo,
+                totalFiles = process.totalFiles,
                 fileChanges = fileChanges,
-                currentIndex = rqt.process.currentIndex,
-                silentMode = rqt.process.silentMode,
-                singleJobMode = rqt.process.singleJobMode,
-                previousVersion = rqt.process.previousVersion,
+                currentIndex = process.currentIndex,
+                silentMode = process.silentMode,
+                singleJobMode = process.singleJobMode,
+                previousVersion = process.previousVersion,
             )
+        }
 
         return DocSubmissionRequest(
             id = ObjectId(),
             key = rqt.key,
-            accNo = rqt.process.submission.accNo,
-            version = rqt.process.submission.version,
+            accNo = rqt.accNo,
+            version = rqt.version,
             owner = rqt.owner,
             draft = rqt.draft,
             status = rqt.status,
-            process = process,
+            process = rqt.process?.let { requestProcessing(it) },
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -191,35 +235,37 @@ class SubmissionRequestMongoPersistenceService(
         rqt: DocSubmissionRequest,
         sub: ExtSubmission? = null,
     ): SubmissionRequest {
-        val stored = sub ?: serializationService.deserialize(rqt.process.submission.toString())
-        val fileChanges =
-            SubmissionRequestFileChanges(
-                reusedFiles = rqt.process.fileChanges.reusedFiles,
-                deprecatedFiles = rqt.process.fileChanges.deprecatedFiles,
-                deprecatedPageTab = rqt.process.fileChanges.deprecatedPageTab,
-                conflictingFiles = rqt.process.fileChanges.conflictingFiles,
-                conflictingPageTab = rqt.process.fileChanges.conflictingPageTab,
-            )
-        val process =
-            SubmissionRequestProcessing(
+        fun requestProcessing(process: DocRequestProcessing): SubmissionRequestProcessing {
+            val stored = sub ?: serializationService.deserialize(process.submission.toString())
+            val fileChanges =
+                SubmissionRequestFileChanges(
+                    reusedFiles = process.fileChanges.reusedFiles,
+                    deprecatedFiles = process.fileChanges.deprecatedFiles,
+                    deprecatedPageTab = process.fileChanges.deprecatedPageTab,
+                    conflictingFiles = process.fileChanges.conflictingFiles,
+                    conflictingPageTab = process.fileChanges.conflictingPageTab,
+                )
+
+            return SubmissionRequestProcessing(
                 submission = stored,
-                silentMode = rqt.process.silentMode,
-                singleJobMode = rqt.process.singleJobMode,
-                notifyTo = rqt.process.notifyTo,
-                totalFiles = rqt.process.totalFiles,
+                silentMode = process.silentMode,
+                singleJobMode = process.singleJobMode,
+                notifyTo = process.notifyTo,
+                totalFiles = process.totalFiles,
                 fileChanges = fileChanges,
-                currentIndex = rqt.process.currentIndex,
-                previousVersion = rqt.process.previousVersion,
-                statusChanges = rqt.process.statusChanges.map { SubmissionRequestStatusChange(it.status) },
+                currentIndex = process.currentIndex,
+                previousVersion = process.previousVersion,
+                statusChanges = process.statusChanges.map { SubmissionRequestStatusChange(it.status) },
             )
+        }
 
         return SubmissionRequest(
             key = rqt.key,
             accNo = rqt.accNo,
             version = rqt.version,
-            owner = stored.owner,
+            owner = rqt.owner,
             draft = rqt.draft,
-            process = process,
+            process = rqt.process?.let { requestProcessing(it) },
             status = rqt.status,
             modificationTime = rqt.modificationTime.atOffset(UTC),
         )

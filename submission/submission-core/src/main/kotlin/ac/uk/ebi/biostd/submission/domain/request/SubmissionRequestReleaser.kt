@@ -46,7 +46,7 @@ class SubmissionRequestReleaser(
         processId: String,
     ): SubmissionRequest =
         rqtService.onRequest(accNo, version, FILES_COPIED, processId) {
-            if (it.process.submission.released) {
+            if (it.process!!.submission.released) {
                 releaseRequest(accNo, it)
             } else {
                 val current = queryService.findCoreInfo(accNo)
@@ -68,7 +68,7 @@ class SubmissionRequestReleaser(
         accNo: String,
         request: SubmissionRequest,
     ) {
-        val sub = request.process.submission
+        val sub = request.process!!.submission
         logger.info { "$accNo ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         releaseSubmissionFiles(sub)
         logger.info { "$accNo ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
@@ -112,7 +112,7 @@ class SubmissionRequestReleaser(
         accNo: String,
         request: SubmissionRequest,
     ) {
-        val sub = request.process.submission
+        val sub = request.process!!.submission
         logger.info { "$accNo ${sub.owner} Started suppressing submission files over ${sub.storageMode}" }
         unReleaseSubmissionFiles(sub)
         logger.info { "$accNo ${sub.owner} Finished suppressing submission files over ${sub.storageMode}" }

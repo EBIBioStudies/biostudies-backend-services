@@ -162,13 +162,16 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRqt.status).isEqualTo(rqt.status)
             assertThat(newRqt.key).isEqualTo(rqt.key)
             assertThat(newRqt.draft).isEqualTo(rqt.draft)
-            assertThat(newRqt.process.notifyTo).isEqualTo(rqt.process.notifyTo)
-            assertThat(newRqt.process.submission).isEqualTo(rqt.process.submission)
-            assertThat(newRqt.process.totalFiles).isEqualTo(rqt.process.totalFiles)
-            assertThat(newRqt.process.fileChanges.deprecatedFiles).isEqualTo(rqt.process.fileChanges.deprecatedFiles)
-            assertThat(newRqt.process.fileChanges.conflictingFiles).isEqualTo(rqt.process.fileChanges.conflictingFiles)
-            assertThat(newRqt.process.currentIndex).isEqualTo(rqt.process.currentIndex)
-            assertThat(newRqt.process.previousVersion).isEqualTo(rqt.process.previousVersion)
+
+            val process = rqt.process!!
+            val newProcess = newRqt.process!!
+            assertThat(newProcess.notifyTo).isEqualTo(process.notifyTo)
+            assertThat(newProcess.submission).isEqualTo(process.submission)
+            assertThat(newProcess.totalFiles).isEqualTo(process.totalFiles)
+            assertThat(newProcess.fileChanges.deprecatedFiles).isEqualTo(process.fileChanges.deprecatedFiles)
+            assertThat(newProcess.fileChanges.conflictingFiles).isEqualTo(process.fileChanges.conflictingFiles)
+            assertThat(newProcess.currentIndex).isEqualTo(process.currentIndex)
+            assertThat(newProcess.previousVersion).isEqualTo(process.previousVersion)
             assertThat(newRqt.modificationTime).isCloseTo(rqt.modificationTime, within(100, ChronoUnit.MILLIS))
         }
 
@@ -237,10 +240,10 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(request.status).isEqualTo(existing.status)
             assertThat(request.key).isEqualTo(existing.key)
             assertThat(request.draft).isEqualTo(existing.draft)
-            assertThat(request.process.notifyTo).isEqualTo(existing.process.notifyTo)
-            assertThat(request.process.submission).isEqualTo(existing.process.submission)
-            assertThat(request.process.totalFiles).isEqualTo(existing.process.totalFiles)
-            assertThat(request.process.currentIndex).isEqualTo(existing.process.currentIndex)
+            assertThat(request.process!!.notifyTo).isEqualTo(existing.process!!.notifyTo)
+            assertThat(request.process!!.submission).isEqualTo(existing.process!!.submission)
+            assertThat(request.process!!.totalFiles).isEqualTo(existing.process!!.totalFiles)
+            assertThat(request.process!!.currentIndex).isEqualTo(existing.process!!.currentIndex)
             assertThat(request.modificationTime).isCloseTo(existing.modificationTime, within(100, ChronoUnit.MILLIS))
         }
 
@@ -275,7 +278,7 @@ class SubmissionRequestDocDataRepositoryTest(
 
             val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, processId)
 
-            val statusChange = request.process.statusChanges.first { it.statusId.toString() == changeId }
+            val statusChange = request.process!!.statusChanges.first { it.statusId.toString() == changeId }
             assertThat(statusChange.status).isEqualTo(REQUESTED.action)
             assertThat(statusChange.startTime).isNotNull()
             assertThat(statusChange.endTime).isNull()

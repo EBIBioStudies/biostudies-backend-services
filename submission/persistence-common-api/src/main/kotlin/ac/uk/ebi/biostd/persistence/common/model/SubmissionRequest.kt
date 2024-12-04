@@ -54,7 +54,7 @@ data class SubmissionRequest(
     val draft: String?,
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
-    val process: SubmissionRequestProcessing,
+    val process: SubmissionRequestProcessing? = null,
 ) {
     constructor(
         key: String? = null,
@@ -84,7 +84,7 @@ data class SubmissionRequest(
         copy(
             status = status,
             modificationTime = OffsetDateTime.now(),
-            process = process.copy(currentIndex = 0),
+            process = process?.copy(currentIndex = 0),
         )
 
     /**
@@ -94,7 +94,7 @@ data class SubmissionRequest(
         copy(
             status = RequestStatus.INDEXED,
             modificationTime = OffsetDateTime.now(),
-            process = process.copy(currentIndex = 0, totalFiles = totalFiles),
+            process = process?.copy(currentIndex = 0, totalFiles = totalFiles),
         )
 
     /**
@@ -108,7 +108,7 @@ data class SubmissionRequest(
         copy(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
-            process = process.copy(currentIndex = 0, fileChanges = fileChanges, previousVersion = previousVersion),
+            process = process?.copy(currentIndex = 0, fileChanges = fileChanges, previousVersion = previousVersion),
         )
 }
 
