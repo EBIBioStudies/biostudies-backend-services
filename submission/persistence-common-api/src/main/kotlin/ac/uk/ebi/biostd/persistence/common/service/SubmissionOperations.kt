@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
+import java.time.Instant
 import java.time.temporal.TemporalAmount
 
 interface SubmissionPersistenceService {
@@ -93,6 +94,30 @@ interface SubmissionFilesPersistenceService {
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
+    suspend fun findRequestDrafts(owner: String): Flow<SubmissionRequest>
+
+    suspend fun findRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest?
+
+    suspend fun getActiveRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest
+
+    suspend fun deleteRequestDraft(
+        key: String,
+        owner: String,
+    )
+
+    suspend fun updateRequestDraft(
+        key: String,
+        owner: String,
+        draft: String,
+        modificationTime: Instant,
+    )
+
     suspend fun findAllProcessed(): Flow<Pair<String, Int>>
 
     suspend fun hasActiveRequest(accNo: String): Boolean
