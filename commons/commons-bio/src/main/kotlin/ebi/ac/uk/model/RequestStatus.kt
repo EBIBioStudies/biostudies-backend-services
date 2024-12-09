@@ -3,7 +3,6 @@ package ebi.ac.uk.model
 enum class RequestStatus {
     DRAFT,
     SUBMITTED,
-    ACCEPTED,
     REQUESTED,
     INDEXED,
     LOADED,
@@ -26,7 +25,6 @@ enum class RequestStatus {
          */
         val PROCESSING_STATUS: Set<RequestStatus> =
             setOf(
-                ACCEPTED,
                 REQUESTED,
                 INDEXED,
                 LOADED,

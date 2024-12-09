@@ -20,7 +20,6 @@ import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.ACCEPTED
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.DRAFT
@@ -152,7 +151,6 @@ class LocalExtSubmissionSubmitter(
         when (status) {
             DRAFT -> TODO()
             SUBMITTED -> TODO()
-            ACCEPTED -> TODO()
             REQUESTED -> fromRequested()
             INDEXED -> fromIndexed()
             LOADED -> fromLoaded()
@@ -175,7 +173,6 @@ class LocalExtSubmissionSubmitter(
         when (status) {
             DRAFT -> TODO()
             SUBMITTED -> TODO()
-            ACCEPTED -> TODO()
             REQUESTED -> indexRequest(accNo, version)
             INDEXED -> loadRequest(accNo, version)
             LOADED -> indexToCleanRequest(accNo, version)
