@@ -51,9 +51,7 @@ import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
-import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.PROCESSED
-import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -83,42 +81,42 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
-    // TODO this should use the key
-    suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
-        val query =
-            Query(
-                where(RQT_ACC_NO)
-                    .`is`(request.accNo)
-                    .andOperator(where(RQT_STATUS).nin(DRAFT, SUBMITTED, PROCESSED)),
-            )
-        val result =
-            mongoTemplate
-                .upsert(
-                    query,
-                    request.asSetOnInsert(),
-                    DocSubmissionRequest::class.java,
-                ).awaitSingle()
-        val created = result.matchedCount < 1
-        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING_STATUS) to created
-    }
-
-    suspend fun updateRequest(request: DocSubmissionRequest): DocSubmissionRequest {
+    suspend fun saveRequest(request: DocSubmissionRequest): DocSubmissionRequest {
         val query =
             Query(
                 where(RQT_KEY)
-                .`is`(request.key)
-                .andOperator(where(RQT_OWNER).`is`(request.owner)),
+                    .`is`(request.key)
+                    .andOperator(where(RQT_STATUS).nin(PROCESSED)),
             )
-
-        mongoTemplate
-            .upsert(
-                query,
-                request.asUpdate(),
-                DocSubmissionRequest::class.java,
-            ).awaitSingle()
-
+//        val result =
+            mongoTemplate
+                .upsert(
+                    query,
+                    request.asUpdate(),
+                    DocSubmissionRequest::class.java,
+                ).awaitSingle()
+//        val created = result.matchedCount < 1
+//        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner) to created
         return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner)
     }
+
+//    suspend fun updateRequest(request: DocSubmissionRequest): DocSubmissionRequest {
+//        val query =
+//            Query(
+//                where(RQT_KEY)
+//                .`is`(request.key)
+//                .andOperator(where(RQT_OWNER).`is`(request.owner)),
+//            )
+//
+//        mongoTemplate
+//            .upsert(
+//                query,
+//                request.asUpdate(),
+//                DocSubmissionRequest::class.java,
+//            ).awaitSingle()
+//
+//        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner)
+//    }
 
     /**
      * Archive the given request. Note that {@see Document} is used rathet than specific entity type to avoid schema

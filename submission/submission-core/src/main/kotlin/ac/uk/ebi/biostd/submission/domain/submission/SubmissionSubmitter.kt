@@ -20,14 +20,14 @@ class SubmissionSubmitter(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
     private val collectionValidationService: CollectionValidationService,
-//    private val draftService: SubmissionDraftPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
         val sub = processRequest(rqt)
         require(requestService.hasActiveRequest(sub.accNo).not()) { throw ConcurrentSubException(sub.accNo, sub.version) }
         val extRqt = ExtSubmitRequest(sub, rqt.owner, rqt.draftKey, rqt.draftContent.orEmpty(), rqt.silentMode, rqt.singleJobMode)
-        submissionSubmitter.processRequestDraft(extRqt)
+//        submissionSubmitter.processRequestDraft(extRqt)
+        submissionSubmitter.createRqt(extRqt)
 
         return sub
     }
@@ -42,13 +42,11 @@ class SubmissionSubmitter(
         version: Int,
     ): Unit = submissionSubmitter.handleRequestAsync(accNo, version)
 
-    // TODO the validation for concurrent should be here
     @Suppress("TooGenericExceptionCaught")
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
             startProcessingDraft(rqt.owner, rqt.owner, rqt.draftKey)
-//            rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
 //            rqt.draftKey?.let { acceptDraft(rqt.accNo, rqt.owner, it) }

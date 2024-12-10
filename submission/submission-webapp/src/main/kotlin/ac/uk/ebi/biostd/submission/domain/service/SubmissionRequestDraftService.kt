@@ -108,7 +108,7 @@ class SubmissionRequestDraftService(
                 modificationTime = creationTime.atOffset(UTC),
             )
 
-        requestService.saveRequest(request)
+        requestService.createRequest(request)
 
         return request
     }

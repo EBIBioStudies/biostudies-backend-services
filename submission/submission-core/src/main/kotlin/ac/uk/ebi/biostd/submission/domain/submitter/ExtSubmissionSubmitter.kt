@@ -7,7 +7,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 interface ExtSubmissionSubmitter {
     suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int>
 
-    suspend fun processRequestDraft(rqt: ExtSubmitRequest): Pair<String, Int>
+//    suspend fun processRequestDraft(rqt: ExtSubmitRequest): Pair<String, Int>
 
     suspend fun handleRequest(
         accNo: String,
