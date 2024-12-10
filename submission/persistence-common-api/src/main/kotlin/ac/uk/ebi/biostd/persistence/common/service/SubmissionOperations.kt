@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
@@ -94,12 +95,17 @@ interface SubmissionFilesPersistenceService {
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
-    suspend fun findRequestDrafts(owner: String): Flow<SubmissionRequest>
+    suspend fun findRequestDrafts(
+        owner: String,
+        pageRequest: PageRequest = PageRequest(),
+    ): Flow<SubmissionRequest>
 
     suspend fun findRequestDraft(
         key: String,
         owner: String,
     ): SubmissionRequest?
+
+    suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest?
 
     suspend fun getActiveRequestDraft(
         key: String,

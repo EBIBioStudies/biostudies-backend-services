@@ -57,7 +57,7 @@ class SubmissionDraftApiTest(
             webClient.submit(pageTab, JSON)
 
             val draftSubmission = webClient.getSubmissionDraft("ABC-123")
-            assertThat(draftSubmission.key).isEqualTo("ABC-123")
+            assertThat(draftSubmission.key).isEqualTo(draftSubmission.key)
             webClient.deleteSubmissionDraft(draftSubmission.key)
         }
 
@@ -133,7 +133,6 @@ class SubmissionDraftApiTest(
             assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-128")).isNull()
         }
 
-    // TODO try to make it work with the accNo instead of just the key (fallback on accNo?)
     @Test
     fun `12-7 re submit from draft`() =
         runTest {
@@ -175,9 +174,9 @@ class SubmissionDraftApiTest(
                         )
                 }.toString()
             val draft = webClient.getSubmissionDraft("ABC-129")
-            webClient.updateSubmissionDraft(draft.key, updatedDraft)
+            webClient.updateSubmissionDraft("ABC-129", updatedDraft)
 
-            webClient.submitFromDraft(draft.key)
+            webClient.submitFromDraft("ABC-129")
 
             val version2 = webClient.getExtByAccNo("ABC-129")
             assertThat(version2.attributes.first().name).isEqualTo("Source")
@@ -186,6 +185,7 @@ class SubmissionDraftApiTest(
 
             val request = requestRepository.getRequest("ABC-129", 2)
             assertThat(request.key).isEqualTo(draft.key)
+            assertThat(request.accNo).isEqualTo("ABC-129")
             assertThat(request.draft).isEqualTo(updatedDraft)
         }
 

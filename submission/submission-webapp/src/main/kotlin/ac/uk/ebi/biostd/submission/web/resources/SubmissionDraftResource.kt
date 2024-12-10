@@ -43,10 +43,13 @@ internal class SubmissionDraftResource(
 ) {
     @GetMapping
     @ResponseBody
-    fun getSubmissionDrafts(
+    suspend fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
-    ): Flow<ResponseSubmissionDraft> = submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
+    ): Flow<ResponseSubmissionDraft> {
+        return requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
+//        submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
+    }
 
     @GetMapping("/{key}")
     @ResponseBody
@@ -63,13 +66,19 @@ internal class SubmissionDraftResource(
     suspend fun getSubmissionDraftContent(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ): ResponseSubmissionDraftContent = ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
+    ): ResponseSubmissionDraftContent {
+        return ResponseSubmissionDraftContent(requestDraftService.getRequestDraft(key, user.email))
+//        ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
+    }
 
     @DeleteMapping("/{key}")
     suspend fun deleteSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ) = submissionDraftService.deleteSubmissionDraft(user.email, key)
+    ) {
+        requestDraftService.deleteRequestDraft(key, user.email)
+//        submissionDraftService.deleteSubmissionDraft(user.email, key)
+    }
 
     @PutMapping("/{key}")
     @ResponseBody
@@ -87,7 +96,10 @@ internal class SubmissionDraftResource(
     suspend fun createSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
-    ): ResponseSubmissionDraft = submissionDraftService.createSubmissionDraft(user.email, content).asResponseDraft()
+    ): ResponseSubmissionDraft {
+        return requestDraftService.createRequestDraft(content, user.email).asResponseDraft()
+//        submissionDraftService.createSubmissionDraft(user.email, content).asResponseDraft()
+    }
 
     @PostMapping("/{key}/submit")
     suspend fun submitDraft(
@@ -96,7 +108,12 @@ internal class SubmissionDraftResource(
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
     ) {
-        submissionDraftService.submitDraftAsync(key, user, onBehalfRequest, parameters)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
+        val request = submitRequestBuilder.buildDraftRequest(key, user.email, buildRequest)
+
+        submitWebHandler.submitAsync(request)
+
+//        submissionDraftService.submitDraftAsync(key, user, onBehalfRequest, parameters)
     }
 
     @PostMapping("/{key}/submit/sync")

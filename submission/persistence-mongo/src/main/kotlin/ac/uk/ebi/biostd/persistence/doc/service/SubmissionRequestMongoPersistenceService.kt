@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestProcessing
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult.ERROR
@@ -45,8 +46,13 @@ class SubmissionRequestMongoPersistenceService(
     private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
-    override suspend fun findRequestDrafts(owner: String): Flow<SubmissionRequest> {
-        return requestRepository.findByOwnerAndStatusIn(owner, DRAFT_STATUS).map { asRequest(it) }
+    override suspend fun findRequestDrafts(
+        owner: String,
+        pageRequest: PageRequest,
+    ): Flow<SubmissionRequest> {
+        return requestRepository
+            .findByOwnerAndStatusIn(owner, DRAFT_STATUS, pageRequest.asDataPageRequest())
+            .map { asRequest(it) }
     }
 
     override suspend fun findRequestDraft(
@@ -54,6 +60,10 @@ class SubmissionRequestMongoPersistenceService(
         owner: String,
     ): SubmissionRequest? {
         return requestRepository.findByKeyAndOwnerAndStatusIn(key, owner, DRAFT_STATUS)?.let { asRequest(it) }
+    }
+
+    override suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest? {
+        return requestRepository.findByAccNoAndStatusIn(accNo, setOf(DRAFT))?.let { asRequest(it) }
     }
 
     override suspend fun getActiveRequestDraft(

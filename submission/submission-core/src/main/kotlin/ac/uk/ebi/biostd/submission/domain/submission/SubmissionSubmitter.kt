@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
+import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -24,6 +25,7 @@ class SubmissionSubmitter(
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
         val sub = processRequest(rqt)
+        require(requestService.hasActiveRequest(sub.accNo).not()) { throw ConcurrentSubException(sub.accNo, sub.version) }
         val extRqt = ExtSubmitRequest(sub, rqt.owner, rqt.draftKey, rqt.draftContent.orEmpty(), rqt.silentMode, rqt.singleJobMode)
         submissionSubmitter.processRequestDraft(extRqt)
 

@@ -71,6 +71,11 @@ class SubmitWebHandler(
         return subService.submitAsync(rqt)
     }
 
+    suspend fun submitAsync(request: DraftSubmitWebRequest): AcceptedSubmission {
+        val rqt = buildRequest(request)
+        return subService.submitAsync(rqt)
+    }
+
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
