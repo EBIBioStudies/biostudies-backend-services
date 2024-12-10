@@ -65,7 +65,7 @@ class SubmissionServiceTest(
             every { request.owner } returns "owner@mail.org"
             every { request.draftKey } returns "TMP_123456"
             every { request.singleJobMode } returns false
-            coEvery { submissionSubmitter.createRqt(request) } returns basicExtSubmission
+            coEvery { submissionSubmitter.processRequestDraft(request) } returns basicExtSubmission
             coEvery { submissionSubmitter.handleRequestAsync("S-TEST123", 1) } returns Unit
 
             val response = testInstance.submitAsync(request)
@@ -73,7 +73,7 @@ class SubmissionServiceTest(
             assertThat(response.version).isEqualTo(1)
             assertThat(response.accNo).isEqualTo("S-TEST123")
             coVerify(exactly = 1) {
-                submissionSubmitter.createRqt(request)
+                submissionSubmitter.processRequestDraft(request)
                 submissionSubmitter.handleRequestAsync("S-TEST123", 1)
             }
         }

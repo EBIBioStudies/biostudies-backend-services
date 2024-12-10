@@ -83,6 +83,7 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
+    // TODO this should use the key
     suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val query =
             Query(
@@ -99,6 +100,24 @@ class SubmissionRequestDocDataRepository(
                 ).awaitSingle()
         val created = result.matchedCount < 1
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING_STATUS) to created
+    }
+
+    suspend fun updateRequest(request: DocSubmissionRequest): DocSubmissionRequest {
+        val query =
+            Query(
+                where(RQT_KEY)
+                .`is`(request.key)
+                .andOperator(where(RQT_OWNER).`is`(request.owner)),
+            )
+
+        mongoTemplate
+            .upsert(
+                query,
+                request.asUpdate(),
+                DocSubmissionRequest::class.java,
+            ).awaitSingle()
+
+        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner)
     }
 
     /**
@@ -182,6 +201,11 @@ class SubmissionRequestDocDataRepository(
             else -> findActiveRequests(query, filter.offset, filter.limit)
         }
     }
+
+    suspend fun getRequestDraft(
+        key: String,
+        owner: String,
+    ): DocSubmissionRequest = submissionRequestRepository.getByKeyAndOwner(key, owner)
 
     suspend fun getRequest(
         accNo: String,
@@ -295,6 +319,22 @@ class SubmissionRequestDocDataRepository(
         modificationTime: Instant,
     ) {
         val update = update(RQT_DRAFT, draft).set(RQT_MODIFICATION_TIME, modificationTime)
+        val where =
+            where(RQT_KEY)
+                .`is`(key)
+                .andOperator(
+                    where(RQT_OWNER).`is`(owner),
+                )
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+    }
+
+    suspend fun setRequestDraftStatus(
+        key: String,
+        owner: String,
+        status: RequestStatus,
+        modificationTime: Instant
+    ) {
+        val update = update(RQT_STATUS, status).set(RQT_MODIFICATION_TIME, modificationTime)
         val where =
             where(RQT_KEY)
                 .`is`(key)

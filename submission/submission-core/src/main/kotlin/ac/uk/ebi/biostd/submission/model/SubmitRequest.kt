@@ -14,7 +14,9 @@ data class SubmitRequest(
     val sources: FileSourcesList,
     val method: SubmissionMethod,
     val onBehalfUser: SecurityUser?,
-    val draftKey: String?,
+    // TODO this should be just key
+    val draftKey: String,
+    // TODO this is no longer necessary
     val draftContent: String?,
     val collection: BasicCollection?,
     val previousVersion: ExtSubmission?,

@@ -22,6 +22,10 @@ class RemoteExtSubmissionSubmitter(
         TODO("Not yet implemented")
     }
 
+    override suspend fun processRequestDraft(rqt: ExtSubmitRequest): Pair<String, Int> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun handleRequest(
         accNo: String,
         version: Int,

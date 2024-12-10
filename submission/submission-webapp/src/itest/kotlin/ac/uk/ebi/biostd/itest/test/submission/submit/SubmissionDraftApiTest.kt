@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -132,6 +133,7 @@ class SubmissionDraftApiTest(
             assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-128")).isNull()
         }
 
+    // TODO try to make it work with the accNo instead of just the key (fallback on accNo?)
     @Test
     fun `12-7 re submit from draft`() =
         runTest {
@@ -172,18 +174,18 @@ class SubmissionDraftApiTest(
                             },
                         )
                 }.toString()
-            webClient.getSubmissionDraft("ABC-129")
-            webClient.updateSubmissionDraft("ABC-129", updatedDraft)
+            val draft = webClient.getSubmissionDraft("ABC-129")
+            webClient.updateSubmissionDraft(draft.key, updatedDraft)
 
-            webClient.submitFromDraft("ABC-129")
+            webClient.submitFromDraft(draft.key)
 
             val version2 = webClient.getExtByAccNo("ABC-129")
             assertThat(version2.attributes.first().name).isEqualTo("Source")
             assertThat(version2.attributes.first().value).isEqualTo("Draft")
-            assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-129")).isNull()
+            assertThat(draftPersistenceService.getActiveSubmissionDrafts(SuperUser.email).toList()).isEmpty()
 
             val request = requestRepository.getRequest("ABC-129", 2)
-            assertThat(request.key).isEqualTo("ABC-129")
+            assertThat(request.key).isEqualTo(draft.key)
             assertThat(request.draft).isEqualTo(updatedDraft)
         }
 

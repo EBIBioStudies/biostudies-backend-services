@@ -118,11 +118,21 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
+    suspend fun setDraftStatus(
+        key: String,
+        owner: String,
+        status: RequestStatus,
+        modificationTime: Instant,
+    )
+
     suspend fun findAllProcessed(): Flow<Pair<String, Int>>
 
     suspend fun hasActiveRequest(accNo: String): Boolean
 
     suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
+
+    // TODO concurrent validation should be made at the submitter. It's an extra request but makes the code easier
+    suspend fun saveRequest(rqt: SubmissionRequest)
 
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
@@ -131,6 +141,11 @@ interface SubmissionRequestPersistenceService {
      * @see UpdateOptions
      */
     suspend fun updateRqtFile(rqt: SubmissionRequestFile)
+
+    suspend fun getRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest
 
     suspend fun getRequest(
         accNo: String,

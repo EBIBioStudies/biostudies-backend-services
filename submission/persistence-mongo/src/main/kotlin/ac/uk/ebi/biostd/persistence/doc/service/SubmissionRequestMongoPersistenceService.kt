@@ -84,6 +84,10 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateRqtDraft(key, owner, draft, modificationTime)
     }
 
+    override suspend fun setDraftStatus(key: String, owner: String, status: RequestStatus, modificationTime: Instant) {
+        requestRepository.setRequestDraftStatus(key, owner, status, modificationTime)
+    }
+
     override suspend fun findAllProcessed(): Flow<Pair<String, Int>> =
         requestRepository
             .findByStatusIn(PROCESSED_STATUS)
@@ -126,6 +130,10 @@ class SubmissionRequestMongoPersistenceService(
         return request.accNo to request.version
     }
 
+    override suspend fun saveRequest(rqt: SubmissionRequest) {
+        requestRepository.updateRequest(asDocRequest(rqt))
+    }
+
     override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
         requestRepository.updateSubRqtFile(rqt)
         requestRepository.increaseIndex(rqt.accNo, rqt.version)
@@ -136,6 +144,11 @@ class SubmissionRequestMongoPersistenceService(
         version: Int,
     ): SubmissionRequest {
         val docSubmissionRequest = requestRepository.getRequest(accNo, version)
+        return asRequest(docSubmissionRequest)
+    }
+
+    override suspend fun getRequestDraft(key: String, owner: String): SubmissionRequest {
+        val docSubmissionRequest = requestRepository.getRequestDraft(key, owner)
         return asRequest(docSubmissionRequest)
     }
 

@@ -47,21 +47,21 @@ data class SubmissionRequestProcessing(
 }
 
 data class SubmissionRequest(
-    val key: String?,
+    val key: String,
     val accNo: String,
     val version: Int,
     val owner: String,
-    val draft: String?,
+    val draft: String,
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
     val process: SubmissionRequestProcessing? = null,
 ) {
     constructor(
-        key: String? = null,
+        key: String,
         accNo: String,
         version: Int,
         owner: String,
-        draft: String? = null,
+        draft: String,
         submission: ExtSubmission,
         notifyTo: String,
         silentMode: Boolean,

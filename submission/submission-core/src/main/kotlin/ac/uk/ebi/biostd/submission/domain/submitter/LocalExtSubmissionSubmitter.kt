@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestProcessing
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -36,6 +37,8 @@ import ebi.ac.uk.model.RequestStatus.VALIDATED
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration.ofMinutes
+import java.time.Instant
+import java.time.ZoneOffset.UTC
 
 private val logger = KotlinLogging.logger {}
 
@@ -73,6 +76,22 @@ class LocalExtSubmissionSubmitter(
                 singleJobMode = rqt.singleJobMode,
             )
         return requestService.createRequest(request)
+    }
+
+    override suspend fun processRequestDraft(rqt: ExtSubmitRequest): Pair<String, Int> {
+        val sub = rqt.submission
+        val draft = requestService.getRequestDraft(rqt.draftKey, sub.owner)
+        val requestProcess = SubmissionRequestProcessing(sub, rqt.notifyTo, rqt.silentMode, rqt.singleJobMode)
+        val processed = draft.copy(
+            accNo = sub.accNo,
+            version = sub.version,
+            process = requestProcess,
+            status = REQUESTED,
+            modificationTime = Instant.now().atOffset(UTC),
+        )
+        requestService.saveRequest(processed)
+
+        return processed.accNo to processed.version
     }
 
     override suspend fun handleRequest(

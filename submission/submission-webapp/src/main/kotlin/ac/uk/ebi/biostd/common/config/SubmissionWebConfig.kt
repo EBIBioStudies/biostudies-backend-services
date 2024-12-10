@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -116,6 +117,7 @@ class SubmissionWebConfig {
         toSubmissionMapper: ToSubmissionMapper,
         queryService: SubmissionMetaQueryService,
         fileServiceFactory: FileServiceFactory,
+        requestDraftService: SubmissionRequestDraftService,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -125,6 +127,7 @@ class SubmissionWebConfig {
             toSubmissionMapper,
             queryService,
             fileServiceFactory,
+            requestDraftService,
         )
 
     @Bean
@@ -146,6 +149,24 @@ class SubmissionWebConfig {
             userPrivilegesService,
             submissionQueryService,
             persistenceDraftService,
+        )
+
+    @Bean
+    fun submissionRequestDraftService(
+//        submitWebHandler: SubmitWebHandler,
+        toSubmissionMapper: ToSubmissionMapper,
+        serializationService: SerializationService,
+//        submitRequestBuilder: SubmitRequestBuilder,
+        userPrivilegesService: IUserPrivilegesService,
+        submissionQueryService: SubmissionPersistenceQueryService,
+        requestPersistenceService: SubmissionRequestPersistenceService
+    ): SubmissionRequestDraftService =
+        SubmissionRequestDraftService(
+            toSubmissionMapper,
+            serializationService,
+            userPrivilegesService,
+            submissionQueryService,
+            requestPersistenceService,
         )
 
     @Bean

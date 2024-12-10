@@ -60,7 +60,7 @@ class SubmissionSubmitterTest(
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
             coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
 
-            testInstance.createRqt(request)
+            testInstance.processRequestDraft(request)
 
             val extRequest = extRequestSlot.captured
             assertThat(extRequest.draftKey).isEqualTo(DRAFT_KEY)
@@ -85,7 +85,7 @@ class SubmissionSubmitterTest(
 
             coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
-            assertThrows<InvalidSubmissionException> { testInstance.createRqt(request) }
+            assertThrows<InvalidSubmissionException> { testInstance.processRequestDraft(request) }
 
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)

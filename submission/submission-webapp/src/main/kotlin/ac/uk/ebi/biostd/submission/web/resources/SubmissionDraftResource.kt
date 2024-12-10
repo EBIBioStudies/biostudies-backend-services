@@ -1,9 +1,14 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.api.OnBehalfParameters
@@ -32,6 +37,9 @@ import java.time.OffsetDateTime
 @Suppress("LongParameterList")
 internal class SubmissionDraftResource(
     private val submissionDraftService: SubmissionDraftService,
+    private val submitWebHandler: SubmitWebHandler,
+    private val submitRequestBuilder: SubmitRequestBuilder,
+    private val requestDraftService: SubmissionRequestDraftService,
 ) {
     @GetMapping
     @ResponseBody
@@ -45,7 +53,10 @@ internal class SubmissionDraftResource(
     suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ): ResponseSubmissionDraft = submissionDraftService.getOrCreateSubmissionDraft(user.email, key).asResponseDraft()
+    ): ResponseSubmissionDraft {
+        return requestDraftService.getOrCreateRequestDraft(key, user.email).asResponseDraft()
+//        submissionDraftService.getOrCreateSubmissionDraft(user.email, key).asResponseDraft()
+    }
 
     @GetMapping("/{key}/content")
     @ResponseBody
@@ -66,7 +77,10 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
         @PathVariable key: String,
-    ): ResponseSubmissionDraft = submissionDraftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
+    ): ResponseSubmissionDraft {
+        return requestDraftService.updateRequestDraft(key, user.email, content).asResponseDraft()
+//        submissionDraftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
+    }
 
     @PostMapping
     @ResponseBody
@@ -91,7 +105,14 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
-    ): Submission = submissionDraftService.submitDraftSync(key, user, onBehalfRequest, parameters)
+    ): Submission {
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
+        val request = submitRequestBuilder.buildDraftRequest(key, user.email, buildRequest)
+
+        return submitWebHandler.submit(request)
+    }
+
+    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(key, draft, modificationTime)
 }
 
 internal class ResponseSubmissionDraft(
