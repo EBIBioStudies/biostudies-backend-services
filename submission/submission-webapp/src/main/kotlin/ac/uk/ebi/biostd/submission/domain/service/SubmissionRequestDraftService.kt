@@ -47,7 +47,7 @@ class SubmissionRequestDraftService(
         key: String,
         owner: String,
     ): String {
-        return getOrCreateRequestDraft(key, owner).draft
+        return getOrCreateRequestDraft(key, owner).draft!!
     }
 
     suspend fun deleteRequestDraft(

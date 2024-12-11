@@ -317,12 +317,8 @@ class SubmissionRequestDocDataRepository(
         modificationTime: Instant,
     ) {
         val update = update(RQT_DRAFT, draft).set(RQT_MODIFICATION_TIME, modificationTime)
-        val where =
-            where(RQT_KEY)
-                .`is`(key)
-                .andOperator(
-                    where(RQT_OWNER).`is`(owner),
-                )
+        val where = where(RQT_KEY).`is`(key).andOperator(where(RQT_OWNER).`is`(owner))
+
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 

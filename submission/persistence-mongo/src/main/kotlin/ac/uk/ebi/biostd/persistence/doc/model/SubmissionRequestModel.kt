@@ -20,7 +20,7 @@ data class DocSubmissionRequest(
     val accNo: String,
     val version: Int,
     val owner: String,
-    val draft: String,
+    val draft: String?,
     val status: RequestStatus,
     val modificationTime: Instant,
     val process: DocRequestProcessing?,
@@ -42,10 +42,10 @@ data class DocSubmissionRequest(
             .setOnInsert("_id", id)
             .setOnInsert(DocRequestFields.RQT_KEY, key)
             .setOnInsert(DocRequestFields.RQT_OWNER, owner)
+            .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
             .set(DocRequestFields.RQT_ACC_NO, accNo)
             .set(DocRequestFields.RQT_VERSION, version)
             .set(DocRequestFields.RQT_STATUS, status)
-            .set(DocRequestFields.RQT_DRAFT, draft)
             .set(DocRequestFields.RQT_PROCESS, process)
             .set(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
 }

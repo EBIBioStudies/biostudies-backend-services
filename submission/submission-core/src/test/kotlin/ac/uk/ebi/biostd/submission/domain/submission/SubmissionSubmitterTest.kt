@@ -63,7 +63,7 @@ class SubmissionSubmitterTest(
             testInstance.processRequestDraft(request)
 
             val extRequest = extRequestSlot.captured
-            assertThat(extRequest.draftKey).isEqualTo(DRAFT_KEY)
+            assertThat(extRequest.key).isEqualTo(DRAFT_KEY)
             assertThat(extRequest.draftContent).isEqualTo(DRAFT_CONTENT)
             assertThat(extRequest.submission).isEqualTo(sub)
             coVerify(exactly = 1) {
@@ -105,7 +105,7 @@ class SubmissionSubmitterTest(
     }
 
     private fun setUpRequest() {
-        every { request.draftKey } returns DRAFT_KEY
+        every { request.key } returns DRAFT_KEY
         every { request.draftContent } returns DRAFT_CONTENT
         every { request.owner } returns basicExtSubmission.owner
         every { request.accNo } returns basicExtSubmission.accNo

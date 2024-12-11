@@ -157,13 +157,12 @@ class SubmitWebHandler(
             val requestDraft = getOrCreateRequestDraft()
 
             return SubmitRequest(
+                key = requestDraft.key,
                 submission = submission,
                 submitter = submitter,
                 sources = sources,
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,
-                draftKey = requestDraft.key,
-                draftContent = requestDraft.draft,
                 collection = collection,
                 previousVersion = previous,
                 storageMode = storageMode,

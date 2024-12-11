@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -36,7 +35,6 @@ import java.time.OffsetDateTime
 @PreAuthorize("isAuthenticated()")
 @Suppress("LongParameterList")
 internal class SubmissionDraftResource(
-    private val submissionDraftService: SubmissionDraftService,
     private val submitWebHandler: SubmitWebHandler,
     private val submitRequestBuilder: SubmitRequestBuilder,
     private val requestDraftService: SubmissionRequestDraftService,
@@ -48,7 +46,6 @@ internal class SubmissionDraftResource(
         @ModelAttribute filter: PageRequest,
     ): Flow<ResponseSubmissionDraft> {
         return requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
-//        submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
     }
 
     @GetMapping("/{key}")
@@ -58,7 +55,6 @@ internal class SubmissionDraftResource(
         @PathVariable key: String,
     ): ResponseSubmissionDraft {
         return requestDraftService.getOrCreateRequestDraft(key, user.email).asResponseDraft()
-//        submissionDraftService.getOrCreateSubmissionDraft(user.email, key).asResponseDraft()
     }
 
     @GetMapping("/{key}/content")
@@ -68,7 +64,6 @@ internal class SubmissionDraftResource(
         @PathVariable key: String,
     ): ResponseSubmissionDraftContent {
         return ResponseSubmissionDraftContent(requestDraftService.getRequestDraft(key, user.email))
-//        ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
     }
 
     @DeleteMapping("/{key}")
@@ -77,7 +72,6 @@ internal class SubmissionDraftResource(
         @PathVariable key: String,
     ) {
         requestDraftService.deleteRequestDraft(key, user.email)
-//        submissionDraftService.deleteSubmissionDraft(user.email, key)
     }
 
     @PutMapping("/{key}")
@@ -88,7 +82,6 @@ internal class SubmissionDraftResource(
         @PathVariable key: String,
     ): ResponseSubmissionDraft {
         return requestDraftService.updateRequestDraft(key, user.email, content).asResponseDraft()
-//        submissionDraftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
     }
 
     @PostMapping
@@ -98,7 +91,6 @@ internal class SubmissionDraftResource(
         @RequestBody content: String,
     ): ResponseSubmissionDraft {
         return requestDraftService.createRequestDraft(content, user.email).asResponseDraft()
-//        submissionDraftService.createSubmissionDraft(user.email, content).asResponseDraft()
     }
 
     @PostMapping("/{key}/submit")
@@ -112,8 +104,6 @@ internal class SubmissionDraftResource(
         val request = submitRequestBuilder.buildDraftRequest(key, user.email, buildRequest)
 
         submitWebHandler.submitAsync(request)
-
-//        submissionDraftService.submitDraftAsync(key, user, onBehalfRequest, parameters)
     }
 
     @PostMapping("/{key}/submit/sync")
@@ -129,7 +119,7 @@ internal class SubmissionDraftResource(
         return submitWebHandler.submit(request)
     }
 
-    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(key, draft, modificationTime)
+    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(key, draft!!, modificationTime)
 }
 
 internal class ResponseSubmissionDraft(
@@ -141,5 +131,3 @@ internal class ResponseSubmissionDraft(
 internal class ResponseSubmissionDraftContent(
     @JsonRawValue @JsonValue val value: String,
 )
-
-internal fun SubmissionDraft.asResponseDraft() = ResponseSubmissionDraft(key, content, modificationTime)

@@ -24,9 +24,9 @@ class SubmissionSubmitter(
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
         val sub = processRequest(rqt)
-        require(requestService.hasActiveRequest(sub.accNo).not()) { throw ConcurrentSubException(sub.accNo, sub.version) }
-        val extRqt = ExtSubmitRequest(sub, rqt.owner, rqt.draftKey, rqt.draftContent.orEmpty(), rqt.silentMode, rqt.singleJobMode)
-//        submissionSubmitter.processRequestDraft(extRqt)
+        val extRqt = ExtSubmitRequest(rqt.key, sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
+
+        checkProcessingRequests(sub.accNo, sub.version)
         submissionSubmitter.createRqt(extRqt)
 
         return sub
@@ -46,36 +46,29 @@ class SubmissionSubmitter(
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
-            startProcessingDraft(rqt.owner, rqt.owner, rqt.draftKey)
+            startProcessingDraft(rqt.owner, rqt.owner, rqt.key)
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
-//            rqt.draftKey?.let { acceptDraft(rqt.accNo, rqt.owner, it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-//            rqt.draftKey?.let { reactivateDraft(rqt.accNo, rqt.owner, it) }
-            reactivateDraft(rqt.accNo, rqt.owner, rqt.draftKey)
+            reactivateDraft(rqt.accNo, rqt.owner, rqt.key)
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
 
-//    private suspend fun acceptDraft(
-//        accNo: String,
-//        owner: String,
-//        draftKey: String,
-//    ) {
-//        draftService.setAcceptedStatus(draftKey, Instant.now())
-//        logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
-//    }
+    private suspend fun checkProcessingRequests(
+        accNo: String,
+        version: Int,
+    ) = require(requestService.hasActiveRequest(accNo).not()) { throw ConcurrentSubException(accNo, version) }
 
     private suspend fun startProcessingDraft(
         accNo: String,
         owner: String,
         draftKey: String,
     ) {
-//        draftService.setProcessingStatus(owner, draftKey, Instant.now())
         requestService.setDraftStatus(draftKey, owner, SUBMITTED, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
     }
@@ -85,7 +78,6 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-//        draftService.setActiveStatus(draftKey, Instant.now())
         requestService.setDraftStatus(draftKey, owner, DRAFT, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }

@@ -26,14 +26,14 @@ class SubmissionService(
     private val fileStorageService: FileStorageService,
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
-        logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
+        logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.key}'" }
 
         val (accNo, version) = submitter.processRequestDraft(rqt)
         return submitter.handleRequest(accNo, version)
     }
 
     suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmission {
-        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
+        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.key}'" }
         val (accNo, version) = submitter.processRequestDraft(rqt)
         submitter.handleRequestAsync(accNo, version)
         return AcceptedSubmission(accNo, version)

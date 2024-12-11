@@ -62,16 +62,16 @@ class LocalExtSubmissionSubmitter(
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
             SubmissionRequest(
-                key = rqt.draftKey,
+                key = rqt.key,
                 accNo = submission.accNo,
                 version = submission.version,
                 owner = submission.owner,
-                draft = rqt.draftContent,
                 submission = submission,
                 notifyTo = rqt.notifyTo,
                 silentMode = rqt.silentMode,
                 singleJobMode = rqt.singleJobMode,
             )
+
         return requestService.createRequest(request)
     }
 

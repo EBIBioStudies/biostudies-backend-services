@@ -9,15 +9,12 @@ import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 data class SubmitRequest(
+    val key: String,
     val submission: Submission,
     val submitter: SecurityUser,
     val sources: FileSourcesList,
     val method: SubmissionMethod,
     val onBehalfUser: SecurityUser?,
-    // TODO this should be just key
-    val draftKey: String,
-    // TODO this is no longer necessary
-    val draftContent: String?,
     val collection: BasicCollection?,
     val previousVersion: ExtSubmission?,
     val storageMode: StorageMode?,
