@@ -48,7 +48,11 @@ class ExtSubmissionService(
         val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
         val toRefresh = submission.copy(released = released)
-        val request = ExtSubmitRequest("TODO", submission.owner, user, toRefresh)
+        val request = ExtSubmitRequest(
+            owner = submission.owner,
+            notifyTo = user,
+            submission = toRefresh,
+        )
         val refreshed = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(refreshed.first, refreshed.second)
         return refreshed
@@ -65,7 +69,11 @@ class ExtSubmissionService(
         val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
         val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay(), released = released)
-        val request = ExtSubmitRequest("TODO", submission.owner, user, toRelease)
+        val request = ExtSubmitRequest(
+            owner = submission.owner,
+            notifyTo = user,
+            submission = toRelease,
+        )
         val releasedSub = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(releasedSub.first, releasedSub.second)
         return releasedSub
@@ -77,7 +85,11 @@ class ExtSubmissionService(
     ): ExtSubmission {
         logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val request = ExtSubmitRequest("TODO", submission.owner, user, submission)
+        val request = ExtSubmitRequest(
+            owner = submission.owner,
+            notifyTo = user,
+            submission = submission,
+        )
         val (accNo, version) = submissionSubmitter.createRqt(request)
         return submissionSubmitter.handleRequest(accNo, version)
     }
@@ -88,7 +100,11 @@ class ExtSubmissionService(
     ): AcceptedSubmission {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val request = ExtSubmitRequest("TODO", submission.owner, user, submission)
+        val request = ExtSubmitRequest(
+            owner = submission.owner,
+            notifyTo = user,
+            submission = submission,
+        )
         val (accNo, version) = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(accNo, version)
         return AcceptedSubmission(accNo, version)
@@ -104,7 +120,11 @@ class ExtSubmissionService(
         require(source.storageMode != target) { throw InvalidTransferTargetException() }
 
         val transfer = processSubmission(user, source.copy(storageMode = target))
-        val request = ExtSubmitRequest("TODO", source.owner, user, transfer)
+        val request = ExtSubmitRequest(
+            owner = source.owner,
+            notifyTo = user,
+            submission = transfer,
+        )
         val (rqtAccNo, rqtVersion) = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(rqtAccNo, rqtVersion)
     }
