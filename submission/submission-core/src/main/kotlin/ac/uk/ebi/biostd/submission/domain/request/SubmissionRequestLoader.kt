@@ -42,7 +42,7 @@ class SubmissionRequestLoader(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, INDEXED, processId) {
-            loadRequest(it.process.submission)
+            loadRequest(it.process!!.submission)
             it.withNewStatus(LOADED)
         }
 

@@ -1,6 +1,8 @@
 package ebi.ac.uk.model
 
 enum class RequestStatus {
+    DRAFT,
+    SUBMITTED,
     REQUESTED,
     INDEXED,
     LOADED,
@@ -15,7 +17,8 @@ enum class RequestStatus {
     ;
 
     companion object {
-        val PROCESSED_STATUS: Set<RequestStatus> = setOf(RequestStatus.PROCESSED)
+        val DRAFT_STATUS: Set<RequestStatus> = setOf(DRAFT, SUBMITTED)
+        val PROCESSED_STATUS: Set<RequestStatus> = setOf(PROCESSED)
 
         /**
          * List of status consider as the system is processing or owns the submission.

@@ -23,7 +23,7 @@ data class DocSubmissionRequest(
     val draft: String?,
     val status: RequestStatus,
     val modificationTime: Instant,
-    val process: DocRequestProcessing,
+    val process: DocRequestProcessing?,
 ) {
     fun asSetOnInsert(): Update =
         Update()
