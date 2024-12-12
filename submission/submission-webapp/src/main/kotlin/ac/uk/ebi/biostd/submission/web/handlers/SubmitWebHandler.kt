@@ -2,11 +2,9 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
@@ -80,21 +78,12 @@ class SubmitWebHandler(
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
-        val subPageTab = when(rqt) {
-            is ContentSubmitWebRequest -> rqt.submission
-            is FileSubmitWebRequest -> readAsPageTab(rqt.submission).readText()
-            is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.key, rqt.owner)
-        }
-        val subFormat = when(rqt) {
-            is ContentSubmitWebRequest -> rqt.format
-            is FileSubmitWebRequest -> SubFormat.fromFile(rqt.submission)
-            is DraftSubmitWebRequest -> JSON
-        }
 
-        suspend fun getOrCreateRequestDraft(): SubmissionRequest {
+        suspend fun getOrCreateRequestDraft(submission: Submission): SubmissionRequest {
+            val draft = serializationService.serializeSubmission(submission, JSON)
             return when (rqt) {
                 is ContentSubmitWebRequest,
-                is FileSubmitWebRequest -> requestDraftService.createRequestDraft(subPageTab, submitter.email)
+                is FileSubmitWebRequest -> requestDraftService.createRequestDraft(draft, submitter.email)
                 is DraftSubmitWebRequest -> requestDraftService.getOrCreateRequestDraft(rqt.key, rqt.owner)
             }
         }
@@ -102,17 +91,35 @@ class SubmitWebHandler(
         /**
          * Deserialize the submission without considering files and retrieve accNo and rootPath.
          */
-        fun deserializeSubmission(): Pair<String, String?> {
-            val submission = serializationService.deserializeSubmission(subPageTab, subFormat)
+        suspend fun deserializeSubmission(): Pair<String, String?> {
+            val submission =
+                when (rqt) {
+                    is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
+                    is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
+                    is DraftSubmitWebRequest -> {
+                        val draft = requestDraftService.getRequestDraft(rqt.key, rqt.owner)
+                        serializationService.deserializeSubmission(draft, JSON)
+                    }
+                }
+
             return submission.accNo to submission.rootPath
         }
 
         /**
          * Deserialize the submission and check file presence in the list of sources.
          */
-        suspend fun deserializeSubmission(source: FileSourcesList): Submission {
-            return serializationService.deserializeSubmission(subPageTab, subFormat, source)
-        }
+        suspend fun deserializeSubmission(source: FileSourcesList): Submission =
+            when (rqt) {
+                is ContentSubmitWebRequest ->
+                    serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
+
+                is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
+
+                is DraftSubmitWebRequest -> {
+                    val draft = requestDraftService.getRequestDraft(rqt.key, rqt.owner)
+                    serializationService.deserializeSubmission(draft, JSON, source)
+                }
+            }
 
         /**
          * Create the list of submission sources available based on the given submission.
@@ -137,7 +144,7 @@ class SubmitWebHandler(
          * 2. Submission file sources are obtained.
          * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
          * 4. Overridden attributes are set.
-         * 5. The request draft is created.
+         * 5. Request draft is created.
          */
         suspend fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
@@ -145,7 +152,7 @@ class SubmitWebHandler(
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
-            val requestDraft = getOrCreateRequestDraft()
+            val requestDraft = getOrCreateRequestDraft(submission)
 
             return SubmitRequest(
                 key = requestDraft.key,
