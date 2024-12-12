@@ -97,7 +97,7 @@ class SubmissionRequestDocDataRepository(
                 ).awaitSingle()
 //        val created = result.matchedCount < 1
 //        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner) to created
-        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner)
+        return submissionRequestRepository.getByKey(request.key)
     }
 
 //    suspend fun updateRequest(request: DocSubmissionRequest): DocSubmissionRequest {
@@ -200,10 +200,10 @@ class SubmissionRequestDocDataRepository(
         }
     }
 
-    suspend fun getRequestDraft(
-        key: String,
-        owner: String,
-    ): DocSubmissionRequest = submissionRequestRepository.getByKeyAndOwner(key, owner)
+//    suspend fun getRequestDraft(
+//        key: String,
+//        owner: String,
+//    ): DocSubmissionRequest = submissionRequestRepository.getByKeyAndOwner(key, owner)
 
     suspend fun getRequest(
         accNo: String,
