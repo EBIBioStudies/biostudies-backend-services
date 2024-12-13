@@ -89,7 +89,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
-                        draft = "draftContent",
                         submission = submission,
                         notifyTo = "notifyTo",
                         silentMode = false,
@@ -134,7 +133,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
-                        draft = "draftContent",
                         submission = submission,
                         notifyTo = "notifyTo",
                         silentMode = false,
@@ -221,7 +219,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 status: RequestStatus,
             ) = DocSubmissionRequest(
                 id = ObjectId(),
-                key = null,
+                key = "TMP_1970-01-01T00:00:00.002Z",
                 accNo = accNo,
                 version = version,
                 owner = "owner@mail.org",
@@ -277,7 +275,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
     private fun testRequest() =
         DocSubmissionRequest(
             id = ObjectId(),
-            key = null,
+            key = "TMP_1970-01-01T00:00:00.002Z",
             accNo = "S-BSST0",
             version = 1,
             owner = "owner@mail.org",

@@ -27,7 +27,7 @@ import ebi.ac.uk.model.extensions.withAttributes
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
-@Suppress("LongParameterList")
+@Suppress("CyclomaticComplexMethod", "LongParameterList")
 class SubmitWebHandler(
     private val subService: SubmissionService,
     private val extSubService: ExtSubmissionQueryService,
@@ -83,7 +83,8 @@ class SubmitWebHandler(
             val draft = serializationService.serializeSubmission(submission, JSON)
             return when (rqt) {
                 is ContentSubmitWebRequest,
-                is FileSubmitWebRequest -> requestDraftService.createRequestDraft(draft, submitter.email)
+                is FileSubmitWebRequest,
+                -> requestDraftService.createRequestDraft(draft, submitter.email)
                 is DraftSubmitWebRequest -> requestDraftService.getOrCreateRequestDraft(rqt.key, rqt.owner)
             }
         }

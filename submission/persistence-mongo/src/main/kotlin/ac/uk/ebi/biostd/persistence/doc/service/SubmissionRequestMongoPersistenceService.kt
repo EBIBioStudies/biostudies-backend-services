@@ -82,7 +82,12 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateRqtDraft(key, owner, draft, modificationTime)
     }
 
-    override suspend fun setDraftStatus(key: String, owner: String, status: RequestStatus, modificationTime: Instant) {
+    override suspend fun setDraftStatus(
+        key: String,
+        owner: String,
+        status: RequestStatus,
+        modificationTime: Instant,
+    ) {
         requestRepository.setRequestDraftStatus(key, owner, status, modificationTime)
     }
 
@@ -142,7 +147,10 @@ class SubmissionRequestMongoPersistenceService(
         return asRequest(docSubmissionRequest)
     }
 
-    override suspend fun getSubmittedRequestDraft(key: String, owner: String): SubmissionRequest {
+    override suspend fun getSubmittedRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest {
         val requestDraft =
             requestRepository
                 .findByKeyAndOwnerAndStatusIn(key, owner, setOf(SUBMITTED))

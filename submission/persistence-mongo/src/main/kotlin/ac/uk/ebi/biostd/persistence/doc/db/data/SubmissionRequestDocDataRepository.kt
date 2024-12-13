@@ -89,12 +89,12 @@ class SubmissionRequestDocDataRepository(
                     .andOperator(where(RQT_STATUS).nin(PROCESSED)),
             )
 
-            mongoTemplate
-                .upsert(
-                    query,
-                    request.asUpdate(),
-                    DocSubmissionRequest::class.java,
-                ).awaitSingle()
+        mongoTemplate
+            .upsert(
+                query,
+                request.asUpdate(),
+                DocSubmissionRequest::class.java,
+            ).awaitSingle()
 
         return submissionRequestRepository.getByKey(request.key)
     }
@@ -302,7 +302,7 @@ class SubmissionRequestDocDataRepository(
         key: String,
         owner: String,
         status: RequestStatus,
-        modificationTime: Instant
+        modificationTime: Instant,
     ) {
         val update = update(RQT_STATUS, status).set(RQT_MODIFICATION_TIME, modificationTime)
         val where =

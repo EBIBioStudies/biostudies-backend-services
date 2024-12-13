@@ -133,7 +133,7 @@ class SubmissionWebConfig {
         serializationService: SerializationService,
         userPrivilegesService: IUserPrivilegesService,
         submissionQueryService: SubmissionPersistenceQueryService,
-        requestPersistenceService: SubmissionRequestPersistenceService
+        requestPersistenceService: SubmissionRequestPersistenceService,
     ): SubmissionRequestDraftService =
         SubmissionRequestDraftService(
             toSubmissionMapper,
