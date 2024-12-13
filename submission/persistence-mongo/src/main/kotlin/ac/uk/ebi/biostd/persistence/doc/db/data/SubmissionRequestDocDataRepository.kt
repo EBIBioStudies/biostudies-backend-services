@@ -83,22 +83,22 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
-    suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
+    suspend fun saveRequest(request: DocSubmissionRequest): DocSubmissionRequest {
         val query =
             Query(
-                where(RQT_ACC_NO)
-                    .`is`(request.accNo)
-                    .andOperator(where(RQT_STATUS).nin(DRAFT, SUBMITTED, PROCESSED)),
+                where(RQT_KEY)
+                    .`is`(request.key)
+                    .andOperator(where(RQT_STATUS).nin(PROCESSED)),
             )
-        val result =
-            mongoTemplate
-                .upsert(
-                    query,
-                    request.asSetOnInsert(),
-                    DocSubmissionRequest::class.java,
-                ).awaitSingle()
-        val created = result.matchedCount < 1
-        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING_STATUS) to created
+
+        mongoTemplate
+            .upsert(
+                query,
+                request.asUpdate(),
+                DocSubmissionRequest::class.java,
+            ).awaitSingle()
+
+        return submissionRequestRepository.getByKey(request.key)
     }
 
     /**
@@ -295,6 +295,18 @@ class SubmissionRequestDocDataRepository(
         modificationTime: Instant,
     ) {
         val update = update(RQT_DRAFT, draft).set(RQT_MODIFICATION_TIME, modificationTime)
+        val where = where(RQT_KEY).`is`(key).andOperator(where(RQT_OWNER).`is`(owner))
+
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+    }
+
+    suspend fun setRequestDraftStatus(
+        key: String,
+        owner: String,
+        status: RequestStatus,
+        modificationTime: Instant,
+    ) {
+        val update = update(RQT_STATUS, status).set(RQT_MODIFICATION_TIME, modificationTime)
         val where =
             where(RQT_KEY)
                 .`is`(key)

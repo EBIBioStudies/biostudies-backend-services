@@ -24,6 +24,7 @@ import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
+@Deprecated("Deprecated in favor of SubmissionRequestDraftService")
 @Suppress("LongParameterList")
 class SubmissionDraftService(
     private val clock: Clock,

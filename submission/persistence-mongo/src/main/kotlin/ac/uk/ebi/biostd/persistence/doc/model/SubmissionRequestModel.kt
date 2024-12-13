@@ -16,7 +16,7 @@ import java.time.Instant
 data class DocSubmissionRequest(
     @Id
     val id: ObjectId,
-    val key: String?,
+    val key: String,
     val accNo: String,
     val version: Int,
     val owner: String,
@@ -25,17 +25,17 @@ data class DocSubmissionRequest(
     val modificationTime: Instant,
     val process: DocRequestProcessing?,
 ) {
-    fun asSetOnInsert(): Update =
+    fun asUpdate(): Update =
         Update()
             .setOnInsert("_id", id)
             .setOnInsert(DocRequestFields.RQT_KEY, key)
-            .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
-            .setOnInsert(DocRequestFields.RQT_VERSION, version)
             .setOnInsert(DocRequestFields.RQT_OWNER, owner)
             .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
-            .setOnInsert(DocRequestFields.RQT_STATUS, status)
-            .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
-            .setOnInsert(DocRequestFields.RQT_PROCESS, process)
+            .set(DocRequestFields.RQT_ACC_NO, accNo)
+            .set(DocRequestFields.RQT_VERSION, version)
+            .set(DocRequestFields.RQT_STATUS, status)
+            .set(DocRequestFields.RQT_PROCESS, process)
+            .set(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
 }
 
 data class DocFilesChanges(

@@ -111,10 +111,7 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: RequestStatus,
     ): Boolean
 
-    suspend fun getByAccNoAndStatusIn(
-        accNo: String,
-        status: Set<RequestStatus>,
-    ): DocSubmissionRequest
+    suspend fun getByKey(key: String): DocSubmissionRequest
 
     suspend fun findByAccNoAndVersion(
         accNo: String,
@@ -129,11 +126,17 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     fun findByOwnerAndStatusIn(
         owner: String,
         status: Set<RequestStatus>,
+        pageRequest: Pageable,
     ): Flow<DocSubmissionRequest>
 
-    fun findByKeyAndOwnerAndStatusIn(
+    suspend fun findByKeyAndOwnerAndStatusIn(
         key: String,
         owner: String,
+        status: Set<RequestStatus>,
+    ): DocSubmissionRequest?
+
+    suspend fun findByAccNoAndStatusIn(
+        accNo: String,
         status: Set<RequestStatus>,
     ): DocSubmissionRequest?
 

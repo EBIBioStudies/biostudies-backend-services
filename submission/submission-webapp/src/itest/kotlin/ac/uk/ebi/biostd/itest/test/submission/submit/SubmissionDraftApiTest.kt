@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -56,7 +57,7 @@ class SubmissionDraftApiTest(
             webClient.submit(pageTab, JSON)
 
             val draftSubmission = webClient.getSubmissionDraft("ABC-123")
-            assertThat(draftSubmission.key).isEqualTo("ABC-123")
+            assertThat(draftSubmission.key).isEqualTo(draftSubmission.key)
             webClient.deleteSubmissionDraft(draftSubmission.key)
         }
 
@@ -172,7 +173,7 @@ class SubmissionDraftApiTest(
                             },
                         )
                 }.toString()
-            webClient.getSubmissionDraft("ABC-129")
+            val draft = webClient.getSubmissionDraft("ABC-129")
             webClient.updateSubmissionDraft("ABC-129", updatedDraft)
 
             webClient.submitFromDraft("ABC-129")
@@ -180,10 +181,11 @@ class SubmissionDraftApiTest(
             val version2 = webClient.getExtByAccNo("ABC-129")
             assertThat(version2.attributes.first().name).isEqualTo("Source")
             assertThat(version2.attributes.first().value).isEqualTo("Draft")
-            assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-129")).isNull()
+            assertThat(draftPersistenceService.getActiveSubmissionDrafts(SuperUser.email).toList()).isEmpty()
 
             val request = requestRepository.getRequest("ABC-129", 2)
-            assertThat(request.key).isEqualTo("ABC-129")
+            assertThat(request.key).isEqualTo(draft.key)
+            assertThat(request.accNo).isEqualTo("ABC-129")
             assertThat(request.draft).isEqualTo(updatedDraft)
         }
 

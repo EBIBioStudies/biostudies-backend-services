@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
@@ -94,17 +95,17 @@ interface SubmissionFilesPersistenceService {
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
-    suspend fun findRequestDrafts(owner: String): Flow<SubmissionRequest>
+    suspend fun findRequestDrafts(
+        owner: String,
+        pageRequest: PageRequest = PageRequest(),
+    ): Flow<SubmissionRequest>
 
     suspend fun findRequestDraft(
         key: String,
         owner: String,
     ): SubmissionRequest?
 
-    suspend fun getActiveRequestDraft(
-        key: String,
-        owner: String,
-    ): SubmissionRequest
+    suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest?
 
     suspend fun deleteRequestDraft(
         key: String,
@@ -118,11 +119,18 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
+    suspend fun setDraftStatus(
+        key: String,
+        owner: String,
+        status: RequestStatus,
+        modificationTime: Instant,
+    )
+
     suspend fun findAllProcessed(): Flow<Pair<String, Int>>
 
     suspend fun hasActiveRequest(accNo: String): Boolean
 
-    suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
@@ -131,6 +139,11 @@ interface SubmissionRequestPersistenceService {
      * @see UpdateOptions
      */
     suspend fun updateRqtFile(rqt: SubmissionRequestFile)
+
+    suspend fun getSubmittedRequestDraft(
+        key: String,
+        owner: String,
+    ): SubmissionRequest
 
     suspend fun getRequest(
         accNo: String,

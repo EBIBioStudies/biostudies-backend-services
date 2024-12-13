@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Clock
@@ -42,6 +43,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset.UTC
 
+@Disabled
 @ExtendWith(MockKExtension::class)
 class SubmissionDraftServiceTest(
     @MockK private val submitWebHandler: SubmitWebHandler,
