@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationServ
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
-import ebi.ac.uk.test.basicExtSubmission as sub
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -25,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
+import ebi.ac.uk.test.basicExtSubmission as sub
 
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
