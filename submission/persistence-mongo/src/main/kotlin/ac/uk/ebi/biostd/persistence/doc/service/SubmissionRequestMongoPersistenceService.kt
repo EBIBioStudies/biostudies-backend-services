@@ -66,18 +66,6 @@ class SubmissionRequestMongoPersistenceService(
         return requestRepository.findByAccNoAndStatusIn(accNo, setOf(DRAFT))?.let { asRequest(it) }
     }
 
-//    override suspend fun getActiveRequestDraft(
-//        key: String,
-//        owner: String,
-//    ): SubmissionRequest {
-//        val requestDraft =
-//            requestRepository
-//                .findByKeyAndOwnerAndStatusIn(key, owner, setOf(DRAFT))
-//                ?: throw SubmissionRequestDraftNotFoundException(key, owner)
-//
-//        return asRequest(requestDraft)
-//    }
-
     override suspend fun deleteRequestDraft(
         key: String,
         owner: String,
@@ -103,7 +91,9 @@ class SubmissionRequestMongoPersistenceService(
             .findByStatusIn(PROCESSED_STATUS)
             .map { it.accNo to it.version }
 
-    override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
+    override suspend fun hasActiveRequest(accNo: String): Boolean {
+        return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
+    }
 
     override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request =
@@ -134,16 +124,10 @@ class SubmissionRequestMongoPersistenceService(
         requestFilesRepository.deleteByAccNoAndVersion(accNo, version)
     }
 
-    override suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int> {
-//        val (request, created) = requestRepository.saveRequest(asDocRequest(rqt))
+    override suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val request = requestRepository.saveRequest(asDocRequest(rqt))
-//        if (created.not()) throw ConcurrentSubException(request.accNo, request.version)
         return request.accNo to request.version
     }
-
-//    override suspend fun saveRequest(rqt: SubmissionRequest) {
-//        requestRepository.updateRequest(asDocRequest(rqt))
-//    }
 
     override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
         requestRepository.updateSubRqtFile(rqt)

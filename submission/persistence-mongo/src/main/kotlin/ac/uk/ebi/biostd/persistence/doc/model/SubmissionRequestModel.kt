@@ -25,18 +25,6 @@ data class DocSubmissionRequest(
     val modificationTime: Instant,
     val process: DocRequestProcessing?,
 ) {
-//    fun asSetOnInsert(): Update =
-//        Update()
-//            .setOnInsert("_id", id)
-//            .setOnInsert(DocRequestFields.RQT_KEY, key)
-//            .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
-//            .setOnInsert(DocRequestFields.RQT_VERSION, version)
-//            .setOnInsert(DocRequestFields.RQT_OWNER, owner)
-//            .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
-//            .setOnInsert(DocRequestFields.RQT_STATUS, status)
-//            .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
-//            .setOnInsert(DocRequestFields.RQT_PROCESS, process)
-
     fun asUpdate(): Update =
         Update()
             .setOnInsert("_id", id)

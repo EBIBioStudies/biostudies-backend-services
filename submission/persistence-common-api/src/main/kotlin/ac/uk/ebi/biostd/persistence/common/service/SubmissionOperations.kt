@@ -130,10 +130,7 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun hasActiveRequest(accNo: String): Boolean
 
-    // TODO rename to saveRequest
-    suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
-
-//    suspend fun saveRequest(rqt: SubmissionRequest)
+    suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 

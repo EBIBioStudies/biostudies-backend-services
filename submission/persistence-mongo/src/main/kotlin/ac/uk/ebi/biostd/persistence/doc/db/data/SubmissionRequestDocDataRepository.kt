@@ -88,35 +88,16 @@ class SubmissionRequestDocDataRepository(
                     .`is`(request.key)
                     .andOperator(where(RQT_STATUS).nin(PROCESSED)),
             )
-//        val result =
+
             mongoTemplate
                 .upsert(
                     query,
                     request.asUpdate(),
                     DocSubmissionRequest::class.java,
                 ).awaitSingle()
-//        val created = result.matchedCount < 1
-//        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner) to created
+
         return submissionRequestRepository.getByKey(request.key)
     }
-
-//    suspend fun updateRequest(request: DocSubmissionRequest): DocSubmissionRequest {
-//        val query =
-//            Query(
-//                where(RQT_KEY)
-//                .`is`(request.key)
-//                .andOperator(where(RQT_OWNER).`is`(request.owner)),
-//            )
-//
-//        mongoTemplate
-//            .upsert(
-//                query,
-//                request.asUpdate(),
-//                DocSubmissionRequest::class.java,
-//            ).awaitSingle()
-//
-//        return submissionRequestRepository.getByKeyAndOwner(request.key, request.owner)
-//    }
 
     /**
      * Archive the given request. Note that {@see Document} is used rathet than specific entity type to avoid schema
@@ -199,11 +180,6 @@ class SubmissionRequestDocDataRepository(
             else -> findActiveRequests(query, filter.offset, filter.limit)
         }
     }
-
-//    suspend fun getRequestDraft(
-//        key: String,
-//        owner: String,
-//    ): DocSubmissionRequest = submissionRequestRepository.getByKeyAndOwner(key, owner)
 
     suspend fun getRequest(
         accNo: String,

@@ -19,10 +19,8 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class SubmissionRequestDraftService(
-//    private val submitWebHandler: SubmitWebHandler,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val serializationService: SerializationService,
-//    private val submitRequestBuilder: SubmitRequestBuilder,
     private val userPrivilegesService: IUserPrivilegesService,
     private val submissionQueryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
@@ -108,21 +106,8 @@ class SubmissionRequestDraftService(
                 modificationTime = creationTime.atOffset(UTC),
             )
 
-        requestService.createRequest(request)
+        requestService.saveRequest(request)
 
         return request
     }
-
-//    suspend fun submitRequestDraft(
-//        key: String,
-//        user: SecurityUser,
-//        onBehalfRequest: OnBehalfParameters?,
-//        parameters: SubmitParameters,
-//    ) {
-//        val submission = getRequestDraft(key, user.email)
-//        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key, submission)
-//        val request = submitRequestBuilder.buildContentRequest(submission, JSON_PRETTY, buildRequest)
-//        submitWebHandler.submitAsync(request)
-//        logger.info { "$key ${user.email} Draft with key '$key' SUBMITTED" }
-//    }
 }

@@ -73,7 +73,7 @@ class LocalExtSubmissionSubmitter(
                 singleJobMode = rqt.singleJobMode,
             )
 
-        return requestService.createRequest(request)
+        return requestService.saveRequest(request)
     }
 
     override suspend fun handleRequest(

@@ -96,7 +96,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         singleJobMode = false,
                     )
 
-                val (accNo, version) = testInstance.createRequest(rqt)
+                val (accNo, version) = testInstance.saveRequest(rqt)
                 assertThat(accNo).isEqualTo("S-BSST1")
                 assertThat(version).isEqualTo(1)
 
@@ -141,7 +141,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         singleJobMode = false,
                     )
 
-                val (accNo, version) = testInstance.createRequest(rqt)
+                val (accNo, version) = testInstance.saveRequest(rqt)
                 assertThat(accNo).isEqualTo("S-BSST1")
                 assertThat(version).isEqualTo(1)
 
