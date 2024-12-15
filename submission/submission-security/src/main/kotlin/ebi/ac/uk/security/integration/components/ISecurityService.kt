@@ -11,6 +11,7 @@ import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
+@Suppress("TooManyFunctions")
 interface ISecurityService {
     suspend fun registerUser(request: RegisterRequest): SecurityUser
 
