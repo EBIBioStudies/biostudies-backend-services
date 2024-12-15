@@ -9,17 +9,22 @@ data class SubmissionRequestStatusChange(
     val status: String,
 )
 
-data class SubmissionRequest(
+data class SubmissionRequestFileChanges(
+    val reusedFiles: Int = 0,
+    val deprecatedFiles: Int = 0,
+    val deprecatedPageTab: Int = 0,
+    val conflictingFiles: Int = 0,
+    val conflictingPageTab: Int = 0,
+)
+
+data class SubmissionRequestProcessing(
     val submission: ExtSubmission,
-    val draftKey: String?,
     val notifyTo: String,
-    val status: RequestStatus,
     val totalFiles: Int,
     val fileChanges: SubmissionRequestFileChanges,
     val currentIndex: Int,
-    val modificationTime: OffsetDateTime,
     val silentMode: Boolean,
-    val processAll: Boolean,
+    val singleJobMode: Boolean,
     val previousVersion: Int?,
     val statusChanges: List<SubmissionRequestStatusChange>,
 ) {
@@ -27,21 +32,49 @@ data class SubmissionRequest(
         submission: ExtSubmission,
         notifyTo: String,
         silentMode: Boolean,
-        processAll: Boolean,
-        draftKey: String? = null,
+        singleJobMode: Boolean,
     ) : this(
         submission,
-        draftKey,
         notifyTo,
-        status = REQUESTED,
         totalFiles = 0,
         fileChanges = SubmissionRequestFileChanges(),
         currentIndex = 0,
         previousVersion = null,
         silentMode = silentMode,
-        processAll = processAll,
-        modificationTime = OffsetDateTime.now(),
+        singleJobMode = singleJobMode,
         statusChanges = emptyList(),
+    )
+}
+
+data class SubmissionRequest(
+    val key: String?,
+    val accNo: String,
+    val version: Int,
+    val owner: String,
+    val draft: String?,
+    val status: RequestStatus,
+    val modificationTime: OffsetDateTime,
+    val process: SubmissionRequestProcessing? = null,
+) {
+    constructor(
+        key: String? = null,
+        accNo: String,
+        version: Int,
+        owner: String,
+        draft: String? = null,
+        submission: ExtSubmission,
+        notifyTo: String,
+        silentMode: Boolean,
+        singleJobMode: Boolean,
+    ) : this(
+        key,
+        accNo,
+        version,
+        owner,
+        draft,
+        status = REQUESTED,
+        modificationTime = OffsetDateTime.now(),
+        process = SubmissionRequestProcessing(submission, notifyTo, silentMode, singleJobMode),
     )
 
     /**
@@ -51,7 +84,7 @@ data class SubmissionRequest(
         copy(
             status = status,
             modificationTime = OffsetDateTime.now(),
-            currentIndex = 0,
+            process = process?.copy(currentIndex = 0),
         )
 
     /**
@@ -61,8 +94,7 @@ data class SubmissionRequest(
         copy(
             status = RequestStatus.INDEXED,
             modificationTime = OffsetDateTime.now(),
-            currentIndex = 0,
-            totalFiles = totalFiles,
+            process = process?.copy(currentIndex = 0, totalFiles = totalFiles),
         )
 
     /**
@@ -76,19 +108,9 @@ data class SubmissionRequest(
         copy(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
-            currentIndex = 0,
-            fileChanges = fileChanges,
-            previousVersion = previousVersion,
+            process = process?.copy(currentIndex = 0, fileChanges = fileChanges, previousVersion = previousVersion),
         )
 }
-
-data class SubmissionRequestFileChanges(
-    val reusedFiles: Int = 0,
-    val deprecatedFiles: Int = 0,
-    val deprecatedPageTab: Int = 0,
-    val conflictingFiles: Int = 0,
-    val conflictingPageTab: Int = 0,
-)
 
 /**
  * Retrieves the expected action to be performed when submission request is the given status.

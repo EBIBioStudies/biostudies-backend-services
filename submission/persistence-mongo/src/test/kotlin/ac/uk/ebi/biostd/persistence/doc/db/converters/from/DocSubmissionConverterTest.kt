@@ -88,7 +88,6 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_ROOT_PATH] = ROOT_PATH
         subDocument[DocSubmissionFields.SUB_RELEASED] = RELEASED
         subDocument[DocSubmissionFields.SUB_SECRET_KEY] = SECRET_KEY
-        subDocument[DocSubmissionFields.SUB_STATUS] = STATUS
         subDocument[DocSubmissionFields.SUB_RELEASE_TIME] = subReleaseTime
         subDocument[DocSubmissionFields.SUB_MODIFICATION_TIME] = subModificationTime
         subDocument[DocSubmissionFields.SUB_CREATION_TIME] = subCreationTime
@@ -128,7 +127,6 @@ internal class DocSubmissionConverterTest(
         private const val SUBMITTER = "submitter"
         private const val TITLE = "title"
         private const val METHOD = "FILE"
-        private const val STATUS = "PROCESSED"
         private const val REL_PATH = "relPath"
         private const val ROOT_PATH = "rootPath"
         private const val RELEASED = false

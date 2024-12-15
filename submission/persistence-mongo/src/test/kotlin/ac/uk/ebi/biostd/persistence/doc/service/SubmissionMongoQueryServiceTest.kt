@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
+import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
@@ -424,20 +425,25 @@ internal class SubmissionMongoQueryServiceTest(
             status: RequestStatus,
         ) = DocSubmissionRequest(
             id = ObjectId(),
+            key = null,
             accNo = submission.accNo,
             version = submission.version,
+            owner = "owner@mail.org",
+            draft = null,
             status = status,
-            draftKey = null,
-            silentMode = false,
-            singleJobMode = false,
-            notifyTo = submission.owner,
-            submission = BasicDBObject.parse(serializationService.serialize(submission)),
-            totalFiles = 6,
-            fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
-            currentIndex = 0,
             modificationTime = Instant.now(),
-            statusChanges = emptyList(),
-            previousVersion = 1,
+            process =
+                DocRequestProcessing(
+                    silentMode = false,
+                    singleJobMode = false,
+                    notifyTo = submission.owner,
+                    submission = BasicDBObject.parse(serializationService.serialize(submission)),
+                    totalFiles = 6,
+                    fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
+                    currentIndex = 0,
+                    statusChanges = emptyList(),
+                    previousVersion = 1,
+                ),
         )
     }
 

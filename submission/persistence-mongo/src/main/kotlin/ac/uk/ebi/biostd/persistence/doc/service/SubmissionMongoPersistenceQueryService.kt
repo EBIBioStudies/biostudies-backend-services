@@ -116,7 +116,7 @@ internal class SubmissionMongoPersistenceQueryService(
             )
 
         return requests
-            .map { serializationService.deserialize(it.submission.toString()) }
+            .map { serializationService.deserialize(it.process?.submission.toString()) }
             .map { it.asBasicSubmission(PROCESSING) }
             .plus(findSubmissions(submissionFilter))
     }

@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.model.SubmitWebRequest
+import ac.uk.ebi.biostd.submission.model.draftContent
 import ac.uk.ebi.biostd.submission.model.draftKey
 import ac.uk.ebi.biostd.submission.model.method
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
@@ -61,7 +62,7 @@ class SubmitWebHandler(
     }
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
-        val (submitter, onBehalfUser, attrs, storageMode, silentMode, processAll) = rqt.config
+        val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
 
         /**
@@ -125,11 +126,12 @@ class SubmitWebHandler(
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,
                 draftKey = rqt.draftKey,
+                draftContent = rqt.draftContent,
                 collection = collection,
                 previousVersion = previous,
                 storageMode = storageMode,
                 silentMode = silentMode,
-                processAll = processAll,
+                singleJobMode = singleJobMode,
             )
         }
 

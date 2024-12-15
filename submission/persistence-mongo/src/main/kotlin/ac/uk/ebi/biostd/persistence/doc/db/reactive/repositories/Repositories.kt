@@ -100,6 +100,7 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
     findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
+@Suppress("TooManyFunctions")
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
     suspend fun existsByAccNoAndStatusIn(
         accNo: String,
@@ -127,6 +128,17 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         version: Int,
     ): DocSubmissionRequest
 
+    fun findByOwnerAndStatusIn(
+        owner: String,
+        status: Set<RequestStatus>,
+    ): Flow<DocSubmissionRequest>
+
+    fun findByKeyAndOwnerAndStatusIn(
+        key: String,
+        owner: String,
+        status: Set<RequestStatus>,
+    ): DocSubmissionRequest?
+
     fun findByStatusIn(status: Set<RequestStatus>): Flow<DocSubmissionRequest>
 
     fun findByStatusInAndModificationTimeLessThan(
@@ -141,6 +153,12 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     suspend fun deleteByAccNoAndVersion(
         accNo: String,
         version: Int,
+    )
+
+    suspend fun deleteByKeyAndOwnerAndStatusIn(
+        key: String,
+        owner: String,
+        status: Set<RequestStatus>,
     )
 }
 

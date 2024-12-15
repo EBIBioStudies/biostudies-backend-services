@@ -22,6 +22,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
@@ -30,6 +31,7 @@ import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -37,7 +39,7 @@ import java.time.Duration.ofMinutes
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("LongParameterList", "TooManyFunctions")
+@Suppress("CyclomaticComplexMethod", "LongParameterList", "TooManyFunctions")
 class LocalExtSubmissionSubmitter(
     private val properties: ApplicationProperties,
     private val pageTabService: PageTabService,
@@ -60,11 +62,15 @@ class LocalExtSubmissionSubmitter(
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
             SubmissionRequest(
+                key = rqt.draftKey,
+                accNo = submission.accNo,
+                version = submission.version,
+                owner = submission.owner,
+                draft = rqt.draftContent,
                 submission = submission,
                 notifyTo = rqt.notifyTo,
-                draftKey = rqt.draftKey,
                 silentMode = rqt.silentMode,
-                processAll = rqt.processAll,
+                singleJobMode = rqt.singleJobMode,
             )
         return requestService.createRequest(request)
     }
@@ -84,7 +90,7 @@ class LocalExtSubmissionSubmitter(
     ) {
         val rqt = requestService.getRequest(accNo, version)
         when {
-            rqt.processAll -> completeRqt(accNo, version, rqt.status)
+            rqt.process!!.singleJobMode -> completeRqt(accNo, version, rqt.status)
             else -> completeStage(accNo, version, rqt.status)
         }
     }
@@ -106,7 +112,8 @@ class LocalExtSubmissionSubmitter(
 
         suspend fun fromCheckReleased() {
             val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
-            if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+            val process = rqt.process!!
+            if (process.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, process.notifyTo)
             fromSavedSubmission()
         }
 
@@ -146,6 +153,8 @@ class LocalExtSubmissionSubmitter(
         }
 
         when (status) {
+            DRAFT -> TODO()
+            SUBMITTED -> TODO()
             REQUESTED -> fromRequested()
             INDEXED -> fromIndexed()
             LOADED -> fromLoaded()
@@ -166,6 +175,8 @@ class LocalExtSubmissionSubmitter(
         status: RequestStatus,
     ) {
         when (status) {
+            DRAFT -> TODO()
+            SUBMITTED -> TODO()
             REQUESTED -> indexRequest(accNo, version)
             INDEXED -> loadRequest(accNo, version)
             LOADED -> indexToCleanRequest(accNo, version)
@@ -241,7 +252,8 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         val rqt = requestSaver.saveRequest(accNo, version, properties.processId)
-        if (rqt.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
+        val process = rqt.process!!
+        if (process.silentMode.not()) eventsPublisherService.submissionSubmitted(accNo, process.notifyTo)
         eventsPublisherService.submissionPersisted(accNo, version)
     }
 

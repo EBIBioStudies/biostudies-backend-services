@@ -32,7 +32,7 @@ class SubmissionRequestProcessor(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, CLEANED, processId) {
-            processRequest(it.submission)
+            processRequest(it.process!!.submission)
             it.withNewStatus(FILES_COPIED)
         }
 

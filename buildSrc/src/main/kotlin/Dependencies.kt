@@ -22,17 +22,16 @@ import Versions.CommonsLang3Version
 import Versions.CommonsNetVersion
 import Versions.CommonsPoolVersion
 import Versions.GuavaVersion
+import Versions.HttpCrtVersion
 import Versions.JSONOrgVersion
 import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
-import Versions.KMongoCoroutineVersion
 import Versions.KotlinCoroutinesVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
 import Versions.MySqlVersion
-import Versions.OkHttpLoggingVersion
 import Versions.OkHttpVersion
 import Versions.PoiVersion
 import Versions.ReactorNettyVersion
@@ -69,9 +68,7 @@ object Versions {
     const val KotlinVersion = "1.9.23"
     const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
-
     const val KotlinLoggingVersion = "3.0.5"
-    const val KMongoCoroutineVersion = "4.6.1"
 
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
@@ -85,11 +82,11 @@ object Versions {
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
     const val S3Version = "1.12.772"
-    const val S3KVersion = "1.3.32"
+    const val S3KVersion = "1.3.83"
+    const val HttpCrtVersion = "1.3.26"
     const val OkHttpVersion = "5.0.0-alpha.14"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
-    const val OkHttpLoggingVersion = "4.10.0"
     const val JSONOrgVersion = "20201115"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
@@ -155,16 +152,15 @@ object Dependencies {
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
-    const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
+    const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpVersion"
     const val ReactorNetty = "io.projectreactor.netty:reactor-netty:$ReactorNettyVersion"
 
     // Persistence
     const val MySql = "com.mysql:mysql-connector-j:$MySqlVersion"
-    const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
-    const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
 
     // Misc
     const val AwsS3K = "aws.sdk.kotlin:s3:$S3KVersion"
+    const val HttpClientCrt = "aws.smithy.kotlin:http-client-engine-crt-jvm:$HttpCrtVersion"
     const val OkHttp3 = "com.squareup.okhttp3:okhttp:$OkHttpVersion"
     const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
     const val ServletApi = "javax.servlet:javax.servlet-api"

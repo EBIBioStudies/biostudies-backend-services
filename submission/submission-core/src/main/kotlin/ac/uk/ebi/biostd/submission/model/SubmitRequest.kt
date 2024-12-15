@@ -15,11 +15,12 @@ data class SubmitRequest(
     val method: SubmissionMethod,
     val onBehalfUser: SecurityUser?,
     val draftKey: String?,
+    val draftContent: String?,
     val collection: BasicCollection?,
     val previousVersion: ExtSubmission?,
     val storageMode: StorageMode?,
     val silentMode: Boolean,
-    val processAll: Boolean,
+    val singleJobMode: Boolean,
 ) {
     val accNo: String = submission.accNo.ifBlank { "PENDING_ACC_NO" }
     val owner: String = onBehalfUser?.email ?: submitter.email

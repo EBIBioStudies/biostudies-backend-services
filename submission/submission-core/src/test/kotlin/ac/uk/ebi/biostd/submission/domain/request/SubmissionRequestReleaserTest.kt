@@ -68,8 +68,8 @@ class SubmissionRequestReleaserTest(
     fun beforeEach() {
         every { fireFile.published } returns false
 
-        every { rqt.submission } returns submission
-        every { rqt.currentIndex } returns CURRENT_INDEX
+        every { rqt.process!!.submission } returns submission
+        every { rqt.process!!.currentIndex } returns CURRENT_INDEX
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
 
         every { submission.accNo } returns ACC_NO

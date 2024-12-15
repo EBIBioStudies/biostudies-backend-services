@@ -32,7 +32,7 @@ class SubmissionRequestIndexer(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, REQUESTED, processId) {
-            it.indexed(indexRequest(it.submission))
+            it.indexed(indexRequest(it.process!!.submission))
         }
 
     private suspend fun indexRequest(sub: ExtSubmission): Int {

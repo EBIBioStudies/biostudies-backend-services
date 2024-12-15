@@ -34,6 +34,11 @@ class ExtSubmissionService(
         version: Int,
     ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
 
+    suspend fun reTriggerSubmissionAsync(
+        accNo: String,
+        version: Int,
+    ): Unit = submissionSubmitter.handleRequestAsync(accNo, version)
+
     suspend fun refreshSubmission(
         user: String,
         accNo: String,

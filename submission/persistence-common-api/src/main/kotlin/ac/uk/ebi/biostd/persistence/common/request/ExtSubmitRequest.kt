@@ -6,6 +6,7 @@ data class ExtSubmitRequest(
     val submission: ExtSubmission,
     val notifyTo: String,
     val draftKey: String? = null,
+    val draftContent: String? = null,
     val silentMode: Boolean = false,
-    val processAll: Boolean = true,
+    val singleJobMode: Boolean = true,
 )

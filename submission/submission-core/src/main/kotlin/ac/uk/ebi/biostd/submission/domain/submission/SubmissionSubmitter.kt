@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -19,10 +20,11 @@ class SubmissionSubmitter(
     private val draftService: SubmissionDraftPersistenceService,
 ) {
     suspend fun createRqt(rqt: SubmitRequest): ExtSubmission {
-        val submission = processRequest(rqt)
-        val request = ExtSubmitRequest(submission, rqt.owner, rqt.draftKey, rqt.silentMode, rqt.processAll)
-        submissionSubmitter.createRqt(request)
-        return submission
+        val sub = processRequest(rqt)
+        val extRqt = ExtSubmitRequest(sub, rqt.owner, rqt.draftKey, rqt.draftContent, rqt.silentMode, rqt.singleJobMode)
+        submissionSubmitter.createRqt(extRqt)
+
+        return sub
     }
 
     suspend fun handleRequest(
@@ -58,7 +60,7 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-        draftService.setAcceptedStatus(draftKey)
+        draftService.setAcceptedStatus(draftKey, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
     }
 
@@ -67,7 +69,7 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-        draftService.setProcessingStatus(owner, draftKey)
+        draftService.setProcessingStatus(owner, draftKey, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
     }
 
@@ -76,7 +78,7 @@ class SubmissionSubmitter(
         owner: String,
         draftKey: String,
     ) {
-        draftService.setActiveStatus(draftKey)
+        draftService.setActiveStatus(draftKey, Instant.now())
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }
 }

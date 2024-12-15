@@ -72,8 +72,8 @@ class SubmissionRequestLoaderTest(
         val indexedFile =
             SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile, RequestFileStatus.INDEXED)
 
-        every { indexedRequest.submission } returns sub
-        every { indexedRequest.currentIndex } returns 3
+        every { indexedRequest.process!!.submission } returns sub
+        every { indexedRequest.process!!.currentIndex } returns 3
         every { indexedRequest.withNewStatus(RequestStatus.LOADED) } returns indexedRequest
         every {
             filesService.getSubmissionRequestFiles(

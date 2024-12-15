@@ -28,6 +28,7 @@ class SubmitRequestBuilder(
             submission = submission,
             format = format,
             draftKey = request.draftKey,
+            draftContent = request.draftContent,
             submissionConfig = submitConfig.first,
             filesConfig = submitConfig.second,
         )
@@ -42,7 +43,7 @@ class SubmitRequestBuilder(
     }
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
-        val (preferredSource, attributes, storageMode, silentMode, processAll) = request.submissionRequestParameters
+        val (preferredSource, attributes, storageMode, silentMode, singleJobMode) = request.submissionRequestParameters
         val submissionConfig =
             SubmissionConfig(
                 submitter = request.user,
@@ -50,7 +51,7 @@ class SubmitRequestBuilder(
                 attrs = attributes.map { ExtAttributeDetail(it.name, it.value) },
                 storageMode = storageMode,
                 silentMode = silentMode.orFalse(),
-                processAll = processAll ?: submissionTaskProperties.singleJobMode,
+                singleJobMode = singleJobMode ?: submissionTaskProperties.singleJobMode,
             )
         val filesConfig =
             SubmissionFilesConfig(
@@ -66,5 +67,6 @@ data class SubmitBuilderRequest(
     val onBehalfRequest: OnBehalfParameters?,
     val submissionRequestParameters: SubmitParameters,
     val draftKey: String? = null,
+    val draftContent: String? = null,
     val files: List<File>? = null,
 )
