@@ -18,10 +18,13 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
+import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.Group
+import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionStat
@@ -41,7 +44,8 @@ interface SubmitClient :
     ExtSubmissionOperations,
     PermissionOperations,
     StatsOperations,
-    SubmissionRequestOperations
+    SubmissionRequestOperations,
+    UserOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -131,6 +135,17 @@ interface SecurityOperations {
     fun registerUser(registerRequest: RegisterRequest)
 
     fun checkUser(checkUserRequest: CheckUserRequest)
+}
+
+interface UserOperations {
+    suspend fun getExtUser(email: String): ExtUser
+
+    suspend fun getUserHomeStats(email: String): FolderStats
+
+    suspend fun migrateUser(
+        email: String,
+        options: MigrateHomeOptions,
+    ): Unit
 }
 
 interface GeneralOperations {

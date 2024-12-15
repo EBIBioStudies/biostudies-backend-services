@@ -3,6 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
@@ -19,24 +20,28 @@ class SecurityQueryService(
     override fun existsByEmail(
         email: String,
         onlyActive: Boolean,
-    ): Boolean {
-        return if (onlyActive) {
+    ): Boolean =
+        if (onlyActive) {
             userRepository.existsByEmailAndActive(email, true)
         } else {
             userRepository.existsByEmail(email)
         }
-    }
 
-    override fun getUser(email: String): SecurityUser {
-        return userRepository.findByEmail(email)
+    override fun getUser(email: String): SecurityUser =
+        userRepository
+            .findByEmail(email)
             ?.let { profileService.asSecurityUser(it) }
             ?: throw UserNotFoundByEmailException(email)
-    }
 
-    override fun getUserProfile(authToken: String): UserInfo {
-        return securityUtil.checkToken(authToken)
+    override fun getUserProfile(authToken: String): UserInfo =
+        securityUtil
+            .checkToken(authToken)
             ?.let { profileService.getUserProfile(it, authToken) }
             ?: throw UserNotFoundByTokenException()
+
+    override fun getUserFolderStats(email: String): FolderStats {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
+        return profileService.getUserFolderStats(user)
     }
 
     override fun getOrCreateInactive(
