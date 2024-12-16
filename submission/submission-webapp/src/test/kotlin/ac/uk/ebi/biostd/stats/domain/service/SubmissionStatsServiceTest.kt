@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
@@ -141,20 +142,22 @@ class SubmissionStatsServiceTest(
         @MockK stat: SubmissionStat,
         @MockK submission: ExtSubmission,
     ) = runTest {
-        val savedStatSlot = slot<SubmissionStat>()
+        val savedStatSlot = slot<List<SubmissionStat>>()
 
         mockkStatic("uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt")
 
+        every { file1.type } returns ExtFileType.FILE
+        every { file2.type } returns ExtFileType.DIR
         every { file1.size } returns 2L
         every { file2.size } returns 3L
         every { submission.accNo } returns "S-BIAD123"
-        coEvery { submissionStatsService.save(capture(savedStatSlot)) } returns stat
+        coEvery { submissionStatsService.saveAll(capture(savedStatSlot)) } returns stat
         every { serializationService.filesFlow(submission) } returns flowOf(file1, file2)
         coEvery { queryService.getExtByAccNo("S-BIAD123", includeFileListFiles = true) } returns submission
 
         val result = testInstance.calculateStats("S-BIAD123")
-        val savedStat = savedStatSlot.captured
 
+        val savedStat = savedStatSlot.captured
         assertThat(result).isEqualTo(stat)
         assertThat(savedStat.value).isEqualTo(5L)
         assertThat(savedStat.type).isEqualTo(FILES_SIZE)
