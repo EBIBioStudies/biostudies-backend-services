@@ -26,6 +26,7 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.WebSubmissionDraft
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.time.Instant
 
@@ -154,26 +155,28 @@ interface GeneralOperations {
 }
 
 interface StatsOperations {
-    fun getStatsByAccNo(accNo: String): List<SubmissionStat>
+    fun findByAccNo(accNo: String): Flow<SubmissionStat>
 
-    fun getStatsByType(type: String): List<SubmissionStat>
+    fun findByType(type: String): Flow<SubmissionStat>
 
-    fun getStatsByTypeAndAccNo(
+    suspend fun findByTypeAndAccNo(
         type: String,
         accNo: String,
     ): SubmissionStat
 
-    fun registerStat(stat: SubmissionStat): Unit
+    suspend fun register(stat: SubmissionStat): Unit
 
-    fun registerStats(
+    fun register(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat>
+    ): Flow<SubmissionStat>
 
     fun incrementStats(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat>
+    ): Flow<SubmissionStat>
+
+    fun refreshStats(accNo: String): Flow<SubmissionStat>
 }
 
 interface DraftSubmissionOperations {

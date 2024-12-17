@@ -36,9 +36,7 @@ class ExtSubmissionResource(
     suspend fun getExtended(
         @PathVariable accNo: String,
         @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?,
-    ): ExtSubmission {
-        return extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
-    }
+    ): ExtSubmission = extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
 
     @GetMapping("/{accNo}/referencedFiles/**")
     suspend fun getReferencedFiles(
@@ -64,6 +62,11 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
         @PathVariable releaseDate: String,
     ): Pair<String, Int> = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
+
+    @PostMapping("/stats/refreshAll")
+    suspend fun refreshAllStatus() {
+        extSubmissionService.refreshAllStats()
+    }
 
     @PostMapping("/{accNo}/transfer/{target}")
     suspend fun transferSubmission(

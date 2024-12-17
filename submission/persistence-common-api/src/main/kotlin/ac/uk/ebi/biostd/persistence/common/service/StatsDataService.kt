@@ -20,7 +20,12 @@ interface StatsDataService {
 
     suspend fun save(stat: SubmissionStat): SubmissionStat
 
-    suspend fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat>
+    suspend fun saveLast(stats: List<SubmissionStat>): List<SubmissionStat>
 
     suspend fun incrementAll(stats: List<SubmissionStat>): List<SubmissionStat>
+
+    suspend fun saveSubmissionStats(
+        accNo: String,
+        stats: List<SubmissionStat>,
+    ): List<SubmissionStat>
 }
