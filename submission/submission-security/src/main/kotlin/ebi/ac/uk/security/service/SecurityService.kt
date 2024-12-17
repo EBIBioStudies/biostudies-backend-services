@@ -135,7 +135,7 @@ open class SecurityService(
         migrateOptions: MigrateHomeOptions,
     ) {
         val stats = securityQueryService.getUserFolderStats(email)
-        if (migrateOptions.onlyEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
+        if (migrateOptions.onlyIfEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
         updateMagicFolder(email, StorageMode.valueOf(migrateOptions.storageMode))
     }
 

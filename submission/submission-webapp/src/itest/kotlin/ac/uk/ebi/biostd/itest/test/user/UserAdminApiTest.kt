@@ -74,7 +74,7 @@ class UserAdminApiTest(
         runTest {
             userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"))
 
-            val options = MigrateHomeOptions("FTP", onlyEmptyFolder = true)
+            val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = true)
 
             val exception =
                 assertThrows<WebClientException> {
@@ -86,7 +86,7 @@ class UserAdminApiTest(
     @Test
     fun whenFolderIsEmpty() =
         runTest {
-            val options = MigrateHomeOptions("FTP", onlyEmptyFolder = true)
+            val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = true)
 
             superWebClient.migrateUser(SimpleUser.email, options)
 
