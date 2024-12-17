@@ -73,9 +73,9 @@ class StatsResource(
         return submissionStatsService.increment(type, statFile).map { it.toStatDto() }
     }
 
-    @PostMapping("/submission/{accNo}")
+    @PostMapping("/refresh/{accNo}")
     @ResponseBody
-    suspend fun calculateSubStats(
+    suspend fun refreshStats(
         @PathVariable accNo: String,
     ): List<SubmissionStat> = submissionStatsService.calculateStats(accNo).map { it.toStatDto() }
 }

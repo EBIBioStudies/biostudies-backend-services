@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.stats
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.EMPTY_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
@@ -11,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
@@ -44,7 +47,7 @@ class SubmissionStatsService(
         stats: File,
     ): List<SubmissionStat> {
         val statsList = statsFileHandler.readStats(stats, SubmissionStatType.fromString(type.uppercase()))
-        return submissionStatsService.saveAll(statsList)
+        return submissionStatsService.saveLast(statsList)
     }
 
     suspend fun increment(
@@ -60,7 +63,7 @@ class SubmissionStatsService(
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val stats = calculateStats(sub)
-        val allStats = submissionStatsService.saveAll(stats)
+        val allStats = submissionStatsService.saveSubmissionStats(accNo, stats)
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $stats" }
         return allStats
     }
@@ -69,23 +72,38 @@ class SubmissionStatsService(
         val idx = AtomicInteger(0)
         extSubmissionQueryService.findAllActive(includeFileListFiles = true).collect { sub ->
             val stats = calculateStats(sub)
-            submissionStatsService.saveAll(stats)
+            submissionStatsService.saveLast(stats)
             logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
         }
     }
 
     private suspend fun calculateStats(sub: ExtSubmission): List<SingleSubmissionStat> {
         var subFilesSize = 0L
-        var directories = 0L
+        var directories = mutableListOf<String>()
 
         serializationService.filesFlow(sub).collect {
             subFilesSize = subFilesSize + it.size
-            if (it.type == ExtFileType.DIR) directories++
+            if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
         }
+
+        val emptyDirectories =
+            directories
+                .filter { hasFiles(it, sub) }
+                .count()
 
         return listOf(
             SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
-            SingleSubmissionStat(sub.accNo, directories, DIRECTORIES),
+            SingleSubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
+            SingleSubmissionStat(sub.accNo, emptyDirectories.toLong(), EMPTY_DIRECTORIES),
         )
     }
+
+    private suspend fun hasFiles(
+        directoryPath: String,
+        sub: ExtSubmission,
+    ): Boolean =
+        serializationService
+            .filesFlow(sub)
+            .filter { it.type == ExtFileType.FILE }
+            .firstOrNull { it.filePath.contains(directoryPath) } != null
 }
