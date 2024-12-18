@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
@@ -20,7 +21,8 @@ class TestConfig {
         userDataRepository: UserDataRepository,
         sequenceDataRepository: SequenceDataRepository,
         securityService: SecurityService,
-    ): SecurityTestService = SecurityTestService(securityService, userDataRepository, sequenceDataRepository)
+        securityQueryService: SecurityQueryService,
+    ): SecurityTestService = SecurityTestService(securityService, securityQueryService, userDataRepository, sequenceDataRepository)
 
     @Bean
     fun submissionTestService(submissionRepository: SubmissionPersistenceQueryService): SubmissionTestService =

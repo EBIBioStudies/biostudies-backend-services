@@ -60,6 +60,7 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
         active: Boolean,
     ): DbUser?
 
+    @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
     fun findByEmail(email: String): DbUser?
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)

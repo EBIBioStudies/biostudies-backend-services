@@ -20,24 +20,18 @@ private const val STATS_URL = "/stats"
 class StatsClient(
     private val client: WebClient,
 ) : StatsOperations {
-    override fun getStatsByAccNo(accNo: String): List<SubmissionStat> {
-        return client.getForObject<Array<SubmissionStat>>("$STATS_URL/submission/$accNo").toList()
-    }
+    override fun getStatsByAccNo(accNo: String): List<SubmissionStat> =
+        client.getForObject<Array<SubmissionStat>>("$STATS_URL/submission/$accNo").toList()
 
-    override fun getStatsByType(type: String): List<SubmissionStat> {
-        return client.getForObject<Array<SubmissionStat>>("$STATS_URL/$type").toList()
-    }
+    override fun getStatsByType(type: String): List<SubmissionStat> =
+        client.getForObject<Array<SubmissionStat>>("$STATS_URL/$type").toList()
 
     override fun getStatsByTypeAndAccNo(
         type: String,
         accNo: String,
-    ): SubmissionStat {
-        return client.getForObject<SubmissionStat>("$STATS_URL/$type/$accNo")
-    }
+    ): SubmissionStat = client.getForObject<SubmissionStat>("$STATS_URL/$type/$accNo")
 
-    override fun registerStat(stat: SubmissionStat) {
-        return client.postForObject(STATS_URL, RequestParams(body = stat))
-    }
+    override fun registerStat(stat: SubmissionStat): Unit = client.postForObject(STATS_URL, RequestParams(body = stat))
 
     override fun registerStats(
         type: String,
@@ -49,7 +43,8 @@ class StatsClient(
                 HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE,
             )
         val multiPartBody = linkedMultiValueMapOf("stats" to FileSystemResource(statsFile))
-        return client.post()
+        return client
+            .post()
             .uri("$STATS_URL/$type")
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }
@@ -66,7 +61,8 @@ class StatsClient(
                 HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE,
             )
         val multiPartBody = linkedMultiValueMapOf("stats" to FileSystemResource(statsFile))
-        return client.post()
+        return client
+            .post()
             .uri("$STATS_URL/$type/increment")
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }

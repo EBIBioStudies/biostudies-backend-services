@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionRequestOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmitClient
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
+import ac.uk.ebi.biostd.client.integration.web.UserOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -23,6 +24,7 @@ internal class SubmitClientImpl(
     private val extSerializationService: ExtSerializationService,
 ) : SubmitClient,
     FilesOperations by UserFilesClient(client),
+    UserOperations by UserOperationsClient(client),
     GroupFilesOperations by GroupFilesClient(client),
     SubmissionOperations by SubmissionClient(client),
     SubmitOperations by SubmitClient(client, serializationService),

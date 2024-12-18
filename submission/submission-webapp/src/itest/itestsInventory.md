@@ -241,3 +241,13 @@ Contains test related to resubmission
 | SubmissionDatesTest             | 28-11   | Collection Admin make a Regular user public submission private                   |                                                                                               |
 | SubmissionRequestApiTest        | 29-1    | Get submission request status                                                    |                                                                                               |
 | SubmissionRequestApiTest        | 29-2    | Archive submission request                                                       |                                                                                               |
+
+### Admin Operations Test suite
+
+Contains test related to resubmission
+
+| Class            | Test No | Test name                                      |
+|------------------|---------|------------------------------------------------|
+| UserAdminApiTest | 30-1    | 30-1 Get user home stats                       |
+| UserAdminApiTest | 30-2    | 30-2 Migrate user folder when not empty folder |
+| UserAdminApiTest | 30-3    | 30-3 Migrate user folder when empty folder     |

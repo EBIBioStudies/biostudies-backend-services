@@ -26,10 +26,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SecurityQueryServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val profileService: ProfileService,
+    @MockK private val securityService: SecurityService,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val securityProperties: SecurityProperties,
 ) {
-    private val testInstance = SecurityQueryService(securityUtil, profileService, userRepository, securityProperties)
+    private val testInstance =
+        SecurityQueryService(securityUtil, profileService, userRepository, securityProperties)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

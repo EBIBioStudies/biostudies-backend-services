@@ -52,7 +52,6 @@ class SecurityModuleConfig(
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
-    private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo, props) }
     private val securityService by lazy {
         SecurityService(
             userRepo,
@@ -61,7 +60,16 @@ class SecurityModuleConfig(
             profileService,
             captchaVerifier,
             eventsPublisherService,
+            securityQueryService,
             clusterClient,
+        )
+    }
+    private val securityQueryService by lazy {
+        SecurityQueryService(
+            securityUtil,
+            profileService,
+            userRepo,
+            props,
         )
     }
 
@@ -85,12 +93,11 @@ class SecurityModuleConfig(
             props: SecurityProperties,
         ): SecurityUtil = SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
-        fun profileService(props: SecurityProperties): ProfileService {
-            return ProfileService(
+        fun profileService(props: SecurityProperties): ProfileService =
+            ProfileService(
                 nfsUserFtpDirPath = Paths.get(props.filesProperties.ftpDirPath),
                 nfsUserFilesDirPath = Paths.get(props.filesProperties.filesDirPath),
                 ftpRootPath = props.filesProperties.ftpRootPath,
             )
-        }
     }
 }
