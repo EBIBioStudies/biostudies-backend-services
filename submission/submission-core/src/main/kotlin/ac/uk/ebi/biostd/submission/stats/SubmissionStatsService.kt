@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.submission.stats
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.EMPTY_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -94,7 +94,7 @@ class SubmissionStatsService(
         return listOf(
             SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
             SingleSubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
-            SingleSubmissionStat(sub.accNo, emptyDirectories.toLong(), EMPTY_DIRECTORIES),
+            SingleSubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
         )
     }
 

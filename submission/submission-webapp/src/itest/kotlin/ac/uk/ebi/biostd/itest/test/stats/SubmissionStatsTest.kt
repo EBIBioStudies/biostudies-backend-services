@@ -392,7 +392,7 @@ class SubmissionStatsTest(
             assertThat(stat2.value).isEqualTo(2)
 
             val stat3 = stats[2]
-            assertThat(stat3.type).isEqualTo("EMPTY_DIRECTORIES")
+            assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
             assertThat(stat3.value).isEqualTo(1)
         }
 }
