@@ -22,6 +22,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -121,18 +122,21 @@ class SubmissionStatsTest(
             waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").isNotEmpty() }
 
             val statVersion1 = statsDataService.findByAccNo("S-STTS1")
-            assertThat(statVersion1).hasSize(1)
-            assertThat(statVersion1.first().value).isEqualTo(576L)
-            assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
-            assertThat(statVersion1.first().accNo).isEqualTo("S-STTS1")
+            assertThat(statVersion1).hasSize(3)
+            val fileStats = statVersion1.first()
+            assertThat(fileStats.value).isEqualTo(576L)
+            assertThat(fileStats.type).isEqualTo(FILES_SIZE)
+            assertThat(fileStats.accNo).isEqualTo("S-STTS1")
 
             assertThat(webClient.submit(version2, TSV)).isSuccessful()
             waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 576L }
+
             val stats = statsDataService.findByAccNo("S-STTS1")
-            assertThat(stats).hasSize(1)
-            assertThat(stats.first().value).isEqualTo(1647L)
-            assertThat(stats.first().type).isEqualTo(FILES_SIZE)
-            assertThat(stats.first().accNo).isEqualTo("S-STTS1")
+            assertThat(stats).hasSize(3)
+            val fileSize = stats.first()
+            assertThat(fileSize.value).isEqualTo(1647L)
+            assertThat(fileSize.type).isEqualTo(FILES_SIZE)
+            assertThat(fileSize.accNo).isEqualTo("S-STTS1")
         }
 
     @Test
@@ -221,10 +225,12 @@ class SubmissionStatsTest(
                 subJson + subTsv + fileListJson + fileListTsv + file1Size + file2Size + fileListFile + folderSize
 
             val stats = statsDataService.findByAccNo("S-STTS2")
-            assertThat(stats).hasSize(1)
-            assertThat(stats.first().value).isEqualTo(expectedSize)
-            assertThat(stats.first().type).isEqualTo(FILES_SIZE)
-            assertThat(stats.first().accNo).isEqualTo("S-STTS2")
+            assertThat(stats).hasSize(3)
+
+            val fileStats = stats.first()
+            assertThat(fileStats.value).isEqualTo(expectedSize)
+            assertThat(fileStats.type).isEqualTo(FILES_SIZE)
+            assertThat(fileStats.accNo).isEqualTo("S-STTS2")
         }
 
     @Test
@@ -326,7 +332,8 @@ class SubmissionStatsTest(
                     .toFile()
             statsFile.writeText("STATS-0005\t150")
 
-            webClient.register("VIEWS", statsFile)
+            webClient.register("VIEWS", statsFile).collect()
+
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
         }
@@ -355,7 +362,7 @@ class SubmissionStatsTest(
                     .toFile()
             statsFile.writeText("$accNo\t150")
 
-            webClient.incrementStats("VIEWS", statsFile)
+            webClient.incrementStats("VIEWS", statsFile).collect()
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 160L, "VIEWS"))
         }
