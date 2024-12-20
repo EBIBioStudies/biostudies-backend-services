@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
+import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
@@ -11,8 +12,11 @@ import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserFolder
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Instant
+import kotlin.math.max
 
 class ProfileService(
     private val nfsUserFtpDirPath: Path,
@@ -38,6 +42,38 @@ class ProfileService(
             permissions = getPermissions(user.permissions),
             notificationsEnabled = user.notificationsEnabled,
         )
+
+    fun getUserFolderStats(user: DbUser): FolderStats {
+        val profile = asSecurityUser(user)
+        return when (val userFolder = profile.userFolder) {
+            is FtpUserFolder -> error("Ftp user folder not supported")
+            is NfsUserFolder -> calculateFolderStats(userFolder.path.toFile())
+        }
+    }
+
+    private fun calculateFolderStats(nfsUserFolder: File): FolderStats {
+        var totalFiles = 0
+        var totalSize = 0L
+        var totalDirectories = 0
+        var latestModificationTime = 0L
+
+        nfsUserFolder
+            .walk()
+            .drop(1)
+            .onEach { if (it.isFile) totalFiles++ else totalDirectories++ }
+            .filter { it.isFile }
+            .forEach { file ->
+                totalSize += file.length()
+                latestModificationTime = max(latestModificationTime, file.lastModified())
+            }
+
+        return FolderStats(
+            totalFiles = totalFiles,
+            totalDirectories = totalDirectories,
+            totalFilesSize = totalSize,
+            lastModification = Instant.ofEpochMilli(latestModificationTime),
+        )
+    }
 
     private fun getPermissions(permissions: Set<DbAccessPermission>): Set<SecurityPermission> =
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }

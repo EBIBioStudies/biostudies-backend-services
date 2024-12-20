@@ -2,8 +2,12 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.common.MultipartBuilder
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
+import ac.uk.ebi.biostd.client.integration.web.UserOperations
 import ebi.ac.uk.api.UserFile
+import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.io.KFiles
+import ebi.ac.uk.model.FolderStats
+import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.util.web.normalize
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.FileSystemResource
@@ -21,6 +25,36 @@ import java.io.File
 
 private const val USER_FILES_URL = "/files/user"
 private const val USER_FOLDER_URL = "/folder/user"
+
+internal class UserOperationsClient(
+    private val client: WebClient,
+) : UserOperations {
+    override suspend fun getExtUser(email: String): ExtUser =
+        client
+            .get()
+            .uri("/security/users/extended/$email")
+            .retrieve()
+            .awaitBody<ExtUser>()
+
+    override suspend fun getUserHomeStats(email: String): FolderStats =
+        client
+            .get()
+            .uri("/security/users/$email/home-stats")
+            .retrieve()
+            .awaitBody<FolderStats>()
+
+    override suspend fun migrateUser(
+        email: String,
+        options: MigrateHomeOptions,
+    ) {
+        client
+            .post()
+            .uri("/security/users/$email/migrate")
+            .body(BodyInserters.fromValue(options))
+            .retrieve()
+            .awaitBodilessEntity()
+    }
+}
 
 internal class UserFilesClient(
     private val client: WebClient,
