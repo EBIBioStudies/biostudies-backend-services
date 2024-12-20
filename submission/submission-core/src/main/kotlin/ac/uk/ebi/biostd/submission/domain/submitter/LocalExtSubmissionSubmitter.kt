@@ -95,6 +95,10 @@ class LocalExtSubmissionSubmitter(
         }
     }
 
+    override suspend fun refreshAllStats() {
+        submissionStatsService.refreshAll()
+    }
+
     @Suppress("CyclomaticComplexMethod")
     private suspend fun completeRqt(
         accNo: String,
@@ -103,7 +107,7 @@ class LocalExtSubmissionSubmitter(
     ) {
         suspend fun fromSavedSubmission() {
             requestCleaner.finalizeRequest(accNo, version, properties.processId)
-            submissionStatsService.calculateSubFilesSize(accNo)
+            submissionStatsService.calculateStats(accNo)
         }
 
         suspend fun fromCheckReleased() {

@@ -122,7 +122,7 @@ class StatsMongoDataServiceTest(
                     SingleSubmissionStat("S-TEST3", 4L, VIEWS),
                 )
 
-            val result = testInstance.saveAll(stats)
+            val result = testInstance.saveLast(stats)
             assertThat(result).hasSize(2)
             assertThat(result.first()).usingRecursiveComparison().isEqualTo(stats.third())
             assertThat(result.second()).usingRecursiveComparison().isEqualTo(stats.second())
