@@ -246,8 +246,9 @@ Contains test related to resubmission
 
 Contains test related to resubmission
 
-| Class            | Test No | Test name                                      |
-|------------------|---------|------------------------------------------------|
-| UserAdminApiTest | 30-1    | 30-1 Get user home stats                       |
-| UserAdminApiTest | 30-2    | 30-2 Migrate user folder when not empty folder |
-| UserAdminApiTest | 30-3    | 30-3 Migrate user folder when empty folder     |
+| Class            | Test No | Test name                                                  |
+|------------------|---------|------------------------------------------------------------|
+| UserAdminApiTest | 30-1    | 30-1 Get user home stats                                   |
+| UserAdminApiTest | 30-2    | 30-2 Migrate user folder when not empty folder and disable |
+| UserAdminApiTest | 30-3    | 30-3 Migrate user folder when not empty folder and enable  |
+| UserAdminApiTest | 30-4    | 30-4 Migrate user folder when empty folder                 |

@@ -57,7 +57,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun getUserHomeStats() =
+    fun `30-1 Get user home stats`() =
         runTest {
             userWebClient.createFolder("main")
             userWebClient.createFolder("sub1", "/main")
@@ -72,7 +72,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun `when not empty folder and disabled`() =
+    fun `30-2 Migrate user folder when not empty folder and disable`() =
         runTest {
             userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"))
 
@@ -86,7 +86,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun `when not empty folder and enabled`() =
+    fun `30-3 Migrate user folder when not empty folder and enable`() =
         runTest {
             userWebClient.createFolder("f1")
             userWebClient.uploadFile(tempFolder.createFile("1.txt", "content-1"), "f1")
@@ -110,7 +110,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun whenFolderIsEmpty() =
+    fun `30-4 Migrate user folder when empty folder`() =
         runTest {
             val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = true)
 
