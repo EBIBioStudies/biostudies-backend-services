@@ -136,21 +136,29 @@ open class SecurityService(
     ) {
         val stats = securityQueryService.getUserFolderStats(email)
         if (migrateOptions.onlyIfEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
-        updateMagicFolder(email, StorageMode.valueOf(migrateOptions.storageMode))
+        updateMagicFolder(
+            email,
+            StorageMode.valueOf(migrateOptions.storageMode),
+            migrateOptions.copyFilesSinceDays,
+        )
     }
 
     private suspend fun updateMagicFolder(
         email: String,
         storageMode: StorageMode,
+        days: Int,
     ): Unit =
         withContext(Dispatchers.IO) {
             val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
             if (user.storageMode == storageMode) error("User '$email' Storage is already $storageMode")
 
-            user.storageMode = storageMode
-            val dbUser = userRepository.save(user)
-            val profile = profileService.asSecurityUser(dbUser)
-            createMagicFolder(profile)
+            val source = profileService.asSecurityUser(user)
+            val target = profileService.asSecurityUser(user.apply { this.storageMode = storageMode })
+
+            createMagicFolder(target)
+            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
+
+            userRepository.save(user)
         }
 
     private fun setPassword(
@@ -238,6 +246,25 @@ open class SecurityService(
         logger.info { "Started creating the cluster FTP folder $path" }
         clusterClient.triggerJobSync(job)
         logger.info { "Finished creating the cluster FTP folder $path" }
+    }
+
+    private suspend fun copyFilesClusterJob(
+        source: Path,
+        target: Path,
+        days: Int,
+    ) {
+        val command =
+            buildString {
+                append("find $source -mtime -$days -type f -exec echo {} \\;")
+                append(" | sed 's|^$source/||'")
+                append(" | rsync -a --files-from=- $source $target")
+            }
+
+        val job = JobSpec(queue = DataMoverQueue, command = command)
+
+        logger.info { "Started copying files to the cluster FTP folder $target from $source" }
+        clusterClient.triggerJobSync(job)
+        logger.info { "Finished copying files to the cluster FTP folder $target from $source" }
     }
 
     private fun createNfsMagicFolder(

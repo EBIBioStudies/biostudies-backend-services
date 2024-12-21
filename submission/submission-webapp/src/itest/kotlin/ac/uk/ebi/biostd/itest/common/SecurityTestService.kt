@@ -19,6 +19,8 @@ class SecurityTestService(
         if (sequenceRepository.existsByPrefix(prefix).not()) sequenceRepository.save(DbSequence(prefix))
     }
 
+    fun getSecurityUser(email: String): SecurityUser = securityQueryService.getUser(email)
+
     suspend fun ensureUserRegistration(testUser: TestUser) {
         if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
     }

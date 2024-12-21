@@ -11,7 +11,6 @@ import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
-import ebi.ac.uk.security.service.SecurityQueryService
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -23,12 +22,15 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.nio.file.Files
+import java.nio.file.attribute.FileTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit.HOURS
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class UserAdminApiTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val securityQueryService: SecurityQueryService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superWebClient: BioWebClient
@@ -70,7 +72,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun whenNotEmptyFolder() =
+    fun `when not empty folder and disabled`() =
         runTest {
             userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"))
 
@@ -84,13 +86,37 @@ class UserAdminApiTest(
         }
 
     @Test
+    fun `when not empty folder and enabled`() =
+        runTest {
+            userWebClient.createFolder("f1")
+            userWebClient.uploadFile(tempFolder.createFile("1.txt", "content-1"), "f1")
+            userWebClient.uploadFile(tempFolder.createFile("2.txt", "content-2"), "f1")
+            userWebClient.uploadFile(tempFolder.createFile("3.txt", "content-3"))
+
+            val homePath = securityTestService.getSecurityUser(SimpleUser.email).userFolder.path
+            Files.setLastModifiedTime(homePath.resolve("f1/1.txt"), FileTime.from(Instant.now().minus(5, HOURS)))
+            Files.setLastModifiedTime(homePath.resolve("f1/2.txt"), FileTime.from(Instant.now().minus(30, HOURS)))
+            Files.setLastModifiedTime(homePath.resolve("3.txt"), FileTime.from(Instant.now().minus(1, HOURS)))
+
+            val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = false, copyFilesSinceDays = 1)
+
+            superWebClient.migrateUser(SimpleUser.email, options)
+
+            val user = securityTestService.getSecurityUser(SimpleUser.email)
+            assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)
+
+            assertThat(userWebClient.listUserFiles().map { it.name }).containsExactlyInAnyOrder("f1", "3.txt")
+            assertThat(userWebClient.listUserFiles("f1").map { it.name }).containsOnly("1.txt")
+        }
+
+    @Test
     fun whenFolderIsEmpty() =
         runTest {
             val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = true)
 
             superWebClient.migrateUser(SimpleUser.email, options)
 
-            val user = securityQueryService.getUser(SimpleUser.email)
+            val user = securityTestService.getSecurityUser(SimpleUser.email)
             assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)
         }
 
