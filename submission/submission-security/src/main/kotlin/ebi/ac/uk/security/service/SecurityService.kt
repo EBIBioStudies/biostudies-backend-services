@@ -45,6 +45,7 @@ import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
 import kotlin.io.path.absolutePathString
 
 private val logger = KotlinLogging.logger {}
@@ -260,7 +261,7 @@ open class SecurityService(
                 append(" | rsync -a --files-from=- $source $target")
             }
 
-        val job = JobSpec(queue = DataMoverQueue, command = command)
+        val job = JobSpec(queue = DataMoverQueue, command = command, minutes = Duration.ofDays(1).toMinutesPart())
 
         logger.info { "Started copying files to the cluster FTP folder $target from $source" }
         clusterClient.triggerJobSync(job)

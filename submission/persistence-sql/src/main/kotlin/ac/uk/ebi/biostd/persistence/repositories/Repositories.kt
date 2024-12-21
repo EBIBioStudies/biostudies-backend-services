@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.transaction.annotation.Transactional
 import javax.persistence.LockModeType
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
@@ -38,6 +39,9 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
         email: String,
         active: Boolean,
     ): DbUser?
+
+    @Transactional
+    fun deleteByEmail(email: String)
 
     fun getByEmail(userEmail: String): DbUser
 

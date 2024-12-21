@@ -39,7 +39,7 @@ class UserAdminApiTest(
     @BeforeEach
     fun beforeEach() =
         runBlocking {
-            securityTestService.ensureUserRegistration(SimpleUser)
+            securityTestService.ensureNewUserRegistration(SimpleUser)
             securityTestService.ensureUserRegistration(SuperUser)
 
             superWebClient = getWebClient(serverPort, SuperUser)
@@ -49,7 +49,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun getExtUser() =
+    fun `30-1 Get ext user`() =
         runTest {
             val user = superWebClient.getExtUser(SimpleUser.email)
 
@@ -57,7 +57,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun `30-1 Get user home stats`() =
+    fun `30-2 Get user home stats`() =
         runTest {
             userWebClient.createFolder("main")
             userWebClient.createFolder("sub1", "/main")
@@ -72,7 +72,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun `30-2 Migrate user folder when not empty folder and disable`() =
+    fun `30-3 Migrate user folder when not empty folder and disable`() =
         runTest {
             userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"))
 
@@ -86,7 +86,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun `30-3 Migrate user folder when not empty folder and enable`() =
+    fun `30-4 Migrate user folder when not empty folder and enable`() =
         runTest {
             userWebClient.createFolder("f1")
             userWebClient.uploadFile(tempFolder.createFile("1.txt", "content-1"), "f1")
@@ -110,7 +110,7 @@ class UserAdminApiTest(
         }
 
     @Test
-    fun `30-4 Migrate user folder when empty folder`() =
+    fun `30-5 Migrate user folder when empty folder`() =
         runTest {
             val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = true)
 
