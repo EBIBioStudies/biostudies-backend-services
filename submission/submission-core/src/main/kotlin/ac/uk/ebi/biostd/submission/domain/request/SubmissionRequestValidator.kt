@@ -30,12 +30,13 @@ class SubmissionRequestValidator(
         }
 
     private suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
-        val accNo = rqt.process.submission.accNo
-        val submitter = rqt.process.submission.submitter
-        val currentReleased = queryService.findCoreInfo(rqt.process.submission.accNo)?.released.orFalse()
+        val submission = rqt.process!!.submission
+        val accNo = submission.accNo
+        val submitter = submission.submitter
+        val currentReleased = queryService.findCoreInfo(accNo)?.released.orFalse()
 
         if (currentReleased && rqt.hasFilesChanges && userPrivilegesService.canDeleteFiles(submitter, accNo).not()) {
-            logger.error { "$accNo ${rqt.process.submission.owner} The user $submitter is not allowed to modify files" }
+            logger.error { "$accNo ${submission.owner} The user $submitter is not allowed to modify files" }
             return INVALID
         }
 
@@ -48,5 +49,5 @@ class SubmissionRequestValidator(
      * - Any file has been replaced (conflictingFiles > 0)
      */
     private val SubmissionRequest.hasFilesChanges: Boolean
-        get() = process.fileChanges.deprecatedFiles > 0 || process.fileChanges.conflictingFiles > 0
+        get() = process!!.fileChanges.deprecatedFiles > 0 || process!!.fileChanges.conflictingFiles > 0
 }

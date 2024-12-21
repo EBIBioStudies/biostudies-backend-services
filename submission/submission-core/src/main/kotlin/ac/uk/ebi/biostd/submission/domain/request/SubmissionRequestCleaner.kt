@@ -37,7 +37,7 @@ class SubmissionRequestCleaner(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, VALIDATED, processId) {
-            val previousVersion = it.process.previousVersion
+            val previousVersion = it.process!!.previousVersion
             if (previousVersion != null) {
                 cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
                 cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING_PAGE_TAB)
@@ -56,7 +56,7 @@ class SubmissionRequestCleaner(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, PERSISTED, processId) {
-            val previousVersion = it.process.previousVersion
+            val previousVersion = it.process!!.previousVersion
             if (previousVersion != null) {
                 cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED)
                 cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED_PAGE_TAB)

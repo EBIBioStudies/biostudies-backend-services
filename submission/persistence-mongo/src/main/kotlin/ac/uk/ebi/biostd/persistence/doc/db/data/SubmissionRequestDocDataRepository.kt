@@ -7,10 +7,14 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DRAFT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_FILE_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PREV_SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PROCESS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_END_TIME
@@ -26,7 +30,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
@@ -48,7 +51,9 @@ import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
+import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -79,10 +84,16 @@ class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
     suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
+        val query =
+            Query(
+                where(RQT_ACC_NO)
+                    .`is`(request.accNo)
+                    .andOperator(where(RQT_STATUS).nin(DRAFT, SUBMITTED, PROCESSED)),
+            )
         val result =
             mongoTemplate
                 .upsert(
-                    Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
+                    query,
                     request.asSetOnInsert(),
                     DocSubmissionRequest::class.java,
                 ).awaitSingle()
@@ -196,7 +207,7 @@ class SubmissionRequestDocDataRepository(
                 endTime = null,
                 result = null,
             )
-        val update = Update().addToSet(RQT_STATUS_CHANGES, statusChange)
+        val update = Update().addToSet("$RQT_PROCESS.$RQT_STATUS_CHANGES", statusChange)
         val query =
             Query(
                 where(RQT_ACC_NO)
@@ -232,7 +243,7 @@ class SubmissionRequestDocDataRepository(
 
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionListFilter): Criteria =
-        where("$SUB.$SUB_OWNER")
+        where("$RQT_PROCESS.$SUB.$SUB_OWNER")
             .`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
@@ -240,7 +251,7 @@ class SubmissionRequestDocDataRepository(
         accNo: String,
         version: Int,
     ) {
-        val update = Update().inc(RQT_IDX, 1).currentDate(RQT_MODIFICATION_TIME)
+        val update = Update().inc("$RQT_PROCESS.$RQT_IDX", 1).currentDate(RQT_MODIFICATION_TIME)
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
@@ -277,6 +288,22 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
+    suspend fun updateRqtDraft(
+        key: String,
+        owner: String,
+        draft: String,
+        modificationTime: Instant,
+    ) {
+        val update = update(RQT_DRAFT, draft).set(RQT_MODIFICATION_TIME, modificationTime)
+        val where =
+            where(RQT_KEY)
+                .`is`(key)
+                .andOperator(
+                    where(RQT_OWNER).`is`(owner),
+                )
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+    }
+
     suspend fun updateSubmissionRequest(
         rqt: DocSubmissionRequest,
         processId: String,
@@ -289,21 +316,21 @@ class SubmissionRequestDocDataRepository(
                     .`is`(rqt.accNo)
                     .and(SUB_VERSION)
                     .`is`(rqt.version)
-                    .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID")
+                    .and("$RQT_PROCESS.$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID")
                     .`is`(ObjectId(processId)),
             )
         val update =
             Update()
-                .set(SUB_STATUS, rqt.status)
-                .set(SUB, rqt.submission)
-                .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_IDX, rqt.currentIndex)
-                .set(RQT_TOTAL_FILES, rqt.totalFiles)
-                .set(RQT_FILE_CHANGES, rqt.fileChanges)
+                .set(RQT_STATUS, rqt.status)
                 .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
-                .set(RQT_PREV_SUB_VERSION, rqt.previousVersion)
-                .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_END_TIME", processEndTime)
-                .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processResult.toString())
+                .set("$RQT_PROCESS.$SUB", rqt.process?.submission)
+                .set("$RQT_PROCESS.$RQT_TOTAL_FILES", rqt.process?.totalFiles)
+                .set("$RQT_PROCESS.$RQT_IDX", rqt.process?.currentIndex)
+                .set("$RQT_PROCESS.$RQT_TOTAL_FILES", rqt.process?.totalFiles)
+                .set("$RQT_PROCESS.$RQT_FILE_CHANGES", rqt.process?.fileChanges)
+                .set("$RQT_PROCESS.$RQT_PREV_SUB_VERSION", rqt.process?.previousVersion)
+                .set("$RQT_PROCESS.$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_END_TIME", processEndTime)
+                .set("$RQT_PROCESS.$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processResult.toString())
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
@@ -311,20 +338,20 @@ class SubmissionRequestDocDataRepository(
         ImmutableList
             .Builder<Criteria>()
             .apply {
-                add(where(SUB_STATUS).`in`(PROCESSING_STATUS))
-                filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
-                filter.type?.let { add(where("$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-                filter.rTimeFrom?.let { add(where("$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
-                filter.rTimeTo?.let { add(where("$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }
+                add(where(RQT_STATUS).`in`(PROCESSING_STATUS))
+                filter.accNo?.let { add(where("$RQT_PROCESS.$SUB.$SUB_ACC_NO").`is`(it)) }
+                filter.type?.let { add(where("$RQT_PROCESS.$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
+                filter.rTimeFrom?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
+                filter.rTimeTo?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }
                 filter.keywords?.let { add(keywordsCriteria(it)) }
-                filter.released?.let { add(where("$SUB.$SUB_RELEASED").`is`(it)) }
+                filter.released?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASED").`is`(it)) }
             }.build()
             .toTypedArray()
 
     private fun keywordsCriteria(keywords: String) =
         Criteria().orOperator(
-            where("$SUB.$SUB_TITLE").regex("(?i).*$keywords.*"),
-            where("$SUB.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
+            where("$RQT_PROCESS.$SUB.$SUB_TITLE").regex("(?i).*$keywords.*"),
+            where("$RQT_PROCESS.$SUB.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
                 where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*"),
             ),
         )
