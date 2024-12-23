@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.user
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -39,7 +40,7 @@ class UserAdminApiTest(
     @BeforeEach
     fun beforeEach() =
         runBlocking {
-            securityTestService.ensureNewUserRegistration(SimpleUser)
+            securityTestService.ensureUserRegistration(SimpleUser)
             securityTestService.ensureUserRegistration(SuperUser)
 
             superWebClient = getWebClient(serverPort, SuperUser)
@@ -88,25 +89,37 @@ class UserAdminApiTest(
     @Test
     fun `30-4 Migrate user folder when not empty folder and enable`() =
         runTest {
-            userWebClient.createFolder("f1")
-            userWebClient.uploadFile(tempFolder.createFile("1.txt", "content-1"), "f1")
-            userWebClient.uploadFile(tempFolder.createFile("2.txt", "content-2"), "f1")
-            userWebClient.uploadFile(tempFolder.createFile("3.txt", "content-3"))
+            val testUser =
+                object : TestUser {
+                    override val username: String = "user30-4"
+                    override val email: String = "user30-4@ebi.ac.uk"
+                    override val password: String = "password"
+                    override val superUser: Boolean = false
+                    override val storageMode: StorageMode = StorageMode.NFS
+                }
 
-            val homePath = securityTestService.getSecurityUser(SimpleUser.email).userFolder.path
+            securityTestService.ensureUserRegistration(testUser)
+            val ftpUserClient = getWebClient(serverPort, testUser)
+
+            ftpUserClient.createFolder("f1")
+            ftpUserClient.uploadFile(tempFolder.createFile("1.txt", "content-1"), "f1")
+            ftpUserClient.uploadFile(tempFolder.createFile("2.txt", "content-2"), "f1")
+            ftpUserClient.uploadFile(tempFolder.createFile("3.txt", "content-3"))
+
+            val homePath = securityTestService.getSecurityUser(testUser.email).userFolder.path
             Files.setLastModifiedTime(homePath.resolve("f1/1.txt"), FileTime.from(Instant.now().minus(5, HOURS)))
             Files.setLastModifiedTime(homePath.resolve("f1/2.txt"), FileTime.from(Instant.now().minus(30, HOURS)))
             Files.setLastModifiedTime(homePath.resolve("3.txt"), FileTime.from(Instant.now().minus(1, HOURS)))
 
             val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = false, copyFilesSinceDays = 1)
 
-            superWebClient.migrateUser(SimpleUser.email, options)
+            superWebClient.migrateUser(testUser.email, options)
 
-            val user = securityTestService.getSecurityUser(SimpleUser.email)
+            val user = securityTestService.getSecurityUser(testUser.email)
             assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)
 
-            assertThat(userWebClient.listUserFiles().map { it.name }).containsExactlyInAnyOrder("f1", "3.txt")
-            assertThat(userWebClient.listUserFiles("f1").map { it.name }).containsOnly("1.txt")
+            assertThat(ftpUserClient.listUserFiles().map { it.name }).containsExactlyInAnyOrder("f1", "3.txt")
+            assertThat(ftpUserClient.listUserFiles("f1").map { it.name }).containsOnly("1.txt")
         }
 
     @Test
@@ -125,5 +138,6 @@ class UserAdminApiTest(
         override val email = "simple-user-123@ebi.ac.uk"
         override val password = "12345"
         override val superUser = false
+        override val storageMode: StorageMode = StorageMode.NFS
     }
 }

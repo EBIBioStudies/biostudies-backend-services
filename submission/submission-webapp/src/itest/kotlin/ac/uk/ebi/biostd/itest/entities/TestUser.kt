@@ -8,9 +8,7 @@ interface TestUser {
     val email: String
     val password: String
     val superUser: Boolean
-
     val storageMode: StorageMode
-        get() = StorageMode.NFS
 
-    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password, storageMode = storageMode.name)
+    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password, storageMode.name)
 }

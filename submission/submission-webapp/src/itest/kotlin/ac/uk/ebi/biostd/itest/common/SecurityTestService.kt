@@ -28,12 +28,6 @@ class SecurityTestService(
             if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
         }
 
-    suspend fun ensureNewUserRegistration(testUser: TestUser) =
-        withContext(Dispatchers.IO) {
-            if (userDataRepository.existsByEmail(testUser.email)) userDataRepository.deleteByEmail(testUser.email)
-            registerUser(testUser)
-        }
-
     private suspend fun registerUser(testUser: TestUser): SecurityUser {
         val user = securityService.registerUser(testUser.asRegisterRequest())
         if (testUser.superUser) {

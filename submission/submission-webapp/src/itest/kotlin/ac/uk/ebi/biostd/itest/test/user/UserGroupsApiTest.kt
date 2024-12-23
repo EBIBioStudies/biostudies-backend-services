@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.user
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -94,6 +95,7 @@ class UserGroupsApiTest(
         override val email = "gr-test-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
     }
 
     object RegularUser : TestUser {
@@ -101,5 +103,6 @@ class UserGroupsApiTest(
         override val email = "regular-group-test-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
     }
 }
