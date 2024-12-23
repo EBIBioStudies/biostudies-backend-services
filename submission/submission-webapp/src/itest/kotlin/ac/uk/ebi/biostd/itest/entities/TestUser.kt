@@ -10,5 +10,5 @@ interface TestUser {
     val superUser: Boolean
     val storageMode: StorageMode
 
-    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password, storageMode.name)
+    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password, storageMode = storageMode.name)
 }
