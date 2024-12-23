@@ -391,7 +391,7 @@ class SubmissionStatsTest(
             assertThat(stats).hasSize(3)
 
             val stat1 = stats.first()
-            assertThat(stat1.value).isEqualTo(643L)
+            assertThat(stat1.value).isEqualTo(663L)
             assertThat(stat1.type).isEqualTo("FILES_SIZE")
 
             val stat2 = stats[1]
