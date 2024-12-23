@@ -202,7 +202,7 @@ class SubmissionStatsTest(
             assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
             val statVersion1 = statsDataService.findByAccNo("S-STTS2")
-            assertThat(statVersion1).hasSize(1)
+            assertThat(statVersion1).hasSize(3)
             assertThat(statVersion1.first().value).isEqualTo(574L)
             assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
             assertThat(statVersion1.first().accNo).isEqualTo("S-STTS2")
