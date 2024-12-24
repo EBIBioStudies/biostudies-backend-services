@@ -36,5 +36,5 @@ interface ISecurityService {
     suspend fun updateMagicFolder(
         email: String,
         migrateOptions: MigrateHomeOptions,
-    )
+    ): String
 }
