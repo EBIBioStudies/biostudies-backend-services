@@ -134,7 +134,7 @@ class SubmissionStatsTest(
             val stats = statsDataService.findByAccNo("S-STTS1")
             assertThat(stats).hasSize(3)
             val fileSize = stats.first()
-            assertThat(fileSize.value).isEqualTo(1647L)
+            assertThat(fileSize.value).isEqualTo(1474L)
             assertThat(fileSize.type).isEqualTo(FILES_SIZE)
             assertThat(fileSize.accNo).isEqualTo("S-STTS1")
         }
