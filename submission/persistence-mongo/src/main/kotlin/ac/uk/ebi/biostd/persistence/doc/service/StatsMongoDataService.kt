@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.PageRequest as DataPageRequest
 
+@Suppress("TooManyFunctions")
 class StatsMongoDataService(
     private val submissionsRepository: SubmissionMongoRepository,
     private val statsDataRepository: SubmissionStatsDataRepository,
@@ -49,13 +50,26 @@ class StatsMongoDataService(
         return updateOrRegister(stat)
     }
 
-    override suspend fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> =
-        stats.filterValid()
+    override suspend fun saveSubmissionStats(
+        accNo: String,
+        stats: List<SubmissionStat>,
+    ): List<SubmissionStat> {
+        val submissionStats = stats.associateBy({ it.type.name }, { it.value })
+        return statsDataRepository
+            .upsertStats(accNo, submissionStats)
+            .stats
+            .map { SingleSubmissionStat(accNo = accNo, type = SubmissionStatType.fromString(it.key), value = it.value) }
+    }
+
+    override suspend fun saveLast(stats: List<SubmissionStat>): List<SubmissionStat> =
+        stats
+            .filterValid()
             .mapValues { it.value.last() }
             .map { updateOrRegister(it.value) }
 
     override suspend fun incrementAll(stats: List<SubmissionStat>): List<SubmissionStat> =
-        stats.filterValid()
+        stats
+            .filterValid()
             .mapValues { increment(it.key, it.value) }
             .values
             .toList()
@@ -87,5 +101,5 @@ class StatsMongoDataService(
     private fun toSubmissionStat(
         type: SubmissionStatType,
         docSubmission: DocSubmissionStats,
-    ) = SingleSubmissionStat(docSubmission.accNo, docSubmission.stats[type.name]!!, type)
+    ): SingleSubmissionStat = SingleSubmissionStat(docSubmission.accNo, docSubmission.stats[type.name]!!, type)
 }

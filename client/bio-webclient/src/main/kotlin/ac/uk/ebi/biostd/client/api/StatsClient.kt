@@ -3,16 +3,16 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.integration.web.StatsOperations
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.getForObject
-import ebi.ac.uk.commons.http.ext.postForObject
-import ebi.ac.uk.commons.http.ext.retrieveBlocking
 import ebi.ac.uk.model.SubmissionStat
+import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
+import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToFlow
 import java.io.File
 
 private const val STATS_URL = "/stats"
@@ -20,23 +20,43 @@ private const val STATS_URL = "/stats"
 class StatsClient(
     private val client: WebClient,
 ) : StatsOperations {
-    override fun getStatsByAccNo(accNo: String): List<SubmissionStat> =
-        client.getForObject<Array<SubmissionStat>>("$STATS_URL/submission/$accNo").toList()
+    override fun findByAccNo(accNo: String): Flow<SubmissionStat> =
+        client
+            .get()
+            .uri("$STATS_URL/submission/$accNo")
+            .retrieve()
+            .bodyToFlow()
 
-    override fun getStatsByType(type: String): List<SubmissionStat> =
-        client.getForObject<Array<SubmissionStat>>("$STATS_URL/$type").toList()
+    override fun findByType(type: String): Flow<SubmissionStat> =
+        client
+            .get()
+            .uri("$STATS_URL/$type")
+            .retrieve()
+            .bodyToFlow()
 
-    override fun getStatsByTypeAndAccNo(
+    override suspend fun findByTypeAndAccNo(
         type: String,
         accNo: String,
-    ): SubmissionStat = client.getForObject<SubmissionStat>("$STATS_URL/$type/$accNo")
+    ): SubmissionStat =
+        client
+            .get()
+            .uri("$STATS_URL/$type/$accNo")
+            .retrieve()
+            .awaitBody()
 
-    override fun registerStat(stat: SubmissionStat): Unit = client.postForObject(STATS_URL, RequestParams(body = stat))
+    override suspend fun register(stat: SubmissionStat) {
+        client
+            .post()
+            .uri(STATS_URL)
+            .body(BodyInserters.fromValue(stat))
+            .retrieve()
+            .awaitBodilessEntity()
+    }
 
-    override fun registerStats(
+    override fun register(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat> {
+    ): Flow<SubmissionStat> {
         val headers =
             httpHeadersOf(
                 HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
@@ -48,13 +68,14 @@ class StatsClient(
             .uri("$STATS_URL/$type")
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }
-            .retrieveBlocking()!!
+            .retrieve()
+            .bodyToFlow()
     }
 
     override fun incrementStats(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat> {
+    ): Flow<SubmissionStat> {
         val headers =
             httpHeadersOf(
                 HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
@@ -66,6 +87,14 @@ class StatsClient(
             .uri("$STATS_URL/$type/increment")
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }
-            .retrieveBlocking()!!
+            .retrieve()
+            .bodyToFlow()
     }
+
+    override fun refreshStats(accNo: String): Flow<SubmissionStat> =
+        client
+            .post()
+            .uri("$STATS_URL/refresh/$accNo")
+            .retrieve()
+            .bodyToFlow()
 }
