@@ -220,9 +220,9 @@ class SubmissionStatsTest(
             val file1Size = subPath.resolve("Files/statsFile2.txt").size()
             val file2Size = subPath.resolve("Files/stats file 1.doc").size()
             val fileListFile = subPath.resolve("Files/a/statsFile3.pdf").size()
-            val folderSize = subPath.resolve("Files/a").size()
+
             val expectedSize =
-                subJson + subTsv + fileListJson + fileListTsv + file1Size + file2Size + fileListFile + folderSize
+                subJson + subTsv + fileListJson + fileListTsv + file1Size + file2Size + fileListFile
 
             val stats = statsDataService.findByAccNo("S-STTS2")
             assertThat(stats).hasSize(3)
@@ -389,11 +389,14 @@ class SubmissionStatsTest(
             webClient.uploadFile(subFile, "b-Dir")
             webClient.submit(submission, TSV)
 
+            val stored = submissionRepository.getExtByAccNo(accNo)
+            val tabFileSize = stored.pageTabFiles.map { it.size }.sum()
+
             val stats = webClient.refreshStats(accNo).toList()
             assertThat(stats).hasSize(3)
 
             val stat1 = stats.first()
-            assertThat(stat1.value).isEqualTo(subFile.size())
+            assertThat(stat1.value).isEqualTo(subFile.size() + tabFileSize)
             assertThat(stat1.type).isEqualTo("FILES_SIZE")
 
             val stat2 = stats[1]
