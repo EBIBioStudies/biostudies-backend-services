@@ -9,12 +9,14 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -118,6 +120,7 @@ class UserAdminApiTest(
             val user = securityTestService.getSecurityUser(testUser.email)
             assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)
 
+            waitUntil(timeout = TWO_SECONDS) { ftpUserClient.listUserFiles().isNotEmpty() }
             assertThat(ftpUserClient.listUserFiles().map { it.name }).containsExactlyInAnyOrder("f1", "3.txt")
             assertThat(ftpUserClient.listUserFiles("f1").map { it.name }).containsOnly("1.txt")
         }
