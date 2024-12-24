@@ -125,11 +125,20 @@ class UserAdminApiTest(
     @Test
     fun `30-5 Migrate user folder when empty folder`() =
         runTest {
+            val testUser =
+                object : TestUser {
+                    override val username: String = "user30-5"
+                    override val email: String = "user30-5@ebi.ac.uk"
+                    override val password: String = "password"
+                    override val superUser: Boolean = false
+                    override val storageMode: StorageMode = StorageMode.NFS
+                }
+            securityTestService.ensureUserRegistration(testUser)
+
             val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = true)
+            superWebClient.migrateUser(testUser.email, options)
 
-            superWebClient.migrateUser(SimpleUser.email, options)
-
-            val user = securityTestService.getSecurityUser(SimpleUser.email)
+            val user = securityTestService.getSecurityUser(testUser.email)
             assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)
         }
 
