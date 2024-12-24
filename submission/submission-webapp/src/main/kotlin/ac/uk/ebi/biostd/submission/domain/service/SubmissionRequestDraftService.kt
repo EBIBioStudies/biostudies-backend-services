@@ -28,44 +28,38 @@ class SubmissionRequestDraftService(
     suspend fun findActiveRequestDrafts(
         owner: String,
         pageRequest: PageRequest = PageRequest(),
-    ): Flow<SubmissionRequest> {
-        return requestService.findRequestDrafts(owner, pageRequest)
-    }
+    ): Flow<SubmissionRequest> = requestService.findRequestDrafts(owner, pageRequest)
 
     suspend fun getOrCreateRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
-    ): SubmissionRequest {
-        return requestService.findRequestDraft(key, owner)
-            ?: requestService.findSubmissionRequestDraft(key)
-            ?: createRequestDraftFromSubmission(key, owner)
-    }
+    ): SubmissionRequest =
+        requestService.findRequestDraft(accNo, owner)
+            ?: createRequestDraftFromSubmission(accNo, owner)
 
     suspend fun getRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
-    ): String {
-        return getOrCreateRequestDraft(key, owner).draft!!
-    }
+    ): String = getOrCreateRequestDraft(accNo, owner).draft!!
 
     suspend fun deleteRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
     ) {
-        requestService.deleteRequestDraft(key, owner)
-        logger.info { "$key $owner Draft with key '$key' DELETED for user '$owner'" }
+        requestService.deleteRequestDraft(accNo, owner)
+        logger.info { "$accNo $owner Draft with key '$accNo' DELETED for user '$owner'" }
     }
 
     suspend fun updateRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
         draft: String,
     ): SubmissionRequest {
-        val requestDraft = getOrCreateRequestDraft(key, owner)
+        val requestDraft = getOrCreateRequestDraft(accNo, owner)
         val modificationTime = Instant.now()
 
-        requestService.updateRequestDraft(requestDraft.key, owner, draft, modificationTime)
-        logger.info { "$key $owner Draft with key '$key' UPDATED for user '$owner'" }
+        requestService.updateRequestDraft(requestDraft.accNo, owner, draft, modificationTime)
+        logger.info { "$accNo $owner Draft with key '$accNo' UPDATED for user '$owner'" }
 
         return requestDraft.copy(draft = draft, modificationTime = modificationTime.atOffset(UTC))
     }
@@ -73,11 +67,9 @@ class SubmissionRequestDraftService(
     suspend fun createRequestDraft(
         draft: String,
         owner: String,
-    ): SubmissionRequest {
-        return createActiveRequestDraft(draft, owner)
-    }
+    ): SubmissionRequest = createActiveRequestDraft(draft, owner)
 
-    suspend fun createRequestDraftFromSubmission(
+    private suspend fun createRequestDraftFromSubmission(
         accNo: String,
         owner: String,
     ): SubmissionRequest {
@@ -94,11 +86,9 @@ class SubmissionRequestDraftService(
         accNo: String? = null,
     ): SubmissionRequest {
         val creationTime = Instant.now()
-        val key = "TMP_$creationTime"
         val request =
             SubmissionRequest(
-                key,
-                accNo = accNo ?: key,
+                accNo = accNo ?: "TMP_$creationTime",
                 version = 0,
                 owner = owner,
                 draft = draft,

@@ -156,7 +156,7 @@ class SubmitWebHandler(
             val requestDraft = getOrCreateRequestDraft(submission)
 
             return SubmitRequest(
-                key = requestDraft.key,
+                accNo = requestDraft.accNo,
                 submission = submission,
                 submitter = submitter,
                 sources = sources,

@@ -140,7 +140,6 @@ object DocSubmissionFields {
 }
 
 object DocRequestFields {
-    const val RQT_KEY = "key"
     const val RQT_ACC_NO = "accNo"
     const val RQT_VERSION = "version"
     const val RQT_OWNER = "owner"

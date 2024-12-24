@@ -43,27 +43,21 @@ internal class SubmissionDraftResource(
     suspend fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
-    ): Flow<ResponseSubmissionDraft> {
-        return requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
-    }
+    ): Flow<ResponseSubmissionDraft> = requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody
     suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ): ResponseSubmissionDraft {
-        return requestDraftService.getOrCreateRequestDraft(key, user.email).asResponseDraft()
-    }
+    ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraft(key, user.email).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
     suspend fun getSubmissionDraftContent(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ): ResponseSubmissionDraftContent {
-        return ResponseSubmissionDraftContent(requestDraftService.getRequestDraft(key, user.email))
-    }
+    ): ResponseSubmissionDraftContent = ResponseSubmissionDraftContent(requestDraftService.getRequestDraft(key, user.email))
 
     @DeleteMapping("/{key}")
     suspend fun deleteSubmissionDraft(
@@ -79,18 +73,14 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
         @PathVariable key: String,
-    ): ResponseSubmissionDraft {
-        return requestDraftService.updateRequestDraft(key, user.email, content).asResponseDraft()
-    }
+    ): ResponseSubmissionDraft = requestDraftService.updateRequestDraft(key, user.email, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
     suspend fun createSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
-    ): ResponseSubmissionDraft {
-        return requestDraftService.createRequestDraft(content, user.email).asResponseDraft()
-    }
+    ): ResponseSubmissionDraft = requestDraftService.createRequestDraft(content, user.email).asResponseDraft()
 
     @PostMapping("/{key}/submit")
     suspend fun submitDraft(
@@ -118,7 +108,7 @@ internal class SubmissionDraftResource(
         return submitWebHandler.submit(request)
     }
 
-    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(key, draft!!, modificationTime)
+    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(accNo, draft!!, modificationTime)
 }
 
 internal class ResponseSubmissionDraft(

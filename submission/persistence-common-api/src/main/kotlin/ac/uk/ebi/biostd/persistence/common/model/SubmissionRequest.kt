@@ -47,7 +47,6 @@ data class SubmissionRequestProcessing(
 }
 
 data class SubmissionRequest(
-    val key: String,
     val accNo: String,
     val version: Int,
     val owner: String,
@@ -57,7 +56,6 @@ data class SubmissionRequest(
     val process: SubmissionRequestProcessing? = null,
 ) {
     constructor(
-        key: String,
         accNo: String,
         version: Int,
         owner: String,
@@ -66,7 +64,6 @@ data class SubmissionRequest(
         silentMode: Boolean,
         singleJobMode: Boolean,
     ) : this(
-        key,
         accNo,
         version,
         owner,

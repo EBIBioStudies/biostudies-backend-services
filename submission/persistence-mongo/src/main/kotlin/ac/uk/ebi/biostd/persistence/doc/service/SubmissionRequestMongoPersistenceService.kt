@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionRequestDraftNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
@@ -24,7 +23,6 @@ import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.PROCESSED
-import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
@@ -49,46 +47,53 @@ class SubmissionRequestMongoPersistenceService(
     override suspend fun findRequestDrafts(
         owner: String,
         pageRequest: PageRequest,
-    ): Flow<SubmissionRequest> {
-        return requestRepository
+    ): Flow<SubmissionRequest> =
+        requestRepository
             .findByOwnerAndStatusIn(owner, DRAFT_STATUS, pageRequest.asDataPageRequest())
             .map { asRequest(it) }
-    }
 
     override suspend fun findRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
-    ): SubmissionRequest? {
-        return requestRepository.findByKeyAndOwnerAndStatusIn(key, owner, DRAFT_STATUS)?.let { asRequest(it) }
-    }
+    ): SubmissionRequest? = requestRepository.findByAccNoAndOwnerAndStatus(accNo, owner, DRAFT)?.let { asRequest(it) }
 
-    override suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest? {
-        return requestRepository.findByAccNoAndStatusIn(accNo, setOf(DRAFT))?.let { asRequest(it) }
-    }
+    override suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest? =
+        requestRepository.findByAccNoAndStatusIn(accNo, setOf(DRAFT))?.let {
+            asRequest(it)
+        }
 
     override suspend fun deleteRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
     ) {
-        requestRepository.deleteByKeyAndOwnerAndStatusIn(key, owner, DRAFT_STATUS)
+        requestRepository.deleteByAccNoAndOwnerAndStatusIn(accNo, owner, DRAFT_STATUS)
     }
 
     override suspend fun updateRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
         draft: String,
         modificationTime: Instant,
     ) {
-        requestRepository.updateRqtDraft(key, owner, draft, modificationTime)
+        requestRepository.updateRqtDraft(accNo, owner, draft, modificationTime)
+    }
+
+    override suspend fun setSubRequestAccNo(
+        tempAccNo: String,
+        accNo: String,
+        owner: String,
+        modificationTime: Instant,
+    ) {
+        requestRepository.setSubRequestAccNo(tempAccNo, accNo, owner, modificationTime)
     }
 
     override suspend fun setDraftStatus(
-        key: String,
+        accNo: String,
         owner: String,
         status: RequestStatus,
         modificationTime: Instant,
     ) {
-        requestRepository.setRequestDraftStatus(key, owner, status, modificationTime)
+        requestRepository.setRequestDraftStatus(accNo, owner, status, modificationTime)
     }
 
     override suspend fun findAllProcessed(): Flow<Pair<String, Int>> =
@@ -96,9 +101,7 @@ class SubmissionRequestMongoPersistenceService(
             .findByStatusIn(PROCESSED_STATUS)
             .map { it.accNo to it.version }
 
-    override suspend fun hasActiveRequest(accNo: String): Boolean {
-        return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
-    }
+    override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 
     override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request =
@@ -145,18 +148,6 @@ class SubmissionRequestMongoPersistenceService(
     ): SubmissionRequest {
         val docSubmissionRequest = requestRepository.getRequest(accNo, version)
         return asRequest(docSubmissionRequest)
-    }
-
-    override suspend fun getSubmittedRequestDraft(
-        key: String,
-        owner: String,
-    ): SubmissionRequest {
-        val requestDraft =
-            requestRepository
-                .findByKeyAndOwnerAndStatusIn(key, owner, setOf(SUBMITTED))
-                ?: throw SubmissionRequestDraftNotFoundException(key, owner)
-
-        return asRequest(requestDraft)
     }
 
     override suspend fun onRequest(
@@ -240,7 +231,6 @@ class SubmissionRequestMongoPersistenceService(
 
         return DocSubmissionRequest(
             id = ObjectId(),
-            key = rqt.key,
             accNo = rqt.accNo,
             version = rqt.version,
             owner = rqt.owner,
@@ -280,7 +270,6 @@ class SubmissionRequestMongoPersistenceService(
         }
 
         return SubmissionRequest(
-            key = rqt.key,
             accNo = rqt.accNo,
             version = rqt.version,
             owner = rqt.owner,

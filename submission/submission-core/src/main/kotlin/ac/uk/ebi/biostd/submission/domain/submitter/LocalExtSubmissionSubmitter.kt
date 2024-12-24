@@ -36,7 +36,6 @@ import ebi.ac.uk.model.RequestStatus.VALIDATED
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration.ofMinutes
-import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -63,7 +62,6 @@ class LocalExtSubmissionSubmitter(
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
             SubmissionRequest(
-                key = rqt.key ?: "TMP_${Instant.now()}",
                 accNo = submission.accNo,
                 version = submission.version,
                 owner = submission.owner,

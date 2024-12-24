@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DRAFT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_FILE_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PREV_SUB_VERSION
@@ -50,10 +49,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
-import ebi.ac.uk.model.RequestStatus.DRAFT
-import ebi.ac.uk.model.RequestStatus.PROCESSED
-import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -86,19 +83,19 @@ class SubmissionRequestDocDataRepository(
     suspend fun saveRequest(request: DocSubmissionRequest): DocSubmissionRequest {
         val query =
             Query(
-                where(RQT_KEY)
-                    .`is`(request.key)
-                    .andOperator(where(RQT_STATUS).nin(PROCESSED)),
+                where(RQT_ACC_NO)
+                    .`is`(request.accNo)
+                    .andOperator(where(RQT_STATUS).nin(PROCESSED_STATUS)),
             )
 
         mongoTemplate
             .upsert(
                 query,
-                request.asUpdate(),
+                request.asUpsert(),
                 DocSubmissionRequest::class.java,
             ).awaitSingle()
 
-        return submissionRequestRepository.getByKey(request.key)
+        return submissionRequestRepository.getByAccNoAndStatusNotIn(request.accNo, PROCESSED_STATUS)
     }
 
     /**
@@ -289,29 +286,51 @@ class SubmissionRequestDocDataRepository(
     }
 
     suspend fun updateRqtDraft(
-        key: String,
+        accNo: String,
         owner: String,
         draft: String,
         modificationTime: Instant,
     ) {
         val update = update(RQT_DRAFT, draft).set(RQT_MODIFICATION_TIME, modificationTime)
-        val where = where(RQT_KEY).`is`(key).andOperator(where(RQT_OWNER).`is`(owner))
+        val where =
+            where(RQT_ACC_NO)
+                .`is`(accNo)
+                .andOperator(
+                    where(RQT_OWNER).`is`(owner),
+                    where(RQT_STATUS).nin(PROCESSED_STATUS),
+                )
+
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+    }
+
+    suspend fun setSubRequestAccNo(
+        tempAccNo: String,
+        accNo: String,
+        owner: String,
+        modificationTime: Instant,
+    ) {
+        val update = update(RQT_ACC_NO, accNo).set(RQT_MODIFICATION_TIME, modificationTime)
+        val where =
+            where(RQT_ACC_NO)
+                .`is`(tempAccNo)
+                .andOperator(where(RQT_OWNER).`is`(owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
 
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     suspend fun setRequestDraftStatus(
-        key: String,
+        accNo: String,
         owner: String,
         status: RequestStatus,
         modificationTime: Instant,
     ) {
         val update = update(RQT_STATUS, status).set(RQT_MODIFICATION_TIME, modificationTime)
         val where =
-            where(RQT_KEY)
-                .`is`(key)
+            where(RQT_ACC_NO)
+                .`is`(accNo)
                 .andOperator(
                     where(RQT_OWNER).`is`(owner),
+                    where(RQT_STATUS).nin(PROCESSED_STATUS),
                 )
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }

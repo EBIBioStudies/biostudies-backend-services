@@ -9,7 +9,7 @@ import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 data class SubmitRequest(
-    val key: String,
+    val accNo: String,
     val submission: Submission,
     val submitter: SecurityUser,
     val sources: FileSourcesList,
@@ -21,6 +21,5 @@ data class SubmitRequest(
     val silentMode: Boolean,
     val singleJobMode: Boolean,
 ) {
-    val accNo: String = submission.accNo.ifBlank { "PENDING_ACC_NO" }
     val owner: String = onBehalfUser?.email ?: submitter.email
 }

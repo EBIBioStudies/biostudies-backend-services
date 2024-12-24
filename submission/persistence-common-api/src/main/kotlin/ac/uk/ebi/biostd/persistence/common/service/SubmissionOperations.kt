@@ -101,26 +101,33 @@ interface SubmissionRequestPersistenceService {
     ): Flow<SubmissionRequest>
 
     suspend fun findRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
     ): SubmissionRequest?
 
     suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest?
 
     suspend fun deleteRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
     )
 
     suspend fun updateRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
         draft: String,
         modificationTime: Instant,
     )
 
+    suspend fun setSubRequestAccNo(
+        tempAccNo: String,
+        accNo: String,
+        owner: String,
+        modificationTime: Instant,
+    )
+
     suspend fun setDraftStatus(
-        key: String,
+        accNo: String,
         owner: String,
         status: RequestStatus,
         modificationTime: Instant,
@@ -139,11 +146,6 @@ interface SubmissionRequestPersistenceService {
      * @see UpdateOptions
      */
     suspend fun updateRqtFile(rqt: SubmissionRequestFile)
-
-    suspend fun getSubmittedRequestDraft(
-        key: String,
-        owner: String,
-    ): SubmissionRequest
 
     suspend fun getRequest(
         accNo: String,

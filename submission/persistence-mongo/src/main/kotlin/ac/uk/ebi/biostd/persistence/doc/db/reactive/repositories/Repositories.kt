@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -20,27 +18,6 @@ import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.time.Instant
-
-interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft, String> {
-    suspend fun findByOwnerAndKeyAndStatusIsNot(
-        owner: String,
-        key: String,
-        deleted: DraftStatus,
-    ): DocSubmissionDraft?
-
-    fun findAllByOwnerAndStatus(
-        owner: String,
-        status: DraftStatus,
-        pageRequest: Pageable,
-    ): Flow<DocSubmissionDraft>
-
-    suspend fun getById(id: String): DocSubmissionDraft
-
-    suspend fun deleteByOwnerAndKey(
-        owner: String,
-        draftKey: String,
-    )
-}
 
 interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats, ObjectId> {
     suspend fun getByAccNo(accNo: String): DocSubmissionStats
@@ -111,7 +88,10 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: RequestStatus,
     ): Boolean
 
-    suspend fun getByKey(key: String): DocSubmissionRequest
+    suspend fun getByAccNoAndStatusNotIn(
+        accNo: String,
+        status: Set<RequestStatus>,
+    ): DocSubmissionRequest
 
     suspend fun findByAccNoAndVersion(
         accNo: String,
@@ -129,10 +109,10 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         pageRequest: Pageable,
     ): Flow<DocSubmissionRequest>
 
-    suspend fun findByKeyAndOwnerAndStatusIn(
-        key: String,
+    suspend fun findByAccNoAndOwnerAndStatus(
+        accNo: String,
         owner: String,
-        status: Set<RequestStatus>,
+        status: RequestStatus,
     ): DocSubmissionRequest?
 
     suspend fun findByAccNoAndStatusIn(
@@ -156,8 +136,8 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         version: Int,
     )
 
-    suspend fun deleteByKeyAndOwnerAndStatusIn(
-        key: String,
+    suspend fun deleteByAccNoAndOwnerAndStatusIn(
+        accNo: String,
         owner: String,
         status: Set<RequestStatus>,
     )

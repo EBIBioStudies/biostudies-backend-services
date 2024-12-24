@@ -102,7 +102,7 @@ class SubmissionSubmitterTest(
     }
 
     private fun setUpRequest() {
-        every { request.key } returns RQT_KEY
+        every { request.accNo } returns RQT_KEY
         every { request.owner } returns sub.owner
         every { request.accNo } returns sub.accNo
         every { request.previousVersion } returns null

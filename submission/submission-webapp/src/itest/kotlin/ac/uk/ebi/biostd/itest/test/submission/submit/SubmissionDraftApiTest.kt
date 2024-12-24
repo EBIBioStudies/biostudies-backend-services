@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -33,7 +32,6 @@ import uk.ac.ebi.serialization.extensions.getProperty
 class SubmissionDraftApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val requestRepository: SubmissionRequestPersistenceService,
-    @Autowired val draftPersistenceService: SubmissionDraftPersistenceService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -105,6 +103,7 @@ class SubmissionDraftApiTest(
                     "accno" to "ABC-126"
                     "title" to "From Draft"
                 }.toString()
+
             val draft = webClient.createSubmissionDraft(pageTab)
 
             webClient.submitFromDraft(draft.key)
@@ -130,7 +129,7 @@ class SubmissionDraftApiTest(
 
             webClient.deleteSubmissionDraft("ABC-128")
 
-            assertThat(draftPersistenceService.findSubmissionDraft(SuperUser.email, "ABC-128")).isNull()
+            assertThat(requestRepository.findRequestDraft("ABC-128", SuperUser.email))
         }
 
     @Test
@@ -173,7 +172,8 @@ class SubmissionDraftApiTest(
                             },
                         )
                 }.toString()
-            val draft = webClient.getSubmissionDraft("ABC-129")
+            webClient.getSubmissionDraft("ABC-129")
+
             webClient.updateSubmissionDraft("ABC-129", updatedDraft)
 
             webClient.submitFromDraft("ABC-129")
@@ -181,10 +181,10 @@ class SubmissionDraftApiTest(
             val version2 = webClient.getExtByAccNo("ABC-129")
             assertThat(version2.attributes.first().name).isEqualTo("Source")
             assertThat(version2.attributes.first().value).isEqualTo("Draft")
-            assertThat(draftPersistenceService.getActiveSubmissionDrafts(SuperUser.email).toList()).isEmpty()
+
+            assertThat(requestRepository.findRequestDrafts(SuperUser.email).toList()).isEmpty()
 
             val request = requestRepository.getRequest("ABC-129", 2)
-            assertThat(request.key).isEqualTo(draft.key)
             assertThat(request.accNo).isEqualTo("ABC-129")
             assertThat(request.draft).isEqualTo(updatedDraft)
         }

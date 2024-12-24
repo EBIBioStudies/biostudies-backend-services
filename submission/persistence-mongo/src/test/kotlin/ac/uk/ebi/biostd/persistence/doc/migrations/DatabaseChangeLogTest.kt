@@ -34,7 +34,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -78,7 +77,6 @@ internal class DatabaseChangeLogTest(
         mongoTemplate.dropCollection<DocSubmission>()
         mongoTemplate.dropCollection<DocSubmissionRequest>()
         mongoTemplate.dropCollection<DocSubmissionRequestFile>()
-        mongoTemplate.dropCollection<DocSubmissionDraft>()
         mongoTemplate.dropCollection<FileListDocFile>()
     }
 

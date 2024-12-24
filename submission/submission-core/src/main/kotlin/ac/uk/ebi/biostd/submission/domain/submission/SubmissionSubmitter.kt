@@ -24,9 +24,10 @@ class SubmissionSubmitter(
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
         val sub = processRequest(rqt)
-        val extRqt = ExtSubmitRequest(rqt.key, sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
+        val extRqt = ExtSubmitRequest(sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
 
         checkProcessingRequests(sub.accNo, sub.version)
+        requestService.setSubRequestAccNo(rqt.accNo, sub.accNo, rqt.owner, Instant.now())
         submissionSubmitter.createRqt(extRqt)
 
         return sub
@@ -46,7 +47,7 @@ class SubmissionSubmitter(
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
-            startProcessingDraft(rqt.owner, rqt.owner, rqt.key)
+            startProcessingDraft(rqt.owner, rqt.owner, rqt.accNo)
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
@@ -54,7 +55,7 @@ class SubmissionSubmitter(
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            reactivateDraft(rqt.accNo, rqt.owner, rqt.key)
+            reactivateDraft(rqt.accNo, rqt.owner, rqt.accNo)
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
