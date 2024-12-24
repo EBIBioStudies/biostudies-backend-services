@@ -14,9 +14,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
+import uk.ac.ebi.extended.serialization.service.filesFlowExt
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -81,10 +83,14 @@ class SubmissionStatsService(
         var subFilesSize = 0L
         var directories = mutableListOf<String>()
 
-        serializationService.filesFlow(sub).collect {
-            subFilesSize = subFilesSize + it.size
-            if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
-        }
+        serializationService
+            .filesFlowExt(sub)
+            .filter { it.first.not() }
+            .map { it.second }
+            .collect {
+                if (it.type == ExtFileType.FILE) subFilesSize = subFilesSize + it.size
+                if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
+            }
 
         val emptyDirectories =
             directories

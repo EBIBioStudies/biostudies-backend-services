@@ -383,15 +383,17 @@ class SubmissionStatsTest(
                     line("b-Dir/a_file.txt")
                 }.toString()
 
+            val subFile = tempFolder.createFile("a_file.txt", "file content")
+
             webClient.createFolder("a-Dir")
-            webClient.uploadFile(tempFolder.createFile("a_file.txt", "file content"), "b-Dir")
+            webClient.uploadFile(subFile, "b-Dir")
             webClient.submit(submission, TSV)
 
             val stats = webClient.refreshStats(accNo).toList()
             assertThat(stats).hasSize(3)
 
             val stat1 = stats.first()
-            assertThat(stat1.value).isEqualTo(467L)
+            assertThat(stat1.value).isEqualTo(subFile.size())
             assertThat(stat1.type).isEqualTo("FILES_SIZE")
 
             val stat2 = stats[1]
