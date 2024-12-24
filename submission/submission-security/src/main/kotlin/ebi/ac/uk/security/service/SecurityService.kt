@@ -47,6 +47,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Duration
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.readText
 
 private val logger = KotlinLogging.logger {}
 
@@ -259,16 +260,16 @@ open class SecurityService(
             buildString {
                 append("find $source -mtime -$days -type f -exec echo {} \\;")
                 append(" | sed 's|^$source/||'")
-                append(" | rsync -a --files-from=- $source $target")
+                append(" | rsync -aP --files-from=- $source $target")
             }
 
         logger.debug { "Migrating with command '$command'" }
         val job = JobSpec(queue = DataMoverQueue, command = command, minutes = Duration.ofDays(1).toMinutesPart())
 
         logger.info { "Started copying files to the cluster FTP folder $target from $source" }
-        clusterClient.triggerJobSync(job)
+        val jobOut = clusterClient.triggerJobSync(job)
         logger.info { "Finished copying files to the cluster FTP folder $target from $source" }
-        return command
+        return "----> command: $command ${Paths.get(jobOut.logsPath).readText()}"
     }
 
     private fun createNfsMagicFolder(
