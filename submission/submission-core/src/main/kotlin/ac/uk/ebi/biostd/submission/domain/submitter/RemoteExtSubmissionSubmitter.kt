@@ -40,4 +40,8 @@ class RemoteExtSubmissionSubmitter(
         val args = listOf(ExecutionArg("accNo", accNo), ExecutionArg("version", version))
         remoteSubmitterExecutor.executeRemotely(args, Mode.HANDLE_REQUEST)
     }
+
+    override suspend fun refreshAllStats() {
+        remoteSubmitterExecutor.executeRemotely(emptyList(), Mode.CALCULATE_ALL_STATS)
+    }
 }

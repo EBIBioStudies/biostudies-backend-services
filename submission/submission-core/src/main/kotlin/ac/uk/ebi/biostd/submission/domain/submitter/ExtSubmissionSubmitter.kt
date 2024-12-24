@@ -16,4 +16,6 @@ interface ExtSubmissionSubmitter {
         accNo: String,
         version: Int,
     )
+
+    suspend fun refreshAllStats()
 }
