@@ -47,7 +47,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Duration
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.readText
 
 private val logger = KotlinLogging.logger {}
 
@@ -135,10 +134,10 @@ open class SecurityService(
     override suspend fun updateMagicFolder(
         email: String,
         migrateOptions: MigrateHomeOptions,
-    ): String {
+    ) {
         val stats = securityQueryService.getUserFolderStats(email)
         if (migrateOptions.onlyIfEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
-        return updateMagicFolder(
+        updateMagicFolder(
             email,
             StorageMode.valueOf(migrateOptions.storageMode),
             migrateOptions.copyFilesSinceDays,
@@ -149,7 +148,7 @@ open class SecurityService(
         email: String,
         storageMode: StorageMode,
         days: Int,
-    ): String =
+    ): Unit =
         withContext(Dispatchers.IO) {
             val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
             if (user.storageMode == storageMode) error("User '$email' Storage is already $storageMode")
@@ -158,10 +157,9 @@ open class SecurityService(
             val target = profileService.asSecurityUser(user.apply { this.storageMode = storageMode })
 
             createMagicFolder(target)
-            val command = copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
+            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
 
             userRepository.save(user)
-            command
         }
 
     private fun setPassword(
@@ -255,27 +253,15 @@ open class SecurityService(
         source: Path,
         target: Path,
         days: Int,
-    ): String {
-        val command =
-            buildString {
-                // append("find $source -mtime -$days -type f -exec echo {} \\;")
-                // append(" | sed 's|^$source/||'")
-                // append(" | rsync -avnP --files-from=- $source/ $target")
-
-                // append("rsync --progress --files-from=<(find $source -mtime -3 -type f -exec basename {} \\;) $source/ /$target")
-                // append(
-                //  "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target",
-                // )
-                append("rsync -a $source/ $target")
-            }
+    ) {
+        val command = "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target"
 
         logger.debug { "Migrating with command '$command'" }
         val job = JobSpec(queue = DataMoverQueue, command = command, minutes = Duration.ofDays(1).toMinutesPart())
 
         logger.info { "Started copying files to the cluster FTP folder $target from $source" }
-        val jobOut = clusterClient.triggerJobSync(job)
+        clusterClient.triggerJobSync(job)
         logger.info { "Finished copying files to the cluster FTP folder $target from $source" }
-        return "----> command: $command ${Paths.get(jobOut.logsPath).readText()}"
     }
 
     private fun createNfsMagicFolder(

@@ -13,7 +13,6 @@ import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
-import ebi.ac.uk.security.service.SecurityService
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -35,7 +34,6 @@ import java.time.temporal.ChronoUnit.HOURS
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class UserAdminApiTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val securityService: SecurityService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superWebClient: BioWebClient
@@ -117,9 +115,7 @@ class UserAdminApiTest(
 
             val options = MigrateHomeOptions("FTP", onlyIfEmptyFolder = false, copyFilesSinceDays = 1)
 
-            // superWebClient.migrateUser(testUser.email, options)
-            val command = securityService.updateMagicFolder(testUser.email, options)
-            println(command)
+            superWebClient.migrateUser(testUser.email, options)
 
             val user = securityTestService.getSecurityUser(testUser.email)
             assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)

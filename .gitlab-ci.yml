@@ -26,19 +26,21 @@ stages:
 
 build-test:
   stage: build-test
-  script:
-    - apt-get update && apt-get install -y rsync
-    - gradle submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.user.UserAdminApiTest
+  script: gradle build test -x itest -x jacocoTestCoverageVerification
 
 nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
-  script: gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
   stage: fire-itest
-  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FIXED_DELAY: "50"
 
