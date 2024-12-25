@@ -258,9 +258,14 @@ open class SecurityService(
     ): String {
         val command =
             buildString {
-                append("find $source -mtime -$days -type f -exec echo {} \\;")
-                append(" | sed 's|^$source/||'")
-                append(" | rsync -avnP --files-from=- $source/ $target/")
+                // append("find $source -mtime -$days -type f -exec echo {} \\;")
+                // append(" | sed 's|^$source/||'")
+                // append(" | rsync -avnP --files-from=- $source/ $target")
+
+                // append("rsync --progress --files-from=<(find $source -mtime -3 -type f -exec basename {} \\;) $source/ /$target")
+                append(
+                    "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target",
+                )
             }
 
         logger.debug { "Migrating with command '$command'" }
