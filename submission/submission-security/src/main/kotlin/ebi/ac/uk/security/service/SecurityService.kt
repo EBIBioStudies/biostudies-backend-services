@@ -263,9 +263,10 @@ open class SecurityService(
                 // append(" | rsync -avnP --files-from=- $source/ $target")
 
                 // append("rsync --progress --files-from=<(find $source -mtime -3 -type f -exec basename {} \\;) $source/ /$target")
-                append(
-                    "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target",
-                )
+                // append(
+                //  "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target",
+                // )
+                append("rsync -a $source/ $target")
             }
 
         logger.debug { "Migrating with command '$command'" }
