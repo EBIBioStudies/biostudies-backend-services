@@ -1,21 +1,15 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
-import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
-import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
-import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 import java.time.Instant
@@ -25,50 +19,47 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class SubmissionRequestDraftService(
-    private val submitWebHandler: SubmitWebHandler,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val serializationService: SerializationService,
-    private val submitRequestBuilder: SubmitRequestBuilder,
     private val userPrivilegesService: IUserPrivilegesService,
     private val submissionQueryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
-    suspend fun findActiveRequestDrafts(owner: String): Flow<SubmissionRequest> {
-        return requestService.findRequestDrafts(owner)
-    }
+    suspend fun findActiveRequestDrafts(
+        owner: String,
+        pageRequest: PageRequest = PageRequest(),
+    ): Flow<SubmissionRequest> = requestService.findRequestDrafts(owner, pageRequest)
 
     suspend fun getOrCreateRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
-    ): SubmissionRequest {
-        return requestService.findRequestDraft(key, owner) ?: createRequestDraftFromSubmission(key, owner)
-    }
+    ): SubmissionRequest =
+        requestService.findRequestDraft(accNo, owner)
+            ?: createRequestDraftFromSubmission(accNo, owner)
 
     suspend fun getRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
-    ): String {
-        return getOrCreateRequestDraft(key, owner).draft!!
-    }
+    ): String = getOrCreateRequestDraft(accNo, owner).draft!!
 
     suspend fun deleteRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
     ) {
-        requestService.deleteRequestDraft(key, owner)
-        logger.info { "$key $owner Draft with key '$key' DELETED for user '$owner'" }
+        requestService.deleteRequestDraft(accNo, owner)
+        logger.info { "$accNo $owner Draft with key '$accNo' DELETED for user '$owner'" }
     }
 
     suspend fun updateRequestDraft(
-        key: String,
+        accNo: String,
         owner: String,
         draft: String,
     ): SubmissionRequest {
-        val requestDraft = requestService.getActiveRequestDraft(key, owner)
+        val requestDraft = getOrCreateRequestDraft(accNo, owner)
         val modificationTime = Instant.now()
 
-        requestService.updateRequestDraft(key, owner, draft, modificationTime)
-        logger.info { "$key $owner Draft with key '$key' UPDATED for user '$owner'" }
+        requestService.updateRequestDraft(requestDraft.accNo, owner, draft, modificationTime)
+        logger.info { "$accNo $owner Draft with key '$accNo' UPDATED for user '$owner'" }
 
         return requestDraft.copy(draft = draft, modificationTime = modificationTime.atOffset(UTC))
     }
@@ -76,11 +67,9 @@ class SubmissionRequestDraftService(
     suspend fun createRequestDraft(
         draft: String,
         owner: String,
-    ): SubmissionRequest {
-        return createActiveRequestDraft(draft, owner)
-    }
+    ): SubmissionRequest = createActiveRequestDraft(draft, owner)
 
-    suspend fun createRequestDraftFromSubmission(
+    private suspend fun createRequestDraftFromSubmission(
         accNo: String,
         owner: String,
     ): SubmissionRequest {
@@ -88,20 +77,18 @@ class SubmissionRequestDraftService(
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val draft = serializationService.serializeSubmission(submission, JsonPretty)
 
-        return createActiveRequestDraft(owner, draft, accNo)
+        return createActiveRequestDraft(draft, owner, accNo)
     }
 
     private suspend fun createActiveRequestDraft(
-        owner: String,
         draft: String,
+        owner: String,
         accNo: String? = null,
     ): SubmissionRequest {
         val creationTime = Instant.now()
-        val key = "TMP_$creationTime"
         val request =
             SubmissionRequest(
-                key,
-                accNo = accNo ?: key,
+                accNo = accNo ?: "TMP_$creationTime",
                 version = 0,
                 owner = owner,
                 draft = draft,
@@ -109,21 +96,8 @@ class SubmissionRequestDraftService(
                 modificationTime = creationTime.atOffset(UTC),
             )
 
-        requestService.createRequest(request)
+        requestService.saveRequest(request)
 
         return request
-    }
-
-    suspend fun submitRequestDraft(
-        key: String,
-        user: SecurityUser,
-        onBehalfRequest: OnBehalfParameters?,
-        parameters: SubmitParameters,
-    ) {
-        val submission = getRequestDraft(key, user.email)
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key, submission)
-        val request = submitRequestBuilder.buildContentRequest(submission, JSON_PRETTY, buildRequest)
-        submitWebHandler.submitAsync(request)
-        logger.info { "$key ${user.email} Draft with key '$key' SUBMITTED" }
     }
 }

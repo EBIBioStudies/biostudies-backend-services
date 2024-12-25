@@ -37,12 +37,12 @@ class SubmissionProcessor(
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
     suspend fun processSubmission(rqt: SubmitRequest): ExtSubmission {
-        val (submission, submitter, sources, method, onBehalfUser, _, _, _, previousVersion, storageMode) = rqt
+        val (_, submission, submitter, sources, method, onBehalfUser, _, previousVersion, storageMode) = rqt
         val (creationTime, modificationTime, releaseTime, released) = timesService.getTimes(rqt)
         val accNo = accNoService.calculateAccNo(rqt)
         val accNoString = accNo.toString()
 
-        logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '$accNoString' to draft with key '${rqt.draftKey}'" }
+        logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '$accNoString' to draft with key '${rqt.accNo}'" }
 
         val doi = doiService.calculateDoi(accNoString, rqt)
         val version = persistenceService.getNextVersion(accNoString)
@@ -74,13 +74,12 @@ class SubmissionProcessor(
         )
     }
 
-    private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod {
-        return when (method) {
+    private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod =
+        when (method) {
             SubmissionMethod.FILE -> ExtSubmissionMethod.FILE
             SubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
             SubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
         }
-    }
 
     private fun getTags(rqt: SubmitRequest): List<String> {
         val collectionTags = rqt.collection?.collections.orEmpty()

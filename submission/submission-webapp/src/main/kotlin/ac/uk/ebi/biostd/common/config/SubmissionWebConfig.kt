@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -22,7 +21,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -44,7 +43,6 @@ import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
-import java.time.Clock
 
 @Suppress("LongParameterList")
 @Configuration
@@ -116,6 +114,7 @@ class SubmissionWebConfig {
         toSubmissionMapper: ToSubmissionMapper,
         queryService: SubmissionMetaQueryService,
         fileServiceFactory: FileServiceFactory,
+        requestDraftService: SubmissionRequestDraftService,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -125,27 +124,23 @@ class SubmissionWebConfig {
             toSubmissionMapper,
             queryService,
             fileServiceFactory,
+            requestDraftService,
         )
 
     @Bean
-    fun submissionDraftService(
-        submitWebHandler: SubmitWebHandler,
+    fun submissionRequestDraftService(
         toSubmissionMapper: ToSubmissionMapper,
         serializationService: SerializationService,
-        submitRequestBuilder: SubmitRequestBuilder,
         userPrivilegesService: IUserPrivilegesService,
         submissionQueryService: SubmissionPersistenceQueryService,
-        persistenceDraftService: SubmissionDraftPersistenceService,
-    ): SubmissionDraftService =
-        SubmissionDraftService(
-            Clock.systemDefaultZone(),
-            submitWebHandler,
+        requestPersistenceService: SubmissionRequestPersistenceService,
+    ): SubmissionRequestDraftService =
+        SubmissionRequestDraftService(
             toSubmissionMapper,
             serializationService,
-            submitRequestBuilder,
             userPrivilegesService,
             submissionQueryService,
-            persistenceDraftService,
+            requestPersistenceService,
         )
 
     @Bean

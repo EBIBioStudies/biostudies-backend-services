@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
+import ac.uk.ebi.biostd.submission.model.DraftSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.SubmissionConfig
 import ac.uk.ebi.biostd.submission.model.SubmissionFilesConfig
@@ -27,8 +28,6 @@ class SubmitRequestBuilder(
         return ContentSubmitWebRequest(
             submission = submission,
             format = format,
-            draftKey = request.draftKey,
-            draftContent = request.draftContent,
             submissionConfig = submitConfig.first,
             filesConfig = submitConfig.second,
         )
@@ -40,6 +39,15 @@ class SubmitRequestBuilder(
     ): FileSubmitWebRequest {
         val submitConfig = submitConfig(request)
         return FileSubmitWebRequest(submission, submitConfig.first, submitConfig.second)
+    }
+
+    fun buildDraftRequest(
+        key: String,
+        owner: String,
+        request: SubmitBuilderRequest,
+    ): DraftSubmitWebRequest {
+        val submitConfig = submitConfig(request)
+        return DraftSubmitWebRequest(key, owner, submitConfig.first, submitConfig.second)
     }
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {

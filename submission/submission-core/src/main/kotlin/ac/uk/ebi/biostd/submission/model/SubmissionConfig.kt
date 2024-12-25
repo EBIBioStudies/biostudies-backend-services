@@ -31,27 +31,12 @@ val SubmitWebRequest.method: SubmissionMethod
     get() =
         when (this) {
             is ContentSubmitWebRequest -> SubmissionMethod.PAGE_TAB
+            is DraftSubmitWebRequest -> SubmissionMethod.PAGE_TAB
             is FileSubmitWebRequest -> SubmissionMethod.FILE
-        }
-
-val SubmitWebRequest.draftKey: String?
-    get() =
-        when (this) {
-            is ContentSubmitWebRequest -> draftKey
-            is FileSubmitWebRequest -> null
-        }
-
-val SubmitWebRequest.draftContent: String?
-    get() =
-        when (this) {
-            is ContentSubmitWebRequest -> draftContent
-            is FileSubmitWebRequest -> null
         }
 
 class ContentSubmitWebRequest(
     val submission: String,
-    val draftKey: String? = null,
-    val draftContent: String? = null,
     val format: SubFormat,
     submissionConfig: SubmissionConfig,
     filesConfig: SubmissionFilesConfig,
@@ -59,6 +44,13 @@ class ContentSubmitWebRequest(
 
 class FileSubmitWebRequest(
     val submission: File,
+    submissionConfig: SubmissionConfig,
+    filesConfig: SubmissionFilesConfig,
+) : SubmitWebRequest(submissionConfig, filesConfig)
+
+class DraftSubmitWebRequest(
+    val key: String,
+    val owner: String,
     submissionConfig: SubmissionConfig,
     filesConfig: SubmissionFilesConfig,
 ) : SubmitWebRequest(submissionConfig, filesConfig)
