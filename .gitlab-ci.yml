@@ -26,6 +26,7 @@ stages:
   - build-push-docker-image
 
 install-prerequisites:
+  stage: install-prerequisites
   script: apt-get update && apt-get install -y rsync
 
 build-test:
