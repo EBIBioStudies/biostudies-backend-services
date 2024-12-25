@@ -11,7 +11,6 @@ include:
   - local: '/ci/jobs.yml'
 
 stages:
-  - install-prerequisites
   - build-test
   - nfs-itest
   - fire-itest
@@ -25,14 +24,11 @@ stages:
   - build-fat-jar
   - build-push-docker-image
 
-install-prerequisites:
-  stage: install-prerequisites
-  script: apt-get update && apt-get install -y rsync
-
 build-test:
-  needs: [ "install-prerequisites" ]
   stage: build-test
-  script: gradle submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.user.UserAdminApiTest
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.user.UserAdminApiTest
 
 nfs-itest:
   needs: [ "build-test" ]
