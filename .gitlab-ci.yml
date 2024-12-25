@@ -1,6 +1,8 @@
 image: gradle:8.7-jdk17
-script:
+run:
+  script:
   - apt-get update && apt-get install -y rsync
+
 services:
   - docker:dind
 variables:
