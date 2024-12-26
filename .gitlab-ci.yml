@@ -47,6 +47,8 @@ fire-itest:
 fire-caos-itest:
   needs: [ "fire-itest" ]
   stage: fire-caos-itest
-  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FAIL_FACTOR: "8"
