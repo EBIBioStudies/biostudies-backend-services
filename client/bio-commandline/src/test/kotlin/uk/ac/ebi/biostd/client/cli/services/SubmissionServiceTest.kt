@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
@@ -12,6 +11,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.SubmissionId
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,7 +45,7 @@ internal class SubmissionServiceTest {
     @Test
     fun `submit`() =
         runTest {
-            val accepted = AcceptedSubmission("S-BSST1", 2)
+            val accepted = SubmissionId("S-BSST1", 2)
 
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             coEvery {
@@ -67,7 +67,7 @@ internal class SubmissionServiceTest {
     @Test
     fun `submit with timeout`() =
         runTest {
-            val accepted = AcceptedSubmission("S-BSST1", 2)
+            val accepted = SubmissionId("S-BSST1", 2)
 
             coEvery { bioWebClient.getSubmissionRequestStatus("S-BSST1", 2) } returns PROCESSED
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient

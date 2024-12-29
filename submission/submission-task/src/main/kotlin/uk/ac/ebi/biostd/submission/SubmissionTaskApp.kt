@@ -42,7 +42,7 @@ class Execute(
     override fun run(vararg args: String?) =
         runBlocking {
             when (properties.taskMode) {
-                HANDLE_REQUEST -> runProcess(requireNotNull(properties.accNo), requireNotNull(properties.version))
+                HANDLE_REQUEST -> properties.submissions.forEach { runProcess(it.accNo, it.version) }
                 CALCULATE_ALL_STATS -> submissionSubmitter.refreshAllStats()
             }
             exitProcess(SpringApplication.exit(context))
@@ -52,8 +52,12 @@ class Execute(
         accNo: String,
         version: Int,
     ) {
-        logger.info { "Running ${properties.taskMode} for submission '$accNo', version : '$version'" }
-        submissionSubmitter.handleRequest(accNo, version)
-        logger.info { "Command line ${properties.taskMode} completed for submission '$accNo', version : '$version'" }
+        runCatching {
+            logger.info { "Running ${properties.taskMode} for submission '$accNo', version : '$version'" }
+            submissionSubmitter.handleRequest(accNo, version)
+            logger.info { "Command line ${properties.taskMode} completed for submission '$accNo', version : '$version'" }
+        }.onFailure {
+            logger.info(it) { "Failed to process submission '$accNo', version : '$version'" }
+        }
     }
 }

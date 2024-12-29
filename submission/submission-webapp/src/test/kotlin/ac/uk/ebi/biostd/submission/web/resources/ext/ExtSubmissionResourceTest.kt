@@ -10,12 +10,12 @@ import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -54,14 +54,12 @@ class ExtSubmissionResourceTest(
                     extSubmissionQueryService,
                     extSerializationService,
                 ),
-            )
-            .setMessageConverters(
+            ).setMessageConverters(
                 ExtFileTableConverter(extSerializationService),
                 ExtSubmissionConverter(extSerializationService),
                 ExtPageSubmissionConverter(extSerializationService),
                 MappingJackson2HttpMessageConverter(),
-            )
-            .setCustomArgumentResolvers(bioUserResolver, FileListPathDescriptorResolver())
+            ).setCustomArgumentResolvers(bioUserResolver, FileListPathDescriptorResolver())
             .build()
 
     @AfterEach
@@ -76,7 +74,8 @@ class ExtSubmissionResourceTest(
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
         coEvery { extSubmissionQueryService.getExtendedSubmission("S-TEST123") } returns extSubmission
 
-        mvc.get("/submissions/extended/S-TEST123")
+        mvc
+            .get("/submissions/extended/S-TEST123")
             .asyncDispatch()
             .andExpect {
                 status { isOk() }
@@ -103,13 +102,15 @@ class ExtSubmissionResourceTest(
         coEvery { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
         every { extSerializationService.deserialize(submissionJson) } returns extSubmission
 
-        mvc.multipart("/submissions/extended") {
-            content = submissionJson
-            param(SUBMISSION, submissionJson)
-        }.asyncDispatch().andExpect {
-            status { isOk() }
-            content { json(submissionJson) }
-        }
+        mvc
+            .multipart("/submissions/extended") {
+                content = submissionJson
+                param(SUBMISSION, submissionJson)
+            }.asyncDispatch()
+            .andExpect {
+                status { isOk() }
+                content { json(submissionJson) }
+            }
 
         coVerify(exactly = 1) {
             extSerializationService.serialize(extSubmission)
@@ -128,22 +129,24 @@ class ExtSubmissionResourceTest(
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        coEvery { extSubmissionService.submitExtAsync(user.email, sub) } answers { AcceptedSubmission("S-TEST123", 2) }
+        coEvery { extSubmissionService.submitExtAsync(user.email, sub) } answers { SubmissionId("S-TEST123", 2) }
         every { extSerializationService.deserialize(submissionJson) } returns sub
 
-        mvc.multipart("/submissions/extended/async") {
-            param(SUBMISSION, submissionJson)
-        }.asyncDispatch().andExpect {
-            status { isOk() }
-            content {
-                json(
-                    jsonObj {
-                        "accNo" to "S-TEST123"
-                        "version" to 2
-                    }.toString(),
-                )
+        mvc
+            .multipart("/submissions/extended/async") {
+                param(SUBMISSION, submissionJson)
+            }.asyncDispatch()
+            .andExpect {
+                status { isOk() }
+                content {
+                    json(
+                        jsonObj {
+                            "accNo" to "S-TEST123"
+                            "version" to 2
+                        }.toString(),
+                    )
+                }
             }
-        }
 
         coVerify(exactly = 1) {
             extSubmissionService.submitExtAsync(user.email, sub)
@@ -160,7 +163,8 @@ class ExtSubmissionResourceTest(
         every { extSerializationService.serialize(extFileTable) } returns filesJson
         coEvery { extSubmissionQueryService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
 
-        mvc.get("/submissions/extended/S-TEST123/referencedFiles/file-list")
+        mvc
+            .get("/submissions/extended/S-TEST123/referencedFiles/file-list")
             .asyncDispatch()
             .andExpect {
                 status { isOk() }
@@ -187,7 +191,8 @@ class ExtSubmissionResourceTest(
             )
         } returns extFileTable
 
-        mvc.get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
+        mvc
+            .get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
             .asyncDispatch()
             .andExpect {
                 status { isOk() }
@@ -219,7 +224,8 @@ class ExtSubmissionResourceTest(
         every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns webExtPage
         coEvery { extSubmissionQueryService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
 
-        mvc.get("/submissions/extended?limit=1&offset=0&fromRTime=2019-09-21T15:03:45Z&toRTime=2019-09-22T15:03:45Z")
+        mvc
+            .get("/submissions/extended?limit=1&offset=0&fromRTime=2019-09-21T15:03:45Z&toRTime=2019-09-22T15:03:45Z")
             .asyncDispatch()
             .andExpect {
                 status { isOk() }
