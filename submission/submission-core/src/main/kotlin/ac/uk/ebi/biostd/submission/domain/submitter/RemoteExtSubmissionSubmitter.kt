@@ -27,8 +27,8 @@ class RemoteExtSubmissionSubmitter(
         accNo: String,
         version: Int,
     ): ExtSubmission {
-        val args = listOf(ExecutionArg("submissions[0].accNo", accNo), ExecutionArg("submissions[0].version", version))
-        remoteSubmitterExecutor.executeRemotely(args, Mode.HANDLE_REQUEST)
+        val args = listOf(SubmissionId(accNo, version))
+        remoteSubmitterExecutor.executeRemotely(asExecutionArgs(args), Mode.HANDLE_REQUEST)
 
         waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
         return submissionQueryService.getExtendedSubmission(accNo)
@@ -38,8 +38,8 @@ class RemoteExtSubmissionSubmitter(
         accNo: String,
         version: Int,
     ) {
-        val args = listOf(ExecutionArg("submissions[0].accNo", accNo), ExecutionArg("submissions[0].version", version))
-        remoteSubmitterExecutor.executeRemotely(args, Mode.HANDLE_REQUEST)
+        val args = listOf(SubmissionId(accNo, version))
+        remoteSubmitterExecutor.executeRemotely(asExecutionArgs(args), Mode.HANDLE_REQUEST)
     }
 
     override suspend fun handleManyAsync(submissions: List<SubmissionId>) {

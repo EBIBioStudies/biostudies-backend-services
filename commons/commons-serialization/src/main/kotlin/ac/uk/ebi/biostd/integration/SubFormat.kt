@@ -14,7 +14,7 @@ sealed class SubFormat(
             when (format.lowercase()) {
                 "tsv" -> TsvFormat.Tsv
                 "json" -> PlainJson
-                else -> error("Unsupported format: $format")
+                else -> error("Unsupported pagetab format: $format")
             }
 
         val TSV: TsvFormat get() = TsvFormat.Tsv
