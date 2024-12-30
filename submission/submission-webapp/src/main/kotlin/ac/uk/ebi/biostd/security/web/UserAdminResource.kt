@@ -34,5 +34,7 @@ class UserAdminResource(
     suspend fun migrateUser(
         @PathVariable email: String,
         @RequestBody migrateOptions: MigrateHomeOptions,
-    ): Unit = securityService.updateMagicFolder(email, migrateOptions)
+    ) {
+        securityService.updateMagicFolder(email, migrateOptions)
+    }
 }

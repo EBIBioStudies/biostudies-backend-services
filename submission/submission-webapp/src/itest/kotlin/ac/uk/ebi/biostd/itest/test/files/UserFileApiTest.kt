@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -130,6 +131,7 @@ class UserFileApiTest(
         override val email = "files-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "NFS")
     }
@@ -139,6 +141,7 @@ class UserFileApiTest(
         override val email = "files-biostudiesftp--mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "FTP")
     }
