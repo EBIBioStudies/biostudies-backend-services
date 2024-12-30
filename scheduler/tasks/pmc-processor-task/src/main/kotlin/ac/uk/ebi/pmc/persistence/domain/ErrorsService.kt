@@ -32,17 +32,32 @@ class ErrorsService(
         mode: PmcMode,
         error: Throwable,
     ) {
-        val doc =
-            SubmissionErrorDocument(
-                accNo = sub.accNo,
-                sourceFile = sub.sourceFile,
-                submissionText = sub.body,
-                mode = mode,
-                error = getStackTrace(error),
-            )
+        val doc = asErrorDoc(sub, mode, error)
         submissionService.reportError(sub, mode)
         repository.save(doc)
     }
+
+    suspend fun saveErrors(
+        submissions: List<SubmissionDocument>,
+        mode: PmcMode,
+        error: Throwable,
+    ) {
+        val docs = submissions.map { asErrorDoc(it, mode, error) }
+        submissionService.reportErrors(submissions, mode)
+        repository.save(docs)
+    }
+
+    private fun asErrorDoc(
+        subDoc: SubmissionDocument,
+        mode: PmcMode,
+        error: Throwable,
+    ) = SubmissionErrorDocument(
+        accNo = subDoc.accNo,
+        sourceFile = subDoc.sourceFile,
+        submissionText = subDoc.body,
+        mode = mode,
+        error = getStackTrace(error),
+    )
 
     private fun getStackTrace(throwable: Throwable): String {
         var sw = StringWriter()

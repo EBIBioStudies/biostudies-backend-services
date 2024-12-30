@@ -15,6 +15,7 @@ import ac.uk.ebi.pmc.persistence.repository.SubmissionDataRepository
 import ac.uk.ebi.pmc.persistence.utils.PmcUtils
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -65,6 +66,17 @@ class SubmissionService(
         subRepository.update(sub.copy(version = version, status = SUBMITTED))
     }
 
+    suspend fun saveSubmittingSubmissions(
+        submissions: List<SubmissionDocument>,
+        results: List<SubmissionId>,
+    ) {
+        val result =
+            submissions.mapIndexed { idx, sub ->
+                sub.copy(version = results.get(idx).version, status = SUBMITTED)
+            }
+        subRepository.update(result)
+    }
+
     fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDocument> =
         flow {
             while (true) {
@@ -105,6 +117,13 @@ class SubmissionService(
         process: PmcMode,
     ) {
         subRepository.update(sub.copy(status = getError(process)))
+    }
+
+    suspend fun reportErrors(
+        submissions: List<SubmissionDocument>,
+        mode: PmcMode,
+    ) {
+        subRepository.update(submissions.map { it.copy(status = getError(mode)) })
     }
 
     private fun getError(pmcMode: PmcMode) =
