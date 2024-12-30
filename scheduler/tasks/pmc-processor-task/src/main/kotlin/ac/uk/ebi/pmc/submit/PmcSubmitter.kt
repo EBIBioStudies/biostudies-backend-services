@@ -1,6 +1,5 @@
 package ac.uk.ebi.pmc.submit
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
@@ -10,6 +9,7 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
@@ -74,8 +74,8 @@ class PmcSubmitter(
                 },
             )
 
-    private suspend fun submit(submission: SubmissionDocument): Result<AcceptedSubmission> {
-        suspend fun submit(): AcceptedSubmission {
+    private suspend fun submit(submission: SubmissionDocument): Result<SubmissionId> {
+        suspend fun submit(): SubmissionId {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
             val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
             return bioWebClient.submitMultipartAsync(submission.body, SubmissionFormat.JSON, params, files)

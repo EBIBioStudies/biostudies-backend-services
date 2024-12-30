@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.SubmissionId
 import mu.KotlinLogging
 import java.time.Instant
 
@@ -36,6 +37,10 @@ class SubmissionSubmitter(
         accNo: String,
         version: Int,
     ): Unit = submissionSubmitter.handleRequestAsync(accNo, version)
+
+    suspend fun handleManyAsync(submissions: List<SubmissionId>) {
+        submissionSubmitter.handleManyAsync(submissions)
+    }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {

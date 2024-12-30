@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
@@ -27,6 +26,7 @@ import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.flow.Flow
@@ -269,7 +269,7 @@ interface SubmitOperations {
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
-    ): AcceptedSubmission
+    ): SubmissionId
 
     suspend fun submitFromDraftAsync(draftKey: String)
 
@@ -307,18 +307,25 @@ interface MultipartAsyncSubmitOperations {
         format: SubmissionFormat,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
-    ): AcceptedSubmission
+    ): SubmissionId
 
     suspend fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
-    ): AcceptedSubmission
+    ): SubmissionId
 
     suspend fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
-    ): AcceptedSubmission
+    ): SubmissionId
+
+    suspend fun submitMultipartAsync(
+        submissions: Map<String, String>,
+        parameters: SubmitParameters,
+        format: String,
+        files: Map<String, List<File>>,
+    ): List<SubmissionId>
 }
 
 interface SubmissionRequestOperations {

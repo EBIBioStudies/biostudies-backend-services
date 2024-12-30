@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
@@ -17,6 +16,7 @@ import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.test.basicExtSubmission
@@ -201,7 +201,7 @@ class SubmissionDraftServiceTest(
         val requestSlot = slot<SubmitBuilderRequest>()
 
         every { user.email } returns USER_ID
-        coEvery { submitWebHandler.submitAsync(contentRequest) } returns AcceptedSubmission(ACC_NO, VERSION)
+        coEvery { submitWebHandler.submitAsync(contentRequest) } returns SubmissionId(ACC_NO, VERSION)
         coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, KEY) } returns testDraft
         every {
             submitRequestBuilder.buildContentRequest(CONTENT, SubFormat.JSON_PRETTY, capture(requestSlot))

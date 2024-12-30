@@ -135,6 +135,15 @@ Contains test related to resubmission
 | SubmissionStatsTest | 26-7    | increment stats by file                         |
 | SubmissionStatsTest | 26-7    | refresh submission stats                        |
 
+### Async submission Test suite
+
+| Class               | Test No | Test name                                   |
+|---------------------|---------|---------------------------------------------|
+| SubmissionAsyncTest | 19-1    | Simple submit async                         |
+| SubmissionAsyncTest | 19-2    | Check submission stages                     |
+| SubmissionAsyncTest | 19-3    | Multiple async submissions with files       |
+| SubmissionAsyncTest | 19-4    | Multiple async submissions when one invalid |
+
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
 | SubmissionFileSourceTest        | 6-1     | resubmission with SUBMISSION file source as priority over USER_SPACE             | Considers submission with different source files, user space, fire, bypassing files with fire |
@@ -205,8 +214,6 @@ Contains test related to resubmission
 | UserFileApiTest                 | 17-3    | upload download delete file and retrieve in user folder with space               |                                                                                               |
 | GroupFilesApiTest               | 18-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for groups considering different folder names                     |
 | GroupFilesApiTest               | 18-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
-| SubmissionAsyncTest             | 19-1    | simple submit async                                                              | Performs a simple submit async and checks each stages in the process                          |
-| SubmissionAsyncTest             | 19-2    | check submission stages                                                          |                                                                                               |
 | CollectionsListTest             | 20-1    | list collections for super user                                                  | Shows which collections users can see                                                         |
 | CollectionsListTest             | 20-2    | list collections for regular user                                                |                                                                                               |
 | CollectionsListTest             | 20-3    | list collections for default user                                                |                                                                                               |

@@ -1,6 +1,7 @@
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.ClusterClient
+import Projects.CommonsBio
 import SpringBootDependencies.SpringBootStarter
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -11,6 +12,7 @@ plugins {
 
 dependencies {
     api(project(ClusterClient))
+    api(project(CommonsBio))
 
     implementation(platform(BOM_COORDINATES))
     implementation(SpringBootStarter)
