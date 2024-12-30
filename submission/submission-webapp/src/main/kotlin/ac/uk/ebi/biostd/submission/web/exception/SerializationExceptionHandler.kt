@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
-import ac.uk.ebi.biostd.exception.InvalidExtensionException
+import ac.uk.ebi.biostd.exception.InvalidFormatException
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -33,10 +33,10 @@ class SerializationExceptionHandler {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    @ExceptionHandler(value = [InvalidExtensionException::class])
-    fun handle(exception: InvalidExtensionException): ValidationTree {
+    @ExceptionHandler(value = [InvalidFormatException::class])
+    fun handle(exception: InvalidFormatException): ValidationTree {
         logger.error(exception) {}
-        val node = ValidationNode(ERROR, exception.message)
+        val node = ValidationNode(ERROR, exception.message!!)
         return ValidationTree(FAIL, node)
     }
 

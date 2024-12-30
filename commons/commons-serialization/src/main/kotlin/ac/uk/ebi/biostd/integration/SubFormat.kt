@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.integration
 
+import ac.uk.ebi.biostd.exception.InvalidFormatException
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
 import java.io.File
@@ -14,7 +15,7 @@ sealed class SubFormat(
             when (format.lowercase()) {
                 "tsv" -> TsvFormat.Tsv
                 "json" -> PlainJson
-                else -> error("Unsupported pagetab format: $format")
+                else -> throw InvalidFormatException(format)
             }
 
         val TSV: TsvFormat get() = TsvFormat.Tsv

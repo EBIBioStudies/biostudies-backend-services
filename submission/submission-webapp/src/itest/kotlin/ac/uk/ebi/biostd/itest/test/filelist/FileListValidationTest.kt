@@ -100,7 +100,7 @@ class FileListValidationTest(
                     }
 
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                assertThat(exception).hasMessageContaining("Unsupported page tab format image.jpg")
+                assertThat(exception).hasMessageContaining("Unsupported pagetab format: jpg")
 
                 webClient.deleteFile(fileList.name)
             }
