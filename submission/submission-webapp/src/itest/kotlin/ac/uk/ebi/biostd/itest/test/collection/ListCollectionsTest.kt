@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.collection
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -127,6 +128,7 @@ class ListCollectionsTest(
         override val email = "collection-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
     }
 
     object RegularUser : TestUser {
@@ -134,5 +136,6 @@ class ListCollectionsTest(
         override val email = "regular-collection-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
     }
 }

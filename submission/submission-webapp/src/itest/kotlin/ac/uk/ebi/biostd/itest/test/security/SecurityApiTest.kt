@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -106,6 +107,7 @@ class SecurityApiTest(
         override val email = "new-nfs-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
@@ -115,6 +117,7 @@ class SecurityApiTest(
         override val email = "new-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
@@ -124,6 +127,7 @@ class SecurityApiTest(
         override val email = "inactive@ebi.ac.uk"
         override val password = "12345"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }

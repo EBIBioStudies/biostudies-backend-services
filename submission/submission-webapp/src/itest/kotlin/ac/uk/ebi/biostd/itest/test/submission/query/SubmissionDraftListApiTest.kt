@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -100,6 +101,7 @@ class SubmissionDraftListApiTest(
         override val email = "draft-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }

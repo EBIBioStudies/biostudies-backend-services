@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -239,5 +240,6 @@ class FileListValidationTest(
         override val email = "biostudies-mgmt-filelist-v@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+        override val storageMode = StorageMode.NFS
     }
 }

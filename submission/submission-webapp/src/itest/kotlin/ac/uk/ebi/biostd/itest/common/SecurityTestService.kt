@@ -8,6 +8,8 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SecurityTestService(
     private val securityService: SecurityService,
@@ -19,9 +21,12 @@ class SecurityTestService(
         if (sequenceRepository.existsByPrefix(prefix).not()) sequenceRepository.save(DbSequence(prefix))
     }
 
-    suspend fun ensureUserRegistration(testUser: TestUser) {
-        if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
-    }
+    fun getSecurityUser(email: String): SecurityUser = securityQueryService.getUser(email)
+
+    suspend fun ensureUserRegistration(testUser: TestUser): Unit =
+        withContext(Dispatchers.IO) {
+            if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
+        }
 
     private suspend fun registerUser(testUser: TestUser): SecurityUser {
         val user = securityService.registerUser(testUser.asRegisterRequest())

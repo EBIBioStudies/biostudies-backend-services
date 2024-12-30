@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -309,6 +310,7 @@ class SubmitPermissionTest(
         override val email = "register_user@ebi.ac.uk"
         override val password = "1234"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
     }
 
     object NewUser : TestUser {
@@ -316,6 +318,7 @@ class SubmitPermissionTest(
         override val email = "new_user@ebi.ac.uk"
         override val password = "1234"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
     }
 
     object ImpersonatedUser : TestUser {
@@ -323,5 +326,6 @@ class SubmitPermissionTest(
         override val email = "impersonated_user@ebi.ac.uk"
         override val password = "1234"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
     }
 }
