@@ -7,6 +7,7 @@ import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.SubmissionId
@@ -23,6 +24,7 @@ import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
+private const val BATCH_SIZE = 30
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(
@@ -41,7 +43,7 @@ class PmcSubmitter(
     fun submitSingle(submissionId: String): Unit =
         runBlocking {
             val submission = submissionService.findById(submissionId)
-            submitSubmission(submission, 1)
+            submit(submission, 1)
         }
 
     private suspend fun submitSubmissions(
@@ -53,12 +55,49 @@ class PmcSubmitter(
             submissionService
                 .findReadyToSubmit(sourceFile)
                 .take(limit ?: Int.MAX_VALUE)
-                .concurrently(CONCURRENCY) { submitSubmission(it, counter.incrementAndGet()) }
+                .chunked(BATCH_SIZE)
+                .concurrently(CONCURRENCY) { submitMany(it, counter.addAndGet(BATCH_SIZE)) }
                 .collect()
         }
     }
 
-    private suspend fun submitSubmission(
+    private suspend fun submitMany(
+        sub: List<SubmissionDocument>,
+        idx: Int,
+    ): Unit =
+        submitMany(sub)
+            .fold(
+                {
+                    logger.info { "submitted $idx, accNos='${sub.joinToString()}'" }
+                    submissionService.saveSubmittingSubmissions(sub, it)
+                },
+                {
+                    logger.error(it) { "failed to submit accNos='${sub.joinToString()}'" }
+                    errorService.saveErrors(sub, PmcMode.SUBMIT, it)
+                },
+            )
+
+    private suspend fun submitMany(submissions: List<SubmissionDocument>): Result<List<SubmissionId>> {
+        suspend fun getSubFiles(sub: SubmissionDocument): List<File> =
+            submissionService.getSubFiles(sub.files).map { File(it.path) }.toList()
+
+        suspend fun submitMany(): List<SubmissionId> {
+            val submissionsMap = submissions.associateBy({ it.accNo }, { it.body })
+            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
+            val files = submissions.map { it.accNo to getSubFiles(it) }.toMap()
+
+            return bioWebClient.submitMultipartAsync(
+                submissions = submissionsMap,
+                parameters = params,
+                format = "json",
+                files = files,
+            )
+        }
+
+        return runCatching { submitMany() }
+    }
+
+    private suspend fun submit(
         sub: SubmissionDocument,
         idx: Int,
     ): Unit =
