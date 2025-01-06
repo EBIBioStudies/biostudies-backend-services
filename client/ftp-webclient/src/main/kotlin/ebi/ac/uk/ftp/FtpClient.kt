@@ -115,8 +115,7 @@ private class SimpleFtpClient(
     override fun listFiles(path: Path): List<FTPFile> =
         ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             val changed = ftp.changeWorkingDirectory(path.toString())
-            if (changed.not()) error("Could not find the given folder")
-            ftp.listAllFiles()
+            if (changed) ftp.listAllFiles() else emptyList()
         }
 
     /**
