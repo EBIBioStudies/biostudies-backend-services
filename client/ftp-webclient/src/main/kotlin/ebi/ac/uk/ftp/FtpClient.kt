@@ -112,12 +112,11 @@ private class SimpleFtpClient(
     /**
      * List the files in the given path.
      */
-    override fun listFiles(path: Path): List<FTPFile> {
-        return ftpClientPool.executeRestoringWorkingDirectory { ftp ->
-            ftp.changeWorkingDirectory(path.toString())
-            ftp.listAllFiles()
+    override fun listFiles(path: Path): List<FTPFile> =
+        ftpClientPool.executeRestoringWorkingDirectory { ftp ->
+            val changed = ftp.changeWorkingDirectory(path.toString())
+            if (changed) ftp.listAllFiles() else emptyList()
         }
-    }
 
     /**
      * Delete the file or folder in the given path.
@@ -154,8 +153,8 @@ private class SimpleFtpClient(
      * As Ftp clients are re-used we need to guarantee that, if the working directory is changed, it is restored after
      * the operation is completed.
      */
-    private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T {
-        return execute {
+    private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T =
+        execute {
             val source = it.printWorkingDirectory()
             try {
                 action(it)
@@ -163,9 +162,6 @@ private class SimpleFtpClient(
                 it.changeWorkingDirectory(source)
             }
         }
-    }
 
-    private fun FTPClient.listAllFiles(): List<FTPFile> {
-        return listFiles().filterNot { it.name == "." || it.name == ".." }.toList()
-    }
+    private fun FTPClient.listAllFiles(): List<FTPFile> = listFiles().filterNot { it.name == "." || it.name == ".." }.toList()
 }
