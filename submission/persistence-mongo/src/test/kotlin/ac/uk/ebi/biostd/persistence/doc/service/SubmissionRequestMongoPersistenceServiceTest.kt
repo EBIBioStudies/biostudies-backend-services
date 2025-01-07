@@ -85,7 +85,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val submission = fullExtSubmission
                 val rqt =
                     SubmissionRequest(
-                        key = "draftKey",
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
@@ -129,7 +128,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val submission = fullExtSubmission
                 val rqt =
                     SubmissionRequest(
-                        key = "draftKey",
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
@@ -168,7 +166,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
             val request =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -219,7 +216,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 status: RequestStatus,
             ) = DocSubmissionRequest(
                 id = ObjectId(),
-                key = "TMP_1970-01-01T00:00:00.002Z",
                 accNo = accNo,
                 version = version,
                 owner = "owner@mail.org",
@@ -275,7 +271,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
     private fun testRequest() =
         DocSubmissionRequest(
             id = ObjectId(),
-            key = "TMP_1970-01-01T00:00:00.002Z",
             accNo = "S-BSST0",
             version = 1,
             owner = "owner@mail.org",

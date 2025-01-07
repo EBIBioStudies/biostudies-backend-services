@@ -52,7 +52,7 @@ class SubmissionSubmitter(
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
-            startProcessingDraft(rqt.owner, rqt.owner, rqt.accNo)
+            startProcessingDraft(rqt.accNo, rqt.owner)
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
@@ -60,7 +60,7 @@ class SubmissionSubmitter(
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            reactivateDraft(rqt.accNo, rqt.owner, rqt.accNo)
+            reactivateDraft(rqt.accNo, rqt.owner)
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
@@ -73,18 +73,16 @@ class SubmissionSubmitter(
     private suspend fun startProcessingDraft(
         accNo: String,
         owner: String,
-        draftKey: String,
     ) {
-        requestService.setDraftStatus(draftKey, owner, SUBMITTED, Instant.now())
-        logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
+        requestService.setDraftStatus(accNo, owner, SUBMITTED, Instant.now())
+        logger.info { "$accNo $owner Status of request draft with key '$accNo' set to PROCESSING" }
     }
 
     private suspend fun reactivateDraft(
         accNo: String,
         owner: String,
-        draftKey: String,
     ) {
-        requestService.setDraftStatus(draftKey, owner, DRAFT, Instant.now())
-        logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
+        requestService.setDraftStatus(accNo, owner, DRAFT, Instant.now())
+        logger.info { "$accNo $owner Status of request draft with key '$accNo' set to ACTIVE" }
     }
 }

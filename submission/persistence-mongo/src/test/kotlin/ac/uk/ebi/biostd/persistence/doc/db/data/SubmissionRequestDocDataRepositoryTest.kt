@@ -64,7 +64,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val request =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -132,7 +131,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val rqt =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -159,7 +157,6 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRqt.accNo).isEqualTo(rqt.accNo)
             assertThat(newRqt.version).isEqualTo(rqt.version)
             assertThat(newRqt.status).isEqualTo(rqt.status)
-            assertThat(newRqt.key).isEqualTo(rqt.key)
             assertThat(newRqt.draft).isEqualTo(rqt.draft)
 
             val process = rqt.process!!
@@ -181,7 +178,6 @@ class SubmissionRequestDocDataRepositoryTest(
                 testInstance.saveRequest(
                     DocSubmissionRequest(
                         id = ObjectId(),
-                        key = "temp-123",
                         accNo = "abc-123",
                         version = 2,
                         owner = "owner@mail.org",
@@ -206,7 +202,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val newRequest =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -232,7 +227,6 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(submissions).hasSize(1)
 
             val request = submissions.first()
-            assertThat(request.key).isEqualTo(existing.key)
             assertThat(request.owner).isEqualTo(existing.owner)
             assertThat(request.draft).isEqualTo(existing.draft)
             assertThat(request.accNo).isEqualTo(newRequest.accNo)
@@ -252,7 +246,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val rqt =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-987-b",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",

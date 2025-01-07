@@ -61,11 +61,13 @@ class SubmissionSubmitterTest(
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
             coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
+            coEvery {
+                requestService.setSubRequestAccNo(RQT_KEY, sub.accNo, sub.owner, MODIFICATION_TIME)
+            } answers { nothing }
 
             testInstance.processRequestDraft(request)
 
             val extRequest = extRequestSlot.captured
-            assertThat(extRequest.key).isEqualTo(RQT_KEY)
             assertThat(extRequest.submission).isEqualTo(sub)
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
@@ -104,7 +106,6 @@ class SubmissionSubmitterTest(
     private fun setUpRequest() {
         every { request.accNo } returns RQT_KEY
         every { request.owner } returns sub.owner
-        every { request.accNo } returns sub.accNo
         every { request.previousVersion } returns null
         every { request.silentMode } returns false
         every { request.singleJobMode } returns true
