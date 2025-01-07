@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
@@ -32,11 +32,17 @@ class SubmissionService(
         return submitter.handleRequest(accNo, version)
     }
 
-    suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmission {
-        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.accNo}'" }
+    suspend fun submitAsync(rqt: SubmitRequest): SubmissionId {
+        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with accNo '${rqt.accNo}'" }
         val (accNo, version) = submitter.processRequestDraft(rqt)
         submitter.handleRequestAsync(accNo, version)
-        return AcceptedSubmission(accNo, version)
+        return SubmissionId(accNo, version)
+    }
+
+    suspend fun submitAsync(rqt: List<SubmitRequest>): List<SubmissionId> {
+        val requests = rqt.map { submitter.processRequestDraft(it) }.map { SubmissionId(it.accNo, it.version) }
+        submitter.handleManyAsync(requests)
+        return requests
     }
 
     suspend fun deleteSubmission(

@@ -10,10 +10,11 @@ object SuperUser : TestUser {
     override val email = "biostudies-mgmt@ebi.ac.uk"
     override val password = "12345"
     override val superUser = true
+    override val storageMode = StorageMode.NFS
 }
 
 object FtpSuperUser : TestUser {
-    override val username = "Super User Fto"
+    override val username = "Super User Ftp"
     override val email = "biostudies-mgmt-ftp@ebi.ac.uk"
     override val password = "12345"
     override val superUser = true

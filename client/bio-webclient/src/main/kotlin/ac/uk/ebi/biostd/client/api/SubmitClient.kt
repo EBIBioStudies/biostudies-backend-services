@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -20,6 +19,7 @@ import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.util.web.optionalQueryParam
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.HttpHeaders
@@ -73,10 +73,9 @@ internal class SubmitClient(
         format: SubmissionFormat,
         submitParameters: SubmitParameters?,
         register: OnBehalfParameters?,
-    ): AcceptedSubmission {
+    ): SubmissionId {
         val headers = formatHeaders(format)
         val url = buildUrl(register, submitParameters).plus("/async")
-
         return client.postForObject(url, RequestParams(headers, submission))
     }
 

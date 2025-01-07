@@ -5,11 +5,11 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -100,7 +100,7 @@ class ExtSubmissionService(
     suspend fun submitExtAsync(
         user: String,
         sub: ExtSubmission,
-    ): AcceptedSubmission {
+    ): SubmissionId {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
         val request =
@@ -111,7 +111,7 @@ class ExtSubmissionService(
             )
         val (accNo, version) = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(accNo, version)
-        return AcceptedSubmission(accNo, version)
+        return SubmissionId(accNo, version)
     }
 
     suspend fun transferSubmission(
@@ -155,6 +155,10 @@ class ExtSubmissionService(
                 if (queryService.existByAccNo(it.accNo).not()) throw CollectionNotFoundException(it.accNo)
             }
         }
+    }
+
+    suspend fun refreshAllStats() {
+        submissionSubmitter.refreshAllStats()
     }
 }
 

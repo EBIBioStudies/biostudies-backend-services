@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
@@ -18,14 +17,19 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
+import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.Group
+import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.WebSubmissionDraft
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.time.Instant
 
@@ -41,7 +45,8 @@ interface SubmitClient :
     ExtSubmissionOperations,
     PermissionOperations,
     StatsOperations,
-    SubmissionRequestOperations
+    SubmissionRequestOperations,
+    UserOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -133,6 +138,17 @@ interface SecurityOperations {
     fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
+interface UserOperations {
+    suspend fun getExtUser(email: String): ExtUser
+
+    suspend fun getUserHomeStats(email: String): FolderStats
+
+    suspend fun migrateUser(
+        email: String,
+        options: MigrateHomeOptions,
+    ): Unit
+}
+
 interface GeneralOperations {
     suspend fun getGroups(): List<Group>
 
@@ -154,26 +170,28 @@ interface GeneralOperations {
 }
 
 interface StatsOperations {
-    fun getStatsByAccNo(accNo: String): List<SubmissionStat>
+    fun findByAccNo(accNo: String): Flow<SubmissionStat>
 
-    fun getStatsByType(type: String): List<SubmissionStat>
+    fun findByType(type: String): Flow<SubmissionStat>
 
-    fun getStatsByTypeAndAccNo(
+    suspend fun findByTypeAndAccNo(
         type: String,
         accNo: String,
     ): SubmissionStat
 
-    fun registerStat(stat: SubmissionStat): Unit
+    suspend fun register(stat: SubmissionStat): Unit
 
-    fun registerStats(
+    fun register(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat>
+    ): Flow<SubmissionStat>
 
     fun incrementStats(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat>
+    ): Flow<SubmissionStat>
+
+    fun refreshStats(accNo: String): Flow<SubmissionStat>
 }
 
 interface DraftSubmissionOperations {
@@ -251,7 +269,7 @@ interface SubmitOperations {
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
-    ): AcceptedSubmission
+    ): SubmissionId
 
     suspend fun submitFromDraftAsync(draftKey: String)
 
@@ -289,18 +307,25 @@ interface MultipartAsyncSubmitOperations {
         format: SubmissionFormat,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
-    ): AcceptedSubmission
+    ): SubmissionId
 
     suspend fun submitMultipartAsync(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
-    ): AcceptedSubmission
+    ): SubmissionId
 
     suspend fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
-    ): AcceptedSubmission
+    ): SubmissionId
+
+    suspend fun submitMultipartAsync(
+        submissions: Map<String, String>,
+        parameters: SubmitParameters,
+        format: String,
+        files: Map<String, List<File>>,
+    ): List<SubmissionId>
 }
 
 interface SubmissionRequestOperations {

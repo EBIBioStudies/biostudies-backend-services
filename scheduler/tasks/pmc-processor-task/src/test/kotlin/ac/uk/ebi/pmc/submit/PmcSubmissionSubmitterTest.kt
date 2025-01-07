@@ -27,7 +27,8 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
-import ebi.ac.uk.model.constants.SUBMISSION_TYPE
+import ebi.ac.uk.model.constants.SUBFORMAT
+import ebi.ac.uk.model.constants.SUBMISSIONS
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -45,7 +46,6 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_LENGTH
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.test.annotation.DirtiesContext
@@ -104,30 +104,40 @@ internal class PmcSubmissionSubmitterTest {
                 ),
         )
         wireMockWebServer.stubFor(
-            post(urlEqualTo("/submissions/async"))
+            post(urlEqualTo("/submissions/async/multiple"))
                 .withHeader(CONTENT_TYPE, containing(MULTIPART_FORM_DATA))
-                .withHeader(ACCEPT, equalTo("$APPLICATION_JSON, $APPLICATION_JSON"))
-                .withHeader(SUBMISSION_TYPE, equalTo(APPLICATION_JSON))
                 .withMultipartRequestBody(
                     aMultipart()
-                        .withName("submission")
-                        .withHeader(CONTENT_TYPE, equalTo("$TEXT_PLAIN;charset=UTF-8"))
-                        .withHeader(CONTENT_LENGTH, equalTo("225"))
-                        .withBody(equalToJson(processedSubmission.body)),
+                        .withName(SUBMISSIONS)
+                        .withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
+                        .withBody(
+                            equalToJson(
+                                jsonObj {
+                                    processedSubmission.accNo to processedSubmission.body
+                                }.toString(),
+                            ),
+                        ),
                 ).withMultipartRequestBody(
                     aMultipart()
-                        .withName("files")
+                        .withName(SUBFORMAT)
+                        .withBody(equalTo("json")),
+                ).withMultipartRequestBody(
+                    aMultipart()
+                        .withName(processedSubmission.accNo)
                         .withHeader(CONTENT_TYPE, equalTo(TEXT_PLAIN))
-                        .withHeader(CONTENT_LENGTH, equalTo("19")),
+                        .withHeader(CONTENT_LENGTH, equalTo("19"))
+                        .withBody(equalTo(FILE1_CONTENT)),
                 ).willReturn(
                     aResponse()
                         .withStatus(HTTP_OK)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(
-                            jsonObj {
-                                "accNo" to "S-EPMC1234567"
-                                "version" to 3
-                            }.toString(),
+                            jsonArray(
+                                jsonObj {
+                                    "accNo" to "S-EPMC1234567"
+                                    "version" to 3
+                                },
+                            ).toString(),
                         ),
                 ),
         )

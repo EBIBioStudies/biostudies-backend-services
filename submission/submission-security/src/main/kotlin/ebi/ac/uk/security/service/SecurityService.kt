@@ -17,6 +17,7 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
+import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -44,6 +45,7 @@ import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
 import kotlin.io.path.absolutePathString
 
 private val logger = KotlinLogging.logger {}
@@ -57,6 +59,7 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
+    private val securityQueryService: SecurityQueryService,
     private val clusterClient: ClusterClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
@@ -81,8 +84,10 @@ open class SecurityService(
     }
 
     override suspend fun refreshUser(email: String): SecurityUser {
-        val user = userRepository.getActiveByEmail(email)
-        return activate(user)
+        val dbUser = userRepository.getActiveByEmail(email)
+        val securityUser = profileService.asSecurityUser(dbUser)
+        createMagicFolder(securityUser)
+        return securityUser
     }
 
     override suspend fun activate(activationKey: String) {
@@ -124,6 +129,38 @@ open class SecurityService(
         if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
         resetNotification(request.email, request.instanceKey, request.path)
     }
+
+    @Transactional
+    override suspend fun updateMagicFolder(
+        email: String,
+        migrateOptions: MigrateHomeOptions,
+    ) {
+        val stats = securityQueryService.getUserFolderStats(email)
+        if (migrateOptions.onlyIfEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
+        updateMagicFolder(
+            email,
+            StorageMode.valueOf(migrateOptions.storageMode),
+            migrateOptions.copyFilesSinceDays,
+        )
+    }
+
+    private suspend fun updateMagicFolder(
+        email: String,
+        storageMode: StorageMode,
+        days: Int,
+    ): Unit =
+        withContext(Dispatchers.IO) {
+            val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
+            if (user.storageMode == storageMode) error("User '$email' Storage is already $storageMode")
+
+            val source = profileService.asSecurityUser(user)
+            val target = profileService.asSecurityUser(user.apply { this.storageMode = storageMode })
+
+            createMagicFolder(target)
+            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
+
+            userRepository.save(user)
+        }
 
     private fun setPassword(
         user: DbUser,
@@ -178,19 +215,15 @@ open class SecurityService(
         return saved
     }
 
-    private suspend fun activate(toActivate: DbUser): SecurityUser {
-        val dbUser =
-            userRepository.save(
-                toActivate.apply {
-                    activationKey = null
-                    active = true
-                },
-            )
-        val securityUser = profileService.asSecurityUser(dbUser)
-
-        createMagicFolder(securityUser)
-        return securityUser
-    }
+    private suspend fun activate(toActivate: DbUser): SecurityUser =
+        withContext(Dispatchers.IO) {
+            toActivate.activationKey = null
+            toActivate.active = true
+            val dbUser = userRepository.save(toActivate)
+            val securityUser = profileService.asSecurityUser(dbUser)
+            createMagicFolder(securityUser)
+            securityUser
+        }
 
     private suspend fun createMagicFolder(user: SecurityUser) {
         when (user.userFolder) {
@@ -214,6 +247,21 @@ open class SecurityService(
         logger.info { "Started creating the cluster FTP folder $path" }
         clusterClient.triggerJobSync(job)
         logger.info { "Finished creating the cluster FTP folder $path" }
+    }
+
+    private suspend fun copyFilesClusterJob(
+        source: Path,
+        target: Path,
+        days: Int,
+    ) {
+        val command = "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target"
+
+        logger.debug { "Migrating with command '$command'" }
+        val job = JobSpec(queue = DataMoverQueue, command = command, minutes = Duration.ofDays(1).toMinutesPart())
+
+        logger.info { "Started copying files to the cluster FTP folder $target from $source" }
+        clusterClient.triggerJobSync(job)
+        logger.info { "Finished copying files to the cluster FTP folder $target from $source" }
     }
 
     private fun createNfsMagicFolder(

@@ -41,6 +41,8 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     suspend fun findByAccNo(accNo: String): DocSubmission?
 
+    suspend fun findAllByVersionGreaterThan(version: Int): Flow<DocSubmission>
+
     suspend fun getByAccNoAndVersion(
         accNo: String,
         version: Int,

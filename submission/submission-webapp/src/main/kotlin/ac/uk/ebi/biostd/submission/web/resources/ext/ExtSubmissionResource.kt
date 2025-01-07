@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.WebExtPage
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -36,9 +36,7 @@ class ExtSubmissionResource(
     suspend fun getExtended(
         @PathVariable accNo: String,
         @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?,
-    ): ExtSubmission {
-        return extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
-    }
+    ): ExtSubmission = extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
 
     @GetMapping("/{accNo}/referencedFiles/**")
     suspend fun getReferencedFiles(
@@ -65,6 +63,11 @@ class ExtSubmissionResource(
         @PathVariable releaseDate: String,
     ): Pair<String, Int> = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
 
+    @PostMapping("/stats/refreshAll")
+    suspend fun refreshAllStatus() {
+        extSubmissionService.refreshAllStats()
+    }
+
     @PostMapping("/{accNo}/transfer/{target}")
     suspend fun transferSubmission(
         @BioUser user: SecurityUser,
@@ -88,7 +91,7 @@ class ExtSubmissionResource(
     suspend fun submitExtendedAsync(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) extSubmission: String,
-    ): AcceptedSubmission =
+    ): SubmissionId =
         extSubmissionService.submitExtAsync(
             user.email,
             extSerializationService.deserialize(extSubmission),

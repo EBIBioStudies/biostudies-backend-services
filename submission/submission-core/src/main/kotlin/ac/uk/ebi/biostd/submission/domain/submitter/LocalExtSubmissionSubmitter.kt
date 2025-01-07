@@ -33,6 +33,7 @@ import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
+import ebi.ac.uk.model.SubmissionId
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration.ofMinutes
@@ -94,6 +95,14 @@ class LocalExtSubmissionSubmitter(
         }
     }
 
+    override suspend fun handleManyAsync(submissions: List<SubmissionId>) {
+        submissions.forEach { handleRequestAsync(it.accNo, it.version) }
+    }
+
+    override suspend fun refreshAllStats() {
+        submissionStatsService.refreshAll()
+    }
+
     @Suppress("CyclomaticComplexMethod")
     private suspend fun completeRqt(
         accNo: String,
@@ -102,7 +111,7 @@ class LocalExtSubmissionSubmitter(
     ) {
         suspend fun fromSavedSubmission() {
             requestCleaner.finalizeRequest(accNo, version, properties.processId)
-            submissionStatsService.calculateSubFilesSize(accNo)
+            submissionStatsService.calculateStats(accNo)
         }
 
         suspend fun fromCheckReleased() {

@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.common.properties
 
+import ebi.ac.uk.model.SubmissionId
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties
 data class TaskProperties(
-    val accNo: String?,
-    val version: Int?,
+    val submissions: List<SubmissionId>,
     private val mode: String,
 ) {
     val taskMode: Mode
@@ -16,4 +16,5 @@ data class TaskProperties(
 
 enum class Mode {
     HANDLE_REQUEST,
+    CALCULATE_ALL_STATS,
 }

@@ -37,16 +37,16 @@ Contains test related to Submission and collection manipulation.
 
 | Class                | Test No | Test name                                                                       |
 |----------------------|---------|---------------------------------------------------------------------------------|
-| SubmitPermissionTest | 4-1     | Superuser creates a collection                                                  | 
-| SubmitPermissionTest | 4-2     | Regular user can not create a collection                                        | 
-| SubmitPermissionTest | 4-3     | Regular user submits a collection submision without attach permission           | 
-| SubmitPermissionTest | 4-4     | Regular user submits a collection submision attach permission                   | 
-| SubmitPermissionTest | 4-5     | Regular user register and submits to default project                            | 
-| SubmitPermissionTest | 4-6     | Regular user submits with collection admin permission                           |                                                           
-| SubmitPermissionTest | 4-7     | Regular user resubmits another user submission with collection admin permission |                                                           
-| SubmitPermissionTest | 4-8     | Regular user resubmits its own submission                                       |                                                           
-| SubmitPermissionTest | 4-9     | Regular user resubmits another user submission                                  |                                                           
-| SubmitPermissionTest | 4-10    | Regular user resubmits another user submission with UPDATE permission           |                                                           
+| SubmitPermissionTest | 4-1     | Superuser creates a collection                                                  |
+| SubmitPermissionTest | 4-2     | Regular user can not create a collection                                        |
+| SubmitPermissionTest | 4-3     | Regular user submits a collection submision without attach permission           |
+| SubmitPermissionTest | 4-4     | Regular user submits a collection submision attach permission                   |
+| SubmitPermissionTest | 4-5     | Regular user register and submits to default project                            |
+| SubmitPermissionTest | 4-6     | Regular user submits with collection admin permission                           |
+| SubmitPermissionTest | 4-7     | Regular user resubmits another user submission with collection admin permission |
+| SubmitPermissionTest | 4-8     | Regular user resubmits its own submission                                       |
+| SubmitPermissionTest | 4-9     | Regular user resubmits another user submission                                  |
+| SubmitPermissionTest | 4-10    | Regular user resubmits another user submission with UPDATE permission           |
 
 ### Permission API Test Suite
 
@@ -54,10 +54,10 @@ Contains permissions API test.
 
 | Class             | Test No | Test name                                          |
 |-------------------|---------|----------------------------------------------------|
-| PermissionApiTest | 21-1    | Grant permission to a Regular user by Superuser    | 
-| PermissionApiTest | 21-2    | Grant permission to a Regular user by Regular user | 
-| PermissionApiTest | 21-3    | Grant permission to non-existing user              | 
-| PermissionApiTest | 21-4    | Grant permission to non-existing submission        |                                                                                               
+| PermissionApiTest | 21-1    | Grant permission to a Regular user by Superuser    |
+| PermissionApiTest | 21-2    | Grant permission to a Regular user by Regular user |
+| PermissionApiTest | 21-3    | Grant permission to non-existing user              |
+| PermissionApiTest | 21-4    | Grant permission to non-existing submission        |
 
 ## File List Test Suite
 
@@ -89,25 +89,25 @@ Contains test related to submission
 
 | Class                  | Test No | Test name                                                                 |
 |------------------------|---------|---------------------------------------------------------------------------|
-| SubmissionApiTest      | 16-1    | Submit study with submission object                                       | 
-| SubmissionApiTest      | 16-2    | Submit study with empty accNo                                             | 
-| SubmissionApiTest      | 16-3    | Submit study using root path                                              | 
-| SubmissionApiTest      | 16-4    | Submit study with generic root section                                    | 
-| SubmissionApiTest      | 16-5    | Submit study with invalid link Url                                        | 
-| SubmissionApiTest      | 16-6    | Submit study with validation error                                        | 
-| SubmissionApiTest      | 16-7    | Submit public study with folder make files public                         | 
-| SubmissionApiTest      | 16-8    | Submit public study with file make files public                           | 
-| SubmissionApiTest      | 16-9    | Submit study not released makes files private                             | 
-| SubmissionApiTest      | 16-10   | Submit study with invalid characters file path                            | 
-| SubmissionApiTest      | 16-11   | Submit study containing folder with trailing slash                        | 
-| SubmissionApiTest      | 16-12   | Submit study containing filelist with invalid name                        | 
-| SubmissionApiTest      | 16-13   | Submit study by Regular user with Ftp home directory                      | 
+| SubmissionApiTest      | 16-1    | Submit study with submission object                                       |
+| SubmissionApiTest      | 16-2    | Submit study with empty accNo                                             |
+| SubmissionApiTest      | 16-3    | Submit study using root path                                              |
+| SubmissionApiTest      | 16-4    | Submit study with generic root section                                    |
+| SubmissionApiTest      | 16-5    | Submit study with invalid link Url                                        |
+| SubmissionApiTest      | 16-6    | Submit study with validation error                                        |
+| SubmissionApiTest      | 16-7    | Submit public study with folder make files public                         |
+| SubmissionApiTest      | 16-8    | Submit public study with file make files public                           |
+| SubmissionApiTest      | 16-9    | Submit study not released makes files private                             |
+| SubmissionApiTest      | 16-10   | Submit study with invalid characters file path                            |
+| SubmissionApiTest      | 16-11   | Submit study containing folder with trailing slash                        |
+| SubmissionApiTest      | 16-12   | Submit study containing filelist with invalid name                        |
+| SubmissionApiTest      | 16-13   | Submit study by Regular user with Ftp home directory                      |
 | SubmissionApiTest      | 16-14   | Submit study when the system has the basePath property configured         |
 | SubmissionApiTest      | 16-15   | Submit study publish SubmissionSubmitted message                          |
 | SubmissionApiTest      | 16-16   | Submit study with silentMode does not publish SubmissionSubmitted message |
 | SubmissionApiTest      | 16-17   | Submit study with singleJobMode                                           |
-| AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                               | 
-| AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                              | 
+| AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                               |
+| AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                              |
 
 ### Resubmission Test suite
 
@@ -121,6 +121,28 @@ Contains test related to resubmission
 | ResubmissionApiTest | 5-4     | Resubmit study updating only metadata          |
 | ResubmissionApiTest | 5-5     | Resubmit study adding new files                |
 | ResubmissionApiTest | 5-6     | Resubmit study currenlty being flag as invalid |
+
+### Stats Test suite
+
+| Class               | Test No | Test name                                       |
+|---------------------|---------|-------------------------------------------------|
+| SubmissionStatsTest | 26-1    | files size stat calculation on submit over FIRE | 
+| SubmissionStatsTest | 26-2    | files size stat calculation on submit over NFS  | 
+| SubmissionStatsTest | 26-3    | find stats by accNo                             |
+| SubmissionStatsTest | 26-4    | find stats by type                              |
+| SubmissionStatsTest | 26-5    | find stats by type and AccNo                    |
+| SubmissionStatsTest | 26-6    | register stats by file                          |
+| SubmissionStatsTest | 26-7    | increment stats by file                         |
+| SubmissionStatsTest | 26-7    | refresh submission stats                        |
+
+### Async submission Test suite
+
+| Class               | Test No | Test name                                   |
+|---------------------|---------|---------------------------------------------|
+| SubmissionAsyncTest | 19-1    | Simple submit async                         |
+| SubmissionAsyncTest | 19-2    | Check submission stages                     |
+| SubmissionAsyncTest | 19-3    | Multiple async submissions with files       |
+| SubmissionAsyncTest | 19-4    | Multiple async submissions when one invalid |
 
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
@@ -192,8 +214,6 @@ Contains test related to resubmission
 | UserFileApiTest                 | 17-3    | upload download delete file and retrieve in user folder with space               |                                                                                               |
 | GroupFilesApiTest               | 18-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for groups considering different folder names                     |
 | GroupFilesApiTest               | 18-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
-| SubmissionAsyncTest             | 19-1    | simple submit async                                                              | Performs a simple submit async and checks each stages in the process                          |
-| SubmissionAsyncTest             | 19-2    | check submission stages                                                          |                                                                                               |
 | CollectionsListTest             | 20-1    | list collections for super user                                                  | Shows which collections users can see                                                         |
 | CollectionsListTest             | 20-2    | list collections for regular user                                                |                                                                                               |
 | CollectionsListTest             | 20-3    | list collections for default user                                                |                                                                                               |
@@ -216,13 +236,6 @@ Contains test related to resubmission
 | SubmissionRefreshApiTest        | 25-2    | Refresh when submission release date is updated                                  |                                                                                               |
 | SubmissionRefreshApiTest        | 25-3    | Refresh when submission attribute is updated                                     |                                                                                               |
 | SubmissionRefreshApiTest        | 25-4    | Refresh when submission fileListFile attribute is updated                        |                                                                                               |
-| SubmissionStatsTest             | 26-1    | files size stat calculation on submit over FIRE                                  |                                                                                               |
-| SubmissionStatsTest             | 26-2    | files size stat calculation on submit over NFS                                   |                                                                                               |
-| SubmissionStatsTest             | 26-3    | find stats by accNo                                                              |                                                                                               |
-| SubmissionStatsTest             | 26-4    | find stats by type                                                               |                                                                                               |
-| SubmissionStatsTest             | 26-5    | find stats by type and AccNo                                                     |                                                                                               |
-| SubmissionStatsTest             | 26-6    | register stats by file                                                           |                                                                                               |
-| SubmissionStatsTest             | 26-7    | increment stats by file                                                          |                                                                                               |
 | SubmissionReleaseTest           | 27-1    | public submission without secret key and HARD_LINKS release mode                 |                                                                                               |
 | SubmissionReleaseTest           | 27-2    | private submission without secret key and HARD_LINKS release mode                |                                                                                               |
 | SubmissionReleaseTest           | 27-3    | public submission with secret key and MOVE release mode                          |                                                                                               |
@@ -241,3 +254,15 @@ Contains test related to resubmission
 | SubmissionDatesTest             | 28-11   | Collection Admin make a Regular user public submission private                   |                                                                                               |
 | SubmissionRequestApiTest        | 29-1    | Get submission request status                                                    |                                                                                               |
 | SubmissionRequestApiTest        | 29-2    | Archive submission request                                                       |                                                                                               |
+
+### Admin Operations Test suite
+
+Contains test related to resubmission
+
+| Class            | Test No | Test name                                                  |
+|------------------|---------|------------------------------------------------------------|
+| UserAdminApiTest | 30-1    | 30-1 Get ext user                                          |
+| UserAdminApiTest | 30-2    | 30-2 Get user home stats                                   |
+| UserAdminApiTest | 30-3    | 30-3 Migrate user folder when not empty folder and disable |
+| UserAdminApiTest | 30-4    | 30-4 Migrate user folder when not empty folder and enable  |
+| UserAdminApiTest | 30-5    | 30-5 Migrate user folder when empty folder                 |

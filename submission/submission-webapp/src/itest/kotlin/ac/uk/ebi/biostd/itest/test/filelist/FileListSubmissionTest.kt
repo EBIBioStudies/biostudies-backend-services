@@ -204,7 +204,7 @@ class FileListSubmissionTest(
             val params = SubmitParameters(storageMode = storageMode)
             assertThatThrows<WebClientException> {
                 webClient.submitMultipart(submission, JSON, params, listOf(fileList))
-            }.hasMessageContaining("Unsupported page tab format FileList.txt")
+            }.hasMessageContaining("Unsupported pagetab format: txt")
         }
 
     @Test

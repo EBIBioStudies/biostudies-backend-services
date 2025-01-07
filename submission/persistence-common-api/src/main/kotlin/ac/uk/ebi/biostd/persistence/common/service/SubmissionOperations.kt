@@ -79,6 +79,8 @@ interface SubmissionPersistenceQueryService {
      * @param filter the submission filter
      **/
     suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
+
+    suspend fun findAllActive(includeFileListFiles: Boolean): Flow<ExtSubmission>
 }
 
 interface SubmissionFilesPersistenceService {

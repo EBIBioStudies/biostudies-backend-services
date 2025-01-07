@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -222,6 +223,7 @@ class SubmissionOnBehalfTest(
         override val email = "another@ebi.ac.uk"
         override val password = "678910"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
 
         override fun asRegisterRequest() = RegisterRequest(username, email, password, notificationsEnabled = true)
     }

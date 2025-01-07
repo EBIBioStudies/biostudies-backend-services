@@ -13,6 +13,7 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_UPDATED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
@@ -45,6 +46,8 @@ class SubmissionDataRepository(
 
     suspend fun update(sub: SubmissionDocument): SubmissionDocument = repository.save(sub)
 
+    suspend fun update(submissions: List<SubmissionDocument>) = repository.saveAll(submissions).collect()
+
     suspend fun findAndUpdate(
         status: SubmissionStatus,
         newStatus: SubmissionStatus,
@@ -60,7 +63,14 @@ class SubmissionDataRepository(
         newStatus: SubmissionStatus,
         sourceFile: String,
     ): SubmissionDocument? {
-        val query = Query(Criteria.where(SUB_STATUS).`is`(status).and(SUB_SOURCE_FILE).`is`(sourceFile))
+        val query =
+            Query(
+                Criteria
+                    .where(SUB_STATUS)
+                    .`is`(status)
+                    .and(SUB_SOURCE_FILE)
+                    .`is`(sourceFile),
+            )
         val update = Update().set(SUB_STATUS, newStatus)
         val options = FindAndModifyOptions().returnNew(true)
         return mongoTemplate.findAndModify(query, update, options, SubmissionDocument::class.java).awaitFirstOrNull()
@@ -89,12 +99,13 @@ class SubmissionDataRepository(
         val options = FindAndModifyOptions().returnNew(true).upsert(true)
 
         val result =
-            mongoTemplate.findAndModify(
-                Query(newerVersion),
-                update,
-                options,
-                SubmissionDocument::class.java,
-            ).awaitSingle()
+            mongoTemplate
+                .findAndModify(
+                    Query(newerVersion),
+                    update,
+                    options,
+                    SubmissionDocument::class.java,
+                ).awaitSingle()
         return result.id.equals(sub.id)
     }
 
@@ -107,14 +118,13 @@ class SubmissionDataRepository(
                 ),
             )
         val update = Update().set(SUB_STATUS, SubmissionStatus.DISCARDED)
-        mongoTemplate.updateMulti(
-            Query(olderVersions),
-            update,
-            SubmissionDocument::class.java,
-        ).awaitFirst()
+        mongoTemplate
+            .updateMulti(
+                Query(olderVersions),
+                update,
+                SubmissionDocument::class.java,
+            ).awaitFirst()
     }
 
-    suspend fun getById(submissionId: ObjectId): SubmissionDocument {
-        return repository.getById(submissionId)
-    }
+    suspend fun getById(submissionId: ObjectId): SubmissionDocument = repository.getById(submissionId)
 }

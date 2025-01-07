@@ -288,7 +288,7 @@ class MultipartFileSubmissionApiTest(
             val params = SubmitParameters(storageMode = storageMode)
 
             assertThatThrows<WebClientException> { webClient.submitMultipart(submission, params) }
-                .hasMessageContaining("Unsupported page tab format submission.txt")
+                .hasMessageContaining("Unsupported pagetab format: txt")
         }
 
     private suspend fun assertSubmissionFiles(

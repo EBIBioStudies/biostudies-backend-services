@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.DraftSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
@@ -21,6 +20,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
@@ -58,19 +58,24 @@ class SubmitWebHandler(
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
-    suspend fun submitAsync(request: ContentSubmitWebRequest): AcceptedSubmission {
+    suspend fun submitAsync(request: ContentSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         return subService.submitAsync(rqt)
     }
 
-    suspend fun submitAsync(request: FileSubmitWebRequest): AcceptedSubmission {
+    suspend fun submitAsync(requests: List<ContentSubmitWebRequest>): List<SubmissionId> {
+        val rqt = requests.map { buildRequest(it) }
+        return subService.submitAsync(rqt)
+    }
+
+    suspend fun submitAsync(request: FileSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
         return subService.submitAsync(rqt)
     }
 
-    suspend fun submitAsync(request: DraftSubmitWebRequest): AcceptedSubmission {
+    suspend fun submitAsync(request: DraftSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         return subService.submitAsync(rqt)
     }

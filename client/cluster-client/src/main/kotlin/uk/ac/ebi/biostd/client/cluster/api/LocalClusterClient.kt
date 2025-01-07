@@ -50,7 +50,7 @@ class LocalClusterClient : ClusterClient {
         command: String,
         logFile: File,
     ): Long {
-        val processBuilder = ProcessBuilder(command.split(" "))
+        val processBuilder = ProcessBuilder("bash", "-c", command)
         processBuilder.redirectOutput(logFile)
         val process = processBuilder.start()
         val processId = process.pid()
