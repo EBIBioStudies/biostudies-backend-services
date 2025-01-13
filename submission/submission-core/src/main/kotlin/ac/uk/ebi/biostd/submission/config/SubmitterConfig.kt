@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -223,13 +222,13 @@ class SubmitterConfig(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionProcessor: SubmissionProcessor,
         collectionValidationService: CollectionValidationService,
-        draftService: SubmissionDraftPersistenceService,
+        requestPersistenceService: SubmissionRequestPersistenceService,
     ): SubmissionSubmitter =
         SubmissionSubmitter(
             extSubmissionSubmitter,
             submissionProcessor,
             collectionValidationService,
-            draftService,
+            requestPersistenceService,
         )
 
     @Bean

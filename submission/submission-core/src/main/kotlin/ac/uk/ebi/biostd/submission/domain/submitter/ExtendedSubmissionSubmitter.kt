@@ -11,7 +11,9 @@ class ExtendedSubmissionSubmitter(
     private val remoteExtSubmissionSubmitter: RemoteExtSubmissionSubmitter,
     private val submissionTaskProperties: SubmissionTaskProperties,
 ) : ExtSubmissionSubmitter {
-    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> = localExtSubmissionSubmitter.createRqt(rqt)
+    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
+        return localExtSubmissionSubmitter.createRqt(rqt)
+    }
 
     override suspend fun handleRequest(
         accNo: String,

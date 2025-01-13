@@ -64,7 +64,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val request =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -132,7 +131,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val rqt =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -153,14 +151,12 @@ class SubmissionRequestDocDataRepositoryTest(
                         ),
                 )
 
-            val (_, created) = testInstance.saveRequest(rqt)
+            testInstance.saveRequest(rqt)
 
-            assertThat(created).isTrue()
             val newRqt = testInstance.getById(rqt.id)
             assertThat(newRqt.accNo).isEqualTo(rqt.accNo)
             assertThat(newRqt.version).isEqualTo(rqt.version)
             assertThat(newRqt.status).isEqualTo(rqt.status)
-            assertThat(newRqt.key).isEqualTo(rqt.key)
             assertThat(newRqt.draft).isEqualTo(rqt.draft)
 
             val process = rqt.process!!
@@ -178,11 +174,10 @@ class SubmissionRequestDocDataRepositoryTest(
     @Test
     fun saveRequestWhenExists() =
         runTest {
-            val (existing, _) =
+            val existing =
                 testInstance.saveRequest(
                     DocSubmissionRequest(
                         id = ObjectId(),
-                        key = "temp-123",
                         accNo = "abc-123",
                         version = 2,
                         owner = "owner@mail.org",
@@ -207,7 +202,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val newRequest =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-987-b",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -227,24 +221,22 @@ class SubmissionRequestDocDataRepositoryTest(
                             singleJobMode = true,
                         ),
                 )
-            val (_, created) = testInstance.saveRequest(newRequest)
-
-            assertThat(created).isFalse()
+            testInstance.saveRequest(newRequest)
 
             val submissions = testInstance.findByAccNo(newRequest.accNo).toList()
             assertThat(submissions).hasSize(1)
 
             val request = submissions.first()
-            assertThat(request.accNo).isEqualTo(existing.accNo)
-            assertThat(request.version).isEqualTo(existing.version)
-            assertThat(request.status).isEqualTo(existing.status)
-            assertThat(request.key).isEqualTo(existing.key)
+            assertThat(request.owner).isEqualTo(existing.owner)
             assertThat(request.draft).isEqualTo(existing.draft)
-            assertThat(request.process!!.notifyTo).isEqualTo(existing.process!!.notifyTo)
-            assertThat(request.process!!.submission).isEqualTo(existing.process!!.submission)
-            assertThat(request.process!!.totalFiles).isEqualTo(existing.process!!.totalFiles)
-            assertThat(request.process!!.currentIndex).isEqualTo(existing.process!!.currentIndex)
-            assertThat(request.modificationTime).isCloseTo(existing.modificationTime, within(100, ChronoUnit.MILLIS))
+            assertThat(request.accNo).isEqualTo(newRequest.accNo)
+            assertThat(request.version).isEqualTo(newRequest.version)
+            assertThat(request.status).isEqualTo(newRequest.status)
+            assertThat(request.process!!.notifyTo).isEqualTo(newRequest.process!!.notifyTo)
+            assertThat(request.process!!.submission).isEqualTo(newRequest.process!!.submission)
+            assertThat(request.process!!.totalFiles).isEqualTo(newRequest.process!!.totalFiles)
+            assertThat(request.process!!.currentIndex).isEqualTo(newRequest.process!!.currentIndex)
+            assertThat(request.modificationTime).isCloseTo(newRequest.modificationTime, within(100, ChronoUnit.MILLIS))
         }
 
     @Test
@@ -254,7 +246,6 @@ class SubmissionRequestDocDataRepositoryTest(
             val rqt =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-987-b",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",

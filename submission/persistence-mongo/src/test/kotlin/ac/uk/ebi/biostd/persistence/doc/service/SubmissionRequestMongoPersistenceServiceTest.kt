@@ -85,18 +85,16 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val submission = fullExtSubmission
                 val rqt =
                     SubmissionRequest(
-                        key = "draftKey",
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
-                        draft = "draftContent",
                         submission = submission,
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
                     )
 
-                val (accNo, version) = testInstance.createRequest(rqt)
+                val (accNo, version) = testInstance.saveRequest(rqt)
                 assertThat(accNo).isEqualTo("S-BSST1")
                 assertThat(version).isEqualTo(1)
 
@@ -130,18 +128,16 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 val submission = fullExtSubmission
                 val rqt =
                     SubmissionRequest(
-                        key = "draftKey",
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
-                        draft = "draftContent",
                         submission = submission,
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
                     )
 
-                val (accNo, version) = testInstance.createRequest(rqt)
+                val (accNo, version) = testInstance.saveRequest(rqt)
                 assertThat(accNo).isEqualTo("S-BSST1")
                 assertThat(version).isEqualTo(1)
 
@@ -170,7 +166,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
             val request =
                 DocSubmissionRequest(
                     id = ObjectId(),
-                    key = "temp-123",
                     accNo = "abc-123",
                     version = 2,
                     owner = "owner@mail.org",
@@ -221,7 +216,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 status: RequestStatus,
             ) = DocSubmissionRequest(
                 id = ObjectId(),
-                key = null,
                 accNo = accNo,
                 version = version,
                 owner = "owner@mail.org",
@@ -277,7 +271,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
     private fun testRequest() =
         DocSubmissionRequest(
             id = ObjectId(),
-            key = null,
             accNo = "S-BSST0",
             version = 1,
             owner = "owner@mail.org",

@@ -3,10 +3,9 @@ package ac.uk.ebi.biostd.persistence.common.request
 import ebi.ac.uk.extended.model.ExtSubmission
 
 data class ExtSubmitRequest(
-    val submission: ExtSubmission,
+    val owner: String,
     val notifyTo: String,
-    val draftKey: String? = null,
-    val draftContent: String? = null,
+    val submission: ExtSubmission,
     val silentMode: Boolean = false,
     val singleJobMode: Boolean = true,
 )

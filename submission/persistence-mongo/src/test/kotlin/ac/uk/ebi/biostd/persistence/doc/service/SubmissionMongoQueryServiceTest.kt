@@ -60,7 +60,7 @@ import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as sub
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
@@ -136,7 +136,7 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `filtered by accNo`() =
             runTest {
-                val subRequest = extSubmission.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
+                val subRequest = sub.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
                 val savedRequest = saveAsRequest(subRequest, REQUESTED)
                 submissionRepo.save(docSubmission.copy(accNo = "accNo1"))
 
@@ -162,8 +162,8 @@ internal class SubmissionMongoQueryServiceTest(
                 val sect1 = section.copy(attributes = listOf(ExtAttribute(TITLE.value, "section title 1")))
                 val sect3 = testDocSection.copy(attributes = listOf(DocAttribute(TITLE.value, "section title 3")))
 
-                saveAsRequest(extSubmission.copy(accNo = "acc1", title = "sub title 1", section = sect1), REQUESTED)
-                saveAsRequest(extSubmission.copy(accNo = "acc2", title = "wrongT1tl3", section = section), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "acc1", title = "sub title 1", section = sect1), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "acc2", title = "wrongT1tl3", section = section), REQUESTED)
                 submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title", section = sect3))
 
                 val result =
@@ -192,8 +192,8 @@ internal class SubmissionMongoQueryServiceTest(
                 val docSectionNoMatch =
                     docSection.copy(attributes = listOf(DocAttribute(name = "Tit_le", value = "match")))
 
-                saveAsRequest(extSubmission.copy(accNo = "acc1", section = extSectionMatch), REQUESTED)
-                saveAsRequest(extSubmission.copy(accNo = "acc2", section = extSectionMismatch), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "acc1", section = extSectionMatch), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "acc2", section = extSectionMismatch), REQUESTED)
                 submissionRepo.save(docSubmission.copy(accNo = "acc3", section = docSectionMatch))
                 submissionRepo.save(docSubmission.copy(accNo = "acc4", section = docSectionNoMatch))
 
@@ -214,8 +214,8 @@ internal class SubmissionMongoQueryServiceTest(
                 val section2 = section.copy(type = "type2")
                 val docSection1 = docSection.copy(type = "type1")
 
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", section = section1), REQUESTED)
-                saveAsRequest(extSubmission.copy(accNo = "accNo2", section = section2), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo1", section = section1), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo2", section = section2), REQUESTED)
                 submissionRepo.save(docSubmission.copy(accNo = "accNo3", section = docSection1))
 
                 val result =
@@ -234,14 +234,8 @@ internal class SubmissionMongoQueryServiceTest(
                 val matchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
                 val mismatchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
-                saveAsRequest(
-                    extSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section),
-                    REQUESTED,
-                )
-                saveAsRequest(
-                    extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
-                    REQUESTED,
-                )
+                saveAsRequest(sub.copy(accNo = "accNo1", releaseTime = matchDate, section = section), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section), REQUESTED)
                 submissionRepo.save(
                     docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant()),
                 )
@@ -266,14 +260,8 @@ internal class SubmissionMongoQueryServiceTest(
                 val matchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
                 val mismatchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
-                saveAsRequest(
-                    extSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section),
-                    REQUESTED,
-                )
-                saveAsRequest(
-                    extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
-                    REQUESTED,
-                )
+                saveAsRequest(sub.copy(accNo = "accNo1", releaseTime = matchDate, section = section), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section), REQUESTED)
                 submissionRepo.save(
                     docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant()),
                 )
@@ -295,8 +283,8 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `filtered by released`() =
             runTest {
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", released = true, section = section), REQUESTED)
-                saveAsRequest(extSubmission.copy(accNo = "accNo2", released = false, section = section), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo1", released = true, section = section), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo2", released = false, section = section), REQUESTED)
                 submissionRepo.save(docSubmission.copy(accNo = "accNo3", released = true))
 
                 val result =
@@ -318,10 +306,10 @@ internal class SubmissionMongoQueryServiceTest(
                 submissionRepo.save(docSubmission.copy(accNo = "accNo4", version = 1))
                 submissionRepo.save(docSubmission.copy(accNo = "accNo5", version = 1))
 
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", version = 2), REQUESTED)
-                saveAsRequest(extSubmission.copy(accNo = "accNo2", version = 2), LOADED)
-                saveAsRequest(extSubmission.copy(accNo = "accNo3", version = 2), CLEANED)
-                saveAsRequest(extSubmission.copy(accNo = "accNo4", version = 2), FILES_COPIED)
+                saveAsRequest(sub.copy(accNo = "accNo1", version = 2), REQUESTED)
+                saveAsRequest(sub.copy(accNo = "accNo2", version = 2), LOADED)
+                saveAsRequest(sub.copy(accNo = "accNo3", version = 2), CLEANED)
+                saveAsRequest(sub.copy(accNo = "accNo4", version = 2), FILES_COPIED)
 
                 val result = testInstance.getSubmissionsByUser(SubmissionListFilter(SUBMISSION_OWNER))
 
@@ -396,12 +384,9 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `get only requests with status REQUESTED`() =
             runTest {
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "one", section = section), REQUESTED)
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "two", section = section), REQUEST_PROCESSED)
-                saveAsRequest(
-                    extSubmission.copy(accNo = "accNo1", title = "three", section = section),
-                    REQUEST_PROCESSED,
-                )
+                saveAsRequest(sub.copy(accNo = "accNo1", title = "two", section = section), REQUEST_PROCESSED)
+                saveAsRequest(sub.copy(accNo = "accNo1", title = "three", section = section), REQUEST_PROCESSED)
+                saveAsRequest(sub.copy(accNo = "accNo1", title = "one", section = section), REQUESTED)
 
                 val result =
                     testInstance.getSubmissionsByUser(
@@ -425,7 +410,6 @@ internal class SubmissionMongoQueryServiceTest(
             status: RequestStatus,
         ) = DocSubmissionRequest(
             id = ObjectId(),
-            key = null,
             accNo = submission.accNo,
             version = submission.version,
             owner = "owner@mail.org",

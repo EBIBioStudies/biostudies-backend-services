@@ -26,21 +26,21 @@ class SubmissionService(
     private val fileStorageService: FileStorageService,
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
-        logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
+        logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.accNo}'" }
 
-        val (accNo, version) = submitter.createRqt(rqt)
+        val (accNo, version) = submitter.processRequestDraft(rqt)
         return submitter.handleRequest(accNo, version)
     }
 
     suspend fun submitAsync(rqt: SubmitRequest): SubmissionId {
-        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
-        val (accNo, version) = submitter.createRqt(rqt)
+        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with accNo '${rqt.accNo}'" }
+        val (accNo, version) = submitter.processRequestDraft(rqt)
         submitter.handleRequestAsync(accNo, version)
         return SubmissionId(accNo, version)
     }
 
     suspend fun submitAsync(rqt: List<SubmitRequest>): List<SubmissionId> {
-        val requests = rqt.map { submitter.createRqt(it) }.map { SubmissionId(it.accNo, it.version) }
+        val requests = rqt.map { submitter.processRequestDraft(it) }.map { SubmissionId(it.accNo, it.version) }
         submitter.handleManyAsync(requests)
         return requests
     }

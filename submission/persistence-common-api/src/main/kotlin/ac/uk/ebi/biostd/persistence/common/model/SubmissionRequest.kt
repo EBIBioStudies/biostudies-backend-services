@@ -47,31 +47,26 @@ data class SubmissionRequestProcessing(
 }
 
 data class SubmissionRequest(
-    val key: String?,
     val accNo: String,
     val version: Int,
     val owner: String,
-    val draft: String?,
+    val draft: String? = null,
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
     val process: SubmissionRequestProcessing? = null,
 ) {
     constructor(
-        key: String? = null,
         accNo: String,
         version: Int,
         owner: String,
-        draft: String? = null,
         submission: ExtSubmission,
         notifyTo: String,
         silentMode: Boolean,
         singleJobMode: Boolean,
     ) : this(
-        key,
         accNo,
         version,
         owner,
-        draft,
         status = REQUESTED,
         modificationTime = OffsetDateTime.now(),
         process = SubmissionRequestProcessing(submission, notifyTo, silentMode, singleJobMode),
