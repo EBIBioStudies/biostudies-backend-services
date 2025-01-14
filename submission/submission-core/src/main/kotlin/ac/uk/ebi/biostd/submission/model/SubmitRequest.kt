@@ -10,8 +10,11 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 data class SubmitRequest(
     val accNo: String,
+    val version: Int,
+    val relPath: String,
     val submission: Submission,
     val submitter: SecurityUser,
+    val owner: String,
     val sources: FileSourcesList,
     val method: SubmissionMethod,
     val onBehalfUser: SecurityUser?,
@@ -20,6 +23,4 @@ data class SubmitRequest(
     val storageMode: StorageMode?,
     val silentMode: Boolean,
     val singleJobMode: Boolean,
-) {
-    val owner: String = onBehalfUser?.email ?: submitter.email
-}
+)

@@ -32,17 +32,15 @@ class SubmissionService(
         return submitter.handleRequest(accNo, version)
     }
 
-    suspend fun submitAsync(rqt: SubmitRequest): SubmissionId {
+    suspend fun submitAsync(rqt: SubmitRequest) {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with accNo '${rqt.accNo}'" }
         val (accNo, version) = submitter.processRequestDraft(rqt)
         submitter.handleRequestAsync(accNo, version)
-        return SubmissionId(accNo, version)
     }
 
-    suspend fun submitAsync(rqt: List<SubmitRequest>): List<SubmissionId> {
+    suspend fun submitAsync(rqt: List<SubmitRequest>) {
         val requests = rqt.map { submitter.processRequestDraft(it) }.map { SubmissionId(it.accNo, it.version) }
         submitter.handleManyAsync(requests)
-        return requests
     }
 
     suspend fun deleteSubmission(

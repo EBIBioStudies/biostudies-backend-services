@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
@@ -14,6 +15,7 @@ import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.model.SubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.method
+import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -24,11 +26,15 @@ import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
+import mu.KotlinLogging
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
+private val logger = KotlinLogging.logger {}
+
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class SubmitWebHandler(
+    private val accNoService: AccNoService,
     private val subService: SubmissionService,
     private val extSubService: ExtSubmissionQueryService,
     private val fileSourcesService: FileSourcesService,
@@ -36,6 +42,7 @@ class SubmitWebHandler(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val queryService: SubmissionMetaQueryService,
     private val fileServiceFactory: FileServiceFactory,
+    private val persistenceService: SubmissionPersistenceService,
     private val requestDraftService: SubmissionRequestDraftService,
 ) {
     suspend fun submit(request: ContentSubmitWebRequest): Submission {
@@ -60,24 +67,32 @@ class SubmitWebHandler(
 
     suspend fun submitAsync(request: ContentSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return SubmissionId(rqt.accNo, rqt.version)
     }
 
     suspend fun submitAsync(requests: List<ContentSubmitWebRequest>): List<SubmissionId> {
         val rqt = requests.map { buildRequest(it) }
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return rqt.map { SubmissionId(it.accNo, it.version) }
     }
 
     suspend fun submitAsync(request: FileSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return SubmissionId(rqt.accNo, rqt.version)
     }
 
     suspend fun submitAsync(request: DraftSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return SubmissionId(rqt.accNo, rqt.version)
     }
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
@@ -153,17 +168,26 @@ class SubmitWebHandler(
          * 5. Request draft is created.
          */
         suspend fun processSubmission(): SubmitRequest {
-            val (accNo, rootPath) = deserializeSubmission()
-            val previous = extSubService.findExtendedSubmission(accNo)
+            val (tempAccNo, rootPath) = deserializeSubmission()
+            val previous = extSubService.findExtendedSubmission(tempAccNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
+            val owner = onBehalfUser?.email ?: submitter.email
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
             val requestDraft = getOrCreateRequestDraft(submission)
+            val (accNo, relPath) = accNoService.calculateAccNo(submitter.email, submission, collection, previous)
+            val version = persistenceService.getNextVersion(accNo)
+
+            logger.info { "$accNo $owner Assigned accNo '$accNo' to draft request '${requestDraft.accNo}'" }
+            requestDraftService.setSubRequestAccNo(requestDraft.accNo, accNo, owner)
 
             return SubmitRequest(
-                accNo = requestDraft.accNo,
+                accNo = accNo,
+                version = version,
+                relPath = relPath,
                 submission = submission,
                 submitter = submitter,
+                owner = owner,
                 sources = sources,
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,

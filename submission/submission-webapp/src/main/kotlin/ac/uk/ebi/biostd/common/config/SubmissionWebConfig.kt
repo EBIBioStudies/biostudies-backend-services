@@ -29,6 +29,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtendedSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
+import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -107,6 +108,7 @@ class SubmissionWebConfig {
 
     @Bean
     fun submitHandler(
+        accNoService: AccNoService,
         submissionService: SubmissionService,
         extSubmissionQueryService: ExtSubmissionQueryService,
         fileSourcesService: FileSourcesService,
@@ -114,9 +116,11 @@ class SubmissionWebConfig {
         toSubmissionMapper: ToSubmissionMapper,
         queryService: SubmissionMetaQueryService,
         fileServiceFactory: FileServiceFactory,
+        persistenceService: SubmissionPersistenceService,
         requestDraftService: SubmissionRequestDraftService,
     ): SubmitWebHandler =
         SubmitWebHandler(
+            accNoService,
             submissionService,
             extSubmissionQueryService,
             fileSourcesService,
@@ -124,6 +128,7 @@ class SubmissionWebConfig {
             toSubmissionMapper,
             queryService,
             fileServiceFactory,
+            persistenceService,
             requestDraftService,
         )
 

@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToCollectionException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
-import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.AccNumber
+import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -25,15 +25,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-private const val ACC_NO = "AAB12"
-private val ACC_NUM = AccNumber("AAB", "12")
-private const val SUBMITTER = "submiter@email.com"
-private const val COLLECTION = "CC123"
-private const val PROJECT_PATTERN = "!{ABC-}"
-
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
-    @MockK private val request: SubmitRequest,
+    @MockK private val submission: Submission,
+    @MockK private val collection: BasicCollection,
     @MockK private val service: PersistenceService,
     @MockK private val privilegesService: IUserPrivilegesService,
 ) {
@@ -74,10 +69,17 @@ class AccNoServiceTest(
         @Test
         fun `when user cannot provide accession`() =
             runTest {
-                every { request.collection } returns null
                 coEvery { privilegesService.canProvideAccNo(SUBMITTER, "") } returns false
 
-                val error = assertThrows<UserCanNotProvideAccessNumber> { testInstance.calculateAccNo(request) }
+                val error =
+                    assertThrows<UserCanNotProvideAccessNumber> {
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = null,
+                            previousVersion = null,
+                        )
+                    }
                 assertThat(error.message)
                     .isEqualTo("The user submiter@email.com is not allowed to provide accession number directly")
             }
@@ -87,7 +89,15 @@ class AccNoServiceTest(
             runTest {
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
 
-                val error = assertThrows<UserCanNotSubmitToCollectionException> { testInstance.calculateAccNo(request) }
+                val error =
+                    assertThrows<UserCanNotSubmitToCollectionException> {
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = collection,
+                            previousVersion = null,
+                        )
+                    }
                 assertThat(error.message)
                     .isEqualTo("The user submiter@email.com is not allowed to submit to CC123 collection")
             }
@@ -97,10 +107,17 @@ class AccNoServiceTest(
             @Test
             fun `when no project`() =
                 runTest {
-                    every { request.collection } returns null
                     coEvery { privilegesService.canProvideAccNo(SUBMITTER, "") } returns true
 
-                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
+                    val (accNo, relPath) =
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = null,
+                            previousVersion = null,
+                        )
+                    assertThat(accNo).isEqualTo(ACC_NO)
+                    assertThat(relPath).isEqualTo(REL_PATH)
                 }
 
             @Test
@@ -109,7 +126,15 @@ class AccNoServiceTest(
                     coEvery { privilegesService.canProvideAccNo(SUBMITTER, COLLECTION) } returns true
                     coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
+                    val (accNo, relPath) =
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = collection,
+                            previousVersion = null,
+                        )
+                    assertThat(accNo).isEqualTo(ACC_NO)
+                    assertThat(relPath).isEqualTo(REL_PATH)
                 }
         }
 
@@ -118,23 +143,38 @@ class AccNoServiceTest(
             @Test
             fun `when parent`() =
                 runTest {
-                    every { request.submission.accNo } returns ""
+                    every { submission.accNo } returns ""
                     every { service.getSequenceNextValue("ABC-") } returns 10
                     coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("ABC-", "10"))
+                    val (accNo, relPath) =
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = collection,
+                            previousVersion = null,
+                        )
+                    assertThat(accNo).isEqualTo("ABC-10")
+                    assertThat(relPath).isEqualTo("ABC-/010/ABC-10")
                 }
 
             @Test
             fun `when no parent`() =
                 runTest {
-                    every { request.collection } returns null
-                    every { request.submission.accNo } returns ""
+                    every { submission.accNo } returns ""
                     every { service.getSequenceNextValue("S-BSST") } returns 99
                     coEvery { privilegesService.canProvideAccNo(SUBMITTER, "") } returns true
                     coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("S-BSST", "99"))
+                    val (accNo, relPath) =
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = null,
+                            previousVersion = null,
+                        )
+                    assertThat(accNo).isEqualTo("S-BSST99")
+                    assertThat(relPath).isEqualTo("S-BSST/099/S-BSST99")
                 }
         }
     }
@@ -143,17 +183,20 @@ class AccNoServiceTest(
     inner class WhenIsNotNew(
         @MockK private val previousVersion: ExtSubmission,
     ) {
-        @BeforeEach
-        fun beforeEach() {
-            every { request.previousVersion } returns previousVersion
-        }
-
         @Test
         fun `when user cannot resubmit`() =
             runTest {
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
 
-                val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
+                val error =
+                    assertThrows<UserCanNotUpdateSubmit> {
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = collection,
+                            previousVersion = previousVersion,
+                        )
+                    }
                 assertThat(error.message)
                     .isEqualTo("The user $SUBMITTER is not allowed to update the submission $ACC_NO")
             }
@@ -165,7 +208,15 @@ class AccNoServiceTest(
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
+                val (accNo, relPath) =
+                    testInstance.calculateAccNo(
+                        submitter = SUBMITTER,
+                        submission = submission,
+                        collection = collection,
+                        previousVersion = previousVersion,
+                    )
+                assertThat(accNo).isEqualTo(ACC_NO)
+                assertThat(relPath).isEqualTo(REL_PATH)
             }
 
         @Test
@@ -175,7 +226,15 @@ class AccNoServiceTest(
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
 
-                assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
+                val (accNo, relPath) =
+                    testInstance.calculateAccNo(
+                        submitter = SUBMITTER,
+                        submission = submission,
+                        collection = collection,
+                        previousVersion = previousVersion,
+                    )
+                assertThat(accNo).isEqualTo(ACC_NO)
+                assertThat(relPath).isEqualTo(REL_PATH)
             }
 
         @Test
@@ -185,7 +244,15 @@ class AccNoServiceTest(
                 coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
                 coEvery { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
+                val error =
+                    assertThrows<UserCanNotUpdateSubmit> {
+                        testInstance.calculateAccNo(
+                            submitter = SUBMITTER,
+                            submission = submission,
+                            collection = collection,
+                            previousVersion = previousVersion,
+                        )
+                    }
 
                 assertThat(error.message).isEqualTo(
                     "The user submiter@email.com is not allowed to update the submission AAB12",
@@ -194,10 +261,16 @@ class AccNoServiceTest(
     }
 
     private fun initRequest() {
-        every { request.previousVersion } returns null
-        every { request.submission.accNo } returns ACC_NO
-        every { request.collection?.accNo } returns COLLECTION
-        every { request.submitter.email } returns SUBMITTER
-        every { request.collection?.accNoPattern } returns PROJECT_PATTERN
+        every { submission.accNo } returns ACC_NO
+        every { collection.accNo } returns COLLECTION
+        every { collection.accNoPattern } returns PROJECT_PATTERN
+    }
+
+    private companion object {
+        const val ACC_NO = "AAB12"
+        const val REL_PATH = "AAB/012/AAB12"
+        const val SUBMITTER = "submiter@email.com"
+        const val COLLECTION = "CC123"
+        const val PROJECT_PATTERN = "!{ABC-}"
     }
 }

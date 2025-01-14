@@ -57,12 +57,12 @@ class SubmissionSubmitterTest(
         runTest {
             val extRequestSlot = slot<ExtSubmitRequest>()
 
-            coEvery { requestService.hasActiveRequest(sub.accNo) } returns false
+            coEvery { requestService.hasActiveRequest(ACC_NO) } returns false
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
             coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
             coEvery {
-                requestService.setSubRequestAccNo(RQT_KEY, sub.accNo, sub.owner, MODIFICATION_TIME)
+                requestService.setSubRequestAccNo(ACC_NO, sub.accNo, sub.owner, MODIFICATION_TIME)
             } answers { nothing }
 
             testInstance.processRequestDraft(request)
@@ -72,25 +72,31 @@ class SubmissionSubmitterTest(
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
                 collectionValidationService.executeCollectionValidators(sub)
-                requestService.setDraftStatus(RQT_KEY, sub.owner, SUBMITTED, MODIFICATION_TIME)
+                requestService.setDraftStatus(ACC_NO, sub.owner, SUBMITTED, MODIFICATION_TIME)
                 submitter.createRqt(extRequest)
             }
             coVerify(exactly = 0) {
-                requestService.setDraftStatus(RQT_KEY, sub.owner, DRAFT, MODIFICATION_TIME)
+                requestService.setDraftStatus(ACC_NO, sub.owner, DRAFT, MODIFICATION_TIME)
             }
         }
 
     @Test
     fun `create with failure on validation`() =
         runTest {
-            coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
+            val error = "validation error"
+            coEvery { requestService.hasActiveRequest(ACC_NO) } returns false
+            coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException(error)
+            coEvery {
+                requestService.setSubRequestErrors(ACC_NO, sub.owner, listOf(error), MODIFICATION_TIME)
+            } answers { nothing }
 
             assertThrows<InvalidSubmissionException> { testInstance.processRequestDraft(request) }
 
             coVerify(exactly = 1) {
                 submissionProcessor.processSubmission(request)
-                requestService.setDraftStatus(RQT_KEY, sub.owner, SUBMITTED, MODIFICATION_TIME)
-                requestService.setDraftStatus(RQT_KEY, sub.owner, DRAFT, MODIFICATION_TIME)
+                requestService.setDraftStatus(ACC_NO, sub.owner, SUBMITTED, MODIFICATION_TIME)
+                requestService.setDraftStatus(ACC_NO, sub.owner, DRAFT, MODIFICATION_TIME)
+                requestService.setSubRequestErrors(ACC_NO, sub.owner, listOf(error), MODIFICATION_TIME)
             }
             coVerify(exactly = 0) {
                 submitter.createRqt(any())
@@ -104,7 +110,8 @@ class SubmissionSubmitterTest(
     }
 
     private fun setUpRequest() {
-        every { request.accNo } returns RQT_KEY
+        every { request.accNo } returns ACC_NO
+        every { request.version } returns 1
         every { request.owner } returns sub.owner
         every { request.previousVersion } returns null
         every { request.silentMode } returns false
@@ -112,12 +119,12 @@ class SubmissionSubmitterTest(
     }
 
     private fun setUpDraftService() {
-        coEvery { requestService.setDraftStatus(RQT_KEY, sub.owner, DRAFT, MODIFICATION_TIME) } answers { nothing }
-        coEvery { requestService.setDraftStatus(RQT_KEY, sub.owner, SUBMITTED, MODIFICATION_TIME) } answers { nothing }
+        coEvery { requestService.setDraftStatus(ACC_NO, sub.owner, DRAFT, MODIFICATION_TIME) } answers { nothing }
+        coEvery { requestService.setDraftStatus(ACC_NO, sub.owner, SUBMITTED, MODIFICATION_TIME) } answers { nothing }
     }
 
     companion object {
-        private const val RQT_KEY = "TMP_1970-01-01T00:00:00.002Z"
+        private const val ACC_NO = "S-BSST1"
         private val MODIFICATION_TIME = Instant.ofEpochMilli(2)
     }
 }

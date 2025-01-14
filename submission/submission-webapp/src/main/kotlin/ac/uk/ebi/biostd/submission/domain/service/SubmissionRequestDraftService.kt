@@ -69,6 +69,12 @@ class SubmissionRequestDraftService(
         owner: String,
     ): SubmissionRequest = createActiveRequestDraft(draft, owner)
 
+    suspend fun setSubRequestAccNo(
+        tempAccNo: String,
+        accNo: String,
+        owner: String,
+    ) = requestService.setSubRequestAccNo(tempAccNo, accNo, owner, Instant.now())
+
     private suspend fun createRequestDraftFromSubmission(
         accNo: String,
         owner: String,

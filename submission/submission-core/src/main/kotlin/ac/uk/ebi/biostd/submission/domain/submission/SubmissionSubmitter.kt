@@ -24,11 +24,10 @@ class SubmissionSubmitter(
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
+        checkProcessingRequests(rqt.accNo, rqt.version)
+
         val sub = processRequest(rqt)
         val extRqt = ExtSubmitRequest(sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
-
-        checkProcessingRequests(sub.accNo, sub.version)
-        requestService.setSubRequestAccNo(rqt.accNo, sub.accNo, rqt.owner, Instant.now())
         submissionSubmitter.createRqt(extRqt)
 
         return sub
@@ -60,8 +59,12 @@ class SubmissionSubmitter(
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
+            val errors = listOf(exception)
+
             reactivateDraft(rqt.accNo, rqt.owner)
-            throw InvalidSubmissionException("Submission validation errors", listOf(exception))
+            setRequestErrors(rqt.accNo, rqt.owner, errors)
+
+            throw InvalidSubmissionException("Submission validation errors", errors)
         }
     }
 
@@ -84,5 +87,14 @@ class SubmissionSubmitter(
     ) {
         requestService.setDraftStatus(accNo, owner, DRAFT, Instant.now())
         logger.info { "$accNo $owner Status of request draft with key '$accNo' set to ACTIVE" }
+    }
+
+    private suspend fun setRequestErrors(
+        accNo: String,
+        owner: String,
+        errors: List<Throwable>,
+    ) {
+        val errorsList = errors.map { it.message ?: it.localizedMessage }.map { it.trim() }
+        requestService.setSubRequestErrors(accNo, owner, errorsList, Instant.now())
     }
 }

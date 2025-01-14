@@ -1,12 +1,14 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToCollectionException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
-import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.AccNumber
+import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 const val DEFAULT_PATTERN = "!{S-BSST}"
@@ -18,21 +20,37 @@ class AccNoService(
     private val privilegesService: IUserPrivilegesService,
     private val subBasePath: String?,
 ) {
+    suspend fun calculateAccNo(
+        submitter: String,
+        submission: Submission,
+        collection: BasicCollection?,
+        previousVersion: ExtSubmission?,
+    ): Pair<String, String> {
+        val accNumber = getAccNo(submitter, submission, collection, previousVersion)
+        val relPath = getRelPath(accNumber)
+
+        return (accNumber.toString() to relPath)
+    }
+
     @Suppress("ThrowsCount")
-    suspend fun calculateAccNo(rqt: SubmitRequest): AccNumber {
-        val submitter = rqt.submitter.email
-        val isNew = rqt.previousVersion == null
-        val accNo = rqt.submission.accNo.ifBlank { null }
-        val collection = rqt.collection?.accNo
+    private suspend fun getAccNo(
+        submitter: String,
+        submission: Submission,
+        collection: BasicCollection?,
+        previousVersion: ExtSubmission?,
+    ): AccNumber {
+        val isNew = previousVersion == null
+        val accNo = submission.accNo.ifBlank { null }
+        val collectionAccNo = collection?.accNo
 
         if (accNo != null && isNew.not()) {
             checkCanReSubmit(accNo, submitter)
             return patternUtil.toAccNumber(accNo)
         }
 
-        checkCanSubmitToCollection(collection, submitter)
-        checkCanProvideAcc(accNo, collection, isNew, submitter)
-        return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(rqt.collection?.accNoPattern))
+        checkCanSubmitToCollection(collectionAccNo, submitter)
+        checkCanProvideAcc(accNo, collectionAccNo, isNew, submitter)
+        return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(collection?.accNoPattern))
     }
 
     private suspend fun checkCanSubmitToCollection(
