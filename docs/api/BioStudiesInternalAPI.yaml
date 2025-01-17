@@ -79,7 +79,7 @@ paths:
   /submissions/drafts:
     $ref: 'drafts/operations/DraftOperations.yaml'
   /submissions/drafts/{key}:
-    $ref: 'drafts/operations/DraftOperationsByKey.yaml'
+    $ref: 'drafts/operations/DraftOperationsByAccNo.yaml'
   /submissions/drafts/{key}/content:
     $ref: 'drafts/operations/GetDraftContent.yaml'
   /submissions/drafts/{key}/submit:

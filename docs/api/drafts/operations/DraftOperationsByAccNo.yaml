@@ -13,8 +13,8 @@ get:
       type: string
 
     - in: path
-      name: key
-      description: Submission key
+      name: accNo
+      description: Submission accNo
       required: true
       type: string
 
@@ -42,8 +42,8 @@ put:
       type: string
 
     - in: path
-      name: key
-      description: Submission key
+      name: accNo
+      description: Submission accNo
       required: true
       type: number
 
@@ -70,7 +70,7 @@ put:
 
 delete:
   summary: Delete Submission Draft
-  description: Delete the submission draft with the specified key.
+  description: Delete the submission draft with the specified accNo.
 
   tags:
     - Submission Drafts
@@ -83,8 +83,8 @@ delete:
       type: string
 
     - in: path
-      name: key
-      description: Submission key
+      name: accNo
+      description: Submission accNo
       required: true
       type: number
 

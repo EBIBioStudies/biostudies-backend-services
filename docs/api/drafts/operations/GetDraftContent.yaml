@@ -1,6 +1,6 @@
 get:
   summary: Get Submission Draft Content
-  description: Get the content of the submission draft with the specified key.
+  description: Get the content of the submission draft with the specified accNo.
 
   tags:
     - Submission Drafts
@@ -13,8 +13,8 @@ get:
       type: string
 
     - in: path
-      name: key
-      description: Submission key
+      name: accNo
+      description: Submission accNo
       required: true
       type: number
 

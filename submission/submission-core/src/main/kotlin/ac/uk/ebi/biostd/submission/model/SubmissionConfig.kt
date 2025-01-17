@@ -49,7 +49,7 @@ class FileSubmitWebRequest(
 ) : SubmitWebRequest(submissionConfig, filesConfig)
 
 class DraftSubmitWebRequest(
-    val key: String,
+    val accNo: String,
     val owner: String,
     submissionConfig: SubmissionConfig,
     filesConfig: SubmissionFilesConfig,

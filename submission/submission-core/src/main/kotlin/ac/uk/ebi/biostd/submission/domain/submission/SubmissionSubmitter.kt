@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
-import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -24,8 +23,6 @@ class SubmissionSubmitter(
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
-        checkProcessingRequests(rqt.accNo, rqt.version)
-
         val sub = processRequest(rqt)
         val extRqt = ExtSubmitRequest(sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
         submissionSubmitter.createRqt(extRqt)
@@ -67,11 +64,6 @@ class SubmissionSubmitter(
             throw InvalidSubmissionException("Submission validation errors", errors)
         }
     }
-
-    private suspend fun checkProcessingRequests(
-        accNo: String,
-        version: Int,
-    ) = require(requestService.hasActiveRequest(accNo).not()) { throw ConcurrentSubException(accNo, version) }
 
     private suspend fun startProcessingDraft(
         accNo: String,
