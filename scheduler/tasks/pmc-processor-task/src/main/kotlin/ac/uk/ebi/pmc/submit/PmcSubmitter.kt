@@ -1,6 +1,5 @@
 package ac.uk.ebi.pmc.submit
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.domain.ErrorsService
@@ -24,7 +23,7 @@ import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val BATCH_SIZE = 30
+private const val BATCH_SIZE = 50
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(
@@ -43,7 +42,7 @@ class PmcSubmitter(
     fun submitSingle(submissionId: String): Unit =
         runBlocking {
             val submission = submissionService.findById(submissionId)
-            submit(submission, 1)
+            submitMany(listOf(submission), 1)
         }
 
     private suspend fun submitSubmissions(
@@ -95,31 +94,5 @@ class PmcSubmitter(
         }
 
         return runCatching { submitMany() }
-    }
-
-    private suspend fun submit(
-        sub: SubmissionDocument,
-        idx: Int,
-    ): Unit =
-        submit(sub)
-            .fold(
-                {
-                    logger.info { "submitted $idx, accNo='${sub.accNo}', version='${sub.version}'" }
-                    submissionService.saveSubmittingSubmission(sub, it.version)
-                },
-                {
-                    logger.error(it) { "failed to submit accNo='${sub.accNo}'" }
-                    errorService.saveError(sub, PmcMode.SUBMIT, it)
-                },
-            )
-
-    private suspend fun submit(submission: SubmissionDocument): Result<SubmissionId> {
-        suspend fun submit(): SubmissionId {
-            val files = submissionService.getSubFiles(submission.files).map { File(it.path) }.toList()
-            val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
-            return bioWebClient.submitMultipartAsync(submission.body, SubmissionFormat.JSON, params, files)
-        }
-
-        return runCatching { submit() }
     }
 }

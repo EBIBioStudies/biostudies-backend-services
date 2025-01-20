@@ -254,13 +254,20 @@ open class SecurityService(
         target: Path,
         days: Int,
     ) {
-        val command = "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target"
+        val command =
+            "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target " +
+                "&& echo \"rsync exit code: 0\" || echo \"rsync exit code: $?\""
 
         logger.debug { "Migrating with command '$command'" }
-        val job = JobSpec(queue = DataMoverQueue, command = command, minutes = Duration.ofDays(1).toMinutesPart())
+        val jobSpec =
+            JobSpec(
+                queue = DataMoverQueue,
+                command = command,
+                minutes = Duration.ofDays(1).toMinutes().toInt(),
+            )
 
         logger.info { "Started copying files to the cluster FTP folder $target from $source" }
-        clusterClient.triggerJobSync(job)
+        clusterClient.triggerJobSync(jobSpec)
         logger.info { "Finished copying files to the cluster FTP folder $target from $source" }
     }
 
