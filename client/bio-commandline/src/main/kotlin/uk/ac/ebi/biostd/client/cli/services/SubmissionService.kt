@@ -17,7 +17,7 @@ internal class SubmissionService {
     suspend fun submit(request: SubmissionRequest): Unit =
         performRequest {
             val client = bioWebClient(request.securityConfig)
-            val (accNo, version) = client.submitMultipartAsync(request.submissionFile, request.parameters)
+            val (accNo, version) = client.submitMultipartAsync(request.submissionFile, request.parameters, request.files)
             echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
 
             if (request.await) client.waitForSubmission(accNo, version)

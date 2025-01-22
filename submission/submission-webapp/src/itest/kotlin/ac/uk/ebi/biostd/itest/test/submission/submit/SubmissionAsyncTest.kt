@@ -236,13 +236,12 @@ class SubmissionAsyncTest(
 
             val exception =
                 assertThrows<WebClientException> {
-                    val result =
-                        webClient.submitMultipartAsync(
-                            format = "tsv",
-                            submissions = mapOf("SMulti-004" to submission1, "SMulti-005" to submission2),
-                            files = emptyMap(),
-                            parameters = SubmitParameters(storageMode = storageMode),
-                        )
+                    webClient.submitMultipartAsync(
+                        format = "tsv",
+                        submissions = mapOf("SMulti-004" to submission1, "SMulti-005" to submission2),
+                        files = emptyMap(),
+                        parameters = SubmitParameters(storageMode = storageMode),
+                    )
                 }
             assertThat(exception.message).contains("The following files could not be found:\\n  - sMulti-004-file.txt")
         }

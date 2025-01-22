@@ -28,10 +28,12 @@ class MultiPartAsyncSubmitClient(
     override suspend fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
+        files: List<File>,
     ): SubmissionId {
         val headers = httpHeadersOf(HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA)
         val multiPartBody =
             multipartBody(
+                files = files,
                 parameters = parameters,
                 submission = FileSystemResource(submission),
             )
@@ -44,11 +46,7 @@ class MultiPartAsyncSubmitClient(
         format: String,
         files: Map<String, List<File>>,
     ): List<SubmissionId> {
-        val headers =
-            httpHeadersOf(
-                HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
-            )
-
+        val headers = httpHeadersOf(HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA)
         val multiPartBody =
             multipartBody(
                 parameters = parameters,

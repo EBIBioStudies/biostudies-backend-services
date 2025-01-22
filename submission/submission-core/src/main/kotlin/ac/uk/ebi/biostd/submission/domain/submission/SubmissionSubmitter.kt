@@ -58,7 +58,7 @@ class SubmissionSubmitter(
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
             val errors = listOf(exception)
 
-            reactivateDraft(rqt.accNo, rqt.owner)
+            cancelProcessingDraft(rqt.accNo, rqt.owner)
             setRequestErrors(rqt.accNo, rqt.owner, errors)
 
             throw InvalidSubmissionException("Submission validation errors", errors)
@@ -73,12 +73,15 @@ class SubmissionSubmitter(
         logger.info { "$accNo $owner Status of request draft with key '$accNo' set to PROCESSING" }
     }
 
-    private suspend fun reactivateDraft(
+    private suspend fun cancelProcessingDraft(
         accNo: String,
         owner: String,
     ) {
-        requestService.setDraftStatus(accNo, owner, DRAFT, Instant.now())
-        logger.info { "$accNo $owner Status of request draft with key '$accNo' set to ACTIVE" }
+        val revertTime = Instant.now()
+        val tempAccNo = "TMP_$revertTime"
+        requestService.setDraftStatus(accNo, owner, DRAFT, revertTime)
+        requestService.setSubRequestAccNo(accNo, tempAccNo, owner, revertTime)
+        logger.info { "$tempAccNo $owner Errors found. Request status is set back to DRAFT with accNo $tempAccNo" }
     }
 
     private suspend fun setRequestErrors(
