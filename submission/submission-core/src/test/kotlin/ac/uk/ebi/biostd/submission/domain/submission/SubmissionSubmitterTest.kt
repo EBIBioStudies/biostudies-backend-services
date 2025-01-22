@@ -87,6 +87,9 @@ class SubmissionSubmitterTest(
             coEvery { requestService.hasActiveRequest(ACC_NO) } returns false
             coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException(error)
             coEvery {
+                requestService.setSubRequestAccNo(ACC_NO, TEMP_ACC_NO, sub.owner, MODIFICATION_TIME)
+            } answers { nothing }
+            coEvery {
                 requestService.setSubRequestErrors(ACC_NO, sub.owner, listOf(error), MODIFICATION_TIME)
             } answers { nothing }
 
@@ -96,6 +99,7 @@ class SubmissionSubmitterTest(
                 submissionProcessor.processSubmission(request)
                 requestService.setDraftStatus(ACC_NO, sub.owner, SUBMITTED, MODIFICATION_TIME)
                 requestService.setDraftStatus(ACC_NO, sub.owner, DRAFT, MODIFICATION_TIME)
+                requestService.setSubRequestAccNo(ACC_NO, TEMP_ACC_NO, sub.owner, MODIFICATION_TIME)
                 requestService.setSubRequestErrors(ACC_NO, sub.owner, listOf(error), MODIFICATION_TIME)
             }
             coVerify(exactly = 0) {
@@ -125,6 +129,7 @@ class SubmissionSubmitterTest(
 
     companion object {
         private const val ACC_NO = "S-BSST1"
+        private const val TEMP_ACC_NO = "TMP_1970-01-01T00:00:00.002Z"
         private val MODIFICATION_TIME = Instant.ofEpochMilli(2)
     }
 }
