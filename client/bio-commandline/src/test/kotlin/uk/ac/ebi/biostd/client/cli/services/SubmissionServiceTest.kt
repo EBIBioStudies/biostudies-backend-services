@@ -49,7 +49,7 @@ internal class SubmissionServiceTest {
 
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             coEvery {
-                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters, subRequest.files)
             } returns accepted
 
             testInstance.submit(subRequest)
@@ -57,10 +57,7 @@ internal class SubmissionServiceTest {
             coVerify(exactly = 0) { bioWebClient.getSubmissionRequestStatus(any(), any()) }
             coVerify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-                bioWebClient.submitMultipartAsync(
-                    subRequest.submissionFile,
-                    subRequest.parameters,
-                )
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters, subRequest.files)
             }
         }
 
@@ -72,7 +69,7 @@ internal class SubmissionServiceTest {
             coEvery { bioWebClient.getSubmissionRequestStatus("S-BSST1", 2) } returns PROCESSED
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
             coEvery {
-                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters)
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters, subRequest.files)
             } returns accepted
 
             testInstance.submit(subRequest.copy(await = true))
@@ -80,10 +77,7 @@ internal class SubmissionServiceTest {
             coVerify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
                 bioWebClient.getSubmissionRequestStatus("S-BSST1", 2)
-                bioWebClient.submitMultipartAsync(
-                    subRequest.submissionFile,
-                    subRequest.parameters,
-                )
+                bioWebClient.submitMultipartAsync(subRequest.submissionFile, subRequest.parameters, subRequest.files)
             }
         }
 
