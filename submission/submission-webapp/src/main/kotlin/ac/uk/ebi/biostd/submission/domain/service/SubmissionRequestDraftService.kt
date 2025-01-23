@@ -45,7 +45,7 @@ class SubmissionRequestDraftService(
         draft: String,
     ): SubmissionRequest =
         requestService.findRequestDraft(accNo, owner)
-            ?: createActiveRequestDraft(draft, owner, accNo)
+            ?: createActiveRequestDraft(draft, owner, accNo.ifBlank { null })
 
     suspend fun getRequestDraft(
         accNo: String,
