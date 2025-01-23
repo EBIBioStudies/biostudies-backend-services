@@ -48,9 +48,10 @@ class SubmissionSubmitter(
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
-            startProcessingDraft(rqt.accNo, rqt.owner)
+            startProcessingDraft(rqt.draftAccNo, rqt.owner)
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
+            finishProcessingDraft(rqt)
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return processed
@@ -58,8 +59,8 @@ class SubmissionSubmitter(
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
             val errors = listOf(exception)
 
-            cancelProcessingDraft(rqt.accNo, rqt.owner)
-            setRequestErrors(rqt.accNo, rqt.owner, errors)
+            cancelProcessingDraft(rqt.draftAccNo, rqt.owner)
+            setRequestErrors(rqt.draftAccNo, rqt.owner, errors)
 
             throw InvalidSubmissionException("Submission validation errors", errors)
         }
@@ -77,11 +78,13 @@ class SubmissionSubmitter(
         accNo: String,
         owner: String,
     ) {
-        val revertTime = Instant.now()
-        val tempAccNo = "TMP_$revertTime"
-        requestService.setDraftStatus(accNo, owner, DRAFT, revertTime)
-        requestService.setSubRequestAccNo(accNo, tempAccNo, owner, revertTime)
-        logger.info { "$tempAccNo $owner Errors found. Request status is set back to DRAFT with accNo $tempAccNo" }
+        requestService.setDraftStatus(accNo, owner, DRAFT, Instant.now())
+        logger.info { "$accNo $owner Errors found. Request status is set back to DRAFT with accNo $accNo" }
+    }
+
+    private suspend fun finishProcessingDraft(rqt: SubmitRequest) {
+        requestService.setSubRequestAccNo(rqt.draftAccNo, rqt.accNo, rqt.owner, Instant.now())
+        logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '${rqt.accNo}' to draft request '${rqt.draftAccNo}'" }
     }
 
     private suspend fun setRequestErrors(

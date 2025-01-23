@@ -10,6 +10,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 data class SubmitRequest(
     val accNo: String,
+    val draftAccNo: String,
     val version: Int,
     val relPath: String,
     val submission: Submission,

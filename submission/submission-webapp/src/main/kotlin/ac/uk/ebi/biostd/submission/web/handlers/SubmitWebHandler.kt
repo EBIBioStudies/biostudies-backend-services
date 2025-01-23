@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
@@ -99,27 +100,22 @@ class SubmitWebHandler(
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
 
-        suspend fun setSubRequestAccNo(
+        suspend fun getOrCreateRequestDraft(
             accNo: String,
             version: Int,
-            owner: String,
             submission: Submission,
-        ) {
+        ): SubmissionRequest {
             require(requestDraftService.hasProcessingRequest(accNo).not()) {
                 throw ConcurrentSubException(accNo, version)
             }
 
             val pageTab = serializationService.serializeSubmission(submission, JSON)
-            val draft =
-                when (rqt) {
-                    is ContentSubmitWebRequest,
-                    is FileSubmitWebRequest,
-                    -> requestDraftService.getOrCreateRequestDraft(submission.accNo, submitter.email, pageTab)
-                    is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.accNo, rqt.owner)
-                }
-
-            logger.info { "$accNo $owner Assigned accNo '$accNo' to draft request '${draft.accNo}'" }
-            requestDraftService.setSubRequestAccNo(draft.accNo, accNo, owner)
+            return when (rqt) {
+                is ContentSubmitWebRequest,
+                is FileSubmitWebRequest,
+                -> requestDraftService.getOrCreateRequestDraft(submission.accNo, submitter.email, pageTab)
+                is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.accNo, rqt.owner)
+            }
         }
 
         /**
@@ -191,10 +187,11 @@ class SubmitWebHandler(
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
             val (accNo, relPath) = accNoService.calculateAccNo(submitter.email, submission, collection, previous)
             val version = persistenceService.getNextVersion(accNo)
-            setSubRequestAccNo(accNo, version, owner, submission)
+            val draft = getOrCreateRequestDraft(accNo, version, submission)
 
             return SubmitRequest(
                 accNo = accNo,
+                draftAccNo = draft.accNo,
                 version = version,
                 relPath = relPath,
                 submission = submission,
