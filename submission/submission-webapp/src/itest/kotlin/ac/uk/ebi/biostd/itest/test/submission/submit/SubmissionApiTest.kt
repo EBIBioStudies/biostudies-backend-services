@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
@@ -26,6 +27,8 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
+import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
@@ -55,6 +58,7 @@ class SubmissionApiTest(
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @Autowired val testMessageService: TestMessageService,
+    @Autowired val submissionRequestRepository: SubmissionRequestRepository,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -302,9 +306,12 @@ class SubmissionApiTest(
 
             webClient.uploadFiles(listOf(file1, file2))
             val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
-            assertThat(exception).hasMessageContaining(
-                "The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif",
-            )
+            val request = submissionRequestRepository.getByAccNoAndStatusNotIn("S-BSST1610", PROCESSED_STATUS)
+            val expectedError = "The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif"
+            assertThat(exception).hasMessageContaining(expectedError)
+            assertThat(request.status).isEqualTo(DRAFT)
+            assertThat(request.errors).hasSize(1)
+            assertThat(request.errors.first()).contains(expectedError)
         }
 
     @Test

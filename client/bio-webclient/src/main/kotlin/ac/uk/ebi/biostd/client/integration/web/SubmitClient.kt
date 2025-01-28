@@ -318,6 +318,7 @@ interface MultipartAsyncSubmitOperations {
     suspend fun submitMultipartAsync(
         submission: File,
         parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionId
 
     suspend fun submitMultipartAsync(

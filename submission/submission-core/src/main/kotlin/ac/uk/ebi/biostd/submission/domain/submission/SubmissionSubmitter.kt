@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
-import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -26,9 +25,6 @@ class SubmissionSubmitter(
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
         val sub = processRequest(rqt)
         val extRqt = ExtSubmitRequest(sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
-
-        checkProcessingRequests(sub.accNo, sub.version)
-        requestService.setSubRequestAccNo(rqt.accNo, sub.accNo, rqt.owner, Instant.now())
         submissionSubmitter.createRqt(extRqt)
 
         return sub
@@ -52,23 +48,23 @@ class SubmissionSubmitter(
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
-            startProcessingDraft(rqt.accNo, rqt.owner)
+            startProcessingDraft(rqt.draftAccNo, rqt.owner)
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
+            finishProcessingDraft(rqt)
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            reactivateDraft(rqt.accNo, rqt.owner)
-            throw InvalidSubmissionException("Submission validation errors", listOf(exception))
+            val errors = listOf(exception)
+
+            cancelProcessingDraft(rqt.draftAccNo, rqt.owner)
+            setRequestErrors(rqt.draftAccNo, rqt.owner, errors)
+
+            throw InvalidSubmissionException("Submission validation errors", errors)
         }
     }
-
-    private suspend fun checkProcessingRequests(
-        accNo: String,
-        version: Int,
-    ) = require(requestService.hasActiveRequest(accNo).not()) { throw ConcurrentSubException(accNo, version) }
 
     private suspend fun startProcessingDraft(
         accNo: String,
@@ -78,11 +74,25 @@ class SubmissionSubmitter(
         logger.info { "$accNo $owner Status of request draft with key '$accNo' set to PROCESSING" }
     }
 
-    private suspend fun reactivateDraft(
+    private suspend fun cancelProcessingDraft(
         accNo: String,
         owner: String,
     ) {
         requestService.setDraftStatus(accNo, owner, DRAFT, Instant.now())
-        logger.info { "$accNo $owner Status of request draft with key '$accNo' set to ACTIVE" }
+        logger.info { "$accNo $owner Errors found. Request status is set back to DRAFT with accNo $accNo" }
+    }
+
+    private suspend fun finishProcessingDraft(rqt: SubmitRequest) {
+        requestService.setSubRequestAccNo(rqt.draftAccNo, rqt.accNo, rqt.owner, Instant.now())
+        logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '${rqt.accNo}' to draft request '${rqt.draftAccNo}'" }
+    }
+
+    private suspend fun setRequestErrors(
+        accNo: String,
+        owner: String,
+        errors: List<Throwable>,
+    ) {
+        val errorsList = errors.map { it.message ?: it.localizedMessage }.map { it.trim() }
+        requestService.setSubRequestErrors(accNo, owner, errorsList, Instant.now())
     }
 }

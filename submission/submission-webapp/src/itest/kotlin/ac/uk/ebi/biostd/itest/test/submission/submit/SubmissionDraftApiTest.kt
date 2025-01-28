@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import kotlinx.coroutines.flow.toList
@@ -242,5 +243,49 @@ class SubmissionDraftApiTest(
             assertThat(thirdVersion.content.getProperty("section.type")).isEqualTo("Yet-Another")
             assertThat(thirdVersion.modificationTime).isAfter(secondVersion.modificationTime)
             webClient.deleteSubmissionDraft(accNo)
+        }
+
+    @Test
+    fun `12-9 submit json when a draft already exists`() =
+        runTest {
+            val accNo = "ABC-131"
+            val subV1 =
+                jsonObj {
+                    "accno" to accNo
+                    "section" to
+                        jsonObj {
+                            "type" to "Study"
+                        }
+                    "type" to "submission"
+                }.toString()
+
+            assertThat(webClient.submit(subV1)).isSuccessful()
+            webClient.getSubmissionDraft(accNo)
+            webClient.updateSubmissionDraft(
+                accNo,
+                jsonObj {
+                    "accno" to accNo
+                    "section" to
+                        jsonObj {
+                            "type" to "ByDraft"
+                        }
+                    "type" to "submission"
+                }.toString(),
+            )
+
+            val subV2 =
+                jsonObj {
+                    "accno" to accNo
+                    "section" to
+                        jsonObj {
+                            "type" to "Another"
+                        }
+                    "type" to "submission"
+                }.toString()
+            val response = webClient.submit(subV2)
+            assertThat(response).isSuccessful()
+
+            val updatedSubmission = response.body
+            assertThat(updatedSubmission.section.type).isEqualTo("Another")
         }
 }

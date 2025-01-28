@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DRAFT
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ERRORS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_FILE_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
@@ -313,6 +314,21 @@ class SubmissionRequestDocDataRepository(
         val where =
             where(RQT_ACC_NO)
                 .`is`(tempAccNo)
+                .andOperator(where(RQT_OWNER).`is`(owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
+
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+    }
+
+    suspend fun setSubRequestErrors(
+        accNo: String,
+        owner: String,
+        errors: List<String>,
+        modificationTime: Instant,
+    ) {
+        val update = update(RQT_ERRORS, errors).set(RQT_MODIFICATION_TIME, modificationTime)
+        val where =
+            where(RQT_ACC_NO)
+                .`is`(accNo)
                 .andOperator(where(RQT_OWNER).`is`(owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
 
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()

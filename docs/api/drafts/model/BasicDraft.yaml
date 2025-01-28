@@ -1,7 +1,7 @@
 schema:
   type: object
   properties:
-    key:
+    accNo:
       type: string
       example: "TMP_2024-09-21T10:12:00.002Z"
     content:

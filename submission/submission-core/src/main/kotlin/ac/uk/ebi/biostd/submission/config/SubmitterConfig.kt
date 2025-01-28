@@ -234,18 +234,14 @@ class SubmitterConfig(
     @Bean
     fun submissionProcessor(
         doiService: DoiService,
-        persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
-        accNoService: AccNoService,
         collectionProcessor: CollectionProcessor,
         properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper,
     ): SubmissionProcessor =
         SubmissionProcessor(
             doiService,
-            persistenceService,
             timesService,
-            accNoService,
             collectionProcessor,
             properties,
             toExtSectionMapper,

@@ -17,7 +17,7 @@ enum class RequestStatus {
     ;
 
     companion object {
-        val DRAFT_STATUS: Set<RequestStatus> = setOf(DRAFT, SUBMITTED)
+        val DRAFT_STATUS: Set<RequestStatus> = setOf(DRAFT)
         val PROCESSED_STATUS: Set<RequestStatus> = setOf(PROCESSED)
 
         /**
@@ -25,6 +25,7 @@ enum class RequestStatus {
          */
         val PROCESSING_STATUS: Set<RequestStatus> =
             setOf(
+                SUBMITTED,
                 REQUESTED,
                 INDEXED,
                 LOADED,

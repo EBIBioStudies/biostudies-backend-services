@@ -87,6 +87,15 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.setSubRequestAccNo(tempAccNo, accNo, owner, modificationTime)
     }
 
+    override suspend fun setSubRequestErrors(
+        accNo: String,
+        owner: String,
+        errors: List<String>,
+        modificationTime: Instant,
+    ) {
+        requestRepository.setSubRequestErrors(accNo, owner, errors, modificationTime)
+    }
+
     override suspend fun setDraftStatus(
         accNo: String,
         owner: String,

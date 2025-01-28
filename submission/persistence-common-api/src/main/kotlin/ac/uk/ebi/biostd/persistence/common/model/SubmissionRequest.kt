@@ -53,6 +53,7 @@ data class SubmissionRequest(
     val draft: String? = null,
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
+    val errors: List<String> = emptyList(),
     val process: SubmissionRequestProcessing? = null,
 ) {
     constructor(

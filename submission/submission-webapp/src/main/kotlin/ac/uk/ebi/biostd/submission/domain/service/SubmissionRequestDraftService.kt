@@ -17,7 +17,7 @@ import java.time.ZoneOffset.UTC
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class SubmissionRequestDraftService(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val serializationService: SerializationService,
@@ -30,17 +30,27 @@ class SubmissionRequestDraftService(
         pageRequest: PageRequest = PageRequest(),
     ): Flow<SubmissionRequest> = requestService.findRequestDrafts(owner, pageRequest)
 
-    suspend fun getOrCreateRequestDraft(
+    suspend fun hasProcessingRequest(accNo: String): Boolean = requestService.hasActiveRequest(accNo)
+
+    suspend fun getOrCreateRequestDraftFromSubmission(
         accNo: String,
         owner: String,
     ): SubmissionRequest =
         requestService.findRequestDraft(accNo, owner)
             ?: createRequestDraftFromSubmission(accNo, owner)
 
+    suspend fun getOrCreateRequestDraft(
+        accNo: String,
+        owner: String,
+        draft: String,
+    ): SubmissionRequest =
+        requestService.findRequestDraft(accNo, owner)
+            ?: createActiveRequestDraft(draft, owner, accNo.ifBlank { null })
+
     suspend fun getRequestDraft(
         accNo: String,
         owner: String,
-    ): String = getOrCreateRequestDraft(accNo, owner).draft!!
+    ): SubmissionRequest = getOrCreateRequestDraftFromSubmission(accNo, owner)
 
     suspend fun deleteRequestDraft(
         accNo: String,
@@ -55,7 +65,7 @@ class SubmissionRequestDraftService(
         owner: String,
         draft: String,
     ): SubmissionRequest {
-        val requestDraft = getOrCreateRequestDraft(accNo, owner)
+        val requestDraft = getOrCreateRequestDraftFromSubmission(accNo, owner)
         val modificationTime = Instant.now()
 
         requestService.updateRequestDraft(requestDraft.accNo, owner, draft, modificationTime)

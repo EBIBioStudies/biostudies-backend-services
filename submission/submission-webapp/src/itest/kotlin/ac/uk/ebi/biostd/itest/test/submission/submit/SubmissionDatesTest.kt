@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.itest.test.collection.ListCollectionsTest.CollectionUser
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
@@ -53,7 +54,6 @@ class SubmissionDatesTest(
             securityTestService.ensureUserRegistration(SuperUser)
 
             securityTestService.ensureSequence("S-BSST")
-            securityTestService.ensureSequence("S-PERMISIONT")
 
             userWebClient = getWebClient(serverPort, DefaultUser)
             adminWebClient = getWebClient(serverPort, SuperUser)
@@ -221,9 +221,10 @@ class SubmissionDatesTest(
                 val submitted = adminWebClient.submit(v1, TSV)
                 assertThat(submitted).isSuccessful()
 
+                val accNo = submitted.body.accNo
                 val v2 =
                     tsv {
-                        line("Submission", submitted.body.accNo)
+                        line("Submission", accNo)
                         line("Title", "Sample Submission")
                         line("ReleaseDate", "2011-04-24")
                         line()
@@ -232,6 +233,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
+                adminWebClient.grantPermission(DefaultUser.email, accNo, UPDATE.name)
                 val exception = assertThrows<WebClientException> { userWebClient.submit(v2, TSV) }
                 assertThat(exception).hasMessage(
                     """

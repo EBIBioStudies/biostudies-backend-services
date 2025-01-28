@@ -128,6 +128,13 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
+    suspend fun setSubRequestErrors(
+        accNo: String,
+        owner: String,
+        errors: List<String>,
+        modificationTime: Instant,
+    )
+
     suspend fun setDraftStatus(
         accNo: String,
         owner: String,

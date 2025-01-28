@@ -23,15 +23,17 @@ data class DocSubmissionRequest(
     val status: RequestStatus,
     val modificationTime: Instant,
     val process: DocRequestProcessing?,
+    val errors: List<String> = emptyList(),
 ) {
     fun asUpsert(): Update =
         Update()
             .setOnInsert("_id", id)
+            .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_OWNER, owner)
             .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
-            .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .set(DocRequestFields.RQT_VERSION, version)
             .set(DocRequestFields.RQT_STATUS, status)
+            .set(DocRequestFields.RQT_ERRORS, errors)
             .set(DocRequestFields.RQT_PROCESS, process)
             .set(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
 }

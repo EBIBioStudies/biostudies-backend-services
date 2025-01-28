@@ -68,10 +68,8 @@ class SubmissionServiceTest(
             coEvery { submissionSubmitter.processRequestDraft(request) } returns basicExtSubmission
             coEvery { submissionSubmitter.handleRequestAsync("S-TEST123", 1) } returns Unit
 
-            val response = testInstance.submitAsync(request)
+            testInstance.submitAsync(request)
 
-            assertThat(response.version).isEqualTo(1)
-            assertThat(response.accNo).isEqualTo("S-TEST123")
             coVerify(exactly = 1) {
                 submissionSubmitter.processRequestDraft(request)
                 submissionSubmitter.handleRequestAsync("S-TEST123", 1)

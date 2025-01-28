@@ -3,8 +3,10 @@ package ac.uk.ebi.biostd.submission.web.handlers
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
+import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
@@ -14,6 +16,7 @@ import ac.uk.ebi.biostd.submission.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.model.SubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.method
+import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -24,11 +27,15 @@ import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
+import mu.KotlinLogging
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
+private val logger = KotlinLogging.logger {}
+
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class SubmitWebHandler(
+    private val accNoService: AccNoService,
     private val subService: SubmissionService,
     private val extSubService: ExtSubmissionQueryService,
     private val fileSourcesService: FileSourcesService,
@@ -36,6 +43,7 @@ class SubmitWebHandler(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val queryService: SubmissionMetaQueryService,
     private val fileServiceFactory: FileServiceFactory,
+    private val persistenceService: SubmissionPersistenceService,
     private val requestDraftService: SubmissionRequestDraftService,
 ) {
     suspend fun submit(request: ContentSubmitWebRequest): Submission {
@@ -60,37 +68,53 @@ class SubmitWebHandler(
 
     suspend fun submitAsync(request: ContentSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return SubmissionId(rqt.accNo, rqt.version)
     }
 
     suspend fun submitAsync(requests: List<ContentSubmitWebRequest>): List<SubmissionId> {
         val rqt = requests.map { buildRequest(it) }
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return rqt.map { SubmissionId(it.accNo, it.version) }
     }
 
     suspend fun submitAsync(request: FileSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return SubmissionId(rqt.accNo, rqt.version)
     }
 
     suspend fun submitAsync(request: DraftSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
-        return subService.submitAsync(rqt)
+        subService.submitAsync(rqt)
+
+        return SubmissionId(rqt.accNo, rqt.version)
     }
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
 
-        suspend fun getOrCreateRequestDraft(submission: Submission): SubmissionRequest {
-            val draft = serializationService.serializeSubmission(submission, JSON)
+        suspend fun getOrCreateRequestDraft(
+            accNo: String,
+            version: Int,
+            submission: Submission,
+        ): SubmissionRequest {
+            require(requestDraftService.hasProcessingRequest(accNo).not()) {
+                throw ConcurrentSubException(accNo, version)
+            }
+
+            val pageTab = serializationService.serializeSubmission(submission, JSON)
             return when (rqt) {
                 is ContentSubmitWebRequest,
                 is FileSubmitWebRequest,
-                -> requestDraftService.createRequestDraft(draft, submitter.email)
-                is DraftSubmitWebRequest -> requestDraftService.getOrCreateRequestDraft(rqt.key, rqt.owner)
+                -> requestDraftService.getOrCreateRequestDraft(submission.accNo, submitter.email, pageTab)
+                is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.accNo, rqt.owner)
             }
         }
 
@@ -103,7 +127,7 @@ class SubmitWebHandler(
                     is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
                     is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
                     is DraftSubmitWebRequest -> {
-                        val draft = requestDraftService.getRequestDraft(rqt.key, rqt.owner)
+                        val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft!!
                         serializationService.deserializeSubmission(draft, JSON)
                     }
                 }
@@ -122,7 +146,7 @@ class SubmitWebHandler(
                 is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
 
                 is DraftSubmitWebRequest -> {
-                    val draft = requestDraftService.getRequestDraft(rqt.key, rqt.owner)
+                    val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft!!
                     serializationService.deserializeSubmission(draft, JSON, source)
                 }
             }
@@ -150,20 +174,29 @@ class SubmitWebHandler(
          * 2. Submission file sources are obtained.
          * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
          * 4. Overridden attributes are set.
-         * 5. Request draft is created.
+         * 5. AccNo and version are calculated.
+         * 6. Request draft is created if it doesn't exist.
+         * 7. Proper submission accNo is set to the draft.
          */
         suspend fun processSubmission(): SubmitRequest {
-            val (accNo, rootPath) = deserializeSubmission()
-            val previous = extSubService.findExtendedSubmission(accNo)
+            val (tempAccNo, rootPath) = deserializeSubmission()
+            val previous = extSubService.findExtendedSubmission(tempAccNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
+            val owner = onBehalfUser?.email ?: submitter.email
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
-            val requestDraft = getOrCreateRequestDraft(submission)
+            val (accNo, relPath) = accNoService.calculateAccNo(submitter.email, submission, collection, previous)
+            val version = persistenceService.getNextVersion(accNo)
+            val draft = getOrCreateRequestDraft(accNo, version, submission)
 
             return SubmitRequest(
-                accNo = requestDraft.accNo,
+                accNo = accNo,
+                draftAccNo = draft.accNo,
+                version = version,
+                relPath = relPath,
                 submission = submission,
                 submitter = submitter,
+                owner = owner,
                 sources = sources,
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,

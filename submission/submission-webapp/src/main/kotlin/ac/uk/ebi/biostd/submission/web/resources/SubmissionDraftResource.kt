@@ -45,35 +45,38 @@ internal class SubmissionDraftResource(
         @ModelAttribute filter: PageRequest,
     ): Flow<ResponseSubmissionDraft> = requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
 
-    @GetMapping("/{key}")
+    @GetMapping("/{accNo}")
     @ResponseBody
     suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
-        @PathVariable key: String,
-    ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraft(key, user.email).asResponseDraft()
+        @PathVariable accNo: String,
+    ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
 
-    @GetMapping("/{key}/content")
+    @GetMapping("/{accNo}/content")
     @ResponseBody
     suspend fun getSubmissionDraftContent(
         @BioUser user: SecurityUser,
-        @PathVariable key: String,
-    ): ResponseSubmissionDraftContent = ResponseSubmissionDraftContent(requestDraftService.getRequestDraft(key, user.email))
-
-    @DeleteMapping("/{key}")
-    suspend fun deleteSubmissionDraft(
-        @BioUser user: SecurityUser,
-        @PathVariable key: String,
-    ) {
-        requestDraftService.deleteRequestDraft(key, user.email)
+        @PathVariable accNo: String,
+    ): ResponseSubmissionDraftContent {
+        val requestDraft = requestDraftService.getRequestDraft(accNo, user.email)
+        return ResponseSubmissionDraftContent(requestDraft.draft!!)
     }
 
-    @PutMapping("/{key}")
+    @DeleteMapping("/{accNo}")
+    suspend fun deleteSubmissionDraft(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String,
+    ) {
+        requestDraftService.deleteRequestDraft(accNo, user.email)
+    }
+
+    @PutMapping("/{accNo}")
     @ResponseBody
     suspend fun updateSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
-        @PathVariable key: String,
-    ): ResponseSubmissionDraft = requestDraftService.updateRequestDraft(key, user.email, content).asResponseDraft()
+        @PathVariable accNo: String,
+    ): ResponseSubmissionDraft = requestDraftService.updateRequestDraft(accNo, user.email, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
@@ -82,28 +85,28 @@ internal class SubmissionDraftResource(
         @RequestBody content: String,
     ): ResponseSubmissionDraft = requestDraftService.createRequestDraft(content, user.email).asResponseDraft()
 
-    @PostMapping("/{key}/submit")
+    @PostMapping("/{accNo}/submit")
     suspend fun submitDraft(
-        @PathVariable key: String,
+        @PathVariable accNo: String,
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
     ) {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
-        val request = submitRequestBuilder.buildDraftRequest(key, user.email, buildRequest)
+        val request = submitRequestBuilder.buildDraftRequest(accNo, user.email, buildRequest)
 
         submitWebHandler.submitAsync(request)
     }
 
-    @PostMapping("/{key}/submit/sync")
+    @PostMapping("/{accNo}/submit/sync")
     suspend fun submitDraftSync(
-        @PathVariable key: String,
+        @PathVariable accNo: String,
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
     ): Submission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
-        val request = submitRequestBuilder.buildDraftRequest(key, user.email, buildRequest)
+        val request = submitRequestBuilder.buildDraftRequest(accNo, user.email, buildRequest)
 
         return submitWebHandler.submit(request)
     }

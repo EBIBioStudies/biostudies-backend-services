@@ -1,7 +1,7 @@
 post:
   summary: Submission From Draft
   description:
-    Create a submission based on the content of the draft with the given key. The draft will be deleted after the
+    Create a submission based on the content of the draft with the given accNo. The draft will be deleted after the
     submission operation is completed.
 
   tags:
@@ -15,8 +15,8 @@ post:
       type: string
 
     - in: path
-      name: key
-      description: Submission key
+      name: accNo
+      description: Submission accNo
       required: true
       type: number
 
