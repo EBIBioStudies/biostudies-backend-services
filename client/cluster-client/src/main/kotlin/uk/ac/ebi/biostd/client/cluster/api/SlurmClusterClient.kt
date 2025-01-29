@@ -39,6 +39,7 @@ class SlurmClusterClient(
         maxSecondsDuration: Long,
     ): Job {
         val job = triggerJobAsync(jobSpec).getOrThrow()
+        logger.info { "Job ${job.id} triggered. ${job.logsPath}. Awaiting completion..." }
         await(job, checkJobInterval, maxSecondsDuration)
         return job
     }
@@ -99,7 +100,7 @@ class SlurmClusterClient(
     ): Result<Job> {
         if (SUCCESS_EXITS_CODE.contains(exitCode)) return success(toSlurmJob(response, logsPath))
 
-        logger.error { "Error submission job, exitCode='$exitCode', response='$response'" }
+        logger.error { "Error submitting job, exitCode='$exitCode', response='$response'" }
         return failure(JobSubmitFailException(exitCode, response))
     }
 
@@ -125,14 +126,23 @@ class SlurmClusterClient(
         private fun JobSpec.asParameter(
             wrapperPath: String,
             logsPath: String,
-        ): List<String> =
-            buildList {
+        ): List<String> {
+            val scapedCommand = command.replace("\"", "\\\"")
+            return buildList {
                 add("--cores=$cores")
-                add("--time=$minutes")
+                add("--time=${convertMinutesToTimeFormat(minutes)}")
                 add("--mem=$ram")
                 add("--partition=${queue.name}")
-                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$command\"")
+                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$scapedCommand\"")
             }
+        }
+
+        @Suppress("MagicNumber")
+        fun convertMinutesToTimeFormat(minutes: Int): String {
+            val hours = (minutes / 60).toString()
+            val rMinutes = (minutes % 60).toString()
+            return "${hours.padStart(2, '0')}:${rMinutes.padStart(2, '0')}:00"
+        }
 
         private const val JOB_ID_DIGITS = 3
     }
