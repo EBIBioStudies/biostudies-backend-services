@@ -1,6 +1,9 @@
 package ac.uk.ebi.biostd.security.web.exception
 
-import ac.uk.ebi.biostd.security.web.dto.SecurityError
+import ebi.ac.uk.errors.ValidationNode
+import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
+import ebi.ac.uk.errors.ValidationTree
+import ebi.ac.uk.errors.ValidationTreeStatus.FAIL
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.InvalidCaptchaException
 import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
@@ -23,26 +26,27 @@ import org.springframework.web.bind.annotation.ResponseBody
 class SecurityExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = [SecurityException::class])
-    fun handle(exception: SecurityException): ResponseEntity<SecurityError> {
-        return when (exception) {
+    fun handle(exception: SecurityException): ResponseEntity<ValidationTree> =
+        when (exception) {
             is LoginException,
+            is UserNotFoundByEmailException,
             is UserNotFoundByTokenException,
-            -> unauthorized(SecurityError(exception.message))
+            -> unauthorized(exception)
 
             is ActKeyNotFoundException,
-            is UserNotFoundByEmailException,
             is UserPendingRegistrationException,
             is UserWithActivationKeyNotFoundException,
             is UserAlreadyRegister,
-            -> badRequest(SecurityError(exception.message))
+            -> badRequest(exception)
 
-            is UnauthorizedOperation -> unauthorized(SecurityError(exception.message))
-            is InvalidSseConfiguration -> badRequest(SecurityError(exception.message))
-            is InvalidCaptchaException -> badRequest(SecurityError(exception.message))
+            is UnauthorizedOperation -> unauthorized(exception)
+            is InvalidSseConfiguration -> badRequest(exception)
+            is InvalidCaptchaException -> badRequest(exception)
         }
-    }
 
-    fun <T> unauthorized(body: T): ResponseEntity<T> = ResponseEntity.status(UNAUTHORIZED).body(body)
+    private fun unauthorized(exc: SecurityException) = ResponseEntity.status(UNAUTHORIZED).body(asValidationTree(exc))
 
-    fun <T> badRequest(body: T): ResponseEntity<T> = ResponseEntity.status(BAD_REQUEST).body(body)
+    private fun badRequest(exc: SecurityException) = ResponseEntity.status(BAD_REQUEST).body(asValidationTree(exc))
+
+    private fun asValidationTree(exc: SecurityException) = ValidationTree(FAIL, ValidationNode(ERROR, exc.message))
 }
