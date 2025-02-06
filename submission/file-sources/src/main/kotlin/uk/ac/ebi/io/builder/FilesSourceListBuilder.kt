@@ -29,7 +29,7 @@ class FilesSourceListBuilder(
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
+    private fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()

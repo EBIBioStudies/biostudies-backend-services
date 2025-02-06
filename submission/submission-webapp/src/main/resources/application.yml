@@ -105,7 +105,7 @@ app:
     tokenHash: # Token used for hash authentication
     environment: # Current application execution environment
     requireActivation: # Indicates whether a new user need activation before being used
-    preventFileDeletion: # Indicates wheter or not to prevent public submission non pagetab file delitions
+    preventFileDeletion: # Indicates whether to prevent public submission non pagetab file delitions
     instanceKeys:
       dev: # Instance key for the submission tool DEV environment
       beta: # Instance key for the submission tool BETA environment
@@ -114,12 +114,15 @@ app:
       defaultMode: # The default mode to create user folder. Valid values are: NFS, FTP
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: # Absolute path to create user magic folder for dropbox simple access
-      ftpDirPath: # Absolute path of the FTP-IN folder in NFS
-      ftpRootPath: # Root path to find the user files in the FTP-IN folder. If blank, root level FTP-IN will be used
-      ftpUser: # FTP user
-      ftpPassword: # FTP password
-      ftpUrl: # FTP url without port
-      ftpPort: # FTP port
+      ftp:
+        ftpDirPath: # Absolute path of the FTP-IN folder in NFS
+        ftpRootPath: # Root path to find the user files in the FTP-IN folder. If blank, root level FTP-IN will be used
+        ftpUser: # FTP user
+        ftpPassword: # FTP password
+        ftpUrl: # FTP url without port
+        ftpPort: # FTP port
+        defaultTimeout: # FTP connection pool default timeout
+        connectionTimeout: # FTP connection pool connection timeout
   persistence:
     enableFire: # Boolean flag to indicate whether the files are stored on FIRE if true or NFS if false
     concurrency: # Number of files processed concurrently

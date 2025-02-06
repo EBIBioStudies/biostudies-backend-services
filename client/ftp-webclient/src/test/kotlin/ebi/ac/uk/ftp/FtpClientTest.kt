@@ -15,6 +15,8 @@ class FtpClientTest {
             ftpServer.getUrl(),
             ftpServer.ftpPort,
             FTP_ROOT_PATH,
+            FTP_TIMEOUT,
+            FTP_TIMEOUT,
         )
 
     @RetryingTest(TEST_RETRY)
@@ -77,20 +79,20 @@ class FtpClientTest {
     }
 
     companion object {
-        fun createFtpServer(): FtpServer {
-            return FtpServer.createServer(
+        fun createFtpServer(): FtpServer =
+            FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks")!!.toURI()), "123456"),
                     userName = FTP_USER,
                     password = FTP_PASSWORD,
                 ),
             )
-        }
 
         private val HOME = Paths.get("")
         const val FTP_USER = "ftpUser"
         const val FTP_PASSWORD = "ftpPassword"
         const val FTP_ROOT_PATH = ".test"
         const val TEST_RETRY = 3
+        const val FTP_TIMEOUT = 3000L
     }
 }

@@ -50,14 +50,27 @@ interface FtpClient {
     fun deleteFile(path: Path)
 
     companion object {
+        @Suppress("LongParameterList")
         fun create(
             ftpUser: String,
             ftpPassword: String,
             ftpUrl: String,
             ftpPort: Int,
             ftpRootPath: String,
+            defaultTimeout: Long,
+            connectionTimeout: Long,
         ): FtpClient {
-            val connectionPool = FTPClientPool(ftpUser, ftpPassword, ftpUrl, ftpPort, ftpRootPath)
+            val connectionPool =
+                FTPClientPool(
+                    ftpUser,
+                    ftpPassword,
+                    ftpUrl,
+                    ftpPort,
+                    ftpRootPath,
+                    defaultTimeout,
+                    connectionTimeout,
+                )
+
             return SimpleFtpClient(connectionPool)
         }
     }

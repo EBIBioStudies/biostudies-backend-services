@@ -14,12 +14,15 @@ private val logger = KotlinLogging.logger {}
  * Pooled FTP client. Allows to re-use FTPClient instances so socket connections and ftp logging does not need to be
  * performed on each FTP operation.
  */
+@Suppress("LongParameterList")
 internal class FTPClientPool(
     private val ftpUser: String,
     private val ftpPassword: String,
     private val ftpUrl: String,
     private val ftpPort: Int,
     private val ftpRootPath: String,
+    private val defaultTimeout: Long,
+    private val connectionTimeout: Long,
     private val ftpClientPool: GenericObjectPool<FTPClient> =
         createFtpPool(
             ftpUser,
@@ -27,6 +30,8 @@ internal class FTPClientPool(
             ftpUrl,
             ftpPort,
             ftpRootPath,
+            defaultTimeout,
+            connectionTimeout,
         ),
 ) {
     fun <T> execute(action: (FTPClient) -> T): T {
@@ -44,9 +49,11 @@ internal class FTPClientPool(
         private val ftpUrl: String,
         private val ftpPort: Int,
         private val ftpRootPath: String,
+        private val defaultTimeout: Long,
+        private val connectionTimeout: Long,
     ) : BasePooledObjectFactory<FTPClient>() {
         override fun create(): FTPClient {
-            val ftp = ftpClient(3000.milliseconds, 3000.milliseconds)
+            val ftp = ftpClient(connectionTimeout.milliseconds, defaultTimeout.milliseconds)
             logger.info { "Connecting to $ftpUrl, $ftpPort" }
             ftp.connect(ftpUrl, ftpPort)
             ftp.login(ftpUser, ftpPassword)
@@ -56,9 +63,7 @@ internal class FTPClientPool(
             return ftp
         }
 
-        override fun wrap(ftpClient: FTPClient): PooledObject<FTPClient> {
-            return DefaultPooledObject(ftpClient)
-        }
+        override fun wrap(ftpClient: FTPClient): PooledObject<FTPClient> = DefaultPooledObject(ftpClient)
 
         override fun destroyObject(p: PooledObject<FTPClient>) {
             val ftpClient = p.`object`
@@ -89,11 +94,24 @@ internal class FTPClientPool(
             ftpUrl: String,
             ftpPort: Int,
             ftpRootPath: String,
+            defaultTimeout: Long,
+            connectionTimeout: Long,
         ): GenericObjectPool<FTPClient> {
-            val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort, ftpRootPath)
+            val factory =
+                FTPClientFactory(
+                    ftpUser,
+                    ftpPassword,
+                    ftpUrl,
+                    ftpPort,
+                    ftpRootPath,
+                    defaultTimeout,
+                    connectionTimeout,
+                )
             var connections = GenericObjectPool(factory)
             connections.minIdle = MIN_CONNECTION
             connections.testOnBorrow = true
+            connections.testOnReturn = true
+            connections.blockWhenExhausted = false
             return connections
         }
     }

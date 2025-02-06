@@ -1,4 +1,5 @@
 import Dependencies.CommonsNet
+import Dependencies.KotlinLogging
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -24,6 +25,7 @@ dependencies {
     api(project(SubmissionSecurity))
     api(project(SubmissionPersistenceCommonApi))
     implementation(CommonsNet)
+    implementation(KotlinLogging)
 
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

@@ -25,12 +25,19 @@ data class FilesProperties(
     val defaultMode: StorageMode,
     val filesDirPath: String,
     val magicDirPath: String,
+    @NestedConfigurationProperty
+    val ftp: FtpProperties,
+)
+
+data class FtpProperties(
     val ftpRootPath: String,
     val ftpDirPath: String,
     val ftpUser: String,
     val ftpPassword: String,
     val ftpUrl: String,
     val ftpPort: Int,
+    val defaultTimeout: Long,
+    val connectionTimeout: Long,
 )
 
 data class InstanceKeys(

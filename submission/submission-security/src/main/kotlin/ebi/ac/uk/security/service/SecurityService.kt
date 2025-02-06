@@ -157,9 +157,8 @@ open class SecurityService(
             val target = profileService.asSecurityUser(user.apply { this.storageMode = storageMode })
 
             createMagicFolder(target)
-            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
-
             userRepository.save(user)
+            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
         }
 
     private fun setPassword(

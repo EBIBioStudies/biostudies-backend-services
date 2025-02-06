@@ -1,11 +1,12 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.FilesProperties
+import ac.uk.ebi.biostd.common.properties.FtpProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.ftp.FtpClient
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -45,7 +46,7 @@ class GeneralConfig {
     @Bean
     fun filesSourceConfig(
         fireClient: FireClient,
-        ftpClient: FtpClient,
+        @Qualifier("fileSourceFtpClient") ftpClient: FtpClient,
         applicationProperties: ApplicationProperties,
         filesRepo: SubmissionFilesPersistenceService,
     ): FilesSourceConfig =
@@ -86,46 +87,47 @@ class GeneralConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
-    fun clusterClient(properties: ApplicationProperties): ClusterClient {
-        return when (properties.cluster.default) {
+    fun clusterClient(properties: ApplicationProperties): ClusterClient =
+        when (properties.cluster.default) {
             LSF -> lsfCluster(properties)
             SLURM -> slurmCluster(properties)
         }
-    }
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "false")
     fun localClusterClient(): ClusterClient = LocalClusterClient()
 
     @Bean
-    fun ftpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties)
+    fun userFilesFtpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties.ftp)
+
+    @Bean
+    fun fileSourceFtpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties.ftp)
 
     companion object {
-        fun ftpClient(fileProperties: FilesProperties): FtpClient {
-            return FtpClient.create(
-                ftpUser = fileProperties.ftpUser,
-                ftpPassword = fileProperties.ftpPassword,
-                ftpUrl = fileProperties.ftpUrl,
-                ftpPort = fileProperties.ftpPort,
-                ftpRootPath = fileProperties.ftpRootPath,
+        fun ftpClient(ftpProperties: FtpProperties): FtpClient =
+            FtpClient.create(
+                ftpUser = ftpProperties.ftpUser,
+                ftpPassword = ftpProperties.ftpPassword,
+                ftpUrl = ftpProperties.ftpUrl,
+                ftpPort = ftpProperties.ftpPort,
+                ftpRootPath = ftpProperties.ftpRootPath,
+                defaultTimeout = ftpProperties.defaultTimeout,
+                connectionTimeout = ftpProperties.connectionTimeout,
             )
-        }
 
-        fun lsfCluster(properties: ApplicationProperties): LsfClusterClient {
-            return LsfClusterClient.create(
+        fun lsfCluster(properties: ApplicationProperties): LsfClusterClient =
+            LsfClusterClient.create(
                 properties.cluster.key,
                 properties.cluster.lsfServer,
                 properties.cluster.logsPath,
             )
-        }
 
-        fun slurmCluster(properties: ApplicationProperties): SlurmClusterClient {
-            return SlurmClusterClient.create(
+        fun slurmCluster(properties: ApplicationProperties): SlurmClusterClient =
+            SlurmClusterClient.create(
                 properties.cluster.key,
                 properties.cluster.slurmServer,
                 properties.cluster.logsPath,
                 properties.cluster.wrapperPath,
             )
-        }
     }
 }

@@ -88,15 +88,19 @@ class ITestListener : TestExecutionListener {
         ftpServer.start()
 
         val userFilesProperties = "$securityProperties.filesProperties"
-        properties.addProperty("$userFilesProperties.ftpUser", FTP_USER)
-        properties.addProperty("$userFilesProperties.ftpPassword", FTP_PASSWORD)
-        properties.addProperty("$userFilesProperties.ftpUrl", ftpServer.getUrl())
-        properties.addProperty("$userFilesProperties.ftpPort", ftpServer.ftpPort.toString())
-        properties.addProperty("$userFilesProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
-        properties.addProperty("$userFilesProperties.ftpRootPath", FTP_ROOT_PATH)
         properties.addProperty("$userFilesProperties.filesDirPath", dropboxPath.absolutePath)
         properties.addProperty("$userFilesProperties.magicDirPath", magicDirPath.absolutePath)
         Files.createDirectory(ftpServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
+
+        val ftpProperties = "$userFilesProperties.ftp"
+        properties.addProperty("$ftpProperties.ftpUser", FTP_USER)
+        properties.addProperty("$ftpProperties.ftpPassword", FTP_PASSWORD)
+        properties.addProperty("$ftpProperties.ftpUrl", ftpServer.getUrl())
+        properties.addProperty("$ftpProperties.ftpPort", ftpServer.ftpPort.toString())
+        properties.addProperty("$ftpProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        properties.addProperty("$ftpProperties.ftpRootPath", FTP_ROOT_PATH)
+        properties.addProperty("$ftpProperties.defaultTimeout", FTP_DEFAULT_TIMEOUT)
+        properties.addProperty("$ftpProperties.connectionTimeout", FTP_DEFAULT_TIMEOUT)
     }
 
     private fun fireSetup() {
@@ -180,6 +184,7 @@ class ITestListener : TestExecutionListener {
     companion object {
         private const val ENVIRONMENT = "TEST"
         private const val FTP_ROOT_PATH = ".test"
+        private const val FTP_DEFAULT_TIMEOUT = 3000L
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
 
         private const val DEFAULT_BUCKET = "bio-fire-bucket"

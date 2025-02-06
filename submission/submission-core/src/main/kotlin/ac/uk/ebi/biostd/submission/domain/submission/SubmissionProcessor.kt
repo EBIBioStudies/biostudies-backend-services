@@ -35,10 +35,11 @@ class SubmissionProcessor(
         val submission = rqt.submission
         val previousVersion = rqt.previousVersion
         val storageMode = rqt.storageMode
-        val doi = doiService.calculateDoi(accNoString, rqt)
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val tags = getTags(rqt)
         val ownerEmail = rqt.onBehalfUser?.email ?: previousVersion?.owner ?: rqt.submitter.email
+        val rootSection = toExtSectionMapper.convert(accNoString, rqt.version, submission.section, rqt.sources)
+        val doi = doiService.calculateDoi(accNoString, rqt)
 
         return ExtSubmission(
             accNo = accNoString,
@@ -58,7 +59,7 @@ class SubmissionProcessor(
             creationTime = creationTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
-            section = toExtSectionMapper.convert(accNoString, rqt.version, submission.section, rqt.sources),
+            section = rootSection,
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
             storageMode = storageMode ?: if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS,
         )
