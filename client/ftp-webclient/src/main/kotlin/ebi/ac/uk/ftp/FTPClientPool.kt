@@ -111,7 +111,6 @@ internal class FTPClientPool(
             connections.minIdle = MIN_CONNECTION
             connections.testOnBorrow = true
             connections.testOnReturn = true
-            connections.blockWhenExhausted = false
             return connections
         }
     }

@@ -11,6 +11,8 @@ import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.Cluster.LSF
 import uk.ac.ebi.biostd.client.cluster.model.Cluster.SLURM
+import uk.ac.ebi.scheduler.common.config.NotificationsConfig.Companion.PMC_NOTIFICATIONS_SENDER
+import uk.ac.ebi.scheduler.common.config.NotificationsConfig.Companion.SCHEDULER_NOTIFICATIONS_SENDER
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
@@ -27,19 +29,18 @@ import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 @EnableConfigurationProperties(AppProperties::class, StatsReporterProperties::class)
 internal class SchedulerConfig {
     @Bean
-    fun clusterOperations(appProperties: AppProperties): ClusterClient {
-        return when (appProperties.cluster.default) {
+    fun clusterOperations(appProperties: AppProperties): ClusterClient =
+        when (appProperties.cluster.default) {
             LSF -> lsfCluster(appProperties)
             SLURM -> slurmCluster(appProperties)
         }
-    }
 
     @Bean
     fun loaderService(
         clusterClient: ClusterClient,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        @Qualifier("pmcNotificationsSender") pmcNotificationsSender: NotificationsSender,
+        @Qualifier(PMC_NOTIFICATIONS_SENDER) pmcNotificationsSender: NotificationsSender,
     ): PmcLoaderService = PmcLoaderService(clusterClient, properties, appProperties, pmcNotificationsSender)
 
     @Bean
@@ -47,7 +48,7 @@ internal class SchedulerConfig {
         appProperties: AppProperties,
         clusterClient: ClusterClient,
         releaserProperties: SubmissionReleaserProperties,
-        @Qualifier("schedulerNotificationsSender") schedulerNotificationsSender: NotificationsSender,
+        @Qualifier(SCHEDULER_NOTIFICATIONS_SENDER) schedulerNotificationsSender: NotificationsSender,
     ): SubmissionReleaserTrigger = SubmissionReleaserTrigger(appProperties, releaserProperties, clusterClient, schedulerNotificationsSender)
 
     @Bean
@@ -55,8 +56,8 @@ internal class SchedulerConfig {
         appProperties: AppProperties,
         clusterClient: ClusterClient,
         exporterProperties: ExporterProperties,
-        @Qualifier("pmcNotificationsSender") pmcNotificationsSender: NotificationsSender,
-        @Qualifier("schedulerNotificationsSender") schedulerNotificationsSender: NotificationsSender,
+        @Qualifier(PMC_NOTIFICATIONS_SENDER) pmcNotificationsSender: NotificationsSender,
+        @Qualifier(SCHEDULER_NOTIFICATIONS_SENDER) schedulerNotificationsSender: NotificationsSender,
     ): ExporterTrigger =
         ExporterTrigger(
             appProperties,
@@ -97,21 +98,19 @@ internal class SchedulerConfig {
         )
 
     companion object {
-        fun lsfCluster(properties: AppProperties): LsfClusterClient {
-            return LsfClusterClient.create(
+        fun lsfCluster(properties: AppProperties): LsfClusterClient =
+            LsfClusterClient.create(
                 properties.cluster.sshKey,
                 properties.cluster.lsfServer,
                 properties.cluster.logsPath,
             )
-        }
 
-        fun slurmCluster(properties: AppProperties): SlurmClusterClient {
-            return SlurmClusterClient.create(
+        fun slurmCluster(properties: AppProperties): SlurmClusterClient =
+            SlurmClusterClient.create(
                 properties.cluster.sshKey,
                 properties.cluster.slurmServer,
                 properties.cluster.logsPath,
                 properties.cluster.wrapperPath,
             )
-        }
     }
 }

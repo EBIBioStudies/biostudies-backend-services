@@ -23,6 +23,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
 import uk.ac.ebi.fire.client.integration.web.RetryConfig
 import uk.ac.ebi.fire.client.integration.web.S3Config
+import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import uk.ac.ebi.io.config.FilesSourceConfig
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -46,7 +47,7 @@ class GeneralConfig {
     @Bean
     fun filesSourceConfig(
         fireClient: FireClient,
-        @Qualifier("fileSourceFtpClient") ftpClient: FtpClient,
+        @Qualifier(FILE_SOURCE_FTP_CLIENT) ftpClient: FtpClient,
         applicationProperties: ApplicationProperties,
         filesRepo: SubmissionFilesPersistenceService,
     ): FilesSourceConfig =
@@ -55,13 +56,13 @@ class GeneralConfig {
             fireClient = fireClient,
             filesRepository = filesRepo,
             ftpClient = ftpClient,
+            retryTemplate = SuspendRetryTemplate(retryConfig(applicationProperties)),
             checkFilesPath = applicationProperties.checkFilesPath,
         )
 
     @Bean
     fun fireClient(properties: ApplicationProperties): FireClient {
         val fireProps = properties.fire
-        val retryProps = fireProps.retry
         return FireClientFactory.create(
             FireConfig(
                 fireHost = fireProps.host,
@@ -76,12 +77,7 @@ class GeneralConfig {
                 endpoint = fireProps.s3.endpoint,
                 bucket = fireProps.s3.bucket,
             ),
-            RetryConfig(
-                maxAttempts = retryProps.maxAttempts,
-                initialInterval = retryProps.initialInterval,
-                multiplier = retryProps.multiplier,
-                maxInterval = retryProps.maxInterval.minutes.inWholeMilliseconds,
-            ),
+            retryConfig(properties),
         )
     }
 
@@ -98,12 +94,17 @@ class GeneralConfig {
     fun localClusterClient(): ClusterClient = LocalClusterClient()
 
     @Bean
+    @Qualifier(USER_FILES_FTP_CLIENT)
     fun userFilesFtpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties.ftp)
 
     @Bean
+    @Qualifier(FILE_SOURCE_FTP_CLIENT)
     fun fileSourceFtpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties.ftp)
 
     companion object {
+        const val FILE_SOURCE_FTP_CLIENT = "fileSourceFtpClient"
+        const val USER_FILES_FTP_CLIENT = "userFilesFtpClient"
+
         fun ftpClient(ftpProperties: FtpProperties): FtpClient =
             FtpClient.create(
                 ftpUser = ftpProperties.ftpUser,
@@ -120,6 +121,14 @@ class GeneralConfig {
                 properties.cluster.key,
                 properties.cluster.lsfServer,
                 properties.cluster.logsPath,
+            )
+
+        fun retryConfig(properties: ApplicationProperties) =
+            RetryConfig(
+                maxAttempts = properties.fire.retry.maxAttempts,
+                initialInterval = properties.fire.retry.initialInterval,
+                multiplier = properties.fire.retry.multiplier,
+                maxInterval = properties.fire.retry.maxInterval.minutes.inWholeMilliseconds,
             )
 
         fun slurmCluster(properties: ApplicationProperties): SlurmClusterClient =

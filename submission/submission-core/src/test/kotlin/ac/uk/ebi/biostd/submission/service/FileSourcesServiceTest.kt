@@ -18,6 +18,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.integration.web.RetryConfig
+import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.nio.file.Paths
 
@@ -31,7 +33,8 @@ class FileSourcesServiceTest(
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
-    private val builder = FilesSourceListBuilder(true, subFolder.toPath(), fireClient, ftpClient, filesRepo)
+    private val template = SuspendRetryTemplate(RetryConfig(5, 100, 2.0, 120))
+    private val builder = FilesSourceListBuilder(true, subFolder.toPath(), fireClient, ftpClient, template, filesRepo)
     private val testInstance = FileSourcesService(builder)
     private val extSubmission = basicExtSubmission.copy(storageMode = StorageMode.FIRE)
 

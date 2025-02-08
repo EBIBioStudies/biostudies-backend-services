@@ -7,15 +7,15 @@ import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields
-import mu.KotlinLogging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.net.ftp.FTPFile
+import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createTempFile
 import kotlin.io.path.name
-
-private val logger = KotlinLogging.logger {}
 
 /**
  *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
@@ -27,6 +27,7 @@ class FtpSource(
     private val ftpUrl: Path,
     private val nfsPath: Path,
     private val ftpClient: FtpClient,
+    private val retryTemplate: SuspendRetryTemplate,
 ) : FilesSource {
     override suspend fun getExtFile(
         path: String,
@@ -48,22 +49,14 @@ class FtpSource(
     override suspend fun getFileList(path: String): File? = findFile(path)?.let { downloadFile(ftpUrl.resolve(path)) }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun findFile(filePath: String): FTPFile? {
-        var attempt = 0
-
-        fun ftpResolve(): FTPFile? {
-            val ftpPath = ftpUrl.resolve(filePath)
-            val files = ftpClient.listFiles(ftpPath.parent)
-            return files.firstOrNull { it.name == ftpPath.name }
+    private suspend fun findFile(filePath: String): FTPFile? =
+        withContext(Dispatchers.IO) {
+            retryTemplate.execute("Find FTP file $filePath") {
+                val ftpPath = ftpUrl.resolve(filePath)
+                val files = ftpClient.listFiles(ftpPath.parent)
+                files.firstOrNull { it.name == ftpPath.name }
+            }
         }
-
-        try {
-            return ftpResolve()
-        } catch (exception: Exception) {
-            logger.error(exception) { "Could not find FTP file $filePath. Retry attempt # ${attempt++}" }
-            return ftpResolve()
-        }
-    }
 
     private fun downloadFile(path: Path): File {
         val tempFile = createTempFile(suffix = path.fileName.toString()).toFile()

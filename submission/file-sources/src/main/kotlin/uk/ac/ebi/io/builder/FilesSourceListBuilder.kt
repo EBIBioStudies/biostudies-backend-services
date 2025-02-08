@@ -11,6 +11,7 @@ import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 import uk.ac.ebi.io.sources.DbFilesSource
 import uk.ac.ebi.io.sources.FilesListSource
 import uk.ac.ebi.io.sources.FtpSource
@@ -21,11 +22,13 @@ import uk.ac.ebi.io.sources.UserPathSource
 import java.io.File
 import java.nio.file.Path
 
+@Suppress("LongParameterList")
 class FilesSourceListBuilder(
     private val checkFilesPath: Boolean,
     private val submissionPath: Path,
     private val fireClient: FireClient,
     private val ftpClient: FtpClient,
+    private val retryTemplate: SuspendRetryTemplate,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
@@ -58,7 +61,7 @@ class FilesSourceListBuilder(
         if (folder is FtpUserFolder) {
             val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
             val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
-            sources.add(FtpSource(description, ftpUrl = ftpUrl, nfsPath = nfsPath, ftpClient = ftpClient))
+            sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient, retryTemplate))
         }
     }
 
