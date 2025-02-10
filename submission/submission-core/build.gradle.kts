@@ -10,6 +10,7 @@ import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
+import Projects.FtpWebClient
 import Projects.SubmissionFileSources
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionSecurity
@@ -32,6 +33,7 @@ dependencies {
     api(project(CommonsBio))
     api(project(CommonsUtil))
     api(project(CommonsHttp))
+    api(project(FtpWebClient))
     api(project(CommonsSerialization))
     api(project(SubmissionFileSources))
     api(project(SubmissionSecurity))

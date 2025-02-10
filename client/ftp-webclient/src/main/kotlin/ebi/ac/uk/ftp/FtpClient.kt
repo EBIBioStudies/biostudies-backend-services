@@ -1,5 +1,7 @@
 package ebi.ac.uk.ftp
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.net.ftp.FTP
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
@@ -12,7 +14,7 @@ interface FtpClient {
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFiles(
+    suspend fun uploadFiles(
         folder: Path,
         files: List<Pair<Path, () -> InputStream>>,
     )
@@ -20,7 +22,7 @@ interface FtpClient {
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFile(
+    suspend fun uploadFile(
         path: Path,
         source: () -> InputStream,
     )
@@ -28,7 +30,7 @@ interface FtpClient {
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
      */
-    fun downloadFile(
+    suspend fun downloadFile(
         path: Path,
         source: OutputStream,
     )
@@ -37,17 +39,17 @@ interface FtpClient {
      * Create the given folder. As FTP does not support nested folder creation in a single path the full path is
      * transverse and required missing folder are created.
      */
-    fun createFolder(path: Path)
+    suspend fun createFolder(path: Path)
 
     /**
      * List the files in the given path.
      */
-    fun listFiles(path: Path): List<FTPFile>
+    suspend fun listFiles(path: Path): List<FTPFile>
 
     /**
      * Delete the file or folder in the given path.
      */
-    fun deleteFile(path: Path)
+    suspend fun deleteFile(path: Path)
 
     companion object {
         @Suppress("LongParameterList")
@@ -79,53 +81,57 @@ interface FtpClient {
 private class SimpleFtpClient(
     private val ftpClientPool: FTPClientPool,
 ) : FtpClient {
-    override fun uploadFiles(
+    override suspend fun uploadFiles(
         folder: Path,
         files: List<Pair<Path, () -> InputStream>>,
-    ) {
-        ftpClientPool.execute { ftp ->
-            for ((path, inputStream) in files) {
-                ftp.createFtpFolder(path.parent)
-                ftp.setFileType(FTP.BINARY_FILE_TYPE)
-                inputStream().use { ftp.storeFile(path.toString(), it) }
+    ): Unit =
+        withContext(Dispatchers.IO) {
+            ftpClientPool.execute { ftp ->
+                for ((path, inputStream) in files) {
+                    ftp.createFtpFolder(path.parent)
+                    ftp.setFileType(FTP.BINARY_FILE_TYPE)
+                    inputStream().use { ftp.storeFile(path.toString(), it) }
+                }
             }
         }
-    }
 
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    override fun uploadFile(
+    override suspend fun uploadFile(
         path: Path,
         source: () -> InputStream,
-    ) {
-        ftpClientPool.execute { ftp ->
-            ftp.createFtpFolder(path.parent)
-            source().use { ftp.storeFile(path.toString(), it) }
+    ): Unit =
+        withContext(Dispatchers.IO) {
+            ftpClientPool.execute { ftp ->
+                ftp.createFtpFolder(path.parent)
+                source().use { ftp.storeFile(path.toString(), it) }
+            }
         }
-    }
 
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
      */
-    override fun downloadFile(
+    override suspend fun downloadFile(
         path: Path,
         source: OutputStream,
-    ) {
-        ftpClientPool.execute { ftp -> ftp.retrieveFile(path.toString(), source) }
-    }
+    ): Unit =
+        withContext(Dispatchers.IO) {
+            ftpClientPool.execute { ftp -> ftp.retrieveFile(path.toString(), source) }
+        }
 
     /**
      * Create the given folder.
      */
-    override fun createFolder(path: Path) {
-        ftpClientPool.execute { ftp -> ftp.createFtpFolder(path) }
-    }
+    override suspend fun createFolder(path: Path): Unit =
+        withContext(Dispatchers.IO) {
+            ftpClientPool.execute { ftp -> ftp.createFtpFolder(path) }
+        }
 
     /**
      * List the files in the given path.
      */
-    override fun listFiles(path: Path): List<FTPFile> =
+    override suspend fun listFiles(path: Path): List<FTPFile> =
         ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             val changed = ftp.changeWorkingDirectory(path.toString())
             if (changed) ftp.listAllFiles() else emptyList()
@@ -134,13 +140,13 @@ private class SimpleFtpClient(
     /**
      * Delete the file or folder in the given path.
      */
-    override fun deleteFile(path: Path) {
+    override suspend fun deleteFile(path: Path) {
         ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             /**
              * As delete multiple files are not supported by apache client its necessary delete by iterating over each
              * file.
              */
-            fun deleteDirectory(dirPath: Path) {
+            suspend fun deleteDirectory(dirPath: Path) {
                 ftp.changeWorkingDirectory(dirPath.toString())
                 ftp.listAllFiles().forEach { deleteFile(Paths.get(dirPath.toString(), it.name)) }
 
@@ -157,24 +163,30 @@ private class SimpleFtpClient(
      * As FTP does not support nested folder creation in a single path the full path is
      * transverse and required missing folder are created.
      */
-    private fun FTPClient.createFtpFolder(path: Path?) {
-        val paths = path?.runningReduce { acc, value -> acc.resolve(value) }
-        paths?.forEach { makeDirectory(it.toString()) }
-    }
+    private suspend fun FTPClient.createFtpFolder(path: Path?) =
+        withContext(Dispatchers.IO) {
+            val paths = path?.runningReduce { acc, value -> acc.resolve(value) }
+            paths?.forEach { makeDirectory(it.toString()) }
+        }
 
     /**
      * As Ftp clients are re-used we need to guarantee that, if the working directory is changed, it is restored after
      * the operation is completed.
      */
-    private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T =
-        execute {
-            val source = it.printWorkingDirectory()
-            try {
-                action(it)
-            } finally {
-                it.changeWorkingDirectory(source)
+    private suspend fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: suspend (FTPClient) -> T): T =
+        withContext(Dispatchers.IO) {
+            execute {
+                val source = it.printWorkingDirectory()
+                try {
+                    action(it)
+                } finally {
+                    it.changeWorkingDirectory(source)
+                }
             }
         }
 
-    private fun FTPClient.listAllFiles(): List<FTPFile> = listFiles().filterNot { it.name == "." || it.name == ".." }.toList()
+    private suspend fun FTPClient.listAllFiles(): List<FTPFile> =
+        withContext(Dispatchers.IO) {
+            listFiles().filterNot { it.name == "." || it.name == ".." }.toList()
+        }
 }

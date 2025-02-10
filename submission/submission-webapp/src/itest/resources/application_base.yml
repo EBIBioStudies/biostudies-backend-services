@@ -46,7 +46,7 @@ app:
       maxAttempts: 20
       initialInterval: 5
       multiplier: 2.0
-      maxInterval: 1
+      maxInterval: 3000
   security:
     tokenHash: biostd-test
     environment: TEST
@@ -60,6 +60,11 @@ app:
       ftpPassword:
       ftpUrl:
       ftpPort:
+      retry:
+        maxAttempts: 5
+        initialInterval: 5
+        multiplier: 2.0
+        maxInterval: 3000
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
   notifications:

@@ -7,10 +7,7 @@ import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.apache.commons.net.ftp.FTPFile
-import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Path
@@ -27,7 +24,6 @@ class FtpSource(
     private val ftpUrl: Path,
     private val nfsPath: Path,
     private val ftpClient: FtpClient,
-    private val retryTemplate: SuspendRetryTemplate,
 ) : FilesSource {
     override suspend fun getExtFile(
         path: String,
@@ -49,16 +45,13 @@ class FtpSource(
     override suspend fun getFileList(path: String): File? = findFile(path)?.let { downloadFile(ftpUrl.resolve(path)) }
 
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun findFile(filePath: String): FTPFile? =
-        withContext(Dispatchers.IO) {
-            retryTemplate.execute("Find FTP file $filePath") {
-                val ftpPath = ftpUrl.resolve(filePath)
-                val files = ftpClient.listFiles(ftpPath.parent)
-                files.firstOrNull { it.name == ftpPath.name }
-            }
-        }
+    private suspend fun findFile(filePath: String): FTPFile? {
+        val ftpPath = ftpUrl.resolve(filePath)
+        val files = ftpClient.listFiles(ftpPath.parent)
+        return files.firstOrNull { it.name == ftpPath.name }
+    }
 
-    private fun downloadFile(path: Path): File {
+    private suspend fun downloadFile(path: Path): File {
         val tempFile = createTempFile(suffix = path.fileName.toString()).toFile()
         tempFile.outputStream().use { ftpClient.downloadFile(path, it) }
         return tempFile

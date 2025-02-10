@@ -1,8 +1,7 @@
-package uk.ac.ebi.fire.client.retry
+package ebi.ac.uk.coroutines
 
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
-import uk.ac.ebi.fire.client.integration.web.RetryConfig
 
 private val logger = KotlinLogging.logger {}
 
@@ -45,3 +44,10 @@ class SuspendRetryTemplate(
         return func()
     }
 }
+
+data class RetryConfig(
+    val maxAttempts: Int,
+    val initialInterval: Long,
+    val multiplier: Double,
+    val maxInterval: Long,
+)

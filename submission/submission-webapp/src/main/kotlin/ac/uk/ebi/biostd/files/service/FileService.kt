@@ -5,29 +5,29 @@ import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
 interface FileService {
-    fun uploadFile(
+    suspend fun uploadFile(
         path: String,
         file: File,
     )
 
-    fun uploadFiles(
+    suspend fun uploadFiles(
         path: String,
         files: List<MultipartFile>,
     )
 
-    fun getFile(
+    suspend fun getFile(
         path: String,
         fileName: String,
     ): File
 
-    fun createFolder(
+    suspend fun createFolder(
         path: String,
         folderName: String,
     )
 
-    fun listFiles(path: String): FilesSpec
+    suspend fun listFiles(path: String): FilesSpec
 
-    fun deleteFile(
+    suspend fun deleteFile(
         path: String,
         fileName: String,
     )

@@ -101,6 +101,10 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$ftpProperties.ftpRootPath", FTP_ROOT_PATH)
         properties.addProperty("$ftpProperties.defaultTimeout", FTP_DEFAULT_TIMEOUT)
         properties.addProperty("$ftpProperties.connectionTimeout", FTP_DEFAULT_TIMEOUT)
+        properties.addProperty("$ftpProperties.retry.maxAttempts", 2)
+        properties.addProperty("$ftpProperties.retry.initialInterval", 100)
+        properties.addProperty("$ftpProperties.retry.multiplier", 2)
+        properties.addProperty("$ftpProperties.retry.maxInterval", 500)
     }
 
     private fun fireSetup() {

@@ -1,8 +1,8 @@
 package uk.ac.ebi.fire.client.integration.web
 
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.fire.client.model.FireApiFile
-import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 import java.io.File
 
 @Suppress("TooManyFunctions")

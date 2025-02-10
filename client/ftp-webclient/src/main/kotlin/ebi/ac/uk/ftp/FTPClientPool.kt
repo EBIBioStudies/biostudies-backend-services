@@ -34,7 +34,7 @@ internal class FTPClientPool(
             connectionTimeout,
         ),
 ) {
-    fun <T> execute(action: (FTPClient) -> T): T {
+    suspend fun <T> execute(action: suspend (FTPClient) -> T): T {
         val ftpClient = ftpClientPool.borrowObject()
         return try {
             action(ftpClient)
@@ -79,7 +79,7 @@ internal class FTPClientPool(
             return try {
                 ftpClient.sendNoOp()
             } catch (exception: Exception) {
-                logger.error { "Error checking ftp connection: ${ exception.localizedMessage }" }
+                logger.error { "Error checking ftp connection: ${exception.localizedMessage}" }
                 false
             }
         }

@@ -1,9 +1,8 @@
-package uk.ac.ebi.fire.client.retry
+package ebi.ac.uk.coroutines
 
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.ac.ebi.fire.client.integration.web.RetryConfig
 
 class SuspendRetryTemplateTest {
     private val testConfig =

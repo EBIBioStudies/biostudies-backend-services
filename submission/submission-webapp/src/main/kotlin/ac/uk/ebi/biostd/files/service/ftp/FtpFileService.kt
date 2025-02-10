@@ -15,14 +15,14 @@ class FtpFileService(
     private val basePath: Path,
     private val ftp: FtpClient,
 ) : FileService {
-    override fun uploadFile(
+    override suspend fun uploadFile(
         path: String,
         file: File,
     ) {
         ftp.uploadFile(basePath.resolve(path).resolve(file.name)) { file.inputStream() }
     }
 
-    override fun uploadFiles(
+    override suspend fun uploadFiles(
         path: String,
         files: List<MultipartFile>,
     ) {
@@ -30,7 +30,7 @@ class FtpFileService(
         ftp.uploadFiles(basePath.resolve(path), ftpFiles)
     }
 
-    override fun getFile(
+    override suspend fun getFile(
         path: String,
         fileName: String,
     ): File {
@@ -41,14 +41,14 @@ class FtpFileService(
         return target.toFile()
     }
 
-    override fun createFolder(
+    override suspend fun createFolder(
         path: String,
         folderName: String,
     ) {
         ftp.createFolder(basePath.resolve(path))
     }
 
-    override fun listFiles(path: String): FilesSpec {
+    override suspend fun listFiles(path: String): FilesSpec {
         val files =
             ftp
                 .listFiles(basePath.resolve(path))
@@ -63,7 +63,7 @@ class FtpFileService(
         return FilesSpec(files)
     }
 
-    override fun deleteFile(
+    override suspend fun deleteFile(
         path: String,
         fileName: String,
     ) {
