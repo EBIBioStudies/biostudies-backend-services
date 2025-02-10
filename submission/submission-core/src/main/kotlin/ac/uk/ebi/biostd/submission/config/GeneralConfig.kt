@@ -123,7 +123,10 @@ class GeneralConfig {
     fun fileSourceFtpClient(
         properties: ApplicationProperties,
         @Qualifier(FTP_RETRY_TEMPLATE) template: SuspendRetryTemplate,
-    ): FtpClient = ftpClient(properties.security.filesProperties.ftp)
+    ): FtpClient {
+        val client = ftpClient(properties.security.filesProperties.ftp)
+        return RetryFtpClient(template, client)
+    }
 
     companion object {
         const val FILE_SOURCE_FTP_CLIENT = "fileSourceFtpClient"
