@@ -254,8 +254,12 @@ open class SecurityService(
         days: Int,
     ) {
         val command =
-            "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target " +
-                "&& echo \"rsync exit code: 0\" || echo \"rsync exit code: $?\""
+            """
+            rsync -av \
+            --chown=:biostudies \
+            --files-from=<(find $source -mtime -$days | sed "s|^$source/||") $source $target \
+            && echo "rsync exit code: 0" || echo "rsync exit code: $?"
+            """.trimIndent()
 
         logger.debug { "Migrating with command '$command'" }
         val jobSpec =
