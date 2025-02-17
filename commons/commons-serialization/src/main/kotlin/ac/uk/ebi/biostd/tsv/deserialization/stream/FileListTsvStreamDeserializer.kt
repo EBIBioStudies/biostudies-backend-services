@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import ebi.ac.uk.io.ext.asFlow
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
@@ -14,12 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStream
 import java.io.OutputStream
@@ -65,16 +63,6 @@ internal class FileListTsvStreamDeserializer {
             .filter { it.isNotBlank() }
             .withIndex()
             .map { (index, row) -> deserializeRow(index + 1, row.split(TAB), headers) }
-    }
-
-    private fun BufferedReader.asFlow(): Flow<String> {
-        return flow {
-            var line = readLine()
-            while (line != null) {
-                emit(line)
-                line = readLine()
-            }
-        }.flowOn(Dispatchers.IO)
     }
 
     private fun deserializeRow(

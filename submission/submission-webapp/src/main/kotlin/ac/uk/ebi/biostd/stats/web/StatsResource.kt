@@ -58,9 +58,9 @@ class StatsResource(
     suspend fun register(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ): List<SubmissionStat> {
+    ) {
         val statFile = tmpFileGenerator.asFile(stats)
-        return submissionStatsService.register(type, statFile).map { it.toStatDto() }
+        submissionStatsService.register(type, statFile)
     }
 
     @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
@@ -68,9 +68,9 @@ class StatsResource(
     suspend fun increment(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ): List<SubmissionStat> {
+    ) {
         val statFile = tmpFileGenerator.asFile(stats)
-        return submissionStatsService.increment(type, statFile).map { it.toStatDto() }
+        submissionStatsService.increment(type, statFile)
     }
 
     @PostMapping("/refresh/{accNo}")
