@@ -78,6 +78,7 @@ interface FtpClient {
     }
 }
 
+@Suppress("LongParameterList", "TooManyFunctions")
 private class SimpleFtpClient(
     private val ftpUser: String,
     private val ftpPassword: String,

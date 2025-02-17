@@ -256,9 +256,9 @@ open class SecurityService(
         val command =
             """
             rsync -av \
-            --chown=:biostudies \
             --files-from=<(find $source -mtime -$days | sed "s|^$source/||") $source $target \
-            && echo "rsync exit code: 0" || echo "rsync exit code: $?"
+            && echo "rsync exit code: 0" || echo "rsync exit code: $?" \\
+            && chgrp -R biostudies $target
             """.trimIndent()
 
         logger.debug { "Migrating with command '$command'" }
