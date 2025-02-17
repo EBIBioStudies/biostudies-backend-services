@@ -4,6 +4,7 @@ import Dependencies.Guava
 import Dependencies.JSONOrg
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinCoroutinesReactor
+import Dependencies.KotlinFlowExtensions
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
@@ -45,16 +46,15 @@ dependencies {
     api(project(SubmissionPersistenceFilesystem))
     api(project(SubmissionPersistenceCommonApi))
 
-    implementation(KotlinLogging)
     implementation(CommonsIO)
     implementation(CommonsLang3)
     implementation(Guava)
     implementation(JSONOrg)
     implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
+    implementation(KotlinFlowExtensions)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
-    implementation(KotlinCoroutines)
-    implementation(KotlinCoroutinesReactor)
     implementation(SpringBootStarterReactiveMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

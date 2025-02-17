@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.stats
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -14,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -326,16 +328,22 @@ class SubmissionStatsTest(
                 }.toString()
             webClient.submit(submission1, TSV)
 
-            val statsFile =
-                kotlin.io.path
-                    .createTempFile()
-                    .toFile()
-            statsFile.writeText("STATS-0005\t150")
-
+            val statsRecords =
+                tsv {
+                    line("STATS-0005", "100")
+                    line("STATS-0010", "160")
+                    line("STATS-0011")
+                    line("STATS-0005", "150")
+                }.toString()
+            val statsFile = tempFolder.createFile("stats.txt", statsRecords)
             webClient.register("VIEWS", statsFile).collect()
 
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
+
+            val error = assertThrows<WebClientException> { webClient.findByTypeAndAccNo("VIEWS", "STATS-0010") }
+            assertThat(error.message)
+                .contains("There is no submission stat registered with AccNo STATS-0010 and type VIEWS")
         }
 
     @Test
@@ -356,15 +364,16 @@ class SubmissionStatsTest(
                 )
             webClient.register(dStat)
 
-            val statsFile =
-                kotlin.io.path
-                    .createTempFile()
-                    .toFile()
-            statsFile.writeText("$accNo\t150")
+            val statsRecords =
+                tsv {
+                    line(accNo, "150")
+                    line(accNo, "100")
+                }.toString()
+            val statsFile = tempFolder.createFile("stats.txt", statsRecords)
 
             webClient.incrementStats("VIEWS", statsFile).collect()
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
-            assertThat(stats).isEqualTo(SubmissionStat(accNo, 160L, "VIEWS"))
+            assertThat(stats).isEqualTo(SubmissionStat(accNo, 260L, "VIEWS"))
         }
 
     @Test

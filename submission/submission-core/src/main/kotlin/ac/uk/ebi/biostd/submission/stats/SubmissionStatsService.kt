@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import mu.KotlinLogging
@@ -45,17 +46,17 @@ class SubmissionStatsService(
     suspend fun register(
         type: String,
         stats: File,
-    ): List<SubmissionStat> {
-        val statsList = statsFileHandler.readStats(stats, SubmissionStatType.fromString(type.uppercase()))
-        return submissionStatsService.saveLast(statsList)
+    ) {
+        val statsFlow = statsFileHandler.readStats(stats, SubmissionStatType.fromString(type.uppercase()))
+        submissionStatsService.saveLast(statsFlow)
     }
 
     suspend fun increment(
         type: String,
         statsFile: File,
-    ): List<SubmissionStat> {
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        return submissionStatsService.incrementAll(statsList)
+    ) {
+        val statsFlow = statsFileHandler.readStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
+        submissionStatsService.incrementAll(statsFlow)
     }
 
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
@@ -72,7 +73,7 @@ class SubmissionStatsService(
         val idx = AtomicInteger(0)
         extSubmissionQueryService.findAllActive(includeFileListFiles = true).collect { sub ->
             val stats = calculateStats(sub)
-            submissionStatsService.saveLast(stats)
+            submissionStatsService.saveLast(stats.asFlow())
             logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
         }
     }
@@ -84,14 +85,11 @@ class SubmissionStatsService(
         serializationService
             .filesFlow(sub)
             .collect {
-                if (it.type == ExtFileType.FILE) subFilesSize = subFilesSize + it.size
+                if (it.type == ExtFileType.FILE) subFilesSize += it.size
                 if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
             }
 
-        val emptyDirectories =
-            directories
-                .filter { hasFiles(it, sub) }
-                .count()
+        val emptyDirectories = directories.count { hasFiles(it, sub) }
 
         return listOf(
             SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
