@@ -28,6 +28,7 @@ import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KotlinCoroutinesVersion
+import Versions.KotlinFlowExtensionsVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
@@ -69,6 +70,7 @@ object Versions {
     const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
     const val KotlinLoggingVersion = "3.0.5"
+    const val KotlinFlowExtensionsVersion = "0.0.14"
 
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
@@ -185,6 +187,7 @@ object Dependencies {
     const val KotlinCoroutinesReactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$KotlinCoroutinesVersion"
     const val KotlinCoroutinesReactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
+    const val KotlinFlowExtensions = "com.github.akarnokd:kotlin-flow-extensions:$KotlinFlowExtensionsVersion"
 
     // Apache
     const val CommonsFileUpload = "commons-fileupload:commons-fileupload:$CommonsFileUploadVersion"
