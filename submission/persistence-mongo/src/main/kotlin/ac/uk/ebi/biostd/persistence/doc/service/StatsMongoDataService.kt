@@ -7,19 +7,18 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
-import hu.akarnokd.kotlin.flow.groupBy
-import hu.akarnokd.kotlin.flow.toList
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.UpdateOneModel
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onEach
+import org.bson.Document
 import org.springframework.data.domain.PageRequest as DataPageRequest
 
 @Suppress("TooManyFunctions")
@@ -53,8 +52,9 @@ class StatsMongoDataService(
 
     override suspend fun save(stat: SubmissionStat): SubmissionStat {
         require(submissionsRepository.existsByAccNo(stat.accNo)) { throw SubmissionNotFoundException(stat.accNo) }
-
-        return updateOrRegister(stat)
+        statsDataRepository.updateOrRegisterStat(stat)
+        val updated = statsDataRepository.getByAccNo(stat.accNo)
+        return toSubmissionStat(stat.type, updated)
     }
 
     override suspend fun saveSubmissionStats(
@@ -68,43 +68,29 @@ class StatsMongoDataService(
             .map { SingleSubmissionStat(accNo = accNo, type = SubmissionStatType.fromString(it.key), value = it.value) }
     }
 
-    override suspend fun saveLast(stats: Flow<SubmissionStat>) {
-        stats
-            .groupBy { it.accNo.uppercase() }
-            .mapLatest { it }
-            .flatMapMerge { it }
-            .filter { submissionsRepository.existsByAccNo(it.accNo) }
-            .onEach { updateOrRegister(it) }
-            .collect()
+    override suspend fun saveAll(stats: List<SubmissionStat>) {
+        val upserts =
+            stats
+                .map {
+                    UpdateOneModel<Document>(
+                        Filters.eq("accNo", it.accNo),
+                        Updates.set("$SUB_STATS.${it.type}", it.value),
+                        UpdateOptions().upsert(true),
+                    )
+                }
+        statsDataRepository.bulkWrite(upserts)
     }
 
-    override suspend fun incrementAll(stats: Flow<SubmissionStat>) {
-        stats
-            .groupBy { it.accNo.uppercase() }
-            .flatMapMerge { it.toList() }
-            .filter { submissionsRepository.existsByAccNo(it.first().accNo) }
-            .onEach { increment(it.first().accNo, it) }
-            .collect()
-    }
-
-    private suspend fun updateOrRegister(update: SubmissionStat): SubmissionStat {
-        statsDataRepository.updateOrRegisterStat(update)
-
-        val updated = statsDataRepository.getByAccNo(update.accNo)
-
-        return toSubmissionStat(update.type, updated)
-    }
-
-    private suspend fun increment(
-        accNo: String,
-        increments: List<SubmissionStat>,
-    ): SubmissionStat {
-        statsDataRepository.incrementStat(accNo, increments)
-
-        val type = increments.first().type
-        val incremented = statsDataRepository.getByAccNo(accNo)
-
-        return toSubmissionStat(type, incremented)
+    override suspend fun incrementAll(stats: List<SubmissionStat>) {
+        val upserts =
+            stats.map {
+                UpdateOneModel<Document>(
+                    Filters.eq("accNo", it.accNo),
+                    Updates.inc("$SUB_STATS.${it.type}", it.value),
+                    UpdateOptions().upsert(true),
+                )
+            }
+        statsDataRepository.bulkWrite(upserts)
     }
 
     private fun toSubmissionStat(

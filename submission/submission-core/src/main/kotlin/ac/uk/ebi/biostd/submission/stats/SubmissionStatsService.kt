@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import mu.KotlinLogging
@@ -45,18 +44,18 @@ class SubmissionStatsService(
 
     suspend fun register(
         type: String,
-        stats: File,
+        statsFile: File,
     ) {
-        val statsFlow = statsFileHandler.readStats(stats, SubmissionStatType.fromString(type.uppercase()))
-        submissionStatsService.saveLast(statsFlow)
+        val stats = statsFileHandler.readRegisterStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
+        submissionStatsService.saveAll(stats)
     }
 
     suspend fun increment(
         type: String,
         statsFile: File,
     ) {
-        val statsFlow = statsFileHandler.readStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        submissionStatsService.incrementAll(statsFlow)
+        val stats = statsFileHandler.readStatsForIncrement(statsFile, SubmissionStatType.fromString(type.uppercase()))
+        submissionStatsService.incrementAll(stats)
     }
 
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
@@ -73,7 +72,7 @@ class SubmissionStatsService(
         val idx = AtomicInteger(0)
         extSubmissionQueryService.findAllActive(includeFileListFiles = true).collect { sub ->
             val stats = calculateStats(sub)
-            submissionStatsService.saveLast(stats.asFlow())
+            submissionStatsService.saveAll(stats)
             logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
         }
     }

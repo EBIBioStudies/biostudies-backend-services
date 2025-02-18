@@ -341,9 +341,12 @@ class SubmissionStatsTest(
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
 
-            val error = assertThrows<WebClientException> { webClient.findByTypeAndAccNo("VIEWS", "STATS-0010") }
+            val notExisting = webClient.findByTypeAndAccNo("VIEWS", "STATS-0010")
+            assertThat(notExisting).isEqualTo(SubmissionStat("STATS-0010", 160L, "VIEWS"))
+
+            val error = assertThrows<WebClientException> { webClient.findByTypeAndAccNo("VIEWS", "STATS-0011") }
             assertThat(error.message)
-                .contains("There is no submission stat registered with AccNo STATS-0010 and type VIEWS")
+                .contains("There is no submission stat registered with AccNo STATS-0011 and type VIEWS")
         }
 
     @Test
