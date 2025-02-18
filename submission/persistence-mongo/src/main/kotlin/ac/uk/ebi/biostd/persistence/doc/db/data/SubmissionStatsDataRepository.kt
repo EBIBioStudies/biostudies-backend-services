@@ -6,8 +6,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
+import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.Document
@@ -58,5 +60,10 @@ class SubmissionStatsDataRepository(
 
         val result = Mono.from(mongoTemplate.collection<DocSubmissionStats>().bulkWrite(operations))
         result.awaitSingleOrNull()
+    }
+
+    suspend fun bulkWrite(operations: List<UpdateOneModel<Document>>): BulkWriteResult {
+        val result = mongoTemplate.collection<DocSubmissionStats>().bulkWrite(operations).awaitSingle()
+        return result
     }
 }

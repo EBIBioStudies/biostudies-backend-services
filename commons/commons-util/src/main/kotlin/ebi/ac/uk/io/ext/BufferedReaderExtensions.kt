@@ -13,4 +13,5 @@ fun BufferedReader.asFlow(): Flow<String> =
             emit(line)
             line = readLine()
         }
+        this@asFlow.close()
     }.flowOn(Dispatchers.IO)
