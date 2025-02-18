@@ -53,7 +53,7 @@ class DbUser(
     var secret: String,
     @Lob
     var passwordDigest: ByteArray,
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "UserGroup_User",
         joinColumns = [JoinColumn(name = "users_id")],

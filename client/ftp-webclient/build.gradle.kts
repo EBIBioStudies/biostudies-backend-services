@@ -1,5 +1,6 @@
 import Dependencies.CommonsNet
 import Dependencies.CommonsPool
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.CommonsTest
@@ -19,6 +20,7 @@ dependencies {
     api(project(CommonsUtil))
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
+    implementation(KotlinCoroutines)
     implementation(CommonsNet)
     implementation(CommonsPool)
 

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.properties
 
+import ebi.ac.uk.coroutines.RetryConfig
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 
@@ -25,12 +26,22 @@ data class FilesProperties(
     val defaultMode: StorageMode,
     val filesDirPath: String,
     val magicDirPath: String,
+    @NestedConfigurationProperty
+    val ftp: FtpProperties,
+)
+
+@ConstructorBinding
+data class FtpProperties(
     val ftpRootPath: String,
     val ftpDirPath: String,
     val ftpUser: String,
     val ftpPassword: String,
     val ftpUrl: String,
     val ftpPort: Int,
+    val defaultTimeout: Long,
+    val connectionTimeout: Long,
+    @NestedConfigurationProperty
+    val retry: RetryConfig,
 )
 
 data class InstanceKeys(

@@ -157,9 +157,8 @@ open class SecurityService(
             val target = profileService.asSecurityUser(user.apply { this.storageMode = storageMode })
 
             createMagicFolder(target)
-            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
-
             userRepository.save(user)
+            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
         }
 
     private fun setPassword(
@@ -255,8 +254,12 @@ open class SecurityService(
         days: Int,
     ) {
         val command =
-            "rsync -av --files-from=<(find $source -mtime -$days | sed \"s|^$source/||\") $source $target " +
-                "&& echo \"rsync exit code: 0\" || echo \"rsync exit code: $?\""
+            """
+            rsync -av \
+            --files-from=<(find $source -mtime -$days | sed "s|^$source/||") $source $target \
+            && echo "rsync exit code: 0" || echo "rsync exit code: $?" \\
+            && chgrp -R biostudies $target
+            """.trimIndent()
 
         logger.debug { "Migrating with command '$command'" }
         val jobSpec =

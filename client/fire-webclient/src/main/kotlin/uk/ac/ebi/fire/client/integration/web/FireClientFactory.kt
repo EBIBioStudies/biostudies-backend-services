@@ -5,6 +5,8 @@ import aws.sdk.kotlin.services.s3.S3Client
 import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
 import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
 import aws.smithy.kotlin.runtime.net.url.Url
+import ebi.ac.uk.coroutines.RetryConfig
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -14,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.ac.ebi.fire.client.api.FireWebClient
 import uk.ac.ebi.fire.client.api.S3KClient
-import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 
 private const val FIRE_API_BASE = "fire"
 
@@ -92,11 +93,4 @@ data class FireConfig(
     val fireVersion: String,
     val username: String,
     val password: String,
-)
-
-data class RetryConfig(
-    val maxAttempts: Int,
-    val initialInterval: Long,
-    val multiplier: Double,
-    val maxInterval: Long,
 )

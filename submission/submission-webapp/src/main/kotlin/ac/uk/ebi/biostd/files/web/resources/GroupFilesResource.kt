@@ -28,7 +28,7 @@ class GroupFilesResource(
 ) {
     @GetMapping("/files/groups/{groupName}/**")
     @ResponseBody
-    fun listGroupFiles(
+    suspend fun listGroupFiles(
         @BioUser user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String,
@@ -39,7 +39,7 @@ class GroupFilesResource(
 
     @GetMapping("/files/groups/{groupName}/**", produces = [APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody
-    fun downloadFile(
+    suspend fun downloadFile(
         @BioUser user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "fileName") fileName: String,
@@ -51,7 +51,7 @@ class GroupFilesResource(
 
     @PostMapping("/files/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun uploadGroupFile(
+    suspend fun uploadGroupFile(
         @BioUser user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String,
@@ -63,7 +63,7 @@ class GroupFilesResource(
 
     @DeleteMapping("/files/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun deleteFile(
+    suspend fun deleteFile(
         @BioUser user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "fileName") fileName: String,
@@ -75,7 +75,7 @@ class GroupFilesResource(
 
     @PostMapping("/folder/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun createFolder(
+    suspend fun createFolder(
         @BioUser user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "folder") folder: String,

@@ -17,7 +17,7 @@ import kotlin.io.path.name
 /**
  *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
  *  This separation is necessary as files are check in backend instance with no access to FTP file system while
- *  processing is executed in data mover which can access moint point.
+ *  processing is executed in data mover which can access mount point.
  */
 class FtpSource(
     override val description: String,
@@ -42,17 +42,16 @@ class FtpSource(
         }
     }
 
-    override suspend fun getFileList(path: String): File? {
-        return findFile(path)?.let { downloadFile(ftpUrl.resolve(path)) }
-    }
+    override suspend fun getFileList(path: String): File? = findFile(path)?.let { downloadFile(ftpUrl.resolve(path)) }
 
-    private fun findFile(filePath: String): FTPFile? {
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun findFile(filePath: String): FTPFile? {
         val ftpPath = ftpUrl.resolve(filePath)
         val files = ftpClient.listFiles(ftpPath.parent)
         return files.firstOrNull { it.name == ftpPath.name }
     }
 
-    private fun downloadFile(path: Path): File {
+    private suspend fun downloadFile(path: Path): File {
         val tempFile = createTempFile(suffix = path.fileName.toString()).toFile()
         tempFile.outputStream().use { ftpClient.downloadFile(path, it) }
         return tempFile

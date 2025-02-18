@@ -21,6 +21,7 @@ import uk.ac.ebi.io.sources.UserPathSource
 import java.io.File
 import java.nio.file.Path
 
+@Suppress("LongParameterList")
 class FilesSourceListBuilder(
     private val checkFilesPath: Boolean,
     private val submissionPath: Path,
@@ -29,7 +30,7 @@ class FilesSourceListBuilder(
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
+    private fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()
@@ -58,7 +59,7 @@ class FilesSourceListBuilder(
         if (folder is FtpUserFolder) {
             val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
             val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
-            sources.add(FtpSource(description, ftpUrl = ftpUrl, nfsPath = nfsPath, ftpClient = ftpClient))
+            sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient))
         }
     }
 

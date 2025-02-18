@@ -30,7 +30,7 @@ class UserFilesResource(
 ) {
     @GetMapping("/files/user/**")
     @ResponseBody
-    fun listFiles(
+    suspend fun listFiles(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
     ): List<UserFile> {
@@ -40,7 +40,7 @@ class UserFilesResource(
 
     @GetMapping("/files/user/**", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody
-    fun downloadFile(
+    suspend fun downloadFile(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath,
@@ -62,7 +62,7 @@ class UserFilesResource(
 
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun uploadFile(
+    suspend fun uploadFile(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
         @RequestParam("files") files: Array<MultipartFile>,
@@ -73,7 +73,7 @@ class UserFilesResource(
 
     @DeleteMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun deleteFile(
+    suspend fun deleteFile(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath,
@@ -84,7 +84,7 @@ class UserFilesResource(
 
     @PostMapping("/folder/user/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun createFolder(
+    suspend fun createFolder(
         @BioUser user: SecurityUser,
         @RequestParam(name = "folder") folder: String,
         pathDescriptor: UserPath,
