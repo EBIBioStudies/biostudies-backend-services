@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties
 data class TaskProperties(
-    val submissions: List<SubmissionId>,
+    val submissions: List<SubmissionId> = emptyList(),
     private val mode: String,
 ) {
     val taskMode: Mode
