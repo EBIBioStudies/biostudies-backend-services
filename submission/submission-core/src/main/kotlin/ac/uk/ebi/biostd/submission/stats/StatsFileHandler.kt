@@ -44,6 +44,7 @@ class StatsFileHandler {
                 .map { it.value }
         }
 
+    @Suppress("ReturnCount")
     private suspend fun asStat(
         entry: String,
         type: SubmissionStatType,

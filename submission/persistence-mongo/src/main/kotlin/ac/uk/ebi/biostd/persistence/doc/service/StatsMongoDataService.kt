@@ -93,18 +93,6 @@ class StatsMongoDataService(
         statsDataRepository.bulkWrite(upserts)
     }
 
-    private suspend fun increment(
-        accNo: String,
-        increments: List<SubmissionStat>,
-    ): SubmissionStat {
-        statsDataRepository.incrementStat(accNo, increments)
-
-        val type = increments.first().type
-        val incremented = statsDataRepository.getByAccNo(accNo)
-
-        return toSubmissionStat(type, incremented)
-    }
-
     private fun toSubmissionStat(
         type: SubmissionStatType,
         docSubmission: DocSubmissionStats,

@@ -44,9 +44,9 @@ class SubmissionStatsService(
 
     suspend fun register(
         type: String,
-        stats: File,
+        statsFile: File,
     ) {
-        val stats = statsFileHandler.readRegisterStats(stats, SubmissionStatType.fromString(type.uppercase()))
+        val stats = statsFileHandler.readRegisterStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
         submissionStatsService.saveAll(stats)
     }
 
