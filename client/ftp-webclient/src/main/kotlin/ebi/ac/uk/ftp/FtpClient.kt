@@ -144,7 +144,7 @@ private class SimpleFtpClient(
         withContext(Dispatchers.IO) {
             ftpClient().executeRestoringWorkingDirectory { ftp ->
                 val changed = ftp.changeWorkingDirectory(path.parent.toString())
-                if (changed) ftp.mlistFile(path.fileName.toString()) else null
+                if (changed) ftp.listFiles(path.fileName.toString()).firstOrNull() else null
             }
         }
 
