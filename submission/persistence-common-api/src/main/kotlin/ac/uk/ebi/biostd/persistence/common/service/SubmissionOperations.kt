@@ -14,6 +14,8 @@ import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
+import org.springframework.data.mongodb.core.query.Meta.CursorOption
+import org.springframework.data.mongodb.repository.Meta
 import java.time.Instant
 import java.time.temporal.TemporalAmount
 
@@ -80,6 +82,7 @@ interface SubmissionPersistenceQueryService {
      **/
     suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
 
+    @Meta(flags = [CursorOption.NO_TIMEOUT])
     suspend fun findAllActive(includeFileListFiles: Boolean): Flow<ExtSubmission>
 }
 
