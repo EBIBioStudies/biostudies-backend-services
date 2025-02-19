@@ -23,7 +23,7 @@ import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val BATCH_SIZE = 250
+private const val BATCH_SIZE = 200
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(

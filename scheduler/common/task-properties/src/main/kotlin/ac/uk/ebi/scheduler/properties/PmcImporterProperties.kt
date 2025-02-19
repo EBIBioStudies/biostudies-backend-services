@@ -47,7 +47,7 @@ class PmcImporterProperties : JavaAppProperties {
             sourceFile?.let { add("--app.data.sourceFile=$it") }
             submissionId?.let { add("--app.data.submissionId=$it") }
             limit?.let { add("--app.data.limit=$it") }
-            batchSize?.let { add("--s.data.batchSize=$it") }
+            batchSize?.let { add("--app.data.batchSize=$it") }
         }.joinToString(separator = " \\\n")
 
     companion object {
