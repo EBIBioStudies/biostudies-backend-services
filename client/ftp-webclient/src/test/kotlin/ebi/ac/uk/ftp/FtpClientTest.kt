@@ -1,13 +1,20 @@
 package ebi.ac.uk.ftp
 
+import ebi.ac.uk.test.createFile
 import ebi.ac.uk.test.createTempFile
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junitpioneer.jupiter.RetryingTest
 import java.io.File
 import java.nio.file.Paths
 
-class FtpClientTest {
+@ExtendWith(TemporaryFolderExtension::class)
+class FtpClientTest(
+    private val temporaryFolder: TemporaryFolder,
+) {
     private val ftpServer = createFtpServer().apply { start() }
     private val testInstance =
         FtpClient.create(
@@ -34,6 +41,23 @@ class FtpClientTest {
 
             val folderFiles = testInstance.listFiles(rootPath.resolve("a-folder"))
             assertThat(folderFiles).satisfiesOnlyOnce { it.name == "file1.txt" && it.isFile }
+        }
+
+    @RetryingTest(TEST_RETRY)
+    fun getFile() =
+        runTest {
+            testInstance.deleteFile(HOME)
+            val tempFile = temporaryFolder.createFile("test-file-1", "content")
+            val fileFolder = Paths.get("").resolve("a-folder")
+
+            val filePath = fileFolder.resolve("file1.txt")
+
+            testInstance.uploadFile(filePath) { tempFile.inputStream() }
+
+            val result = testInstance.getFile(filePath)
+            assertThat(result).isNotNull()
+            assertThat(result!!.name).isEqualTo("file1.txt")
+            assertThat(testInstance.getFile(fileFolder.resolve("file2.txt"))).isNull()
         }
 
     @RetryingTest(TEST_RETRY)
