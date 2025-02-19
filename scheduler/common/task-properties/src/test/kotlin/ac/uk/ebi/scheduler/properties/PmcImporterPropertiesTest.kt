@@ -17,6 +17,7 @@ const val BIO_STUDIES_USER = "user"
 const val BIO_STUDIES_PASSWORD = "password"
 const val NOTIFICATION_URL = "http://slack-here"
 const val BASE_URL = "http://pmc"
+const val LIMIT = 15
 
 class PmcImporterPropertiesTest {
     @BeforeEach
@@ -35,11 +36,12 @@ class PmcImporterPropertiesTest {
                 temp = TEMP_DIR,
                 mongodbUri = MONGODB_URI,
                 mongodbDatabase = MONGODB_DATABASE,
+                notificationsUrl = NOTIFICATION_URL,
+                pmcBaseUrl = BASE_URL,
                 bioStudiesUrl = BIO_STUDIES_URL,
                 bioStudiesUser = BIO_STUDIES_USER,
                 bioStudiesPassword = BIO_STUDIES_PASSWORD,
-                pmcBaseUrl = BASE_URL,
-                notificationsUrl = NOTIFICATION_URL,
+                limit = 15,
             )
 
         assertThat(properties.asCmd("/apps-folder", 8569))
@@ -57,7 +59,8 @@ class PmcImporterPropertiesTest {
                 --app.data.bioStudiesUser=user \
                 --app.data.bioStudiesPassword=password \
                 --app.data.loadFolder=/loadPath \
-                --app.data.loadFile=import.gz
+                --app.data.loadFile=import.gz \
+                --app.data.limit=15
                 """.trimIndent(),
             )
     }
@@ -71,11 +74,12 @@ class PmcImporterPropertiesTest {
                 temp = TEMP_DIR,
                 mongodbUri = MONGODB_URI,
                 mongodbDatabase = MONGODB_DATABASE,
+                notificationsUrl = NOTIFICATION_URL,
+                pmcBaseUrl = BASE_URL,
                 bioStudiesUrl = null,
                 bioStudiesUser = null,
                 bioStudiesPassword = null,
-                pmcBaseUrl = BASE_URL,
-                notificationsUrl = NOTIFICATION_URL,
+                limit = null,
             )
         assertThat(properties.asCmd("/apps-folder", 8569))
             .isEqualTo(
