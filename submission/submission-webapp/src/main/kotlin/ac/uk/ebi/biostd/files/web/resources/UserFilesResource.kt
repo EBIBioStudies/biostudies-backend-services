@@ -6,8 +6,9 @@ import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.core.io.FileSystemResource
-import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.nio.file.Files
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -44,21 +46,17 @@ class UserFilesResource(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath,
-    ): ResponseEntity<FileSystemResource> {
-        val filesService = fileServiceFactory.forUser(user)
-        val fileSystemResource = FileSystemResource(filesService.getFile(pathDescriptor.path, fileName))
-        val contentDisposition =
-            ContentDisposition
-                .builder("inline")
-                .filename(fileSystemResource.filename)
-                .build()
-        val headers = HttpHeaders().apply { setContentDisposition(contentDisposition) }
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .contentLength(fileSystemResource.contentLength())
-            .body(fileSystemResource)
-    }
+    ): ResponseEntity<FileSystemResource> =
+        withContext(Dispatchers.IO) {
+            val filesService = fileServiceFactory.forUser(user)
+            val file = filesService.getFile(pathDescriptor.path, fileName)
+            val fileResource = FileSystemResource(file)
+            ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"")
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(file.toPath()) ?: "application/octet-stream")
+                .body(fileResource)
+        }
 
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)

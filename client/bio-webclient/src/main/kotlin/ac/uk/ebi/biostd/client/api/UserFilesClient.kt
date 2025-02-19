@@ -63,7 +63,7 @@ internal class UserFilesClient(
         fileName: String,
         relativePath: String,
     ): File {
-        val tempFile = KFiles.createTempFile("biostudies-$fileName", ".tmp")
+        val tempFile = KFiles.createTempFile(fileName)
         val downloadUrl = "$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName"
         val response =
             client
