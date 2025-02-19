@@ -21,6 +21,7 @@ class PmcImporterProperties : JavaAppProperties {
     var loadFile: String? = null
     var sourceFile: String? = null
     var limit: Int? = null
+    var batchSize: Int? = null
     var bioStudiesUrl: String? = null
 
     override fun asCmd(
@@ -46,6 +47,7 @@ class PmcImporterProperties : JavaAppProperties {
             sourceFile?.let { add("--app.data.sourceFile=$it") }
             submissionId?.let { add("--app.data.submissionId=$it") }
             limit?.let { add("--app.data.limit=$it") }
+            batchSize?.let { add("--app.data.batchSize=$it") }
         }.joinToString(separator = " \\\n")
 
     companion object {
@@ -65,6 +67,8 @@ class PmcImporterProperties : JavaAppProperties {
             bioStudiesUser: String? = null,
             bioStudiesPassword: String? = null,
             submissionId: String? = null,
+            limit: Int? = null,
+            batchSize: Int? = null,
         ) = PmcImporterProperties().apply {
             this.mode = mode
             this.loadFolder = loadFolder
@@ -79,6 +83,8 @@ class PmcImporterProperties : JavaAppProperties {
             this.bioStudiesPassword = bioStudiesPassword
             this.submissionId = submissionId
             this.pmcBaseUrl = pmcBaseUrl
+            this.limit = limit
+            this.batchSize = batchSize
         }
     }
 }

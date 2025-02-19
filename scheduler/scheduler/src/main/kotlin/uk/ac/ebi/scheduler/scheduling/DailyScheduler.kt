@@ -31,13 +31,13 @@ internal class DailyScheduler(
     @Scheduled(cron = "0 0 7 * * *")
     fun processPmc() =
         runBlocking {
-            if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor(sourceFile = null)
+            if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor()
         }
 
     @Scheduled(cron = "0 0 8 * * *")
     fun submitPmc() =
         runBlocking {
-            if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter(sourceFile = null)
+            if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter()
         }
 
     @Scheduled(cron = "0 0 10 * * *")
