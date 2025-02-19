@@ -9,6 +9,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -81,7 +85,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `run migration 001`() =
+    fun `run migration`() =
         runTest {
             fun assertSubmissionCoreIndexes(
                 prefix: String = EMPTY,
@@ -181,9 +185,12 @@ internal class DatabaseChangeLogTest(
                         .listIndexes()
                         .asFlow()
                         .toList()
-                assertThat(statsIndexes).hasSize(2)
+                assertThat(statsIndexes).hasSize(5)
                 assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
-                assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+                assertThat(statsIndexes[1]).containsEntry("key", Document(STATS_ACC_NO, 1))
+                assertThat(statsIndexes[2]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
+                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
+                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
             }
 
             suspend fun assertRequestFileIndexes() {
