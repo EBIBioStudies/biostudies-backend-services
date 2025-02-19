@@ -55,6 +55,8 @@ interface FtpClient {
      */
     suspend fun deleteFile(path: Path)
 
+    suspend fun getFile(path: Path): FTPFile?
+
     companion object {
         @Suppress("LongParameterList")
         fun create(
@@ -135,6 +137,14 @@ private class SimpleFtpClient(
             ftpClient().executeRestoringWorkingDirectory { ftp ->
                 val changed = ftp.changeWorkingDirectory(path.toString())
                 if (changed) ftp.listAllFiles() else emptyList()
+            }
+        }
+
+    override suspend fun getFile(path: Path): FTPFile? =
+        withContext(Dispatchers.IO) {
+            ftpClient().executeRestoringWorkingDirectory { ftp ->
+                val changed = ftp.changeWorkingDirectory(path.parent.toString())
+                if (changed) ftp.mlistFile(path.fileName.toString()) else null
             }
         }
 
