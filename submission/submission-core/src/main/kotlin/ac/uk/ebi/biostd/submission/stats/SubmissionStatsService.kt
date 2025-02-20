@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
@@ -45,17 +46,25 @@ class SubmissionStatsService(
     suspend fun register(
         type: String,
         statsFile: File,
-    ) {
+    ): UpdateResult {
         val stats = statsFileHandler.readRegisterStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        submissionStatsService.saveAll(stats)
+        val result = submissionStatsService.saveAll(stats)
+        return UpdateResult(
+            insertedRecords = result.insertedCount + result.upserts.size,
+            modifiedRecords = result.modifiedCount,
+        )
     }
 
     suspend fun increment(
         type: String,
         statsFile: File,
-    ) {
+    ): UpdateResult {
         val stats = statsFileHandler.readStatsForIncrement(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        submissionStatsService.incrementAll(stats)
+        val result = submissionStatsService.incrementAll(stats)
+        return UpdateResult(
+            insertedRecords = result.insertedCount + result.upserts.size,
+            modifiedRecords = result.modifiedCount,
+        )
     }
 
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
