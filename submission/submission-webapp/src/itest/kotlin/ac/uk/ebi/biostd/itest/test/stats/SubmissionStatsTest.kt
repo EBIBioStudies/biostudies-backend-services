@@ -335,7 +335,10 @@ class SubmissionStatsTest(
                     line("STATS-0005", "150")
                 }.toString()
             val statsFile = tempFolder.createFile("stats.txt", statsRecords)
-            webClient.register("VIEWS", statsFile)
+            val result = webClient.register("VIEWS", statsFile)
+
+            assertThat(result.insertedRecords).isOne()
+            assertThat(result.modifiedRecords).isOne()
 
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
@@ -373,9 +376,11 @@ class SubmissionStatsTest(
                 }.toString()
             val statsFile = tempFolder.createFile("stats.txt", statsRecords)
 
-            webClient.incrementStats("VIEWS", statsFile)
+            val result = webClient.incrementStats("VIEWS", statsFile)
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 260L, "VIEWS"))
+            assertThat(result.insertedRecords).isZero()
+            assertThat(result.modifiedRecords).isEqualTo(2)
         }
 
     @Test
