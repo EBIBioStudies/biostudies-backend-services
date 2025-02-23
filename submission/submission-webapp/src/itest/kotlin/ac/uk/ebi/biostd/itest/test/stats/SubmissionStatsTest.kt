@@ -451,6 +451,6 @@ class SubmissionStatsTest(
             webClient.refreshAllStats()
 
             assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original1)
-            assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original2)
+            assertThat(statsDataService.findByAccNo(accNo2)).isEqualTo(original2)
         }
 }
