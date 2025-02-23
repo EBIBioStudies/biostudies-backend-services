@@ -85,7 +85,7 @@ class SubmissionStatsService(
             .findAllActive(includeFileListFiles = true)
             .filter {
                 val lastUpdated = statsDataService.lastUpdated(it.accNo)
-                lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(1, ChronoUnit.MONTHS))
+                lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(30, ChronoUnit.DAYS))
             }.collect { sub ->
                 val stats = calculateStats(sub)
                 statsDataService.saveAll(stats)
