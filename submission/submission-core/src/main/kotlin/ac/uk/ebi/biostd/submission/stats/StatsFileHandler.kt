@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.stats
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
-import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -61,6 +60,6 @@ class StatsFileHandler {
             return null
         }
 
-        return SingleSubmissionStat(record.first(), record.second().toLong(), type = type)
+        return SubmissionStat(record.first(), record.second().toLong(), type = type)
     }
 }

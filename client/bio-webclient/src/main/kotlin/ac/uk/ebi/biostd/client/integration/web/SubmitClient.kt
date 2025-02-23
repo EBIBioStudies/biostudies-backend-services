@@ -240,6 +240,8 @@ interface ExtSubmissionOperations {
         accNo: String,
         releaseDate: Instant,
     ): Pair<String, Int>
+
+    suspend fun refreshAllStats()
 }
 
 interface PermissionOperations {

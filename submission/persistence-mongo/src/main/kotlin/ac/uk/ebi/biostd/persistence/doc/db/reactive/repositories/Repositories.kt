@@ -35,6 +35,8 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
         statType: SubmissionStatType,
         pageable: Pageable,
     ): Flow<DocSubmissionStats>
+
+    suspend fun deleteByAccNo(accNo: String)
 }
 
 interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {

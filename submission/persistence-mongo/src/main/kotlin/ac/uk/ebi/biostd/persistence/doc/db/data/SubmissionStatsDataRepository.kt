@@ -2,8 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_LAST_UPDATED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STATS_MAP
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import com.mongodb.bulk.BulkWriteResult
@@ -19,6 +20,7 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 import reactor.core.publisher.Mono
+import java.time.Instant
 
 class SubmissionStatsDataRepository(
     private val mongoTemplate: ReactiveMongoTemplate,
@@ -32,7 +34,7 @@ class SubmissionStatsDataRepository(
         return mongoTemplate
             .findAndModify(
                 query,
-                update("$SUB_STATS", stats),
+                update(STATS_STATS_MAP, stats).set(STATS_LAST_UPDATED, Instant.now()),
                 FindAndModifyOptions().returnNew(true).upsert(true),
                 DocSubmissionStats::class.java,
             ).awaitSingle()
@@ -41,8 +43,11 @@ class SubmissionStatsDataRepository(
     suspend fun updateOrRegisterStat(stat: SubmissionStat) {
         val query = Query(where(DocSubmissionFields.SUB_ACC_NO).`is`(stat.accNo))
         mongoTemplate
-            .upsert(query, update("$SUB_STATS.${stat.type}", stat.value), DocSubmissionStats::class.java)
-            .awaitSingleOrNull()
+            .upsert(
+                query,
+                update("$STATS_STATS_MAP.${stat.type}", stat.value),
+                DocSubmissionStats::class.java,
+            ).awaitSingleOrNull()
     }
 
     suspend fun incrementStat(
@@ -53,7 +58,7 @@ class SubmissionStatsDataRepository(
             stats
                 .stream()
                 .map { stat ->
-                    val update = Document("$SUB_STATS.${stat.type}", stat.value)
+                    val update = Document("$STATS_STATS_MAP.${stat.type}", stat.value)
                     val filter = Document(DocSubmissionFields.SUB_ACC_NO, accNo)
                     UpdateOneModel<Document>(filter, Document("\$inc", update), UpdateOptions().upsert(true))
                 }.toList()

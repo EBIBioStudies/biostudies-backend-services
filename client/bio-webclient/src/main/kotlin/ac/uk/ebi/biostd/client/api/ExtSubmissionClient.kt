@@ -15,6 +15,7 @@ import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -70,19 +71,24 @@ class ExtSubmissionClient(
         client.post("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
-    override fun refreshSubmission(accNo: String): Pair<String, Int> {
-        return client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+    override fun refreshSubmission(accNo: String): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+
+    override suspend fun refreshAllStats() {
+        client
+            .post()
+            .uri("$EXT_SUBMISSIONS_URL/stats/refreshAll")
+            .retrieve()
+            .awaitBodilessEntity()
     }
 
     override fun releaseSubmission(
         accNo: String,
         releaseDate: Instant,
-    ): Pair<String, Int> {
-        return client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
-    }
+    ): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
-        UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL)
+        UriComponentsBuilder
+            .fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)
             .queryParam("limit", extPageQuery.limit)
             .optionalQueryParam("fromRTime", extPageQuery.fromRTime?.toStringInstant())

@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.UpdateResult
@@ -31,19 +30,19 @@ class SubmissionStatsService(
     private val serializationService: ExtSerializationService,
     private val extSubmissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = statsDataService.findByAccNo(accNo)
+    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = statsDataService.findStatsByAccNo(accNo)
 
     fun findByType(
         type: String,
         filter: PageRequest,
-    ): Flow<SubmissionStat> = statsDataService.findByType(SubmissionStatType.fromString(type.uppercase()), filter)
+    ): Flow<SubmissionStat> = statsDataService.findStatsByType(SubmissionStatType.fromString(type.uppercase()), filter)
 
     suspend fun findByAccNoAndType(
         accNo: String,
         type: String,
-    ): SubmissionStat = statsDataService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
+    ): SubmissionStat = statsDataService.findStatByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
 
-    suspend fun register(stat: SubmissionStat): SubmissionStat = statsDataService.save(stat)
+    suspend fun register(stat: SubmissionStat): SubmissionStat = statsDataService.saveStat(stat)
 
     suspend fun register(
         type: String,
@@ -84,16 +83,19 @@ class SubmissionStatsService(
         extSubmissionQueryService
             .findAllActive(includeFileListFiles = true)
             .filter {
+                logger.info { "Checking stats for submission ${it.accNo}" }
                 val lastUpdated = statsDataService.lastUpdated(it.accNo)
                 lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
             }.collect { sub ->
+                logger.info { "Calculating stats for submission ${sub.accNo}" }
                 val stats = calculateStats(sub)
                 statsDataService.saveAll(stats)
                 logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
             }
     }
 
-    private suspend fun calculateStats(sub: ExtSubmission): List<SingleSubmissionStat> {
+    private suspend fun calculateStats(sub: ExtSubmission): List<SubmissionStat> {
+        logger.info { "Calculating stats for submission ${sub.accNo}, version ${sub.version}" }
         var subFilesSize = 0L
         var directories = mutableListOf<String>()
 
@@ -107,9 +109,9 @@ class SubmissionStatsService(
         val emptyDirectories = directories.count { hasFiles(it, sub) }
 
         return listOf(
-            SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
-            SingleSubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
-            SingleSubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
+            SubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
+            SubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
+            SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
         )
     }
 

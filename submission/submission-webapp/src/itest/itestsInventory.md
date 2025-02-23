@@ -133,7 +133,8 @@ Contains test related to resubmission
 | SubmissionStatsTest | 26-5    | find stats by type and AccNo                    |
 | SubmissionStatsTest | 26-6    | register stats by file                          |
 | SubmissionStatsTest | 26-7    | increment stats by file                         |
-| SubmissionStatsTest | 26-7    | refresh submission stats                        |
+| SubmissionStatsTest | 26-8    | refresh submission stats                        |
+| SubmissionStatsTest | 26-9    | refresh all submissions stats                   |
 
 ### Async submission Test suite
 

@@ -120,9 +120,9 @@ class SubmissionStatsTest(
             webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
             assertThat(webClient.submit(version1, TSV)).isSuccessful()
-            waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").isNotEmpty() }
+            waitUntil(timeout = TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
 
-            val statVersion1 = statsDataService.findByAccNo("S-STTS1")
+            val statVersion1 = statsDataService.findStatsByAccNo("S-STTS1")
             assertThat(statVersion1).hasSize(3)
             val fileStats = statVersion1.first()
             assertThat(fileStats.value).isEqualTo(576L)
@@ -130,9 +130,9 @@ class SubmissionStatsTest(
             assertThat(fileStats.accNo).isEqualTo("S-STTS1")
 
             assertThat(webClient.submit(version2, TSV)).isSuccessful()
-            waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 576L }
+            waitUntil(timeout = TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").first().value != 576L }
 
-            val stats = statsDataService.findByAccNo("S-STTS1")
+            val stats = statsDataService.findStatsByAccNo("S-STTS1")
             assertThat(stats).hasSize(3)
             val fileSize = stats.first()
             assertThat(fileSize.value).isEqualTo(1474L)
@@ -201,15 +201,15 @@ class SubmissionStatsTest(
             webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
             assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
-            waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
-            val statVersion1 = statsDataService.findByAccNo("S-STTS2")
+            waitUntil(timeout = TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS2").isNotEmpty() }
+            val statVersion1 = statsDataService.findStatsByAccNo("S-STTS2")
             assertThat(statVersion1).hasSize(3)
             assertThat(statVersion1.first().value).isEqualTo(574L)
             assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
             assertThat(statVersion1.first().accNo).isEqualTo("S-STTS2")
 
             assertThat(webClient.submit(version2, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").first().value != 574L }
+            waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS2").first().value != 574L }
 
             val sub = submissionRepository.getCoreInfoByAccNoAndVersion("S-STTS2", 2)
             val subPath = nfsSubmissionPath.resolve(sub.relPath)
@@ -225,7 +225,7 @@ class SubmissionStatsTest(
             val expectedSize =
                 subJson + subTsv + fileListJson + fileListTsv + file1Size + file2Size + fileListFile
 
-            val stats = statsDataService.findByAccNo("S-STTS2")
+            val stats = statsDataService.findStatsByAccNo("S-STTS2")
             assertThat(stats).hasSize(3)
 
             val fileStats = stats.first()
@@ -422,5 +422,35 @@ class SubmissionStatsTest(
             val stat3 = stats[2]
             assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
             assertThat(stat3.value).isEqualTo(1)
+        }
+
+    @Test
+    fun `26-9 refresh all submissions stats`() =
+        runTest {
+            val accNo = "STATS-2691"
+            val accNo2 = "STATS-2692"
+
+            val submission1 =
+                tsv {
+                    line("Submission", accNo)
+                }.toString()
+            val submission2 =
+                tsv {
+                    line("Submission", accNo2)
+                }.toString()
+
+            webClient.submit(submission1, TSV)
+            webClient.submit(submission2, TSV)
+
+            val original1 = statsDataService.findByAccNo(accNo)
+            val original2 = statsDataService.findByAccNo(accNo2)
+
+            statsDataService.deleteByAccNo(accNo)
+            statsDataService.deleteByAccNo(accNo2)
+
+            webClient.refreshAllStats()
+
+            assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original1)
+            assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original2)
         }
 }
