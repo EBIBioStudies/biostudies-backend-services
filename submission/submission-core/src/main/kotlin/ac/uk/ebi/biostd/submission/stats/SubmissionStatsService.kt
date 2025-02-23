@@ -19,36 +19,38 @@ import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.io.File
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionStatsService(
     private val statsFileHandler: StatsFileHandler,
-    private val submissionStatsService: StatsDataService,
+    private val statsDataService: StatsDataService,
     private val serializationService: ExtSerializationService,
     private val extSubmissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo)
+    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = statsDataService.findByAccNo(accNo)
 
     fun findByType(
         type: String,
         filter: PageRequest,
-    ): Flow<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.fromString(type.uppercase()), filter)
+    ): Flow<SubmissionStat> = statsDataService.findByType(SubmissionStatType.fromString(type.uppercase()), filter)
 
     suspend fun findByAccNoAndType(
         accNo: String,
         type: String,
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
+    ): SubmissionStat = statsDataService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
 
-    suspend fun register(stat: SubmissionStat): SubmissionStat = submissionStatsService.save(stat)
+    suspend fun register(stat: SubmissionStat): SubmissionStat = statsDataService.save(stat)
 
     suspend fun register(
         type: String,
         statsFile: File,
     ): UpdateResult {
         val stats = statsFileHandler.readRegisterStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        val result = submissionStatsService.saveAll(stats)
+        val result = statsDataService.saveAll(stats)
         return UpdateResult(
             insertedRecords = result.insertedCount + result.upserts.size,
             modifiedRecords = result.modifiedCount,
@@ -60,7 +62,7 @@ class SubmissionStatsService(
         statsFile: File,
     ): UpdateResult {
         val stats = statsFileHandler.readStatsForIncrement(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        val result = submissionStatsService.incrementAll(stats)
+        val result = statsDataService.incrementAll(stats)
         return UpdateResult(
             insertedRecords = result.insertedCount + result.upserts.size,
             modifiedRecords = result.modifiedCount,
@@ -72,18 +74,23 @@ class SubmissionStatsService(
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val stats = calculateStats(sub)
-        val allStats = submissionStatsService.saveSubmissionStats(accNo, stats)
+        val allStats = statsDataService.saveSubmissionStats(accNo, stats)
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $stats" }
         return allStats
     }
 
     suspend fun refreshAll() {
         val idx = AtomicInteger(0)
-        extSubmissionQueryService.findAllActive(includeFileListFiles = true).collect { sub ->
-            val stats = calculateStats(sub)
-            submissionStatsService.saveAll(stats)
-            logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
-        }
+        extSubmissionQueryService
+            .findAllActive(includeFileListFiles = true)
+            .filter {
+                val lastUpdated = statsDataService.lastUpdated(it.accNo)
+                lastUpdated == null || lastUpdated.isAfter(Instant.now().minus(1, ChronoUnit.MONTHS))
+            }.collect { sub ->
+                val stats = calculateStats(sub)
+                statsDataService.saveAll(stats)
+                logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
+            }
     }
 
     private suspend fun calculateStats(sub: ExtSubmission): List<SingleSubmissionStat> {

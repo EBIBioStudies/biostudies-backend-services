@@ -20,6 +20,7 @@ import com.mongodb.client.model.Updates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.bson.Document
+import java.time.Instant
 import org.springframework.data.domain.PageRequest as DataPageRequest
 
 @Suppress("TooManyFunctions")
@@ -81,6 +82,8 @@ class StatsMongoDataService(
                 }
         return statsDataRepository.bulkWrite(upserts)
     }
+
+    override suspend fun lastUpdated(accNo: String): Instant? = statsDataRepository.findByAccNo(accNo)?.lastUpdated
 
     override suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult {
         val upserts =

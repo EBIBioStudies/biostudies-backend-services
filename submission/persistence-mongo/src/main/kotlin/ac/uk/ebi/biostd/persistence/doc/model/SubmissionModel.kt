@@ -44,31 +44,43 @@ data class DocSubmission(
     val storageMode: StorageMode,
 )
 
-enum class DocSubmissionMethod(val value: String) {
+enum class DocSubmissionMethod(
+    val value: String,
+) {
     FILE("FILE"),
     PAGE_TAB("PAGE_TAB"),
     UNKNOWN("UNKNOWN"),
     ;
 
     companion object {
-        fun fromString(value: String): DocSubmissionMethod {
-            return when (value) {
+        fun fromString(value: String): DocSubmissionMethod =
+            when (value) {
                 "FILE" -> FILE
                 "PAGE_TAB" -> PAGE_TAB
                 "UNKNOWN" -> UNKNOWN
                 else -> error("Unknown submission method $value")
             }
-        }
     }
 }
 
-data class DocTag(val name: String, val value: String)
+data class DocTag(
+    val name: String,
+    val value: String,
+)
 
-data class DocCollection(val accNo: String)
+data class DocCollection(
+    val accNo: String,
+)
 
-data class DocAttributeDetail(val name: String, val value: String?)
+data class DocAttributeDetail(
+    val name: String,
+    val value: String?,
+)
 
-data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
+data class DocLink(
+    val url: String,
+    val attributes: List<DocAttribute> = listOf(),
+)
 
 @Suppress("LongParameterList")
 sealed class DocFile(
@@ -120,11 +132,17 @@ data class FileListDocFile(
     val submissionAccNo: String,
 )
 
-data class DocSectionTable(val sections: List<DocSectionTableRow>)
+data class DocSectionTable(
+    val sections: List<DocSectionTableRow>,
+)
 
-data class DocLinkTable(val links: List<DocLink>)
+data class DocLinkTable(
+    val links: List<DocLink>,
+)
 
-data class DocFileTable(val files: List<DocFile>)
+data class DocFileTable(
+    val files: List<DocFile>,
+)
 
 data class DocAttribute(
     val name: String,
@@ -156,5 +174,6 @@ data class DocSubmissionStats(
     @Id
     val id: ObjectId,
     val accNo: String,
+    val lastUpdated: Instant,
     val stats: Map<String, Long>,
 )
