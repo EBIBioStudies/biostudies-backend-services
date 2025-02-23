@@ -74,29 +74,31 @@ class SubmissionDocDataRepository(
     }
 
     suspend fun expireVersions(submissions: List<String>) {
-        mongoTemplate.updateMulti(
-            Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
-            ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
-            DocSubmission::class.java,
-        ).awaitSingleOrNull()
+        mongoTemplate
+            .updateMulti(
+                Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
+                ExtendedUpdate().multiply(SUB_VERSION, -1),
+                DocSubmission::class.java,
+            ).awaitSingleOrNull()
 
         val fileListQuery =
             Query(
-                where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`in`(submissions)
+                where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO)
+                    .`in`(submissions)
                     .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0)),
             )
-        mongoTemplate.updateMulti(
-            fileListQuery,
-            ExtendedUpdate()
-                .multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1)
-                .set(SUB_MODIFICATION_TIME, Instant.now()),
-            FileListDocFile::class.java,
-        ).awaitSingleOrNull()
+        mongoTemplate
+            .updateMulti(
+                fileListQuery,
+                ExtendedUpdate()
+                    .multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1)
+                    .set(SUB_MODIFICATION_TIME, Instant.now()),
+                FileListDocFile::class.java,
+            ).awaitSingleOrNull()
     }
 
-    suspend fun getCollections(accNo: String): List<DocCollection> {
-        return submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
-    }
+    suspend fun getCollections(accNo: String): List<DocCollection> =
+        submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
 
     fun getSubmissions(filter: SubmissionFilter): Flow<DocSubmission> {
         val aggregations = createSubmissionAggregation(filter)
@@ -160,13 +162,10 @@ class SubmissionDocDataRepository(
                     ),
                 )
 
-            fun subTitleContains(keywords: String): Criteria {
-                return where(SUB_TITLE).regex(".*$keywords.*", "i")
-            }
+            fun subTitleContains(keywords: String): Criteria = where(SUB_TITLE).regex(".*$keywords.*", "i")
 
-            fun keywordsFilter(keywords: String): Criteria {
-                return Criteria().orOperator(subTitleContains(keywords), sectionTitleContains(keywords))
-            }
+            fun keywordsFilter(keywords: String): Criteria =
+                Criteria().orOperator(subTitleContains(keywords), sectionTitleContains(keywords))
 
             return buildList {
                 when (filter) {
@@ -201,7 +200,8 @@ class SubmissionDocDataRepository(
 
         private fun keywordsCriteria(keywords: String): TextCriteria {
             val terms = keywords.split("\\s".toRegex()).map { "\"$it\"" }.toTypedArray()
-            return TextCriteria.forDefaultLanguage()
+            return TextCriteria
+                .forDefaultLanguage()
                 .matchingAny(*terms)
                 .caseSensitive(false)
         }

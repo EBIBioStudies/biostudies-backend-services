@@ -144,6 +144,16 @@ Contains test related to resubmission
 | SubmissionAsyncTest | 19-3    | Multiple async submissions with files       |
 | SubmissionAsyncTest | 19-4    | Multiple async submissions when one invalid |
 
+### File operations Test suite
+
+| Class           | Test No | Test name                                                          |
+|-----------------|---------|--------------------------------------------------------------------|
+| UserFileApiTest | 17-1    | upload download delete file and retrieve in user root folder       | 
+| UserFileApiTest | 17-2    | upload download delete file and retrieve in user folder            |
+| UserFileApiTest | 17-3    | upload download delete file and retrieve in user folder with space |
+| UserFileApiTest | 17-4    | download a binary file                                             |
+| UserFileApiTest | 17-5    | download a text file                                               |
+
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
 | SubmissionFileSourceTest        | 6-1     | resubmission with SUBMISSION file source as priority over USER_SPACE             | Considers submission with different source files, user space, fire, bypassing files with fire |
@@ -209,9 +219,6 @@ Contains test related to resubmission
 | SpecialSubmissionAttributesTest | 15-6    | submission with DOI                                                              |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-7    | submission with DOI and incomplete name                                          | The DOI is registered without contributors when the author name is incomplete                 |
 | SpecialSubmissionAttributesTest | 15-8    | submission with DOI and no name                                                  | The DOI is registered without contributors when the author name is not present                |
-| UserFileApiTest                 | 17-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for user considering different user folder names re               |
-| UserFileApiTest                 | 17-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
-| UserFileApiTest                 | 17-3    | upload download delete file and retrieve in user folder with space               |                                                                                               |
 | GroupFilesApiTest               | 18-1    | upload download delete file and retrieve in user root folder                     | Shows behaviour of filesApi for groups considering different folder names                     |
 | GroupFilesApiTest               | 18-2    | upload download delete file and retrieve in user folder                          |                                                                                               |
 | CollectionsListTest             | 20-1    | list collections for super user                                                  | Shows which collections users can see                                                         |

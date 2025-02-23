@@ -11,6 +11,7 @@ import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.UserFileType.FILE
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.md5
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -24,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.core.io.ResourceLoader
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
@@ -34,6 +36,7 @@ import java.util.stream.Stream
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val resourceLoader: ResourceLoader,
     @LocalServerPort val serverPort: Int,
 ) {
     @BeforeAll
@@ -105,6 +108,40 @@ class UserFileApiTest(
 
             webClient.deleteFile(folder)
             assertThat(webClient.listUserFiles()).isEmpty()
+        }
+
+    @ParameterizedTest(name = "17-4 download a binary file using {0}")
+    @MethodSource("webClients")
+    fun `17-4 user binary file download`(webClient: BioWebClient) =
+        runTest {
+            val testPath = "test-folder-17-4"
+            val file = resourceLoader.getResource("classpath:17.5/over200000_rows.xlsx").file
+
+            webClient.uploadFiles(listOf(file), relativePath = testPath)
+
+            val files = webClient.listUserFiles(relativePath = testPath)
+            assertThat(files).hasSize(1)
+            val resultFile = webClient.downloadFile(file.name, testPath)
+            assertThat(resultFile.name).isEqualTo(file.name)
+            assertThat(resultFile.md5()).isEqualTo(file.md5())
+            webClient.deleteFile(testPath)
+        }
+
+    @ParameterizedTest(name = "17-5 download a text file using {0}")
+    @MethodSource("webClients")
+    fun `17-5 user text file download`(webClient: BioWebClient) =
+        runTest {
+            val testPath = "test-folder-17-5"
+            val file = tempFolder.createFile("a_file.txt", "An example content")
+
+            webClient.uploadFiles(listOf(file), relativePath = testPath)
+
+            val files = webClient.listUserFiles(relativePath = testPath)
+            assertThat(files).hasSize(1)
+            val resultFile = webClient.downloadFile(file.name, testPath)
+            assertThat(resultFile.name).isEqualTo(file.name)
+            assertThat(resultFile.md5()).isEqualTo(file.md5())
+            webClient.deleteFile(testPath)
         }
 
     private fun assertFile(

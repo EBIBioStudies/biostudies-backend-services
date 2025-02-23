@@ -161,6 +161,7 @@ private class SimpleFtpClient(
         ftp.connect(ftpUrl, ftpPort)
         ftp.login(ftpUser, ftpPassword)
         ftp.changeWorkingDirectory(ftpRootPath)
+        ftp.setFileType(FTP.BINARY_FILE_TYPE)
         ftp.listHiddenFiles = true
         ftp.enterLocalPassiveMode()
         return ftp
