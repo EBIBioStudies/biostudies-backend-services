@@ -85,7 +85,7 @@ class SubmissionStatsService(
             .findAllActive(includeFileListFiles = true)
             .filter {
                 val lastUpdated = statsDataService.lastUpdated(it.accNo)
-                lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(30, ChronoUnit.DAYS))
+                lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
             }.collect { sub ->
                 val stats = calculateStats(sub)
                 statsDataService.saveAll(stats)
@@ -121,4 +121,8 @@ class SubmissionStatsService(
             .filesFlow(sub)
             .filter { it.type == ExtFileType.FILE }
             .firstOrNull { it.filePath.contains(directoryPath) } != null
+
+    companion object {
+        const val REFRESH_DAYS = 30L
+    }
 }
