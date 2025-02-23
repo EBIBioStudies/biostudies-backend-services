@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
+import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
@@ -19,6 +20,7 @@ import com.mongodb.client.model.Updates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.bson.Document
+import java.time.Instant
 import org.springframework.data.domain.PageRequest as DataPageRequest
 
 @Suppress("TooManyFunctions")
@@ -68,7 +70,7 @@ class StatsMongoDataService(
             .map { SingleSubmissionStat(accNo = accNo, type = SubmissionStatType.fromString(it.key), value = it.value) }
     }
 
-    override suspend fun saveAll(stats: List<SubmissionStat>) {
+    override suspend fun saveAll(stats: List<SubmissionStat>): BulkWriteResult {
         val upserts =
             stats
                 .map {
@@ -78,10 +80,12 @@ class StatsMongoDataService(
                         UpdateOptions().upsert(true),
                     )
                 }
-        statsDataRepository.bulkWrite(upserts)
+        return statsDataRepository.bulkWrite(upserts)
     }
 
-    override suspend fun incrementAll(stats: List<SubmissionStat>) {
+    override suspend fun lastUpdated(accNo: String): Instant? = statsDataRepository.findByAccNo(accNo)?.lastUpdated
+
+    override suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult {
         val upserts =
             stats.map {
                 UpdateOneModel<Document>(
@@ -90,7 +94,7 @@ class StatsMongoDataService(
                     UpdateOptions().upsert(true),
                 )
             }
-        statsDataRepository.bulkWrite(upserts)
+        return statsDataRepository.bulkWrite(upserts)
     }
 
     private fun toSubmissionStat(

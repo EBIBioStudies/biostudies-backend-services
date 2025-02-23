@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.persistence.common.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
+import com.mongodb.bulk.BulkWriteResult
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
 
 interface StatsDataService {
     suspend fun findByAccNo(accNo: String): List<SubmissionStat>
@@ -20,12 +22,14 @@ interface StatsDataService {
 
     suspend fun save(stat: SubmissionStat): SubmissionStat
 
-    suspend fun incrementAll(stats: List<SubmissionStat>)
+    suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult
 
     suspend fun saveSubmissionStats(
         accNo: String,
         stats: List<SubmissionStat>,
     ): List<SubmissionStat>
 
-    suspend fun saveAll(stats: List<SubmissionStat>)
+    suspend fun saveAll(stats: List<SubmissionStat>): BulkWriteResult
+
+    suspend fun lastUpdated(accNo: String): Instant?
 }

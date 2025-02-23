@@ -24,7 +24,6 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.util.date.toStringDate
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -336,7 +335,10 @@ class SubmissionStatsTest(
                     line("STATS-0005", "150")
                 }.toString()
             val statsFile = tempFolder.createFile("stats.txt", statsRecords)
-            webClient.register("VIEWS", statsFile).collect()
+            val result = webClient.register("VIEWS", statsFile)
+
+            assertThat(result.insertedRecords).isOne()
+            assertThat(result.modifiedRecords).isOne()
 
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 150L, "VIEWS"))
@@ -374,9 +376,11 @@ class SubmissionStatsTest(
                 }.toString()
             val statsFile = tempFolder.createFile("stats.txt", statsRecords)
 
-            webClient.incrementStats("VIEWS", statsFile).collect()
+            val result = webClient.incrementStats("VIEWS", statsFile)
             val stats = webClient.findByTypeAndAccNo("VIEWS", accNo)
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 260L, "VIEWS"))
+            assertThat(result.insertedRecords).isZero()
+            assertThat(result.modifiedRecords).isEqualTo(2)
         }
 
     @Test

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.stats.web
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.model.SubmissionStat
+import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -58,9 +59,9 @@ class StatsResource(
     suspend fun register(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ) {
+    ): UpdateResult {
         val statFile = tmpFileGenerator.asFile(stats)
-        submissionStatsService.register(type, statFile)
+        return submissionStatsService.register(type, statFile)
     }
 
     @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
@@ -68,9 +69,9 @@ class StatsResource(
     suspend fun increment(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ) {
+    ): UpdateResult {
         val statFile = tmpFileGenerator.asFile(stats)
-        submissionStatsService.increment(type, statFile)
+        return submissionStatsService.increment(type, statFile)
     }
 
     @PostMapping("/refresh/{accNo}")

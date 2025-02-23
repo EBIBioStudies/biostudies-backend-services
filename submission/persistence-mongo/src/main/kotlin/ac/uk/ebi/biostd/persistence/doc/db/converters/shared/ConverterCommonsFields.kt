@@ -157,3 +157,10 @@ object DocRequestFields {
     const val RQT_STATUS_CHANGE_END_TIME = "endTime"
     const val RQT_STATUS_CHANGE_RESULT = "result"
 }
+
+object DocStatsFields {
+    const val STATS_ACC_NO = "accNo"
+    const val STATS_FILE_SIZE = "FILES_SIZE"
+    const val STATS_DIRECTORIES = "DIRECTORIES"
+    const val STATS_NON_DECLARED_FILES_DIRECTORIES = "NON_DECLARED_FILES_DIRECTORIES"
+}

@@ -16,6 +16,7 @@ import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionSecurity
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -51,6 +52,7 @@ dependencies {
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterAmqp)
+    implementation(SpringBootStarterReactiveMongo)
     implementation(SpringWebFlux)
 
     testImplementation(SpringBootStarterAmqp)
