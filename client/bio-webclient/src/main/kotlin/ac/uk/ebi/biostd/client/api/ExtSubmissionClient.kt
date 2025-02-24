@@ -24,6 +24,7 @@ import java.time.Instant
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 
+@Suppress("TooManyFunctions")
 class ExtSubmissionClient(
     private val client: WebClient,
     private val extSerializationService: ExtSerializationService,

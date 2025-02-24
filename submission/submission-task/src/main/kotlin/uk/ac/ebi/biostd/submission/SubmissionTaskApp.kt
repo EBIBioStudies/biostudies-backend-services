@@ -43,8 +43,8 @@ class Execute(
         logger.info { "Starting submission task command line runner." }
         runBlocking {
             when (properties.taskMode) {
-                HANDLE_REQUEST -> properties.submissions.forEach { runProcess(it.accNo, it.version) }
-                CALCULATE_ALL_STATS -> submissionSubmitter.refreshAllStats()
+                HANDLE_REQUEST -> handleRequest()
+                CALCULATE_ALL_STATS -> refreshStats()
             }
             exitProcess(SpringApplication.exit(context))
         }
