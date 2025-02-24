@@ -134,7 +134,6 @@ object DocSubmissionFields {
     const val TAG_DOC_NAME = "name"
     const val TAG_DOC_VALUE = "value"
     const val COLLECTION_ACC_NO = "accNo"
-    const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"
 }
@@ -156,4 +155,13 @@ object DocRequestFields {
     const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"
     const val RQT_STATUS_CHANGE_END_TIME = "endTime"
     const val RQT_STATUS_CHANGE_RESULT = "result"
+}
+
+object DocStatsFields {
+    const val STATS_ACC_NO = "accNo"
+    const val STATS_STATS_MAP = "stats"
+    const val STATS_LAST_UPDATED = "lastUpdated"
+    const val STATS_FILE_SIZE = "FILES_SIZE"
+    const val STATS_DIRECTORIES = "DIRECTORIES"
+    const val STATS_NON_DECLARED_FILES_DIRECTORIES = "NON_DECLARED_FILES_DIRECTORIES"
 }

@@ -8,54 +8,66 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.io.File
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionStatsService(
     private val statsFileHandler: StatsFileHandler,
-    private val submissionStatsService: StatsDataService,
+    private val statsDataService: StatsDataService,
     private val serializationService: ExtSerializationService,
     private val extSubmissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo)
+    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = statsDataService.findStatsByAccNo(accNo)
 
     fun findByType(
         type: String,
         filter: PageRequest,
-    ): Flow<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.fromString(type.uppercase()), filter)
+    ): Flow<SubmissionStat> = statsDataService.findStatsByType(SubmissionStatType.fromString(type.uppercase()), filter)
 
     suspend fun findByAccNoAndType(
         accNo: String,
         type: String,
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
+    ): SubmissionStat = statsDataService.findStatByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
 
-    suspend fun register(stat: SubmissionStat): SubmissionStat = submissionStatsService.save(stat)
+    suspend fun register(stat: SubmissionStat): SubmissionStat = statsDataService.saveStat(stat)
 
     suspend fun register(
         type: String,
         statsFile: File,
-    ) {
+    ): UpdateResult {
         val stats = statsFileHandler.readRegisterStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        submissionStatsService.saveAll(stats)
+        val result = statsDataService.saveAll(stats)
+        return UpdateResult(
+            insertedRecords = result.insertedCount + result.upserts.size,
+            modifiedRecords = result.modifiedCount,
+        )
     }
 
     suspend fun increment(
         type: String,
         statsFile: File,
-    ) {
+    ): UpdateResult {
         val stats = statsFileHandler.readStatsForIncrement(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        submissionStatsService.incrementAll(stats)
+        val result = statsDataService.incrementAll(stats)
+        return UpdateResult(
+            insertedRecords = result.insertedCount + result.upserts.size,
+            modifiedRecords = result.modifiedCount,
+        )
     }
 
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
@@ -63,21 +75,27 @@ class SubmissionStatsService(
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val stats = calculateStats(sub)
-        val allStats = submissionStatsService.saveSubmissionStats(accNo, stats)
+        statsDataService.saveAll(accNo, stats)
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $stats" }
-        return allStats
+        return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
     }
 
     suspend fun refreshAll() {
         val idx = AtomicInteger(0)
-        extSubmissionQueryService.findAllActive(includeFileListFiles = true).collect { sub ->
-            val stats = calculateStats(sub)
-            submissionStatsService.saveAll(stats)
-            logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
-        }
+        extSubmissionQueryService
+            .findAllActive(includeFileListFiles = true)
+            .filter {
+                val lastUpdated = statsDataService.lastUpdated(it.accNo)
+                lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
+            }.onEach { sub ->
+                val stats = calculateStats(sub)
+                statsDataService.saveAll(sub.accNo, stats)
+                logger.info { "Calculated stats submission ${idx.incrementAndGet()}. accNo='${sub.accNo}'" }
+            }.collect()
     }
 
-    private suspend fun calculateStats(sub: ExtSubmission): List<SingleSubmissionStat> {
+    private suspend fun calculateStats(sub: ExtSubmission): List<SubmissionStat> {
+        logger.info { "Calculating stats for submission ${sub.accNo}, version ${sub.version}" }
         var subFilesSize = 0L
         var directories = mutableListOf<String>()
 
@@ -91,9 +109,9 @@ class SubmissionStatsService(
         val emptyDirectories = directories.count { hasFiles(it, sub) }
 
         return listOf(
-            SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
-            SingleSubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
-            SingleSubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
+            SubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
+            SubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
+            SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
         )
     }
 
@@ -105,4 +123,8 @@ class SubmissionStatsService(
             .filesFlow(sub)
             .filter { it.type == ExtFileType.FILE }
             .firstOrNull { it.filePath.contains(directoryPath) } != null
+
+    companion object {
+        const val REFRESH_DAYS = 30L
+    }
 }

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.web.StatsOperations
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.model.SubmissionStat
+import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
@@ -53,10 +54,10 @@ class StatsClient(
             .awaitBodilessEntity()
     }
 
-    override fun register(
+    override suspend fun register(
         type: String,
         statsFile: File,
-    ): Flow<SubmissionStat> {
+    ): UpdateResult {
         val headers =
             httpHeadersOf(
                 HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
@@ -69,13 +70,13 @@ class StatsClient(
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }
             .retrieve()
-            .bodyToFlow()
+            .awaitBody()
     }
 
-    override fun incrementStats(
+    override suspend fun incrementStats(
         type: String,
         statsFile: File,
-    ): Flow<SubmissionStat> {
+    ): UpdateResult {
         val headers =
             httpHeadersOf(
                 HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
@@ -88,7 +89,7 @@ class StatsClient(
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }
             .retrieve()
-            .bodyToFlow()
+            .awaitBody()
     }
 
     override fun refreshStats(accNo: String): Flow<SubmissionStat> =

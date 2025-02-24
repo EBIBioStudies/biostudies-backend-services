@@ -28,6 +28,7 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionStat
+import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.flow.Flow
 import java.io.File
@@ -181,15 +182,15 @@ interface StatsOperations {
 
     suspend fun register(stat: SubmissionStat): Unit
 
-    fun register(
+    suspend fun register(
         type: String,
         statsFile: File,
-    ): Flow<SubmissionStat>
+    ): UpdateResult
 
-    fun incrementStats(
+    suspend fun incrementStats(
         type: String,
         statsFile: File,
-    ): Flow<SubmissionStat>
+    ): UpdateResult
 
     fun refreshStats(accNo: String): Flow<SubmissionStat>
 }
@@ -239,6 +240,8 @@ interface ExtSubmissionOperations {
         accNo: String,
         releaseDate: Instant,
     ): Pair<String, Int>
+
+    suspend fun refreshAllStats()
 }
 
 interface PermissionOperations {

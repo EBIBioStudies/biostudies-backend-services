@@ -39,14 +39,28 @@ class Execute(
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
 ) : CommandLineRunner {
-    override fun run(vararg args: String?) =
+    override fun run(vararg args: String?): Nothing {
+        logger.info { "Starting submission task command line runner." }
         runBlocking {
             when (properties.taskMode) {
-                HANDLE_REQUEST -> properties.submissions.forEach { runProcess(it.accNo, it.version) }
-                CALCULATE_ALL_STATS -> submissionSubmitter.refreshAllStats()
+                HANDLE_REQUEST -> handleRequest()
+                CALCULATE_ALL_STATS -> refreshStats()
             }
             exitProcess(SpringApplication.exit(context))
         }
+    }
+
+    private suspend fun handleRequest() {
+        logger.info { "Handling submission requests --------------------------------------------------" }
+        properties.submissions.forEach { runProcess(it.accNo, it.version) }
+        logger.info { "Completed handling submission requests ----------------------------------------" }
+    }
+
+    private suspend fun refreshStats() {
+        logger.info { "Refreshing all submission stats ----------------------------------------" }
+        submissionSubmitter.refreshAllStats()
+        logger.info { "Completed refreshing all submission stats ----------------------------------------" }
+    }
 
     private suspend fun runProcess(
         accNo: String,

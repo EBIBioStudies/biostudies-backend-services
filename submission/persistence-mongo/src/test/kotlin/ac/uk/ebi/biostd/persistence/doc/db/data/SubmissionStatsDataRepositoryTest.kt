@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
-import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import kotlinx.coroutines.test.runTest
@@ -42,7 +42,7 @@ class SubmissionStatsDataRepositoryTest {
     fun `update non existing stat`() =
         runTest {
             val accNo = "S-BSST2"
-            testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
+            testInstance.updateOrRegisterStat(SubmissionStat(accNo, 4L, VIEWS))
 
             val stats = testInstance.getByAccNo(accNo).stats
             assertThat(stats).hasSize(1)
@@ -54,7 +54,7 @@ class SubmissionStatsDataRepositoryTest {
         runTest {
             val accNo = "S-BSST1"
             testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(FILES_SIZE.value to 1L)))
-            testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
+            testInstance.updateOrRegisterStat(SubmissionStat(accNo, 4L, VIEWS))
 
             val stats = testInstance.getByAccNo(accNo).stats
             assertThat(stats).hasSize(2)
@@ -66,7 +66,7 @@ class SubmissionStatsDataRepositoryTest {
     fun `increment stat`() =
         runTest {
             val accNo = "S-BSST3"
-            val increments = listOf(SingleSubmissionStat(accNo, 4L, VIEWS), SingleSubmissionStat(accNo, 8L, VIEWS))
+            val increments = listOf(SubmissionStat(accNo, 4L, VIEWS), SubmissionStat(accNo, 8L, VIEWS))
 
             testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(VIEWS.value to 1L)))
             testInstance.incrementStat(accNo, increments)
