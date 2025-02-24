@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStats
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_LAST_UPDATED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STATS_MAP
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
@@ -68,17 +69,6 @@ class StatsMongoDataService(
         return SubmissionStat(updated.accNo, updated.stats[stat.type.name]!!, stat.type)
     }
 
-    override suspend fun saveSubmissionStats(
-        accNo: String,
-        stats: List<SubmissionStat>,
-    ): List<SubmissionStat> {
-        val submissionStats = stats.associateBy({ it.type.name }, { it.value })
-        return statsDataRepository
-            .upsertStats(accNo, submissionStats)
-            .stats
-            .map { SubmissionStat(accNo = accNo, type = SubmissionStatType.fromString(it.key), value = it.value) }
-    }
-
     override suspend fun saveAll(stats: List<SubmissionStat>): BulkWriteResult {
         val upserts =
             stats
@@ -86,6 +76,25 @@ class StatsMongoDataService(
                     UpdateOneModel<Document>(
                         Filters.eq("accNo", it.accNo),
                         Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
+                        UpdateOptions().upsert(true),
+                    )
+                }
+        return statsDataRepository.bulkWrite(upserts)
+    }
+
+    override suspend fun saveAll(
+        accNo: String,
+        stats: List<SubmissionStat>,
+    ): BulkWriteResult {
+        val upserts =
+            stats
+                .map {
+                    UpdateOneModel<Document>(
+                        Filters.eq("accNo", it.accNo),
+                        listOf(
+                            Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
+                            Updates.set(STATS_LAST_UPDATED, Instant.now()),
+                        ),
                         UpdateOptions().upsert(true),
                     )
                 }

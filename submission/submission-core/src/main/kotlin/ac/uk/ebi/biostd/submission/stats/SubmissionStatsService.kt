@@ -12,8 +12,10 @@ import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
@@ -73,9 +75,9 @@ class SubmissionStatsService(
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val stats = calculateStats(sub)
-        val allStats = statsDataService.saveSubmissionStats(accNo, stats)
+        statsDataService.saveAll(accNo, stats)
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $stats" }
-        return allStats
+        return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
     }
 
     suspend fun refreshAll() {
@@ -83,15 +85,13 @@ class SubmissionStatsService(
         extSubmissionQueryService
             .findAllActive(includeFileListFiles = true)
             .filter {
-                logger.info { "Checking stats for submission ${it.accNo}" }
                 val lastUpdated = statsDataService.lastUpdated(it.accNo)
                 lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
-            }.collect { sub ->
-                logger.info { "Calculating stats for submission ${sub.accNo}" }
+            }.onEach { sub ->
                 val stats = calculateStats(sub)
-                statsDataService.saveAll(stats)
-                logger.info { "Calculated stats submission ${sub.accNo}, ${idx.incrementAndGet()}" }
-            }
+                statsDataService.saveAll(sub.accNo, stats)
+                logger.info { "Calculated stats submission ${idx.incrementAndGet()}. accNo='${sub.accNo}'" }
+            }.collect()
     }
 
     private suspend fun calculateStats(sub: ExtSubmission): List<SubmissionStat> {

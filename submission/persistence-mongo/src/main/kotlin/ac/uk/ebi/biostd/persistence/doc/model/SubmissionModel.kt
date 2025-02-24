@@ -175,5 +175,5 @@ data class DocSubmissionStats(
     val id: ObjectId,
     val accNo: String,
     val stats: Map<String, Long>,
-    val lastUpdated: Instant = Instant.now(),
+    val lastUpdated: Instant? = null,
 )
