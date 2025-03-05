@@ -44,7 +44,7 @@ class FtpClientTest(
         }
 
     @RetryingTest(TEST_RETRY)
-    fun getFile() =
+    fun findFile() =
         runTest {
             testInstance.deleteFile(HOME)
             val tempFile = temporaryFolder.createFile("test-file-1", "content")
@@ -54,10 +54,10 @@ class FtpClientTest(
 
             testInstance.uploadFile(filePath) { tempFile.inputStream() }
 
-            val result = testInstance.getFile(filePath)
+            val result = testInstance.findFile(filePath)
             assertThat(result).isNotNull()
             assertThat(result!!.name).isEqualTo("file1.txt")
-            assertThat(testInstance.getFile(fileFolder.resolve("file2.txt"))).isNull()
+            assertThat(testInstance.findFile(fileFolder.resolve("file2.txt"))).isNull()
         }
 
     @RetryingTest(TEST_RETRY)

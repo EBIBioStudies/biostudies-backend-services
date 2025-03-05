@@ -31,5 +31,5 @@ class RetryFtpClient(
 
     override suspend fun deleteFile(path: Path) = retryTemplate.execute("deleteFile") { ftpClient.deleteFile(path) }
 
-    override suspend fun getFile(path: Path): FTPFile? = retryTemplate.execute("getFile") { ftpClient.getFile(path) }
+    override suspend fun findFile(path: Path): FTPFile? = retryTemplate.execute("getFile") { ftpClient.findFile(path) }
 }
