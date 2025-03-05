@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
+import ebi.ac.uk.coroutines.RetryConfig
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -34,7 +36,7 @@ internal class FireFilesServiceTest(
     @MockK private val fireClient: FireClient,
     @MockK private val submission: ExtSubmission,
 ) {
-    private val testInstance = FireFilesService(fireClient)
+    private val testInstance = FireFilesService(SuspendRetryTemplate(RetryConfig(1, 0L, 1.0, 1L)), fireClient)
 
     @BeforeEach
     fun beforeEach() {
@@ -63,7 +65,8 @@ internal class FireFilesServiceTest(
         fun `when file is found in fire`() =
             runTest {
                 val fireApiFile = fireApiFile(firePath = "001/Files/folder/file.txt")
-                val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+                val file =
+                    createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
 
                 coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns fireApiFile
 
@@ -79,7 +82,8 @@ internal class FireFilesServiceTest(
         @Test
         fun `when file is not found in fire`() =
             runTest {
-                val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+                val file =
+                    createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
                 coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns null
 
                 val newFile = fireApiFile(firePath = null)

@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.FIRE_RETRY_CLIENT
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
@@ -44,6 +45,7 @@ import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -309,7 +311,7 @@ class SubmitterConfig(
         fun euToxRiskValidator(
             client: WebClient,
             applicationProperties: ApplicationProperties,
-            fireClient: FireClient,
+            @Qualifier(FIRE_RETRY_CLIENT) fireClient: FireClient,
         ): CollectionValidator = EuToxRiskValidator(client, applicationProperties.validator, fireClient)
     }
 }

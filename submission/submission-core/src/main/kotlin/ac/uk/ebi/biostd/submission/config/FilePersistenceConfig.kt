@@ -13,9 +13,13 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
+import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.FIRE_RETRY_CLIENT
+import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.FIRE_SIMPLE_CLIENT
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -29,7 +33,8 @@ class FilePersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
-    private val fireClient: FireClient,
+    @Qualifier(FIRE_RETRY_CLIENT) private val fireClient: FireClient,
+    @Qualifier(FIRE_SIMPLE_CLIENT) private val fireSimpleClient: FireClient,
 ) {
     @Bean
     @Suppress("LongParameterList")
@@ -51,7 +56,8 @@ class FilePersistenceConfig(
     fun fireFtpService(): FireFtpService = FireFtpService(fireClient)
 
     @Bean
-    fun fireFileService(): FireFilesService = FireFilesService(fireClient)
+    fun fireFileService(suspendRetryTemplate: SuspendRetryTemplate): FireFilesService =
+        FireFilesService(suspendRetryTemplate, fireSimpleClient)
 
     @Bean
     fun pageTabService(pageTabUtil: PageTabUtil): PageTabService = PageTabService(File(properties.fire.tempDirPath), pageTabUtil)

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
@@ -10,7 +11,40 @@ import ebi.ac.uk.extended.model.expectedFirePath
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 
-class FireFilesService(
+class FireFilesService private constructor(
+    private val fileService: SimpleFireFilesService,
+    private val template: SuspendRetryTemplate,
+) : FilesService {
+    constructor(template: SuspendRetryTemplate, fireClient: FireClient) : this(
+        SimpleFireFilesService(fireClient),
+        template,
+    )
+
+    override suspend fun persistSubmissionFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ): FireFile = template.execute("persist file '${file.filePath}'") { fileService.persistSubmissionFile(sub, file) }
+
+    override suspend fun deleteSubmissionFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ) {
+        template.execute("delete file '${file.filePath}'") { fileService.deleteSubmissionFile(sub, file) }
+    }
+
+    override suspend fun deleteFtpFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ) {
+        template.execute("delete file '${file.filePath}'") { fileService.deleteFtpFile(sub, file) }
+    }
+
+    override suspend fun deleteEmptyFolders(sub: ExtSubmissionInfo) {
+        template.execute("delete emptyFolders accNo='${sub.accNo}'") { fileService.deleteEmptyFolders(sub) }
+    }
+}
+
+private class SimpleFireFilesService(
     private val client: FireClient,
 ) : FilesService {
     /**
@@ -25,12 +59,11 @@ class FireFilesService(
     override suspend fun persistSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
-    ): FireFile {
-        return when (file) {
+    ): FireFile =
+        when (file) {
             is FireFile -> file
             is NfsFile -> getOrCreate(file, sub.expectedFirePath(file))
         }
-    }
 
     private suspend fun getOrCreate(
         file: NfsFile,

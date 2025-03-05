@@ -5,8 +5,15 @@ import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
+internal class FireSimpleClient(
+    private val fireClient: FireWebClient,
+    private val fireS3Client: FireS3Client,
+) : FireWebClient by fireClient,
+    FireS3Client by fireS3Client,
+    FireClient
+
 @Suppress("TooManyFunctions")
-internal class RetryWebClient(
+internal class FireRetryClient(
     private val fireClient: FireWebClient,
     private val fireS3Client: FireS3Client,
     private val template: SuspendRetryTemplate,

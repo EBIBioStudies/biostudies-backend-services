@@ -26,10 +26,19 @@ class FireClientFactory private constructor() {
             s3Config: S3Config,
             retryConfig: RetryConfig,
         ): FireClient =
-            RetryWebClient(
+            FireRetryClient(
                 createHttpClient(fireConfig),
                 createS3KClient(s3Config),
                 SuspendRetryTemplate(retryConfig),
+            )
+
+        fun create(
+            fireConfig: FireConfig,
+            s3Config: S3Config,
+        ): FireClient =
+            FireSimpleClient(
+                createHttpClient(fireConfig),
+                createS3KClient(s3Config),
             )
 
         private fun createS3Client(s3Config: S3Config): S3Client {

@@ -33,6 +33,7 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.time.Duration.Companion.minutes
 
+@Suppress("TooManyFunctions")
 @Configuration
 @Import(MongoDbServicesConfig::class)
 @EnableConfigurationProperties(ApplicationProperties::class)
@@ -48,7 +49,7 @@ class GeneralConfig {
 
     @Bean
     fun filesSourceConfig(
-        fireClient: FireClient,
+        @Qualifier(FIRE_RETRY_CLIENT) fireClient: FireClient,
         @Qualifier(FILE_SOURCE_FTP_CLIENT) ftpClient: FtpClient,
         applicationProperties: ApplicationProperties,
         filesRepo: SubmissionFilesPersistenceService,
@@ -62,7 +63,8 @@ class GeneralConfig {
         )
 
     @Bean
-    fun fireClient(properties: ApplicationProperties): FireClient {
+    @Qualifier(FIRE_RETRY_CLIENT)
+    fun fireRetryClient(properties: ApplicationProperties): FireClient {
         val fireProps = properties.fire
         return FireClientFactory.create(
             FireConfig(
@@ -79,6 +81,27 @@ class GeneralConfig {
                 bucket = fireProps.s3.bucket,
             ),
             retryConfig(fireProps),
+        )
+    }
+
+    @Bean
+    @Qualifier(FIRE_SIMPLE_CLIENT)
+    fun fireSimpleClient(properties: ApplicationProperties): FireClient {
+        val fireProps = properties.fire
+        return FireClientFactory.create(
+            FireConfig(
+                fireHost = fireProps.host,
+                fireVersion = fireProps.version,
+                username = fireProps.username,
+                password = properties.fire.password,
+            ),
+            S3Config(
+                accessKey = fireProps.s3.accessKey,
+                secretKey = fireProps.s3.secretKey,
+                region = fireProps.s3.region,
+                endpoint = fireProps.s3.endpoint,
+                bucket = fireProps.s3.bucket,
+            ),
         )
     }
 
@@ -132,6 +155,8 @@ class GeneralConfig {
         const val FILE_SOURCE_FTP_CLIENT = "fileSourceFtpClient"
         const val USER_FILES_FTP_CLIENT = "userFilesFtpClient"
         const val FTP_RETRY_TEMPLATE = "ftpRetryTemplate"
+        const val FIRE_RETRY_CLIENT = "fireRetryClient"
+        const val FIRE_SIMPLE_CLIENT = "fireSimpleClient"
 
         fun ftpClient(ftpProperties: FtpProperties): FtpClient =
             FtpClient.create(
