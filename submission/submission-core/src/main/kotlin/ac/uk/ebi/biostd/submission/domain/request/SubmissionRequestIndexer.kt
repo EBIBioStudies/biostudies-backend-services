@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -44,8 +46,12 @@ class SubmissionRequestIndexer(
 
     private suspend fun indexSubmissionFiles(sub: ExtSubmission): Int {
         val elements = AtomicInteger(0)
+        val paths = mutableSetOf<String>()
+
         extSerializationService
             .filesFlow(sub)
+            .filterNot { paths.contains(it.filePath) }
+            .onEach { paths.add(it.filePath) }
             .withIndex()
             .map { (idx, file) -> SubmissionRequestFile(sub, idx + 1, file, INDEXED) }
             .collect {
