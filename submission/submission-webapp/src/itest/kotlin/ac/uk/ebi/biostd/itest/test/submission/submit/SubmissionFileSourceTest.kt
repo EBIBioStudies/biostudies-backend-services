@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
@@ -51,7 +51,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -64,7 +63,7 @@ class SubmissionFileSourceTest(
     @Autowired private val filesRepository: SubmissionFilesPersistenceService,
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val extSerializationService: ExtSerializationService,
-    @Autowired private val requestPersistenceService: SubmissionRequestPersistenceService,
+    @Autowired private val requestFilesPersistenceService: SubmissionRequestFilesPersistenceService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
@@ -548,9 +547,8 @@ class SubmissionFileSourceTest(
             assertThat(refFiles.second().attributes).containsExactly(ExtAttribute("Type", "Ref 2"))
 
             // File should be processed a single time
-            val requestSubmission = requestPersistenceService.getRequest("S-FSTST4", 1).process!!.submission
-            val files = extSerializationService.filesFlow(requestSubmission).toList()
-            assertThat(files.filter { it.filePath == "MultipleReferences.txt" }).hasSize(1)
+            val files = requestFilesPersistenceService.getSubmissionRequestFiles("S-FSTST4", 1, 0).toList()
+            assertThat(files.filter { it.path == "MultipleReferences.txt" }).hasSize(1)
 
             webClient.deleteFile("MultipleReferences.txt")
 
