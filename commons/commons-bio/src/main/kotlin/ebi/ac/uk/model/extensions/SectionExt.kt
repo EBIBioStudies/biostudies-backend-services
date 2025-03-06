@@ -2,6 +2,8 @@ package ebi.ac.uk.model.extensions
 
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.constants.AUTHOR_TYPE
+import ebi.ac.uk.model.constants.ORG_TYPES
 import ebi.ac.uk.model.constants.SectionFields
 
 var Section.fileListName: String?
@@ -9,6 +11,10 @@ var Section.fileListName: String?
     set(value) {
         value?.let { this[SectionFields.FILE_LIST] = it }
     }
+
+fun Section.isAuthor(): Boolean = type.equals(AUTHOR_TYPE, ignoreCase = true)
+
+fun Section.isOrganization(): Boolean = ORG_TYPES.contains(type.lowercase())
 
 fun Section.allFiles(): List<BioFile> = files.flatMap { either -> either.fold({ listOf(it) }, { it.elements }) }
 
