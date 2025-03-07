@@ -2,9 +2,11 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -28,13 +30,18 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.ext.createOrReplaceFile
+import ebi.ac.uk.model.extensions.allSections
+import ebi.ac.uk.model.extensions.isAuthor
+import ebi.ac.uk.model.extensions.isOrganization
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,6 +49,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
+import java.nio.file.Path
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -51,6 +61,7 @@ class SpecialSubmissionAttributesTest(
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val tagsRefRepository: TagDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @Autowired val serializationService: SerializationService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -436,4 +447,145 @@ class SpecialSubmissionAttributesTest(
             assertThat(savedSubmission.title).isEqualTo("Submission with DOI and no name")
             assertThat(savedSubmission.doi).isEqualTo("$BS_DOI_ID/S-STBL127")
         }
+
+    @Nested
+    inner class DoubleBlindReview {
+        @Test
+        fun `15-9 private submission with double blind review`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-STBL129")
+                        line("Title", "Private Submission With Double Blind Review")
+                        line("ReleaseDate", "2099-09-21")
+                        line("ReviewType", "DoubleBlind")
+                        line()
+
+                        line("Study", "SECT-001")
+                        line()
+
+                        line("Organization", "o1")
+                        line("Name", "EMBL")
+                        line()
+
+                        line("Author", "a1")
+                        line("Name", "Jane Doe")
+                        line()
+
+                        line("Author", "a2", "o1")
+                        line("Name", "John Doe")
+                        line()
+
+                        line("Grants", "g1")
+                        line()
+
+                        line("Organization", "Name")
+                        line("o2", "Sanger")
+                        line()
+                    }.toString()
+
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+                val savedSubmission = submissionRepository.getExtByAccNo("S-STBL129")
+                val pageTabFiles = getPageTabFilesContent(savedSubmission)
+                checkReviewInfoIsHidden(pageTabFiles.first)
+                checkReviewInfoIsHidden(pageTabFiles.second)
+            }
+
+        @Test
+        fun `15-10 private submission with different review type`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-STBL1210")
+                        line("Title", "Private Submission With Other Review")
+                        line("ReleaseDate", "2099-09-21")
+                        line("ReviewType", "Open Review")
+                        line()
+
+                        line("Study", "SECT-001")
+                        line("Type", "Experiment")
+                        line()
+
+                        line("Author", "a1")
+                        line("Name", "Jane Doe")
+                        line()
+
+                        line("Organization", "o1")
+                        line("Name", "EMBL")
+                        line()
+
+                        line("Grants", "g1")
+                        line()
+                    }.toString()
+
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+                val savedSubmission = submissionRepository.getExtByAccNo("S-STBL1210")
+                val pageTabFiles = getPageTabFilesContent(savedSubmission)
+                checkReviewInfoIsPresent(pageTabFiles.first)
+                checkReviewInfoIsPresent(pageTabFiles.second)
+            }
+
+        @Test
+        fun `15-11 public submission with double blind review`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-STBL1211")
+                        line("Title", "Public Submission With Double Blind Review")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line("ReviewType", "DoubleBlind")
+                        line()
+
+                        line("Study", "SECT-001")
+                        line("Type", "Experiment")
+                        line()
+
+                        line("Author", "a1")
+                        line("Name", "Jane Doe")
+                        line()
+
+                        line("Organization", "o1")
+                        line("Name", "EMBL")
+                        line()
+
+                        line("Grants", "g1")
+                        line()
+                    }.toString()
+
+                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+                val savedSubmission = submissionRepository.getExtByAccNo("S-STBL1211")
+                val pageTabFiles = getPageTabFilesContent(savedSubmission)
+                checkReviewInfoIsPresent(pageTabFiles.first)
+                checkReviewInfoIsPresent(pageTabFiles.second)
+            }
+
+        private fun checkReviewInfoIsHidden(pageTab: File) {
+            val sub = serializationService.deserializeSubmission(pageTab)
+            val sections = sub.section.allSections()
+            assertThat(sections).hasSize(1)
+            assertThat(sections).noneMatch { it.isAuthor() || it.isOrganization() }
+        }
+
+        private fun checkReviewInfoIsPresent(pageTab: File) {
+            val sub = serializationService.deserializeSubmission(pageTab)
+            val sections = sub.section.allSections()
+            assertThat(sections).hasSize(3)
+            assertThat(sections.count { it.isAuthor() }).isEqualTo(1)
+            assertThat(sections.count { it.isOrganization() }).isEqualTo(1)
+        }
+
+        private fun getPageTabFilesContent(sub: ExtSubmission): Pair<File, File> {
+            val subFolder = "$submissionPath/${sub.relPath}"
+            val tsv = Path.of("$subFolder/${sub.accNo}.tsv").toFile()
+            val json = Path.of("$subFolder/${sub.accNo}.json").toFile()
+
+            assertThat(tsv).exists()
+            assertThat(json).exists()
+
+            return tsv to json
+        }
+    }
 }
