@@ -61,7 +61,7 @@ internal class PmcLoaderService private constructor(
     }
 
     suspend fun triggerProcessor(
-        sourceFile: String?,
+        sourceFile: String? = null,
         debugPort: Int? = null,
     ): Job {
         val job = pmcLoaderService.triggerProcessor(sourceFile, debugPort)
@@ -81,10 +81,12 @@ internal class PmcLoaderService private constructor(
     }
 
     suspend fun triggerSubmitter(
-        sourceFile: String?,
+        sourceFile: String? = null,
         debugPort: Int? = null,
+        limit: Int? = null,
+        batchSize: Int? = null,
     ): Job {
-        val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
+        val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort, limit, batchSize)
         pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -124,7 +126,12 @@ private class PmcLoader(
         val loadFolder = folder ?: properties.loadFolder
         logger.info { "submitting job to load folder: '$folder'" }
 
-        val properties = getConfigProperties(loadFolder = loadFolder, lodFile = file, importMode = LOAD)
+        val properties =
+            getConfigProperties(
+                loadFolder = loadFolder,
+                lodFile = file,
+                importMode = LOAD,
+            )
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
@@ -141,7 +148,7 @@ private class PmcLoader(
         debugPort: Int?,
     ): Job {
         logger.info { "submitting job to process submissions, source file ${sourceFile ?: "any"}" }
-        val properties = getConfigProperties(importMode = PROCESS, sourceFile = sourceFile)
+        val properties = getConfigProperties(sourceFile = sourceFile, importMode = PROCESS)
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
@@ -157,9 +164,17 @@ private class PmcLoader(
     suspend fun triggerSubmitter(
         sourceFile: String?,
         debugPort: Int?,
+        limit: Int?,
+        batchSize: Int?,
     ): Job {
         logger.info { "submitting job to submit submissions, source file ${sourceFile ?: "any"}" }
-        val properties = getConfigProperties(importMode = SUBMIT, sourceFile = sourceFile)
+        val properties =
+            getConfigProperties(
+                importMode = SUBMIT,
+                sourceFile = sourceFile,
+                limit = limit,
+                batchSize = batchSize,
+            )
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
@@ -177,7 +192,11 @@ private class PmcLoader(
         debugPort: Int?,
     ): Job {
         logger.info { "submitting job to submit submissions" }
-        val properties = getConfigProperties(importMode = SUBMIT_SINGLE, submissionId = submissionId)
+        val properties =
+            getConfigProperties(
+                submissionId = submissionId,
+                importMode = SUBMIT_SINGLE,
+            )
         val jobTry =
             clusterClient.triggerJobAsync(
                 JobSpec(
@@ -190,12 +209,15 @@ private class PmcLoader(
         return jobTry.fold({ it.apply { logger.info { "submitted job $it" } } }, { throw it })
     }
 
+    @Suppress("LongParameterList")
     private fun getConfigProperties(
         loadFolder: String? = null,
         lodFile: String? = null,
         submissionId: String? = null,
         sourceFile: String? = null,
         importMode: PmcMode,
+        limit: Int? = null,
+        batchSize: Int? = null,
     ) = PmcImporterProperties.create(
         mode = importMode,
         loadFolder = loadFolder,
@@ -210,6 +232,8 @@ private class PmcLoader(
         bioStudiesPassword = properties.bioStudiesPassword,
         bioStudiesUrl = properties.bioStudiesUrl,
         submissionId = submissionId,
+        limit = limit,
+        batchSize = batchSize,
     )
 
     private companion object {

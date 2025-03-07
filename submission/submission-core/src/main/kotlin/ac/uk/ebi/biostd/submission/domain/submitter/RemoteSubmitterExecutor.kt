@@ -42,7 +42,13 @@ class RemoteSubmitterExecutor(
                     ),
                 )
             job.fold(
-                { logger.info { "Triggered submission task $mode. Job Id: ${it.id}. ${it.logsPath}. args: '${args.joinToString()}'" } },
+                {
+                    logger.info {
+                        "Triggered submission task $mode. " +
+                            "Job Id: ${it.id}. ${it.logsPath}. " +
+                            "args: '${args.joinToString("\n")}'"
+                    }
+                },
                 { throw it },
             )
         }

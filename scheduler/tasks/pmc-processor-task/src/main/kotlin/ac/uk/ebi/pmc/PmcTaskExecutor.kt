@@ -74,7 +74,7 @@ class PmcTaskExecutor(
             }
 
             PROCESS -> context.getBean<PmcProcessor>().processAll(props.sourceFile)
-            SUBMIT -> context.getBean<PmcSubmitter>().submitAll(props.sourceFile, props.limit)
+            SUBMIT -> context.getBean<PmcSubmitter>().submitAll(props.sourceFile, props.limit, props.batchSize)
             SUBMIT_SINGLE -> context.getBean<PmcSubmitter>().submitSingle(requireNotNull(props.submissionId))
         }
     }
