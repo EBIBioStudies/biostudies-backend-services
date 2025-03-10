@@ -10,7 +10,9 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 
 @RestController
-internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderService) {
+internal class PmcImporterResource(
+    private val pmcLoaderService: PmcLoaderService,
+) {
     @PostMapping("/api/pmc/load/folder")
     @ResponseBody
     suspend fun loadFile(
@@ -30,8 +32,10 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
     @ResponseBody
     suspend fun triggerSubmitter(
         @RequestParam(required = false) debugPort: Int?,
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) batchSize: Int?,
         @RequestHeader(name = "sourceFile", required = false) sourceFile: String?,
-    ): Job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
+    ): Job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort, limit, batchSize)
 
     @PostMapping("/api/pmc/submit/{submissionId}")
     @ResponseBody
