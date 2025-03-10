@@ -42,13 +42,18 @@ class DeleteFilesPermissionTest(
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
+    private lateinit var superUserWebClient: BioWebClient
 
     @BeforeAll
     fun init() =
         runBlocking {
             securityTestService.ensureUserRegistration(SuperUser)
             securityTestService.ensureUserRegistration(RegularUser)
-            webClient = getWebClient(serverPort, SuperUser)
+
+            webClient = getWebClient(serverPort, RegularUser)
+            superUserWebClient = getWebClient(serverPort, SuperUser)
+
+            securityTestService.ensureSequence("S-BSST")
         }
 
     @Test
@@ -56,7 +61,7 @@ class DeleteFilesPermissionTest(
         runTest {
             val version1 =
                 tsv {
-                    line("Submission", "S-RSTST6")
+                    line("Submission")
                     line("Title", "Update Submission Files")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -77,11 +82,11 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createFile("file-list_5-6.tsv", fileListVersion1))
             webClient.uploadFile(tempFolder.createFile("file_5-6-1.txt", "5-6-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-6-2.txt", "5-6-2 file content"))
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
+            val accNo = webClient.submitAndGetAccNo(version1)
             val version2 =
                 tsv {
-                    line("Submission", "S-RSTST6")
+                    line("Submission", accNo)
                     line("Title", "Update Submission Files")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -96,15 +101,15 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-6-2.txt", "5-6-2 file updated content"))
             webClient.submitAsync(version2, TSV)
 
-            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest("S-RSTST6", 2).status == INVALID }
+            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest(accNo, 2).status == INVALID }
         }
 
     @Test
-    fun `1-15  Regular user with UPDATE_PUBLIC permission deletes their own public submission files`() =
+    fun `1-15 Regular user with DELETE_FILES permission deletes their own public submission files`() =
         runTest {
             val version1 =
                 tsv {
-                    line("Submission", "S-RSTST7")
+                    line("Submission")
                     line("Title", "Update Submission Files")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -118,11 +123,11 @@ class DeleteFilesPermissionTest(
 
             webClient.uploadFile(tempFolder.createFile("file_5-7-1.txt", "5-7-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-7-2.txt", "5-7-2 file content"))
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
+            val accNo = webClient.submitAndGetAccNo(version1)
             val version2 =
                 tsv {
-                    line("Submission", "S-RSTST7")
+                    line("Submission", accNo)
                     line("Title", "Update Submission Files")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -132,7 +137,7 @@ class DeleteFilesPermissionTest(
                     line()
                 }.toString()
 
-            webClient.grantPermission(SuperUser.email, "S-RSTST7", AccessType.DELETE_FILES.name)
+            superUserWebClient.grantPermission(RegularUser.email, accNo, AccessType.DELETE_FILES.name)
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
 
             assertThat(webClient.submit(version2, TSV)).isSuccessful()
@@ -143,7 +148,7 @@ class DeleteFilesPermissionTest(
         runTest {
             val version1 =
                 tsv {
-                    line("Submission", "S-RSTST8")
+                    line("Submission")
                     line("Title", "Remove File List")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -164,11 +169,11 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createFile("file-list_5-8.tsv", fileListVersion1))
             webClient.uploadFile(tempFolder.createFile("file_5-8-1.txt", "5-8-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-8-2.txt", "5-8-2 file content"))
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
+            val accNo = webClient.submitAndGetAccNo(version1)
             val version2 =
                 tsv {
-                    line("Submission", "S-RSTST8")
+                    line("Submission", accNo)
                     line("Title", "Remove File List")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -180,7 +185,61 @@ class DeleteFilesPermissionTest(
 
             webClient.submitAsync(version2, TSV)
 
-            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest("S-RSTST8", 2).status == INVALID }
+            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest(accNo, 2).status == INVALID }
+        }
+
+    @Test
+    fun `1-17 Collection ADMIN user deletes public submission files`() =
+        runTest {
+            val collection =
+                tsv {
+                    line("Submission", "Test-Delete-Collection")
+                    line("AccNoTemplate", "!{S-DEL-COL}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Project")
+                }.toString()
+
+            val version1 =
+                tsv {
+                    line("Submission")
+                    line("Title", "Test For Admin")
+                    line("AttachTo", "Test-Delete-Collection")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-17-1.txt")
+                    line()
+                    line("File", "file_5-17-2.txt")
+                    line()
+                }.toString()
+
+            assertThat(superUserWebClient.submit(collection, TSV)).isSuccessful()
+            superUserWebClient.grantPermission(RegularUser.email, "Test-Delete-Collection", AccessType.ATTACH.name)
+
+            webClient.uploadFile(tempFolder.createFile("file_5-17-1.txt", "5-17-1 file content"))
+            webClient.uploadFile(tempFolder.createFile("file_5-17-2.txt", "5-17-2 file content"))
+
+            val accNo = webClient.submitAndGetAccNo(version1)
+            val version2 =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "Admin Update Submission Files")
+                    line("AttachTo", "Test-Delete-Collection")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-17-1.txt")
+                    line()
+                }.toString()
+
+            superUserWebClient.grantPermission(RegularUser.email, "Test-Delete-Collection", AccessType.ADMIN.name)
+            webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-17-1.txt", "5-17-1 file updated content"))
+
+            assertThat(webClient.submit(version2, TSV)).isSuccessful()
         }
 
     @Nested
@@ -189,16 +248,8 @@ class DeleteFilesPermissionTest(
         @Autowired val securityTestService: SecurityTestService,
         @LocalServerPort val serverPort: Int,
     ) {
-        private lateinit var webClient: BioWebClient
-
-        @BeforeAll
-        fun init() {
-            webClient = getWebClient(serverPort, RegularUser)
-            securityTestService.ensureSequence("S-BSST")
-        }
-
         @Test
-        fun `1-17 Regular user deletes their own public submission files when preventFileDeletion is disable`() =
+        fun `1-18 Regular user deletes their own public submission files when preventFileDeletion is disabled`() =
             runTest {
                 val version1 =
                     tsv {
@@ -211,12 +262,10 @@ class DeleteFilesPermissionTest(
 
                 webClient.uploadFile(tempFolder.createFile("file_abc.txt", "abc content"))
 
-                val response = webClient.submit(version1, TSV)
-                assertThat(response).isSuccessful()
-
+                val accNo = webClient.submitAndGetAccNo(version1)
                 val version2 =
                     tsv {
-                        line("Submission", response.body.accNo)
+                        line("Submission", accNo)
                         line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                         line("Study")
@@ -224,5 +273,12 @@ class DeleteFilesPermissionTest(
                     }.toString()
                 assertThat(webClient.submit(version2, TSV)).isSuccessful()
             }
+    }
+
+    private suspend fun BioWebClient.submitAndGetAccNo(submission: String): String {
+        val response = submit(submission, TSV)
+        assertThat(response).isSuccessful()
+
+        return response.body.accNo
     }
 }

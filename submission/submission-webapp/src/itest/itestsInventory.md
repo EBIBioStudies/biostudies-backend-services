@@ -24,12 +24,14 @@ Contains test related to submission deletion.
 
 Contains test related to submission file deletion.
 
-| Class                     | Test No | Test name                                                                                  |
-|---------------------------|---------|--------------------------------------------------------------------------------------------|
-| DeleteFilesPermissionTest | 1-14    | Regular user deletes their own public submission files                                     |
-| DeleteFilesPermissionTest | 1-15    | Regular user with UPDATE_PUBLIC permission delete their own public submission files        |
-| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                            |
-| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission files when preventFileDeletion is disable |
+| Class                     | Test No | Test name                                                                                   |
+|---------------------------|---------|---------------------------------------------------------------------------------------------|
+| DeleteFilesPermissionTest | 1-14    | Regular user deletes their own public submission files                                      |
+| DeleteFilesPermissionTest | 1-15    | Regular user with DELETE_FILES permission delete their own public submission files          |
+| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                             |
+| DeleteFilesPermissionTest | 1-16    | Regular user deletes their own public submission filelist files                             |
+| DeleteFilesPermissionTest | 1-17    | Collection ADMIN user deletes public submission files                                       |
+| DeleteFilesPermissionTest | 1-18    | Regular user deletes their own public submission files when preventFileDeletion is disabled |
 
 ### Submit Permission Test Suite
 
