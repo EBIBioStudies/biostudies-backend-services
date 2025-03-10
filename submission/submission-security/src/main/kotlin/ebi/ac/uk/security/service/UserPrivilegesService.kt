@@ -70,7 +70,7 @@ internal class UserPrivilegesService(
     override suspend fun canDeleteFiles(
         submitter: String,
         accNo: String,
-    ): Boolean = hasPermissions(submitter, accNo, DELETE_FILES)
+    ): Boolean = isAdmin(submitter, accNo) || hasPermissions(submitter, accNo, DELETE_FILES)
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
