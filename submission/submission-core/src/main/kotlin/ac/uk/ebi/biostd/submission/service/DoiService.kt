@@ -25,6 +25,8 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.DOI
 import ebi.ac.uk.model.constants.SubFields.TITLE
 import ebi.ac.uk.model.extensions.allSections
+import ebi.ac.uk.model.extensions.isAuthor
+import ebi.ac.uk.model.extensions.isOrganization
 import mu.KotlinLogging
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -91,7 +93,7 @@ class DoiService(
         val contributors =
             submission
                 .allSections()
-                .filter { it.type.equals(AUTHOR_TYPE, ignoreCase = true) }
+                .filter { it.isAuthor() }
                 .filter { isNameValid(it) }
 
         return contributors.map { it.asContributor(organizations) }
@@ -110,10 +112,11 @@ class DoiService(
         )
     }
 
-    private fun getOrganizations(sub: Submission): Map<String, String> {
+    private fun getOrganizations(submission: Submission): Map<String, String> {
         val organizations =
-            sub.allSections()
-                .filter { validOrgTypes.contains(it.type.lowercase()) }
+            submission
+                .allSections()
+                .filter { it.isOrganization() }
         validateOrganizations(organizations)
 
         return organizations.associateBy({ it.accNo!! }, { it.findAttr(NAME_ATTR)!! })
@@ -137,10 +140,7 @@ class DoiService(
         internal const val AFFILIATION_ATTR = "Affiliation"
         internal const val NAME_ATTR = "Name"
         internal const val ORCID_ATTR = "ORCID"
-
         internal const val ORG_TYPE = "Organization"
-        internal const val AUTHOR_TYPE = "Author"
-        internal val validOrgTypes = setOf("organization", "organisation")
 
         internal const val FILE_PARAM = "fname"
         internal const val OPERATION_PARAM = "operation"

@@ -1,6 +1,8 @@
 package ebi.ac.uk.model.constants
 
+const val AUTHOR_TYPE = "Author"
 const val COLLECTION_TYPE = "Project"
+val ORG_TYPES = setOf("organisation", "organization")
 
 private const val ACC_NO_FIELD = "accno"
 private const val SECTION_FIELD = "section"
@@ -32,7 +34,9 @@ interface Fields {
     val value: String?
 }
 
-enum class SubFields(override val value: String) : Fields {
+enum class SubFields(
+    override val value: String,
+) : Fields {
     SUBMISSION("submission"),
     TYPE("type"),
     ACC_NO(ACC_NO_FIELD),
@@ -42,6 +46,7 @@ enum class SubFields(override val value: String) : Fields {
     ROOT_PATH("RootPath"),
     PUBLIC_ACCESS_TAG("Public"),
     DOI("DOI"),
+    REVIEW_TYPE("ReviewType"),
 
     RELEASE_DATE("ReleaseDate"),
     RELEASE_TIME("rtime"),
@@ -54,12 +59,12 @@ enum class SubFields(override val value: String) : Fields {
     COLLECTION_VALIDATOR("CollectionValidator"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
-enum class SectionFields(override val value: String) : Fields {
+enum class SectionFields(
+    override val value: String,
+) : Fields {
     ACC_NO(ACC_NO_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     SECTION(SECTION_FIELD),
@@ -71,24 +76,24 @@ enum class SectionFields(override val value: String) : Fields {
     FILE_LIST("File List"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
-enum class AttributeFields(override val value: String) : Fields {
+enum class AttributeFields(
+    override val value: String,
+) : Fields {
     ATTRIBUTE("attribute"),
     NAME("name"),
     VALUE("value"),
     REFERENCE("reference"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
-enum class AttributeDetails(override val value: String) : Fields {
+enum class AttributeDetails(
+    override val value: String,
+) : Fields {
     VAL_QUALIFIER("valqual"),
     NAME_QUALIFIER("nmqual"),
 
@@ -96,23 +101,23 @@ enum class AttributeDetails(override val value: String) : Fields {
     VALUE("value"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
-enum class LinkFields(override val value: String) : Fields {
+enum class LinkFields(
+    override val value: String,
+) : Fields {
     LINK("link"),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     URL("url"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
-enum class FileFields(override val value: String) : Fields {
+enum class FileFields(
+    override val value: String,
+) : Fields {
     FILE("file"),
     NAME("name"),
     PATH("path"),
@@ -131,17 +136,15 @@ enum class FileFields(override val value: String) : Fields {
     ATTRIBUTES(ATTRIBUTES_FIELD),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
-enum class TableFields(override val value: String) : Fields {
+enum class TableFields(
+    override val value: String,
+) : Fields {
     LINKS_TABLE("Links"),
     FILES_TABLE("Files"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }

@@ -20,23 +20,23 @@ class PageTabUtil(
     private val fileListMapper: ToFileListMapper,
 ) {
     suspend fun generateSubPageTab(
-        sub: ExtSubmission,
+        extSub: ExtSubmission,
         target: File,
     ): PageTabFiles {
-        val element = toSubmissionMapper.toSimpleSubmission(sub)
-        val permissions = sub.permissions()
+        val sub = toSubmissionMapper.toSimpleSubmission(extSub, filterBlindReview = true)
+        val permissions = extSub.permissions()
 
         return PageTabFiles(
             json =
                 saveTabFile(
-                    target.resolve("${sub.accNo}.json"),
-                    serializationService.serializeSubmission(element, JSON_PRETTY),
+                    target.resolve("${extSub.accNo}.json"),
+                    serializationService.serializeSubmission(sub, JSON_PRETTY),
                     permissions,
                 ),
             tsv =
                 saveTabFile(
-                    target.resolve("${sub.accNo}.tsv"),
-                    serializationService.serializeSubmission(element, TSV),
+                    target.resolve("${extSub.accNo}.tsv"),
+                    serializationService.serializeSubmission(sub, TSV),
                     permissions,
                 ),
         )
@@ -77,4 +77,7 @@ class PageTabUtil(
     }
 }
 
-data class PageTabFiles(val json: File, val tsv: File)
+data class PageTabFiles(
+    val json: File,
+    val tsv: File,
+)

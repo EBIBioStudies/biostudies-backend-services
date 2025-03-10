@@ -29,7 +29,7 @@ class PageTabUtilTest(
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
     @MockK private val fileListMapper: ToFileListMapper,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val submission: Submission,
+    @MockK private val sub: Submission,
 ) {
     private val testInstance = PageTabUtil(serializationService, toSubmissionMapper, fileListMapper)
 
@@ -38,12 +38,12 @@ class PageTabUtilTest(
         runTest {
             every { extSubmission.released } returns true
             every { extSubmission.accNo } returns "S-BSST1"
-            every { serializationService.serializeSubmission(submission, TSV) } returns "tsv-sub"
-            every { serializationService.serializeSubmission(submission, JSON_PRETTY) } returns "json-sub"
-            coEvery { toSubmissionMapper.toSimpleSubmission(extSubmission) } returns submission
+            every { serializationService.serializeSubmission(sub, TSV) } returns "tsv-sub"
+            every { serializationService.serializeSubmission(sub, JSON_PRETTY) } returns "json-sub"
+            coEvery { toSubmissionMapper.toSimpleSubmission(extSubmission, filterBlindReview = true) } returns sub
 
             val pageTabFiles = testInstance.generateSubPageTab(extSubmission, tempFolder.root)
-            coVerify(exactly = 1) { toSubmissionMapper.toSimpleSubmission(extSubmission) }
+            coVerify(exactly = 1) { toSubmissionMapper.toSimpleSubmission(extSubmission, filterBlindReview = true) }
             assertPageTabFile(pageTabFiles.tsv, "tsv-sub")
             assertPageTabFile(pageTabFiles.json, "json-sub")
         }

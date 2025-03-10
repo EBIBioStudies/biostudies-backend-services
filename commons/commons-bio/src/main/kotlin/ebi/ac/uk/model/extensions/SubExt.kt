@@ -97,6 +97,15 @@ var Submission.doi: String?
     }
 
 /**
+ * Obtain the submission ReviewType attribute if present.
+ */
+var Submission.reviewType: String?
+    get() = find(SubFields.REVIEW_TYPE)
+    set(value) {
+        value?.let { this[SubFields.REVIEW_TYPE] = it }
+    }
+
+/**
  * Obtain the submission accession number template if present.
  */
 var Submission.accNoTemplate: String?
