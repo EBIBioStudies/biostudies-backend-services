@@ -23,7 +23,7 @@ import kotlin.time.ExperimentalTime
 
 private val logger = KotlinLogging.logger {}
 private const val CONCURRENCY = 20
-private const val BATCH_SIZE = 50
+private const val BATCH_SIZE = 200
 
 @OptIn(ExperimentalTime::class)
 class PmcSubmitter(
@@ -34,9 +34,10 @@ class PmcSubmitter(
     fun submitAll(
         sourceFile: String?,
         limit: Int?,
+        batchSize: Int?,
     ): Unit =
         runBlocking {
-            submitSubmissions(sourceFile, limit)
+            submitSubmissions(sourceFile, limit, batchSize)
         }
 
     fun submitSingle(submissionId: String): Unit =
@@ -48,14 +49,17 @@ class PmcSubmitter(
     private suspend fun submitSubmissions(
         sourceFile: String?,
         limit: Int?,
+        configuredBatchSize: Int?,
     ) {
         val counter = AtomicInteger(0)
+        val batchSize = configuredBatchSize ?: BATCH_SIZE
+
         supervisorScope {
             submissionService
                 .findReadyToSubmit(sourceFile)
                 .take(limit ?: Int.MAX_VALUE)
-                .chunked(BATCH_SIZE)
-                .concurrently(CONCURRENCY) { submitMany(it, counter.addAndGet(BATCH_SIZE)) }
+                .chunked(batchSize)
+                .concurrently(CONCURRENCY) { submitMany(it, counter.addAndGet(batchSize)) }
                 .collect()
         }
     }
