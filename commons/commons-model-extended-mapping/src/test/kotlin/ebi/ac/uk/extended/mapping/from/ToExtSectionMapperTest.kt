@@ -51,7 +51,7 @@ class ToExtSectionMapperTest(
     @MockK val fileSource: FilesSource,
 ) {
     private val file = BioFile("file.txt")
-    private val fileSources = FileSourcesList(true, listOf(fileSource))
+    private val fileSources = FileSourcesList(listOf(fileSource))
     private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
     private val section =

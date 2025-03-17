@@ -11,11 +11,10 @@ class FilesSourceConfig(
     private val fireClient: FireClient,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val ftpClient: FtpClient,
-    private val checkFilesPath: Boolean,
 ) {
     fun filesSourceListBuilder(): FilesSourceListBuilder = filesSourceListBuilder
 
     private val filesSourceListBuilder by lazy {
-        FilesSourceListBuilder(checkFilesPath, submissionPath, fireClient, ftpClient, filesRepository)
+        FilesSourceListBuilder(submissionPath, fireClient, ftpClient, filesRepository)
     }
 }

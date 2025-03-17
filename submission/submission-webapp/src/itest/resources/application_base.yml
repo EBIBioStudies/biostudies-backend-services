@@ -28,7 +28,6 @@ spring:
 
 app:
   processId: Biostudies-Itest
-  checkFilesPath: true
   retrySubmission: false
   submissionPath:
   ftpPath:

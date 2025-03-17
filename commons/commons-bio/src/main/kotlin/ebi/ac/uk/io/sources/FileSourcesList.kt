@@ -35,13 +35,15 @@ private val validPathPattern =
         append("\$") // End of the line
     }.trimIndent().toRegex()
 
-class FileSourcesList(private val checkFilesPath: Boolean, val sources: List<FilesSource>) {
+class FileSourcesList(
+    val sources: List<FilesSource>,
+) {
     suspend fun findExtFile(
         path: String,
         type: String,
         attributes: List<Attribute>,
     ): ExtFile? {
-        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
@@ -49,12 +51,10 @@ class FileSourcesList(private val checkFilesPath: Boolean, val sources: List<Fil
         path: String,
         type: String,
         attributes: List<Attribute>,
-    ): ExtFile {
-        return findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
-    }
+    ): ExtFile = findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
 
     suspend fun getFileList(path: String): File? {
-        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }
