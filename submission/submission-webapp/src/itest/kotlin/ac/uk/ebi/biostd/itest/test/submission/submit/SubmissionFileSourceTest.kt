@@ -25,6 +25,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.ext.allSubFiles
 import ebi.ac.uk.io.ext.createDirectory
@@ -186,6 +187,7 @@ class SubmissionFileSourceTest(
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST3")
                 assertThat(submitted.section.files).hasSize(1)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(328L)
                     assertThat(it.md5).isEqualTo("18CF763D0BBA08E1AE232C191A3B58CF")
@@ -224,6 +226,7 @@ class SubmissionFileSourceTest(
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST81")
                 assertThat(submitted.section.files).hasSize(1)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(161L)
                     assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
@@ -239,6 +242,7 @@ class SubmissionFileSourceTest(
                 val updated = submissionRepository.getExtByAccNo("S-FSTST81")
                 assertThat(updated.section.files).hasSize(1)
                 assertThat(updated.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(169L)
                     assertThat(it.md5).isEqualTo("537D49F318EC4DA1C5B82DD9025D789E")
@@ -308,6 +312,7 @@ class SubmissionFileSourceTest(
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST9")
                 assertThat(submitted.section.files).hasSize(1)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(161L)
                     assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
@@ -336,6 +341,7 @@ class SubmissionFileSourceTest(
                 val updated = submissionRepository.getExtByAccNo("S-FSTST9")
                 assertThat(updated.section.files).hasSize(1)
                 assertThat(updated.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     val files = getZipFiles("$submissionPath/${updated.relPath}/Files/test-directory.zip")
                     assertThat(files).containsExactly("file1.txt" to file2.readText())
@@ -377,6 +383,7 @@ class SubmissionFileSourceTest(
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
                 assertThat(submitted.section.files).hasSize(2)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(163L)
                     assertThat(it.md5).isEqualTo("EEB90F918DF18A5DA2F5C7626900083B")
@@ -385,6 +392,7 @@ class SubmissionFileSourceTest(
                     assertThat(files).containsExactly("fileA.txt" to fileA.readText())
                 }
                 assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(167L)
                     assertThat(it.md5).isEqualTo("414A43404B81150677559D28C0DB9F4B")
@@ -423,6 +431,7 @@ class SubmissionFileSourceTest(
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
                 assertThat(submitted.section.files).hasSize(1)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(18L)
                     assertThat(it.md5).isEmpty()
@@ -468,6 +477,7 @@ class SubmissionFileSourceTest(
                 val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
                 assertThat(submitted.section.files).hasSize(2)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(11L)
                     assertThat(it.md5).isEmpty()
@@ -476,6 +486,7 @@ class SubmissionFileSourceTest(
                     assertDirFile(dir.resolve("fileA.txt"), "one content")
                 }
                 assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(15L)
                     assertThat(it.md5).isEmpty()

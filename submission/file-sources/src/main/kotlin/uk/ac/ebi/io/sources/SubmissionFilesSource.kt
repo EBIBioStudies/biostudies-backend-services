@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.copyWithAttributes
 import ebi.ac.uk.io.sources.FilesSource
@@ -37,25 +38,21 @@ internal class SubmissionFilesSource(
     private fun expectedPath(
         path: String,
         type: String,
-    ): String {
-        return when (sub.storageMode) {
+    ): String =
+        when (sub.storageMode) {
             StorageMode.FIRE -> if (type == FileFields.DIRECTORY_TYPE.value) path.ensureSuffix(".zip") else path
             else -> path
         }
-    }
 
-    override suspend fun getFileList(path: String): File? {
-        return findSubmissionFile(path)?.let { getFile(it) }
-    }
+    override suspend fun getFileList(path: String): File? = findSubmissionFile(path)?.let { getFile(it) }
 
-    private suspend fun findSubmissionFile(path: String): ExtFile? {
-        return previousVersionFiles[path] ?: filesRepository.findReferencedFile(sub, path)
-    }
+    private suspend fun findSubmissionFile(path: String): ExtFile? =
+        previousVersionFiles[path] ?: filesRepository.findReferencedFile(sub, path)
 
-    private suspend fun getFile(file: ExtFile): File? {
-        return when (file) {
+    private suspend fun getFile(file: ExtFile): File? =
+        when (file) {
             is NfsFile -> nfsFiles.getFileList(file.filePath)
             is FireFile -> fireClient.downloadByPath(file.firePath)
+            is RequestFile -> error("Can not obtain File instance from RequestFile ${file.filePath}")
         }
-    }
 }

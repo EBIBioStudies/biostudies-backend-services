@@ -4,12 +4,14 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.RequestDocFile
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(
@@ -40,18 +42,16 @@ internal fun DocFile.toExtFile(
                 size = fileSize,
                 attributes = attributes.toExtAttributes(),
             )
+
+        is RequestDocFile -> RequestFile(filePath = filePath, attributes = attributes.toExtAttributes())
     }
 
 internal fun DocFileTable.toExtFileTable(
     released: Boolean,
     subRelPath: String,
-): ExtFileTable {
-    return ExtFileTable(files.map { it.toExtFile(released, subRelPath) })
-}
+): ExtFileTable = ExtFileTable(files.map { it.toExtFile(released, subRelPath) })
 
 internal fun Either<DocFile, DocFileTable>.toExtFiles(
     released: Boolean,
     subRelPath: String,
-): Either<ExtFile, ExtFileTable> {
-    return bimap({ it.toExtFile(released, subRelPath) }) { it.toExtFileTable(released, subRelPath) }
-}
+): Either<ExtFile, ExtFileTable> = bimap({ it.toExtFile(released, subRelPath) }) { it.toExtFileTable(released, subRelPath) }
