@@ -27,11 +27,8 @@ import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
-import mu.KotlinLogging
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
-
-private val logger = KotlinLogging.logger {}
 
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class SubmitWebHandler(
@@ -127,7 +124,7 @@ class SubmitWebHandler(
                     is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
                     is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
                     is DraftSubmitWebRequest -> {
-                        val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft!!
+                        val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft
                         serializationService.deserializeSubmission(draft, JSON)
                     }
                 }
@@ -146,7 +143,7 @@ class SubmitWebHandler(
                 is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
 
                 is DraftSubmitWebRequest -> {
-                    val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft!!
+                    val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft
                     serializationService.deserializeSubmission(draft, JSON, source)
                 }
             }
