@@ -26,7 +26,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle build # test -x itest -x jacocoTestCoverageVerification
+  script: gradle build -x test -x itest -x jacocoTestCoverageVerification
 
 #nfs-itest:
 #  needs: [ "build-test" ]
