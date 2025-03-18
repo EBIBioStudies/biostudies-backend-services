@@ -98,7 +98,7 @@ class SubmitWebHandler(
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
-        val (files, preferredSources) = rqt.filesConfig
+        val (requestFiles, preferredSources) = rqt.filesConfig
 
         suspend fun getOrCreateRequestDraft(
             accNo: String,
@@ -114,6 +114,7 @@ class SubmitWebHandler(
                 is ContentSubmitWebRequest,
                 is FileSubmitWebRequest,
                 -> requestDraftService.getOrCreateRequestDraft(submission.accNo, submitter.email, pageTab)
+
                 is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.accNo, rqt.owner)
             }
         }
@@ -160,7 +161,7 @@ class SubmitWebHandler(
         ): FileSourcesRequest =
             FileSourcesRequest(
                 submitter = submitter,
-                files = files,
+                files = requestFiles,
                 onBehalfUser = onBehalfUser,
                 rootPath = rootPath,
                 submission = previous,
@@ -198,6 +199,8 @@ class SubmitWebHandler(
                 submitter = submitter,
                 owner = owner,
                 sources = sources,
+                preferredSources = preferredSources,
+                requestFiles = requestFiles.orEmpty(),
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,
                 collection = collection,

@@ -416,6 +416,9 @@ internal class SubmissionMongoQueryServiceTest(
             draft = null,
             status = status,
             modificationTime = Instant.now(),
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf("SUBMISSION"),
             process =
                 DocRequestProcessing(
                     silentMode = false,

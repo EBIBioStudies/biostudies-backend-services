@@ -22,6 +22,9 @@ data class DocSubmissionRequest(
     val draft: String?,
     val status: RequestStatus,
     val modificationTime: Instant,
+    val files: List<String>,
+    val preferredSources: List<String>,
+    val onBehalfUser: String?,
     val process: DocRequestProcessing?,
     val errors: List<String> = emptyList(),
 ) {
@@ -36,6 +39,9 @@ data class DocSubmissionRequest(
             .set(DocRequestFields.RQT_ERRORS, errors)
             .set(DocRequestFields.RQT_PROCESS, process)
             .set(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
+            .set(DocRequestFields.RQT_PREFERED_SOURCES, preferredSources)
+            .set(DocRequestFields.RQT_FILES, files)
+            .set(DocRequestFields.RQT_ON_BEHALF, onBehalfUser)
 }
 
 data class DocFilesChanges(

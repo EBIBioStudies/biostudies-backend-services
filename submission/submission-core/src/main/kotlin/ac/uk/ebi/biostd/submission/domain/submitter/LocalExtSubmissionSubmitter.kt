@@ -69,6 +69,9 @@ class LocalExtSubmissionSubmitter(
                 submission = submission,
                 notifyTo = rqt.notifyTo,
                 silentMode = rqt.silentMode,
+                files = rqt.requestFiles,
+                onBehalfUser = null,
+                preferredSources = rqt.preferredSources,
                 singleJobMode = rqt.singleJobMode,
             )
 

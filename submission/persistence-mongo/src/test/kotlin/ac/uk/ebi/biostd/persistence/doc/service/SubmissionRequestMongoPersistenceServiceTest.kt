@@ -19,6 +19,7 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
@@ -92,6 +93,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
+                        onBehalfUser = null,
+                        files = emptyList(),
+                        preferredSources = listOf(SUBMISSION),
                     )
 
                 val (accNo, version) = testInstance.saveRequest(rqt)
@@ -135,6 +139,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
+                        onBehalfUser = null,
+                        files = emptyList(),
+                        preferredSources = listOf(SUBMISSION),
                     )
 
                 val (accNo, version) = testInstance.saveRequest(rqt)
@@ -172,6 +179,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     draft = "draft-content",
                     status = PROCESSED,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    onBehalfUser = null,
+                    files = emptyList(),
+                    preferredSources = listOf(SUBMISSION.name),
                     process =
                         DocRequestProcessing(
                             notifyTo = "user@test.org",
@@ -222,6 +232,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 draft = null,
                 status = status,
                 modificationTime = modificationTime,
+                onBehalfUser = null,
+                files = emptyList(),
+                preferredSources = listOf(SUBMISSION.name),
                 process =
                     DocRequestProcessing(
                         silentMode = false,
@@ -277,6 +290,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
             draft = null,
             status = CLEANED,
             modificationTime = Instant.ofEpochMilli(1664981300),
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf(SUBMISSION.name),
             process =
                 DocRequestProcessing(
                     silentMode = false,

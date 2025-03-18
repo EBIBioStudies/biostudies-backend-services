@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.DRAFT_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
@@ -29,6 +30,7 @@ import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import java.io.File
 import java.time.Instant
 import java.time.ZoneOffset.UTC
 import java.time.temporal.TemporalAmount
@@ -246,6 +248,9 @@ class SubmissionRequestMongoPersistenceService(
             draft = rqt.draft,
             status = rqt.status,
             process = rqt.process?.let { requestProcessing(it) },
+            files = rqt.files.map { it.absolutePath },
+            preferredSources = rqt.preferredSources.map { it.name },
+            onBehalfUser = rqt.onBehalfUser,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -282,6 +287,9 @@ class SubmissionRequestMongoPersistenceService(
             accNo = rqt.accNo,
             version = rqt.version,
             owner = rqt.owner,
+            files = rqt.files.map { File(it) },
+            preferredSources = rqt.preferredSources.map { PreferredSource.valueOf(it) },
+            onBehalfUser = rqt.onBehalfUser,
             draft = rqt.draft,
             process = rqt.process?.let { requestProcessing(it) },
             status = rqt.status,
