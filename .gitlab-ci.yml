@@ -12,9 +12,9 @@ include:
 
 stages:
   - build-test
-#  - nfs-itest
-#  - fire-itest
-#  - fire-caos-itest
+  - nfs-itest
+  - fire-itest
+  - fire-caos-itest
   - auto-deploy-dev
   - auto-deploy-beta
   - auto-deploy-prod
@@ -26,29 +26,29 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle build -x test -x itest -x jacocoTestCoverageVerification
+  script: gradle build test -x itest -x jacocoTestCoverageVerification
 
-#nfs-itest:
-#  needs: [ "build-test" ]
-#  stage: nfs-itest
-#  script:
-#    - apt-get update && apt-get install -y rsync
-#    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
-#
-#fire-itest:
-#  needs: [ "nfs-itest" ]
-#  stage: fire-itest
-#  script:
-#    - apt-get update && apt-get install -y rsync
-#    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
-#  variables:
-#    ITEST_FIXED_DELAY: "50"
-#
-#fire-caos-itest:
-#  needs: [ "fire-itest" ]
-#  stage: fire-caos-itest
-#  script:
-#    - apt-get update && apt-get install -y rsync
-#    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
-#  variables:
-#    ITEST_FAIL_FACTOR: "8"
+nfs-itest:
+  needs: [ "build-test" ]
+  stage: nfs-itest
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
+
+fire-itest:
+  needs: [ "nfs-itest" ]
+  stage: fire-itest
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+  variables:
+    ITEST_FIXED_DELAY: "50"
+
+fire-caos-itest:
+  needs: [ "fire-itest" ]
+  stage: fire-caos-itest
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+  variables:
+    ITEST_FAIL_FACTOR: "8"
