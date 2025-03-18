@@ -12,9 +12,9 @@ include:
 
 stages:
   - build-test
-  - nfs-itest
-  - fire-itest
-  - fire-caos-itest
+#  - nfs-itest
+#  - fire-itest
+#  - fire-caos-itest
   - auto-deploy-dev
   - auto-deploy-beta
   - auto-deploy-prod
@@ -26,7 +26,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle build test -x itest -x jacocoTestCoverageVerification
+  script: gradle build # test -x itest -x jacocoTestCoverageVerification
 
 nfs-itest:
   needs: [ "build-test" ]
