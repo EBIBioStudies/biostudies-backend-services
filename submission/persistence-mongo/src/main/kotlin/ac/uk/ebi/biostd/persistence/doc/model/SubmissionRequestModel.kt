@@ -19,7 +19,7 @@ data class DocSubmissionRequest(
     val accNo: String,
     val version: Int,
     val owner: String,
-    val draft: String?,
+    val draft: String,
     val status: RequestStatus,
     val modificationTime: Instant,
     val process: DocRequestProcessing?,

@@ -88,6 +88,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
+                        draft = "{ accNo: S-BSST1 }",
                         submission = submission,
                         notifyTo = "notifyTo",
                         silentMode = false,
@@ -131,6 +132,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         accNo = "S-BSST1",
                         version = 1,
                         owner = "owner@mail.com",
+                        draft = "{ accNo: S-BSST1 }",
                         submission = submission,
                         notifyTo = "notifyTo",
                         silentMode = false,
@@ -219,7 +221,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 accNo = accNo,
                 version = version,
                 owner = "owner@mail.org",
-                draft = null,
+                draft = "{ accNo: S-BSST0 }",
                 status = status,
                 modificationTime = modificationTime,
                 process =
@@ -274,7 +276,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             accNo = "S-BSST0",
             version = 1,
             owner = "owner@mail.org",
-            draft = null,
+            draft = "{ accNo: S-BSST1 }",
             status = CLEANED,
             modificationTime = Instant.ofEpochMilli(1664981300),
             process =

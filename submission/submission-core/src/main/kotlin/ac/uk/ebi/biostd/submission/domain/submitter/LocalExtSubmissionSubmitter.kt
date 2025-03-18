@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -18,6 +20,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.coroutines.waitUntil
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
@@ -44,6 +47,8 @@ private val logger = KotlinLogging.logger {}
 class LocalExtSubmissionSubmitter(
     private val properties: ApplicationProperties,
     private val pageTabService: PageTabService,
+    private val toSubmissionMapper: ToSubmissionMapper,
+    private val serializationService: SerializationService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestIndexer: SubmissionRequestIndexer,
@@ -60,13 +65,15 @@ class LocalExtSubmissionSubmitter(
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
-        val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val sub = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val draft = serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(sub), JSON)
         val request =
             SubmissionRequest(
-                accNo = submission.accNo,
-                version = submission.version,
-                owner = submission.owner,
-                submission = submission,
+                accNo = sub.accNo,
+                version = sub.version,
+                owner = sub.owner,
+                draft = draft,
+                submission = sub,
                 notifyTo = rqt.notifyTo,
                 silentMode = rqt.silentMode,
                 singleJobMode = rqt.singleJobMode,

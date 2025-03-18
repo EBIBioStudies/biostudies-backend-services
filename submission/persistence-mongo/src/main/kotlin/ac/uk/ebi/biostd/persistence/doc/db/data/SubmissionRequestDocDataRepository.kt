@@ -26,7 +26,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
@@ -241,7 +240,7 @@ class SubmissionRequestDocDataRepository(
 
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionListFilter): Criteria =
-        where("$RQT_PROCESS.$SUB.$SUB_OWNER")
+        where(RQT_OWNER)
             .`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 

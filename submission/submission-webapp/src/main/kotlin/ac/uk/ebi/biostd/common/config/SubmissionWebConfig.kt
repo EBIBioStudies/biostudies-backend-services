@@ -59,6 +59,8 @@ class SubmissionWebConfig {
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
         appProperties: ApplicationProperties,
         pageTabService: PageTabService,
+        toSubmissionMapper: ToSubmissionMapper,
+        serializationService: SerializationService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestIndexer: SubmissionRequestIndexer,
@@ -77,6 +79,8 @@ class SubmissionWebConfig {
             LocalExtSubmissionSubmitter(
                 appProperties,
                 pageTabService,
+                toSubmissionMapper,
+                serializationService,
                 requestService,
                 persistenceService,
                 requestIndexer,

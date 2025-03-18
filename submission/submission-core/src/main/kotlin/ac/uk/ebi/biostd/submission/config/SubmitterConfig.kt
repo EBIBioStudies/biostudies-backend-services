@@ -41,6 +41,7 @@ import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
@@ -185,6 +186,8 @@ class SubmitterConfig(
     fun localExtSubmissionSubmitter(
         appProperties: ApplicationProperties,
         pageTabService: PageTabService,
+        toSubmissionMapper: ToSubmissionMapper,
+        serializationService: SerializationService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         submissionQueryService: ExtSubmissionQueryService,
@@ -202,6 +205,8 @@ class SubmitterConfig(
         LocalExtSubmissionSubmitter(
             appProperties,
             pageTabService,
+            toSubmissionMapper,
+            serializationService,
             requestService,
             persistenceService,
             requestIndexer,
