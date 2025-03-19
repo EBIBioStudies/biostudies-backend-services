@@ -83,37 +83,37 @@ data class DocLink(
 )
 
 @Suppress("LongParameterList")
-sealed class DocFile(
-    open val fileName: String,
-    open val filePath: String,
-    open val relPath: String,
-    open val attributes: List<DocAttribute>,
-    open val md5: String,
-    open val fileSize: Long,
-    open val fileType: String,
-)
+sealed interface DocFile {
+    val filePath: String
+    val attributes: List<DocAttribute>
+}
+
+data class RequestDocFile(
+    override val filePath: String,
+    override val attributes: List<DocAttribute>,
+) : DocFile
 
 data class NfsDocFile(
-    override val fileName: String,
+    val fileName: String,
     override val filePath: String,
-    override val relPath: String,
+    val relPath: String,
     val fullPath: String,
     override var attributes: List<DocAttribute>,
-    override val md5: String,
-    override val fileSize: Long,
-    override val fileType: String,
-) : DocFile(fileName, filePath, relPath, attributes, md5, fileSize, fileType)
+    val md5: String,
+    val fileSize: Long,
+    val fileType: String,
+) : DocFile
 
 data class FireDocFile(
-    override val fileName: String,
+    val fileName: String,
     override val filePath: String,
-    override val relPath: String,
+    val relPath: String,
     val fireId: String,
     override val attributes: List<DocAttribute>,
-    override val md5: String,
-    override val fileSize: Long,
-    override val fileType: String,
-) : DocFile(fileName, filePath, relPath, attributes, md5, fileSize, fileType)
+    val md5: String,
+    val fileSize: Long,
+    val fileType: String,
+) : DocFile
 
 data class DocFileList(
     val fileName: String,

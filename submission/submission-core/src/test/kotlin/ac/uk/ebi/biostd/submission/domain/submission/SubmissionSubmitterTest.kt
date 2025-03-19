@@ -112,6 +112,9 @@ class SubmissionSubmitterTest(
     private fun setUpRequest() {
         every { request.accNo } returns ACC_NO
         every { request.draftAccNo } returns TEMP_ACC_NO
+        every { request.preferredSources } returns emptyList()
+        every { request.onBehalfUser } returns null
+        every { request.requestFiles } returns emptyList()
         every { request.version } returns 1
         every { request.owner } returns sub.owner
         every { request.previousVersion } returns null

@@ -24,9 +24,16 @@ class SubmissionSubmitter(
 ) {
     suspend fun processRequestDraft(rqt: SubmitRequest): ExtSubmission {
         val sub = processRequest(rqt)
-        val extRqt = ExtSubmitRequest(sub.owner, rqt.owner, sub, rqt.silentMode, rqt.singleJobMode)
-        submissionSubmitter.createRqt(extRqt)
-
+        submissionSubmitter.createRqt(
+            ExtSubmitRequest(
+                notifyTo = rqt.owner,
+                submission = sub,
+                preferredSources = rqt.preferredSources,
+                requestFiles = rqt.requestFiles,
+                silentMode = rqt.silentMode,
+                singleJobMode = rqt.singleJobMode,
+            ),
+        )
         return sub
     }
 

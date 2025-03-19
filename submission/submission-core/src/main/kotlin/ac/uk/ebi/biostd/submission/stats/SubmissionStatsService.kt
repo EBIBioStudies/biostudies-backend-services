@@ -10,10 +10,12 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
@@ -101,6 +103,7 @@ class SubmissionStatsService(
 
         serializationService
             .filesFlow(sub)
+            .filterIsInstance<PersistedExtFile>()
             .collect {
                 if (it.type == ExtFileType.FILE) subFilesSize += it.size
                 if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
@@ -121,6 +124,7 @@ class SubmissionStatsService(
     ): Boolean =
         serializationService
             .filesFlow(sub)
+            .filterIsInstance<PersistedExtFile>()
             .filter { it.type == ExtFileType.FILE }
             .firstOrNull { it.filePath.contains(directoryPath) } != null
 

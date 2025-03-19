@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.asNfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
@@ -35,6 +36,7 @@ class NfsFilesService(
             when (file) {
                 is FireFile -> persistFireFile(sub, file)
                 is NfsFile -> persistNfsFile(sub, file)
+                is RequestFile -> error("RequestFile ${file.filePath} can not be persisted")
             }
         }
 
@@ -99,6 +101,8 @@ class NfsFilesService(
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ) = withContext(Dispatchers.IO) {
+        require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
+
         val subFolder = folderResolver.getPublicSubFolder(sub.relPath)
         val toDeleteFile = subFolder.resolve(file.relPath).toFile()
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
@@ -29,6 +30,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         when (file) {
             is NfsFile -> gen.serializeNfsFile(file)
             is FireFile -> gen.serializeFireFile(file)
+            is RequestFile -> gen.serializeFireFile(file)
         }
     }
 
@@ -59,6 +61,14 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStringField(FILE_TYPE, file.type.value)
         writeStringField(FILE_MD5, file.md5)
         writeNumberField(FILE_SIZE, file.size)
+        writeEndObject()
+    }
+
+    private fun JsonGenerator.serializeFireFile(file: RequestFile) {
+        writeStartObject()
+        writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FILE_FILEPATH, file.filePath)
+        writeObjectField(ATTRIBUTES, file.attributes)
         writeEndObject()
     }
 }

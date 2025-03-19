@@ -20,6 +20,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -65,8 +66,8 @@ class ExtSubmissionSerializerTest {
             return module
         }
 
-        private fun expectedJsonSubmission(released: Boolean): JsonObject {
-            return jsonObj {
+        private fun expectedJsonSubmission(released: Boolean): JsonObject =
+            jsonObj {
                 "accNo" to "S-TEST1"
                 "version" to 1
                 "schemaVersion" to "1.0"
@@ -137,7 +138,6 @@ class ExtSubmissionSerializerTest {
                     )
                 "storageMode" to "NFS"
             }
-        }
 
         private fun createTestSubmission(released: Boolean): ExtSubmission {
             val releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -198,6 +198,7 @@ object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
         when (extFile) {
             is FireFile -> gen.writeStringField(EXT_TYPE, ExtType.FireFile.type)
             is NfsFile -> gen.writeStringField(EXT_TYPE, ExtType.NfsFile.type)
+            is RequestFile -> gen.writeStringField(EXT_TYPE, ExtType.RequestFile.type)
         }
         gen.writeEndObject()
     }

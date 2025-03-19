@@ -50,7 +50,6 @@ class ExtSubmissionService(
         val toRefresh = submission.copy(released = released)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = toRefresh,
             )
@@ -72,7 +71,6 @@ class ExtSubmissionService(
         val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay(), released = released)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = toRelease,
             )
@@ -89,7 +87,6 @@ class ExtSubmissionService(
         val submission = processSubmission(user, sub)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = submission,
             )
@@ -105,7 +102,6 @@ class ExtSubmissionService(
         val submission = processSubmission(user, sub)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = submission,
             )
@@ -126,7 +122,6 @@ class ExtSubmissionService(
         val transfer = processSubmission(user, source.copy(storageMode = target))
         val request =
             ExtSubmitRequest(
-                owner = source.owner,
                 notifyTo = user,
                 submission = transfer,
             )

@@ -70,6 +70,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     draft = "draft-content",
                     status = CLEANED,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    onBehalfUser = null,
+                    files = emptyList(),
+                    preferredSources = listOf("SUBMISSION"),
                     process =
                         DocRequestProcessing(
                             notifyTo = "user@test.org",
@@ -137,6 +140,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     draft = "draft-content",
                     status = CLEANED,
                     modificationTime = Instant.now(),
+                    onBehalfUser = null,
+                    files = emptyList(),
+                    preferredSources = listOf("SUBMISSION"),
                     process =
                         DocRequestProcessing(
                             silentMode = false,
@@ -184,6 +190,9 @@ class SubmissionRequestDocDataRepositoryTest(
                         draft = "draft-content",
                         status = CLEANED,
                         modificationTime = Instant.now(),
+                        onBehalfUser = null,
+                        files = emptyList(),
+                        preferredSources = listOf("SUBMISSION"),
                         process =
                             DocRequestProcessing(
                                 silentMode = false,
@@ -208,6 +217,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     draft = "draft-content",
                     status = REQUESTED,
                     modificationTime = Instant.now().plusSeconds(10),
+                    onBehalfUser = null,
+                    files = emptyList(),
+                    preferredSources = listOf("SUBMISSION"),
                     process =
                         DocRequestProcessing(
                             silentMode = false,
@@ -252,6 +264,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     draft = "draft-content",
                     status = REQUESTED,
                     modificationTime = Instant.now().plusSeconds(10),
+                    onBehalfUser = null,
+                    files = emptyList(),
+                    preferredSources = listOf("SUBMISSION"),
                     process =
                         DocRequestProcessing(
                             silentMode = false,

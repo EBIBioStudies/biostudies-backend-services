@@ -1,8 +1,10 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import java.io.File
 import java.time.OffsetDateTime
 
 data class SubmissionRequestStatusChange(
@@ -53,6 +55,9 @@ data class SubmissionRequest(
     val draft: String? = null,
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
+    val files: List<File> = emptyList(),
+    val preferredSources: List<PreferredSource> = emptyList(),
+    val onBehalfUser: String? = null,
     val errors: List<String> = emptyList(),
     val process: SubmissionRequestProcessing? = null,
 ) {
@@ -64,10 +69,16 @@ data class SubmissionRequest(
         notifyTo: String,
         silentMode: Boolean,
         singleJobMode: Boolean,
+        files: List<File>,
+        preferredSources: List<PreferredSource>,
+        onBehalfUser: String?,
     ) : this(
         accNo,
         version,
         owner,
+        files = files,
+        preferredSources = preferredSources,
+        onBehalfUser = onBehalfUser,
         status = REQUESTED,
         modificationTime = OffsetDateTime.now(),
         process = SubmissionRequestProcessing(submission, notifyTo, silentMode, singleJobMode),

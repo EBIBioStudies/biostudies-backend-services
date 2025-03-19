@@ -22,6 +22,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtType.FireFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Link
 import uk.ac.ebi.extended.serialization.constants.ExtType.LinksTable
 import uk.ac.ebi.extended.serialization.constants.ExtType.NfsFile
+import uk.ac.ebi.extended.serialization.constants.ExtType.RequestFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Section
 import uk.ac.ebi.extended.serialization.constants.ExtType.SectionsTable
 import uk.ac.ebi.serialization.extensions.getNode
@@ -42,6 +43,7 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
             is Link -> Either.left(mapper.convertValue<ExtLink>(node))
             is NfsFile,
             is FireFile,
+            is RequestFile,
             -> Either.left(mapper.convertValue<ExtFile>(node))
 
             is Section -> Either.left(mapper.convertValue<ExtSection>(node))
