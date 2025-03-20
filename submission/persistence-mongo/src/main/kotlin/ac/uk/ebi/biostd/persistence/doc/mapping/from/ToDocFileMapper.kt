@@ -75,5 +75,5 @@ internal fun ExtFile.toDocFile(): DocFile =
                 fileSize = size,
             )
 
-        is RequestFile -> RequestDocFile(filePath = filePath, attributes = attributes.map { it.toDocAttribute() })
+        is RequestFile -> RequestDocFile(filePath, attributes.map { it.toDocAttribute() }, type)
     }

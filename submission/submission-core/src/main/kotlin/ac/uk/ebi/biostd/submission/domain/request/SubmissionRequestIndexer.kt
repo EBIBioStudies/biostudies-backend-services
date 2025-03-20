@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -33,7 +33,7 @@ class SubmissionRequestIndexer(
         version: Int,
         processId: String,
     ): SubmissionRequest =
-        requestService.onRequest(accNo, version, REQUESTED, processId) {
+        requestService.onRequest(accNo, version, FILES_VALIDATED, processId) {
             it.indexed(indexRequest(it.process!!.submission))
         }
 

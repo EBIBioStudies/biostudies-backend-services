@@ -8,6 +8,7 @@ import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
+import ebi.ac.uk.extended.events.RequestFilesValidated
 import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
@@ -33,6 +34,15 @@ class SubmissionMessageListener(
 ) {
     @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {
+        processSafely(rqt) {
+            val (accNo, version) = rqt
+            logger.info { "$accNo, Received validates files message for submission $accNo, version: $version" }
+            submissionSubmitter.handleRequestAsync(accNo, version)
+        }
+    }
+
+    @RabbitHandler
+    fun loadRequest(rqt: RequestFilesValidated) {
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received index message for submission $accNo, version: $version" }

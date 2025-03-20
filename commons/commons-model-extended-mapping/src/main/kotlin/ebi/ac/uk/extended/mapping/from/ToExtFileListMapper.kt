@@ -28,12 +28,51 @@ class ToExtFileListMapper(
     suspend fun convert(
         accNo: String,
         version: Int,
+        fileList: ExtFileList,
+        fileSource: FileSourcesList,
+    ): ExtFileList {
+        val target = filesResolver.createRequestTempFile(accNo, version, fileList.fileName)
+        val file = toExtFile(accNo, fileList, target, fileSource)
+        return ExtFileList(fileList.filePath, file)
+    }
+
+    suspend fun convert(
+        accNo: String,
+        version: Int,
         fileList: FileList,
         fileSource: FileSourcesList,
     ): ExtFileList {
         val name = fileList.canonicalName
         val target = filesResolver.createRequestTempFile(accNo, version, name)
-        return ExtFileList(name, toExtFile(accNo, fileList.file, SubFormat.fromFile(fileList.file), target, fileSource))
+        val file = toExtFile(accNo, fileList.file, SubFormat.fromFile(fileList.file), target, fileSource)
+        return ExtFileList(name, file)
+    }
+
+    private suspend fun toExtFile(
+        accNo: String,
+        fileList: ExtFileList,
+        target: File,
+        sources: FileSourcesList,
+    ): File {
+        suspend fun copy(
+            input: InputStream,
+            target: OutputStream,
+        ) {
+            val idx = AtomicInteger(0)
+            val sourceFiles =
+                extSerializationService
+                    .deserializeListAsFlow(input)
+                    .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.filePath}'" } }
+                    .map { sources.getExtFile(it) }
+            val files = extSerializationService.serialize(sourceFiles, target)
+            if (files < 1) throw InvalidFileListException.emptyFileList(fileList.fileName)
+        }
+
+        val source = fileList.file
+        logger.info { "$accNo, Started mapping/check file list ${source.name} of submission '$accNo'" }
+        use(source.inputStream(), target.outputStream()) { input, output -> copy(input, output) }
+        logger.info { "$accNo, Finished mapping/check file list ${source.name} of submission '$accNo'" }
+        return target
     }
 
     private suspend fun toExtFile(
@@ -50,9 +89,10 @@ class ToExtFileListMapper(
         ) {
             val idx = AtomicInteger(0)
             val sourceFiles =
-                serializationService.deserializeFileListAsFlow(input, format)
+                serializationService
+                    .deserializeFileListAsFlow(input, format)
                     .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.path}'" } }
-                    .map { sources.getExtFile(it.path, it.type, it.attributes) }
+                    .map { sources.getExtFile(it) }
             val files = extSerializationService.serialize(sourceFiles, target)
             if (files < 1) throw InvalidFileListException.emptyFileList(source.name)
         }

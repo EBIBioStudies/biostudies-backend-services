@@ -34,6 +34,11 @@ import ebi.ac.uk.io.ext.exist
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
+import ebi.ac.uk.model.constants.FileFields.DB_ID
+import ebi.ac.uk.model.constants.FileFields.DB_MD5
+import ebi.ac.uk.model.constants.FileFields.DB_PATH
+import ebi.ac.uk.model.constants.FileFields.DB_PUBLISHED
+import ebi.ac.uk.model.constants.FileFields.DB_SIZE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.flow.toList
@@ -672,7 +677,14 @@ class SubmissionFileSourceTest(
                 assertThat(fireFile.firePath).isEqualTo("S-FSTST/006/S-FSTST6/Files/DataFile555.txt")
                 assertThat(fireFile.relPath).isEqualTo("Files/DataFile555.txt")
                 assertThat(fireFile.filePath).isEqualTo("DataFile555.txt")
-                assertThat(fireFile.attributes).isEmpty()
+
+                val attributes = fireFile.attributes
+                assertThat(attributes).hasSize(5)
+                assertThat(attributes.first { it.name == DB_MD5.value }.value).isEqualTo("abc-123")
+                assertThat(attributes.first { it.name == DB_SIZE.value }.value).isEqualTo("145")
+                assertThat(attributes.first { it.name == DB_ID.value }.value).isEqualTo("unique-id")
+                assertThat(attributes.first { it.name == DB_PUBLISHED.value }.value).isEqualTo("true")
+                assertThat(attributes.first { it.name == DB_PATH.value }.value).isEqualTo("S-FSTST/006/S-FSTST6/Files/DataFile555.txt")
             }
         }
 

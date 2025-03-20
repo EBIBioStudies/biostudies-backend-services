@@ -28,6 +28,8 @@ class SubmissionSubmitter(
             ExtSubmitRequest(
                 notifyTo = rqt.owner,
                 submission = sub,
+                onBehalfUser = rqt.onBehalfUser?.email,
+                previousVersion = rqt.previousVersion?.version,
                 preferredSources = rqt.preferredSources,
                 requestFiles = rqt.requestFiles,
                 silentMode = rqt.silentMode,

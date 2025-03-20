@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
@@ -40,9 +41,20 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         return when (val type = ExtType.valueOf(node.getNode<TextNode>(EXT_TYPE).textValue())) {
             is ExtType.NfsFile -> nfsFile(node, mapper)
             is ExtType.FireFile -> fireFile(node, mapper)
+            is ExtType.RequestFile -> requestFile(node, mapper)
             else -> throw InvalidExtTypeException(type.type)
         }
     }
+
+    private fun requestFile(
+        node: JsonNode,
+        mapper: ObjectMapper,
+    ): RequestFile =
+        RequestFile(
+            filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
+            type = node.getNode<TextNode>(FILE_TYPE).textValue(),
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
+        )
 
     private fun fireFile(
         node: JsonNode,

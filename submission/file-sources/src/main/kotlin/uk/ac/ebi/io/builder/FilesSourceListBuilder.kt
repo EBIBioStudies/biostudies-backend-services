@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.allInnerSubmissionFiles
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
@@ -30,7 +31,7 @@ class FilesSourceListBuilder(
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    private fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
+    private fun build(): FileSourcesList = SourcesList(checkFilesPath, sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()

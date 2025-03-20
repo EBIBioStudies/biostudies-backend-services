@@ -62,6 +62,7 @@ sealed interface PersistedExtFile : ExtFile {
 data class RequestFile(
     override val filePath: String,
     override val attributes: List<ExtAttribute>,
+    val type: String,
 ) : ExtFile
 
 data class FireFile(

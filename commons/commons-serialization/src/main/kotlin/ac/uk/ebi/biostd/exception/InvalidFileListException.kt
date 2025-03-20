@@ -1,9 +1,12 @@
 package ac.uk.ebi.biostd.exception
 
 class InvalidFileListException(
-    fileName: String,
-    message: String,
-) : RuntimeException("Problem processing file list '$fileName': $message") {
+    private val fileName: String,
+    private val errorMessage: String,
+) : RuntimeException() {
+    override val message: String
+        get() = "Problem processing file list '$fileName': $errorMessage"
+
     companion object {
         fun directoryCantBeFileList(fileName: String) = InvalidFileListException(fileName, "A directory can't be used as File List")
 

@@ -1,7 +1,7 @@
 package ebi.ac.uk.io.sources
 
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.model.Attribute
 import java.io.File
 
 enum class PreferredSource { SUBMISSION, USER_SPACE }
@@ -12,7 +12,7 @@ interface FilesSource {
     suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
+        attributes: List<ExtAttribute>,
     ): ExtFile?
 
     suspend fun getFileList(path: String): File?

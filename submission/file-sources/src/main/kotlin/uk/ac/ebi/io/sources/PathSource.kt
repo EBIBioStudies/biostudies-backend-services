@@ -1,9 +1,9 @@
 package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.base.remove
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.DIRECTORY_TYPE
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
@@ -17,14 +17,10 @@ internal class PathSource(
     override suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
-    ): ExtFile? {
-        return findFile(path)?.let { createFile(path, it, attributes) }
-    }
+        attributes: List<ExtAttribute>,
+    ): ExtFile? = findFile(path)?.let { createFile(path, it, attributes) }
 
-    override suspend fun getFileList(path: String): File? {
-        return findFile(path)
-    }
+    override suspend fun getFileList(path: String): File? = findFile(path)
 
     private fun findFile(path: String): File? {
         val filePath = sourcePath.resolve(path)
@@ -45,15 +41,13 @@ internal class UserPathSource(
     override suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
+        attributes: List<ExtAttribute>,
     ): ExtFile? {
         val filePath = if (type == DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         return pathSource.getExtFile(filePath, type, attributes)
     }
 
-    override suspend fun getFileList(path: String): File? {
-        return pathSource.getFileList(path)
-    }
+    override suspend fun getFileList(path: String): File? = pathSource.getFileList(path)
 }
 
 internal class GroupPathSource(
@@ -67,8 +61,6 @@ internal class GroupPathSource(
     override suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
-    ): ExtFile? {
-        return pathSource.getExtFile(path.remove(groupPattern), type, attributes)
-    }
+        attributes: List<ExtAttribute>,
+    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), type, attributes)
 }

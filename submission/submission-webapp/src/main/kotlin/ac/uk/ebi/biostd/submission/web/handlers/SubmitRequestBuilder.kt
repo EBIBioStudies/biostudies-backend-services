@@ -74,6 +74,7 @@ data class SubmitBuilderRequest(
     val user: SecurityUser,
     val onBehalfRequest: OnBehalfParameters?,
     val submissionRequestParameters: SubmitParameters,
+    val asynchronous: Boolean = false,
     val draftKey: String? = null,
     val draftContent: String? = null,
     val files: List<File>? = null,

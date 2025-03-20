@@ -91,6 +91,7 @@ sealed interface DocFile {
 data class RequestDocFile(
     override val filePath: String,
     override val attributes: List<DocAttribute>,
+    val type: String,
 ) : DocFile
 
 data class NfsDocFile(

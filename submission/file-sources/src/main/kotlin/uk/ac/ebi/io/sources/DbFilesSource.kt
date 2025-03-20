@@ -1,12 +1,10 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.extended.mapping.from.toExtAttributes
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.FileFields.DB_ID
 import ebi.ac.uk.model.constants.FileFields.DB_MD5
@@ -25,7 +23,7 @@ internal object DbFilesSource : FilesSource {
     override suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
+        attributes: List<ExtAttribute>,
     ): ExtFile? {
         val valuesMap = attributes.associateBy({ it.name }, { it.value })
         val dbFile = getDbFile(valuesMap)
@@ -71,7 +69,7 @@ internal object DbFilesSource : FilesSource {
     private fun asFireFile(
         path: String,
         db: ByPassFile,
-        attributes: List<Attribute>,
+        attributes: List<ExtAttribute>,
     ): FireFile =
         FireFile(
             fireId = db.id,
@@ -82,7 +80,7 @@ internal object DbFilesSource : FilesSource {
             md5 = db.md5,
             type = FILE,
             size = db.size,
-            attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS),
+            attributes = attributes,
         )
 
     private data class ByPassFile(

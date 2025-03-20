@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
@@ -43,6 +44,7 @@ import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.service.SecurityQueryService
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -69,6 +71,26 @@ import java.io.File
 class SubmitterConfig(
     private val properties: ApplicationProperties,
 ) {
+    @Bean
+    fun requestFileValidator(
+        requestService: SubmissionRequestPersistenceService,
+        fileSourcesService: FileSourcesService,
+        securityService: SecurityQueryService,
+        toExtSectionMapper: ToExtSectionMapper,
+        queryService: SubmissionPersistenceQueryService,
+        appProperties: ApplicationProperties,
+        pageTabService: PageTabService,
+    ): SubmissionRequestFilesValidator =
+        SubmissionRequestFilesValidator(
+            requestService,
+            fileSourcesService,
+            securityService,
+            toExtSectionMapper,
+            queryService,
+            pageTabService,
+            appProperties,
+        )
+
     @Bean
     fun requestIndexer(
         serializationService: ExtSerializationService,
@@ -184,10 +206,10 @@ class SubmitterConfig(
     @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
     fun localExtSubmissionSubmitter(
         appProperties: ApplicationProperties,
-        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         submissionQueryService: ExtSubmissionQueryService,
+        requestFilesValidator: SubmissionRequestFilesValidator,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
         requestToCleanIndexed: SubmissionRequestCleanIndexer,
@@ -201,9 +223,9 @@ class SubmitterConfig(
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
-            pageTabService,
             requestService,
             persistenceService,
+            requestFilesValidator,
             requestIndexer,
             requestLoader,
             requestToCleanIndexed,

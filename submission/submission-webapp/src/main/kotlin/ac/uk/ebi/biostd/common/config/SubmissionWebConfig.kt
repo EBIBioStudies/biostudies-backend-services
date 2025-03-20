@@ -9,12 +9,12 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
@@ -58,9 +58,9 @@ class SubmissionWebConfig {
     fun extendedSubmissionSubmitter(
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
         appProperties: ApplicationProperties,
-        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
+        requestFilesValidator: SubmissionRequestFilesValidator,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
         requestCleanIndexer: SubmissionRequestCleanIndexer,
@@ -76,9 +76,9 @@ class SubmissionWebConfig {
         val local =
             LocalExtSubmissionSubmitter(
                 appProperties,
-                pageTabService,
                 requestService,
                 persistenceService,
+                requestFilesValidator,
                 requestIndexer,
                 requestLoader,
                 requestCleanIndexer,
@@ -118,6 +118,7 @@ class SubmissionWebConfig {
         fileServiceFactory: FileServiceFactory,
         persistenceService: SubmissionPersistenceService,
         requestDraftService: SubmissionRequestDraftService,
+        appProperties: ApplicationProperties,
     ): SubmitWebHandler =
         SubmitWebHandler(
             accNoService,
@@ -130,6 +131,7 @@ class SubmissionWebConfig {
             fileServiceFactory,
             persistenceService,
             requestDraftService,
+            appProperties,
         )
 
     @Bean

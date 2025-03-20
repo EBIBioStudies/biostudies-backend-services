@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
+import ebi.ac.uk.extended.events.RequestFilesValidated
 import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
@@ -41,6 +42,15 @@ class EventsPublisherService(
             RequestFilesCopied(accNo, version),
         )
     }
+
+    fun filesChecked(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestFilesValidated(accNo, version),
+    )
 
     fun requestIndexed(
         accNo: String,
