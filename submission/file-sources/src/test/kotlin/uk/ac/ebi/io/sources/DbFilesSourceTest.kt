@@ -1,8 +1,8 @@
 package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.DB_ID
 import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
@@ -140,11 +140,11 @@ class DbFilesSourceTest {
     ): ExtFile? {
         val attributes =
             buildList {
-                if (dbMd5 != null) add(Attribute(name = DB_MD5.value, value = dbMd5))
-                if (dbSize != null) add(Attribute(name = DB_SIZE.value, value = dbSize))
-                if (dbId != null) add(Attribute(name = DB_ID.value, value = dbId))
-                if (dbPath != null) add(Attribute(name = DB_PATH.value, value = dbPath))
-                if (dbPublished != null) add(Attribute(name = DB_PUBLISHED.value, value = dbPublished.toString()))
+                if (dbMd5 != null) add(ExtAttribute(name = DB_MD5.value, value = dbMd5))
+                if (dbSize != null) add(ExtAttribute(name = DB_SIZE.value, value = dbSize))
+                if (dbId != null) add(ExtAttribute(name = DB_ID.value, value = dbId))
+                if (dbPath != null) add(ExtAttribute(name = DB_PATH.value, value = dbPath))
+                if (dbPublished != null) add(ExtAttribute(name = DB_PUBLISHED.value, value = dbPublished.toString()))
             }
         return DbFilesSource.getExtFile(
             "path",

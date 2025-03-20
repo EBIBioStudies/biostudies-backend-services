@@ -68,7 +68,9 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStartObject()
         writeStringField(FILE_NAME, file.fileName)
         writeStringField(FILE_FILEPATH, file.filePath)
+        writeStringField(FILE_TYPE, file.type)
         writeObjectField(ATTRIBUTES, file.attributes)
+        writeStringField(EXT_TYPE, ExtType.RequestFile.type)
         writeEndObject()
     }
 }

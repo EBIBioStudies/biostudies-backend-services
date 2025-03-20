@@ -1,7 +1,7 @@
 package uk.ac.ebi.io.sources
 
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -13,8 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PathSourceTest(temporaryFolder: TemporaryFolder) {
-    private val attributes = emptyList<Attribute>()
+internal class PathSourceTest(
+    temporaryFolder: TemporaryFolder,
+) {
+    private val attributes = emptyList<ExtAttribute>()
     private val file: File = temporaryFolder.createFile("abc.txt", "the content of file")
 
     private val testInstance = PathSource("Example description", temporaryFolder.root.toPath())

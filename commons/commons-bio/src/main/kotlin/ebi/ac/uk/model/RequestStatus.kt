@@ -4,6 +4,7 @@ enum class RequestStatus {
     DRAFT,
     SUBMITTED,
     REQUESTED,
+    FILES_VALIDATED,
     INDEXED,
     LOADED,
     VALIDATED,
@@ -27,6 +28,7 @@ enum class RequestStatus {
             setOf(
                 SUBMITTED,
                 REQUESTED,
+                FILES_VALIDATED,
                 INDEXED,
                 LOADED,
                 INDEXED_CLEANED,

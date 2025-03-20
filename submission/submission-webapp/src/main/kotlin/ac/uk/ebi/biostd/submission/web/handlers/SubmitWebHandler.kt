@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
@@ -21,6 +22,7 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.sources.ByPassSourceList
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionId
@@ -45,6 +47,7 @@ class SubmitWebHandler(
     private val fileServiceFactory: FileServiceFactory,
     private val persistenceService: SubmissionPersistenceService,
     private val requestDraftService: SubmissionRequestDraftService,
+    private val appProperties: ApplicationProperties,
 ) {
     suspend fun submit(request: ContentSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
@@ -168,6 +171,12 @@ class SubmitWebHandler(
                 preferredSources = preferredSources,
             )
 
+        fun getSources(sourceRequest: FileSourcesRequest): FileSourcesList =
+            when (appProperties.asyncMode) {
+                true -> ByPassSourceList(fileSourcesService.submissionSources(sourceRequest))
+                false -> fileSourcesService.submissionSources(sourceRequest)
+            }
+
         /**
          * Process the submission:
          *
@@ -182,7 +191,7 @@ class SubmitWebHandler(
         suspend fun processSubmission(): SubmitRequest {
             val (tempAccNo, rootPath) = deserializeSubmission()
             val previous = extSubService.findExtendedSubmission(tempAccNo)
-            val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
+            val sources = getSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
             val owner = onBehalfUser?.email ?: submitter.email
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.common.model
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import java.io.File
 import java.time.OffsetDateTime
@@ -32,6 +33,7 @@ data class SubmissionRequestProcessing(
 ) {
     constructor(
         submission: ExtSubmission,
+        previousVersion: Int?,
         notifyTo: String,
         silentMode: Boolean,
         singleJobMode: Boolean,
@@ -41,7 +43,7 @@ data class SubmissionRequestProcessing(
         totalFiles = 0,
         fileChanges = SubmissionRequestFileChanges(),
         currentIndex = 0,
-        previousVersion = null,
+        previousVersion = previousVersion,
         silentMode = silentMode,
         singleJobMode = singleJobMode,
         statusChanges = emptyList(),
@@ -72,6 +74,7 @@ data class SubmissionRequest(
         files: List<File>,
         preferredSources: List<PreferredSource>,
         onBehalfUser: String?,
+        previousVersion: Int?,
     ) : this(
         accNo,
         version,
@@ -81,7 +84,7 @@ data class SubmissionRequest(
         onBehalfUser = onBehalfUser,
         status = REQUESTED,
         modificationTime = OffsetDateTime.now(),
-        process = SubmissionRequestProcessing(submission, notifyTo, silentMode, singleJobMode),
+        process = SubmissionRequestProcessing(submission, previousVersion, notifyTo, silentMode, singleJobMode),
     )
 
     /**
@@ -92,6 +95,21 @@ data class SubmissionRequest(
             status = status,
             modificationTime = OffsetDateTime.now(),
             process = process?.copy(currentIndex = 0),
+        )
+
+    fun withErrors(errors: List<String>): SubmissionRequest = copy(errors = errors, status = INVALID)
+
+    /**
+     * Update request by setting new status, resetting current Index, submission body and updating modification date.
+     */
+    fun withNewStatus(
+        status: RequestStatus,
+        submission: ExtSubmission,
+    ): SubmissionRequest =
+        copy(
+            status = status,
+            modificationTime = OffsetDateTime.now(),
+            process = process?.copy(currentIndex = 0, submission = submission),
         )
 
     /**
@@ -125,7 +143,8 @@ data class SubmissionRequest(
 val RequestStatus.action: String
     get() {
         return when (this) {
-            REQUESTED -> "Indexing"
+            REQUESTED -> "Checking Files"
+            RequestStatus.FILES_VALIDATED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
             RequestStatus.LOADED -> "Indexing Files to Clean"
             RequestStatus.INDEXED_CLEANED -> "Validating"

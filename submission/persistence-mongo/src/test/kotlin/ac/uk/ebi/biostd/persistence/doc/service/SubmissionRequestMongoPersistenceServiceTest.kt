@@ -93,9 +93,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
-                        onBehalfUser = null,
                         files = emptyList(),
                         preferredSources = listOf(SUBMISSION),
+                        onBehalfUser = null,
+                        previousVersion = null,
                     )
 
                 val (accNo, version) = testInstance.saveRequest(rqt)
@@ -139,9 +140,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
-                        onBehalfUser = null,
                         files = emptyList(),
                         preferredSources = listOf(SUBMISSION),
+                        onBehalfUser = null,
+                        previousVersion = null,
                     )
 
                 val (accNo, version) = testInstance.saveRequest(rqt)

@@ -65,7 +65,8 @@ class SubmissionQueryResource(
     ): ResponseEntity<Resource> {
         val fileList = submissionService.getFileList(accNo, fileListName, subFormat)
         val resource = ByteArrayResource(Files.readAllBytes(fileList.toPath()))
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .contentLength(fileList.length())
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .body(resource)
