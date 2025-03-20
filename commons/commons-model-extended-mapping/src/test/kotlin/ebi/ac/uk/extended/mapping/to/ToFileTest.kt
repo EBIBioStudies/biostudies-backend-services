@@ -42,6 +42,7 @@ internal class ToFileTest(
     @BeforeEach
     fun beforeEach() {
         mockkStatic(TO_ATTRIBUTE_EXTENSIONS)
+        every { extAttribute.name } returns "attrName"
         every { extAttribute.toAttribute() } returns attribute
     }
 
