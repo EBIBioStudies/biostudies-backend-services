@@ -33,14 +33,13 @@ class SubmissionRequestFilesValidator(
         accNo: String,
         version: Int,
         processId: String,
-    ) {
+    ): SubmissionRequest =
         requestService.onRequest(accNo, version, REQUESTED, processId) {
             when {
                 appProperties.asyncMode -> processSafely(it)
                 else -> it.withNewStatus(FILES_VALIDATED, pageTabService.generatePageTab(it.process!!.submission))
             }
         }
-    }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun processSafely(request: SubmissionRequest): SubmissionRequest {

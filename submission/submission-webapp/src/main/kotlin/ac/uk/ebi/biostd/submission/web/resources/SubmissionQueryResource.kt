@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -58,6 +59,16 @@ class SubmissionQueryResource(
         @ModelAttribute request: SubmissionFilterRequest,
     ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
 
+    @GetMapping("/{accNo}")
+    suspend fun getSubmission(
+        @PathVariable accNo: String,
+        @BioUser user: SecurityUser,
+        @ModelAttribute request: SubmissionFilterRequest,
+    ): SubmissionDto? {
+        val filter = SubmissionListFilter(user.email, user.superuser, accNo, limit = 1)
+        return submissionsWebHandler.getSubmissions(filter).firstOrNull()?.let { it.asDto() }
+    }
+
     private suspend fun fileListFile(
         accNo: String,
         fileListName: String,
@@ -82,5 +93,6 @@ class SubmissionQueryResource(
             releaseTime,
             method,
             status.value,
+            errors,
         )
 }

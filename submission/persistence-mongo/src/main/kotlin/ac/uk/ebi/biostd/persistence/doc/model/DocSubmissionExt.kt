@@ -10,8 +10,8 @@ import ebi.ac.uk.model.constants.SectionFields
 import java.time.ZoneOffset.UTC
 import java.time.temporal.ChronoUnit
 
-fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission {
-    return BasicSubmission(
+fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
+    BasicSubmission(
         accNo = accNo,
         version = version,
         secretKey = secretKey,
@@ -24,8 +24,8 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission {
         status = status,
         method = method.toSubmissionMethod(),
         owner = owner,
+        errors = emptyList(),
     )
-}
 
 private fun DocSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
     when (this) {
@@ -34,9 +34,12 @@ private fun DocSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
         DocSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
     }
 
-fun ExtSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
+fun ExtSubmission.asBasicSubmission(
+    status: ProcessingStatus,
+    errors: List<String> = emptyList(),
+): BasicSubmission =
     BasicSubmission(
-        accNo = this.accNo,
+        accNo = accNo,
         version = version,
         secretKey = secretKey,
         title = section.title ?: title,
@@ -48,6 +51,7 @@ fun ExtSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
         status = status,
         method = method.toSubmissionMethod(),
         owner = owner,
+        errors = errors,
     )
 
 val ExtSection.title: String?

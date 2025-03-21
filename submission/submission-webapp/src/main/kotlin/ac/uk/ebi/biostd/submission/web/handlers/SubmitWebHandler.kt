@@ -109,7 +109,10 @@ class SubmitWebHandler(
             submission: Submission,
         ): SubmissionRequest {
             require(requestDraftService.hasProcessingRequest(accNo).not()) {
-                throw ConcurrentSubException(accNo, version)
+                throw ConcurrentSubException(
+                    accNo,
+                    version,
+                )
             }
 
             val pageTab = serializationService.serializeSubmission(submission, JSON)

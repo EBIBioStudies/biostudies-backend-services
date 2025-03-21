@@ -141,8 +141,8 @@ class LocalExtSubmissionSubmitter(
         }
 
         suspend fun fromIndexedToClean() {
-            val rqt = requestValidator.validateRequest(accNo, version, properties.processId)
-            if (rqt.status == VALIDATED) fromValidated()
+            val request = requestValidator.validateRequest(accNo, version, properties.processId)
+            if (request.status == VALIDATED) fromValidated()
         }
 
         suspend fun fromLoaded() {
@@ -161,8 +161,8 @@ class LocalExtSubmissionSubmitter(
         }
 
         suspend fun fromRequested() {
-            requestFilesValidator.checkFiles(accNo, version, properties.processId)
-            fromFilesValidated()
+            val request = requestFilesValidator.checkFiles(accNo, version, properties.processId)
+            if (request.status == VALIDATED) fromFilesValidated()
         }
 
         when (status) {
@@ -210,8 +210,8 @@ class LocalExtSubmissionSubmitter(
         accNo: String,
         version: Int,
     ) {
-        requestFilesValidator.checkFiles(accNo, version, properties.processId)
-        eventsPublisherService.filesChecked(accNo, version)
+        val request = requestFilesValidator.checkFiles(accNo, version, properties.processId)
+        if (request.status == FILES_VALIDATED) eventsPublisherService.filesChecked(accNo, version)
     }
 
     private suspend fun indexRequest(

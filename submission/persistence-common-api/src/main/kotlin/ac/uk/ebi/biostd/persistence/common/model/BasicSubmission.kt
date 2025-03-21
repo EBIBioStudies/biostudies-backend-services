@@ -20,4 +20,5 @@ data class BasicSubmission(
     val method: SubmissionMethod?,
     var status: ProcessingStatus,
     val owner: String,
+    val errors: List<String>,
 )

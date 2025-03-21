@@ -19,7 +19,9 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.Companion.ACTIVE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.DRAFT_STATUS
+import ebi.ac.uk.model.RequestStatus.Companion.EDITABLE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
@@ -54,10 +56,13 @@ class SubmissionRequestMongoPersistenceService(
             .findByOwnerAndStatusIn(owner, DRAFT_STATUS, pageRequest.asDataPageRequest())
             .map { asRequest(it) }
 
-    override suspend fun findRequestDraft(
+    override suspend fun findEditableRequest(
         accNo: String,
         owner: String,
-    ): SubmissionRequest? = requestRepository.findByAccNoAndOwnerAndStatus(accNo, owner, DRAFT)?.let { asRequest(it) }
+    ): SubmissionRequest? {
+        val request = requestRepository.findByAccNoAndOwnerAndStatusIn(accNo, owner, EDITABLE_STATUS)
+        return request?.let { asRequest(it) }
+    }
 
     override suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest? =
         requestRepository.findByAccNoAndStatusIn(accNo, setOf(DRAFT))?.let {
@@ -112,15 +117,15 @@ class SubmissionRequestMongoPersistenceService(
             .findByStatusIn(PROCESSED_STATUS)
             .map { it.accNo to it.version }
 
-    override suspend fun hasActiveRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
+    override suspend fun hasProcesingRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 
-    override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
+    override fun getActiveRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request =
             when (since) {
-                null -> requestRepository.findByStatusIn(PROCESSING_STATUS)
+                null -> requestRepository.findByStatusIn(ACTIVE_STATUS)
                 else ->
                     requestRepository.findByStatusInAndModificationTimeLessThan(
-                        PROCESSING_STATUS,
+                        ACTIVE_STATUS,
                         Instant.now().minus(since),
                     )
             }
@@ -245,6 +250,7 @@ class SubmissionRequestMongoPersistenceService(
             accNo = rqt.accNo,
             version = rqt.version,
             owner = rqt.owner,
+            errors = rqt.errors,
             draft = rqt.draft,
             status = rqt.status,
             process = rqt.process?.let { requestProcessing(it) },

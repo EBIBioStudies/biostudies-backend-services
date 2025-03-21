@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.coroutines.waitUntilNoException
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -35,6 +36,7 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -443,6 +445,58 @@ class SubmissionApiTest(
 
                 val extSub = submissionRepository.getExtByAccNo("S-12366")
                 assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
+            }
+    }
+
+    @Nested
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.asyncMode=true"])
+    inner class SubmitAsyncFileValidation(
+        @LocalServerPort val serverPort: Int,
+    ) {
+        private lateinit var webClient: BioWebClient
+
+        @BeforeAll
+        fun init() {
+            webClient = getWebClient(serverPort, SuperUser)
+        }
+
+        @Test
+        fun `16-18 Submit files with errros`() =
+            runTest {
+                val accNo = "ASYNC-123"
+                val submission =
+                    tsv {
+                        line("Submission", accNo)
+                        line()
+                        line("Study")
+                        line()
+                        line("File", "missing_file.txt")
+                    }.toString()
+
+                val response = webClient.submitAsync(submission, TSV)
+
+                waitUntilNoException(timeout = FIVE_SECONDS) {
+                    val result = webClient.getSubmission(response.accNo)
+                    assertThat(result?.status).isEqualTo("INVALID")
+                    assertThat(result?.errors).containsExactly(
+                        """
+                        The following files could not be found:
+                          - missing_file.txt
+                        List of available sources:
+                          - Provided Db files
+                          - Request files []
+                          - biostudies-mgmt@ebi.ac.uk user files
+                        """.trimIndent(),
+                    )
+                }
+
+                webClient.uploadFile(tempFolder.createFile("missing_file.txt", "content"))
+                assertThat(webClient.submitFromDraft(accNo)).isSuccessful()
+                waitUntilNoException(timeout = FIVE_SECONDS) {
+                    val result = webClient.getSubmission(response.accNo)
+                    assertThat(result?.status).isEqualTo("PROCESSED")
+                    assertThat(result?.errors).isEmpty()
+                }
             }
     }
 

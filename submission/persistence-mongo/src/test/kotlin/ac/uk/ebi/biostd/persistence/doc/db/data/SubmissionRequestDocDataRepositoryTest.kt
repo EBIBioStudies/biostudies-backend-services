@@ -73,6 +73,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf("SUBMISSION"),
+                    errors = emptyList(),
                     process =
                         DocRequestProcessing(
                             notifyTo = "user@test.org",
@@ -143,6 +144,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf("SUBMISSION"),
+                    errors = emptyList(),
                     process =
                         DocRequestProcessing(
                             silentMode = false,
@@ -193,6 +195,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         onBehalfUser = null,
                         files = emptyList(),
                         preferredSources = listOf("SUBMISSION"),
+                        errors = emptyList(),
                         process =
                             DocRequestProcessing(
                                 silentMode = false,
@@ -220,6 +223,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf("SUBMISSION"),
+                    errors = emptyList(),
                     process =
                         DocRequestProcessing(
                             silentMode = false,
@@ -267,6 +271,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf("SUBMISSION"),
+                    errors = emptyList(),
                     process =
                         DocRequestProcessing(
                             silentMode = false,
