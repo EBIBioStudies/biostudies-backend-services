@@ -162,7 +162,7 @@ class LocalExtSubmissionSubmitter(
 
         suspend fun fromRequested() {
             val request = requestFilesValidator.checkFiles(accNo, version, properties.processId)
-            if (request.status == VALIDATED) fromFilesValidated()
+            if (request.status == FILES_VALIDATED) fromFilesValidated()
         }
 
         when (status) {
@@ -211,7 +211,7 @@ class LocalExtSubmissionSubmitter(
         version: Int,
     ) {
         val request = requestFilesValidator.checkFiles(accNo, version, properties.processId)
-        if (request.status == FILES_VALIDATED) eventsPublisherService.filesChecked(accNo, version)
+        if (request.status == FILES_VALIDATED) eventsPublisherService.filesValidated(accNo, version)
     }
 
     private suspend fun indexRequest(

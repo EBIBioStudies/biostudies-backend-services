@@ -43,7 +43,7 @@ class EventsPublisherService(
         )
     }
 
-    fun filesChecked(
+    fun filesValidated(
         accNo: String,
         version: Int,
     ) = rabbitTemplate.convertAndSend(

@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.errors.InvalidPathException
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
@@ -50,6 +51,7 @@ class SubmissionRequestFilesValidator(
             return when (e) {
                 is FilesProcessingException -> request.withErrors(listOf(e.message))
                 is InvalidFileListException -> request.withErrors(listOf(e.message))
+                is InvalidPathException -> request.withErrors(listOf(e.message))
                 else -> request.withErrors(listOf("Unknoew processing error. Please contact Admin."))
             }
         }
