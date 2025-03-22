@@ -63,7 +63,6 @@ class SubmissionQueryResource(
     suspend fun getSubmission(
         @PathVariable accNo: String,
         @BioUser user: SecurityUser,
-        @ModelAttribute request: SubmissionFilterRequest,
     ): SubmissionDto? {
         val filter = SubmissionListFilter(user.email, user.superuser, accNo, limit = 1)
         return submissionsWebHandler.getSubmissions(filter).firstOrNull()?.let { it.asDto() }

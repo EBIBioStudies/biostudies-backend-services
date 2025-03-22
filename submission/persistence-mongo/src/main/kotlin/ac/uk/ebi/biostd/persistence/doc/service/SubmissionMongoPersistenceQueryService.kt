@@ -126,7 +126,7 @@ internal class SubmissionMongoPersistenceQueryService(
         val submission = serializationService.deserialize(request.process?.submission.toString())
         return when (request.status) {
             RequestStatus.INVALID -> submission.asBasicSubmission(ProcessingStatus.INVALID, request.errors)
-            else -> submission.asBasicSubmission(ProcessingStatus.PROCESSED)
+            else -> submission.asBasicSubmission(ProcessingStatus.PROCESSING)
         }
     }
 

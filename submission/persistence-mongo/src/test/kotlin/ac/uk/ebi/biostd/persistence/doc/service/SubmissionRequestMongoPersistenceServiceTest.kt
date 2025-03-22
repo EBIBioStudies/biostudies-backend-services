@@ -184,6 +184,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf(SUBMISSION.name),
+                    errors = emptyList(),
                     process =
                         DocRequestProcessing(
                             notifyTo = "user@test.org",
@@ -237,6 +238,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 onBehalfUser = null,
                 files = emptyList(),
                 preferredSources = listOf(SUBMISSION.name),
+                errors = emptyList(),
                 process =
                     DocRequestProcessing(
                         silentMode = false,
@@ -295,6 +297,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             onBehalfUser = null,
             files = emptyList(),
             preferredSources = listOf(SUBMISSION.name),
+            errors = emptyList(),
             process =
                 DocRequestProcessing(
                     silentMode = false,
