@@ -52,7 +52,7 @@ class SubmissionRequestFilesValidator(
                 is FilesProcessingException -> request.withErrors(listOf(e.message))
                 is InvalidFileListException -> request.withErrors(listOf(e.message))
                 is InvalidPathException -> request.withErrors(listOf(e.message))
-                else -> request.withErrors(listOf("Unknoew processing error. Please contact Admin."))
+                else -> request.withErrors(listOf("Unknown processing error. Please contact Admin."))
             }
         }
     }
