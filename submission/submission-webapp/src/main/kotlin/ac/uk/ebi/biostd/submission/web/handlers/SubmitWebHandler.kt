@@ -166,6 +166,7 @@ class SubmitWebHandler(
             previous: ExtSubmission?,
         ): FileSourcesRequest =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 submitter = submitter,
                 files = requestFiles,
                 onBehalfUser = onBehalfUser,

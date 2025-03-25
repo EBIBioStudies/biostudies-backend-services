@@ -49,6 +49,7 @@ class FilesSourceListBuilder(
     fun addUserSource(
         securityUser: SecurityUser,
         description: String,
+        hasFtpFileAccess: Boolean,
         rootPath: String? = null,
     ) {
         val folder = securityUser.userFolder
@@ -58,9 +59,14 @@ class FilesSourceListBuilder(
         }
 
         if (folder is FtpUserFolder) {
-            val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
             val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
-            sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient))
+            when {
+                hasFtpFileAccess -> sources.add(UserPathSource(description, nfsPath))
+                else -> {
+                    val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
+                    sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient))
+                }
+            }
         }
     }
 

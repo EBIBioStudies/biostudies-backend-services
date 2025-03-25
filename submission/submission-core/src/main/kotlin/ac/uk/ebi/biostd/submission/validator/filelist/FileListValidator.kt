@@ -33,6 +33,7 @@ class FileListValidator(
         val submission = accNo?.let { submissionQueryService.findExtByAccNo(accNo, includeFileListFiles = false) }
         val fileSourcesRequest =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = onBehalfUser,
                 submitter = submitter,
                 files = null,

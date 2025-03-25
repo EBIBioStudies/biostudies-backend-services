@@ -72,6 +72,7 @@ class SubmissionRequestFilesValidator(
         val previous = request.previousVersion?.let { queryService.getExtByAccNoAndVersion(submission.accNo, it) }
         var sourceRequest =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = true,
                 onBehalfUser = submissionRequest.onBehalfUser?.let { securityService.getUser(it) },
                 files = submissionRequest.files,
                 submitter = securityService.getUser(submission.submitter),

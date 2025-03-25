@@ -43,6 +43,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with FIRE submission`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = onBehalfUser(),
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -68,6 +69,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with NFS submission`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = onBehalfUser(),
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -93,6 +95,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with no onBehalfUser`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = null,
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -116,6 +119,7 @@ class FileSourcesServiceTest(
     fun `submission sources with preferred sources`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = null,
                 submitter = submitter(),
                 files = null,
