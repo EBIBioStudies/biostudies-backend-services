@@ -15,15 +15,21 @@ class FileSourcesService(
     private val builder: FilesSourceListBuilder,
 ) {
     fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
-        val (ftpFileAccess, owner, submitter, files, rootPath, submission, preferredSources) = rqt
-        val preferred = preferredSources.ifEmpty { DEFAULT_SOURCES }
+        val hasFtpFileSystemAccess = rqt.hasFtpFileSystemAccess
+        val onBehalfUser = rqt.onBehalfUser
+        val submitter = rqt.submitter
+        val files = rqt.files
+        val rootPath = rqt.rootPath
+        val submission = rqt.submission
+        val preferred = rqt.preferredSources.ifEmpty { DEFAULT_SOURCES }
+
         val sources =
             builder.buildFilesSourceList {
                 if (submitter.superuser) addDbFilesSource()
                 if (files != null) addFilesListSource(files)
                 preferred.forEach {
                     when (it) {
-                        USER_SPACE -> addUserSources(rootPath, owner, submitter, ftpFileAccess, this)
+                        USER_SPACE -> addUserSources(rootPath, onBehalfUser, submitter, hasFtpFileSystemAccess, this)
                         SUBMISSION -> if (submission != null) addSubmissionSource(submission)
                     }
                 }
