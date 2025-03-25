@@ -35,6 +35,7 @@ sealed class ExtType(
             when (type) {
                 NFS_FILE -> NfsFile
                 FIRE_FILE -> FireFile
+                REQUEST_FILE -> RequestFile
                 FILES_TABLE -> FilesTable
                 LINK -> Link
                 LINKS_TABLE -> LinksTable

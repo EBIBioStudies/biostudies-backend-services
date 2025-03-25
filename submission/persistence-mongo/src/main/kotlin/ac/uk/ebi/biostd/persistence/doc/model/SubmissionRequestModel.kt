@@ -26,7 +26,7 @@ data class DocSubmissionRequest(
     val preferredSources: List<String>,
     val onBehalfUser: String?,
     val process: DocRequestProcessing?,
-    val errors: List<String> = emptyList(),
+    val errors: List<String>,
 ) {
     fun asUpsert(): Update =
         Update()

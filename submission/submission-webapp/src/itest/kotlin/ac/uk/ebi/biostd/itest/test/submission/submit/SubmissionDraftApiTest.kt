@@ -130,7 +130,7 @@ class SubmissionDraftApiTest(
 
             webClient.deleteSubmissionDraft("ABC-128")
 
-            assertThat(requestRepository.findRequestDraft("ABC-128", SuperUser.email))
+            assertThat(requestRepository.findEditableRequest("ABC-128", SuperUser.email))
         }
 
     @Test

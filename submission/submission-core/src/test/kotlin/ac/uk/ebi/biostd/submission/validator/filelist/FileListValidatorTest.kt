@@ -10,11 +10,11 @@ import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -44,12 +44,12 @@ class FileListValidatorTest(
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
     private val serializationService = SerializationConfig.serializationService()
-    private val filesSource = FileSourcesList(true, listOf(source))
+    private val filesSource = SourcesList(true, listOf(source))
     private val testInstance = FileListValidator(fileSourcesService, serializationService, submissionQueryService)
 
     @BeforeEach
     fun beforeEach() {
-        coEvery { source.getExtFile("ref.txt", "file", listOf(Attribute("Type", "test"))) } returns extFile
+        coEvery { source.getExtFile("ref.txt", "file", listOf(ExtAttribute("Type", "test"))) } returns extFile
     }
 
     @AfterEach
@@ -101,7 +101,7 @@ class FileListValidatorTest(
         coEvery { source.getFileList("fail.xlsx") } returns invalid
         coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
         every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
-        coEvery { source.getExtFile("ghost.txt", "file", listOf(Attribute("Type", "fail"))) } returns null
+        coEvery { source.getExtFile("ghost.txt", "file", listOf(ExtAttribute("Type", "fail"))) } returns null
 
         excel(invalid) {
             sheet("page tab") {

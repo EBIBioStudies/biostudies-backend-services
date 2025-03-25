@@ -43,7 +43,7 @@ internal fun DocFile.toExtFile(
                 attributes = attributes.toExtAttributes(),
             )
 
-        is RequestDocFile -> RequestFile(filePath = filePath, attributes = attributes.toExtAttributes())
+        is RequestDocFile -> RequestFile(filePath, attributes.toExtAttributes(), type)
     }
 
 internal fun DocFileTable.toExtFileTable(
