@@ -12,6 +12,12 @@ var Section.fileListName: String?
         value?.let { this[SectionFields.FILE_LIST] = it }
     }
 
+var Section.linkListName: String?
+    get() = find(SectionFields.LINK_LIST)
+    set(value) {
+        value?.let { this[SectionFields.LINK_LIST] = it }
+    }
+
 fun Section.isAuthor(): Boolean = type.equals(AUTHOR_TYPE, ignoreCase = true)
 
 fun Section.isOrganization(): Boolean = ORG_TYPES.contains(type.lowercase())

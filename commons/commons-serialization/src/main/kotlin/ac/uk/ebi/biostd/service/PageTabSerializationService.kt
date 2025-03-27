@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -20,9 +21,7 @@ internal class PageTabSerializationService(
     override fun serializeSubmission(
         submission: Submission,
         format: SubFormat,
-    ): String {
-        return serializer.serializeSubmission(submission, format)
-    }
+    ): String = serializer.serializeSubmission(submission, format)
 
     override fun deserializeSubmission(
         content: String,
@@ -49,6 +48,11 @@ internal class PageTabSerializationService(
         inputStream: InputStream,
         format: SubFormat,
     ): Flow<BioFile> = fileListSerializer.deserializeFileListAsFlow(inputStream, format)
+
+    override fun deserializeLinkListAsFlow(
+        inputStream: InputStream,
+        format: SubFormat,
+    ): Flow<Link> = fileListSerializer.deserializeLinkListAsFlow(inputStream, format)
 
     override suspend fun serializeTable(
         table: FilesTable,

@@ -49,10 +49,14 @@ import java.io.OutputStream
 import java.io.StringWriter
 import java.time.OffsetDateTime
 
-data class Properties(val includeFileListFiles: Boolean) : StringWriter()
+data class Properties(
+    val includeFileListFiles: Boolean,
+) : StringWriter()
 
 @Suppress("TooManyFunctions")
-class ExtSerializationService private constructor(val mapper: ObjectMapper) {
+class ExtSerializationService private constructor(
+    val mapper: ObjectMapper,
+) {
     fun serialize(
         sub: ExtSubmission,
         props: Properties = Properties(false),
@@ -73,6 +77,11 @@ class ExtSerializationService private constructor(val mapper: ObjectMapper) {
         files: Flow<ExtFile>,
         stream: OutputStream,
     ): Int = mapper.serializeFlow(files, stream)
+
+    suspend fun serializeLinks(
+        links: Flow<ExtLink>,
+        stream: OutputStream,
+    ): Int = mapper.serializeFlow(links, stream)
 
     fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
 

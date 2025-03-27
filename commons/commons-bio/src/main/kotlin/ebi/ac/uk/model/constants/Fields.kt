@@ -1,5 +1,8 @@
 package ebi.ac.uk.model.constants
 
+import ebi.ac.uk.model.constants.SectionFields.FILE_LIST
+import ebi.ac.uk.model.constants.SectionFields.LINK_LIST
+
 const val AUTHOR_TYPE = "Author"
 const val COLLECTION_TYPE = "Project"
 val ORG_TYPES = setOf("organisation", "organization")
@@ -18,7 +21,7 @@ val SUBMISSION_RESERVED_ATTRIBUTES =
         SubFields.DOI.value,
     )
 
-val SECTION_RESERVED_ATTRS = setOf(SectionFields.FILE_LIST.value)
+val SECTION_RESERVED_ATTRS = setOf(FILE_LIST.value, LINK_LIST.value)
 val FILES_RESERVED_ATTRS =
     setOf(
         FileFields.MD5.value,
@@ -74,6 +77,7 @@ enum class SectionFields(
     TYPE("type"),
     FILES("files"),
     FILE_LIST("File List"),
+    LINK_LIST("Link List"),
     ;
 
     override fun toString(): String = value

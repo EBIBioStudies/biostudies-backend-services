@@ -10,6 +10,7 @@ class Section(
     var type: String = "",
     var accNo: String? = null,
     var fileList: FileList? = null,
+    var linkList: LinkList? = null,
     var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
     var files: MutableList<Either<BioFile, FilesTable>> = mutableListOf(),
     var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
@@ -33,7 +34,8 @@ class Section(
             other !is Section -> false
             other === this -> true
             else ->
-                Objects.equals(type, other.type)
+                Objects
+                    .equals(type, other.type)
                     .and(Objects.equals(accNo, other.accNo))
                     .and(Objects.equals(attributes, other.attributes))
         }

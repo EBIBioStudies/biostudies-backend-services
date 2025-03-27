@@ -98,6 +98,16 @@ data class ExtFileList(
         get() = filePath.substringAfterLast("/")
 }
 
+data class ExtLinkList(
+    val filePath: String,
+    val file: File,
+    val links: List<ExtLink> = listOf(),
+    val pageTabFiles: List<ExtFile> = listOf(),
+) {
+    val fileName: String
+        get() = filePath.substringAfterLast("/")
+}
+
 data class ExtSectionTable(
     val sections: List<ExtSection>,
 )
@@ -124,6 +134,7 @@ data class ExtSection(
     val accNo: String? = null,
     val type: String,
     val fileList: ExtFileList? = null,
+    val linkList: ExtLinkList? = null,
     val attributes: List<ExtAttribute> = listOf(),
     val sections: List<Either<ExtSection, ExtSectionTable>> = listOf(),
     val files: List<Either<ExtFile, ExtFileTable>> = listOf(),

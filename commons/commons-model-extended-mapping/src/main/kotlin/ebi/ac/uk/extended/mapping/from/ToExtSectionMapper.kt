@@ -1,7 +1,9 @@
 package ebi.ac.uk.extended.mapping.from
 
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.base.biMap
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.io.sources.FileSourcesList
@@ -10,6 +12,7 @@ import ebi.ac.uk.model.constants.SECTION_RESERVED_ATTRS
 
 class ToExtSectionMapper(
     private val toExtFileListMapper: ToExtFileListMapper,
+    private val toExtLinkListMapper: ToExtLinkListMapper,
 ) {
     suspend fun convert(
         accNo: String,
@@ -37,10 +40,15 @@ class ToExtSectionMapper(
         version: Int,
         sec: Section,
         source: FileSourcesList,
-    ): ExtSection =
-        ExtSection(
+    ): ExtSection {
+        // TODO links should be persisted in a separate collection
+        val linkList = sec.linkList?.let { toExtLinkListMapper.convert(accNo, version, it) }
+        val addedLinks = Either.Right(ExtLinkTable(linkList?.links.orEmpty()))
+
+        return ExtSection(
             type = sec.type,
             accNo = sec.accNo,
+            linkList = linkList,
             fileList = sec.fileList?.let { toExtFileListMapper.convert(accNo, version, it, source) },
             attributes = sec.attributes.toExtAttributes(SECTION_RESERVED_ATTRS),
             files =
@@ -48,11 +56,12 @@ class ToExtSectionMapper(
                     { source.getExtFile(it) },
                     { ExtFileTable(it.elements.map { source.getExtFile(it) }) },
                 ),
-            links = sec.links.biMap({ it.toExtLink() }, { it.toExtTable() }),
+            links = sec.links.biMap({ it.toExtLink() }, { it.toExtTable() }).plus(addedLinks),
             sections =
                 sec.sections.biMap(
                     { convert(accNo, version, it, source) },
                     { ExtSectionTable(it.elements.map { convert(accNo, version, it, source) }) },
                 ),
         )
+    }
 }

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.integration
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.annotations.Blocking
@@ -34,6 +35,11 @@ interface SerializationService {
         inputStream: InputStream,
         format: SubFormat,
     ): Flow<BioFile>
+
+    fun deserializeLinkListAsFlow(
+        inputStream: InputStream,
+        format: SubFormat,
+    ): Flow<Link>
 
     suspend fun serializeFileList(
         files: Flow<BioFile>,

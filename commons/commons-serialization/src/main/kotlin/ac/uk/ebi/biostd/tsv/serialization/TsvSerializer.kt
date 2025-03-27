@@ -12,6 +12,7 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import ebi.ac.uk.model.constants.SectionFields.FILE_LIST
+import ebi.ac.uk.model.constants.SectionFields.LINK_LIST
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 
@@ -64,11 +65,14 @@ class TsvSerializer {
         }
     }
 
-    private fun sectionAttributes(section: Section): List<Attribute> =
-        when (val fileList = section.fileList) {
-            null -> section.attributes
-            else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.tsv"))
-        }
+    private fun sectionAttributes(section: Section): List<Attribute> {
+        val attributes = section.attributes.toMutableList()
+
+        section.fileList?.let { fileList -> attributes.add(Attribute(FILE_LIST.value, "${fileList.name}.tsv")) }
+        section.linkList?.let { linksList -> attributes.add(Attribute(LINK_LIST.value, "${linksList.name}.tsv")) }
+
+        return attributes.toList()
+    }
 
     private fun getHeader(
         table: SectionsTable,
