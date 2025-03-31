@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.web
 
 import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.security.integration.components.ISecurityFilter
+import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -18,11 +18,11 @@ import javax.servlet.http.HttpServletRequest
 const val HEADER_NAME = "X-Session-Token"
 const val COOKIE_NAME = "BIOSTDSESS"
 
-internal class SecurityFilter(
+internal class SpringSecurityFilter(
     private val environment: String,
     private val securityQueryService: SecurityQueryService,
 ) : GenericFilterBean(),
-    ISecurityFilter {
+    SecurityFilter {
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,

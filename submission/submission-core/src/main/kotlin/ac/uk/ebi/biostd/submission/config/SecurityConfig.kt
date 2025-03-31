@@ -9,9 +9,9 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
-import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -64,5 +64,5 @@ class SecurityConfig(
     fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService = securityConfig.userPrivilegesService()
 
     @Bean
-    fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
+    fun securityFilter(securityConfig: SecurityModuleConfig): SecurityFilter = securityConfig.securityFilter()
 }

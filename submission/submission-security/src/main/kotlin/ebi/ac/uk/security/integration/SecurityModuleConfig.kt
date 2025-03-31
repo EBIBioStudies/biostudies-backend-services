@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.integration.components.IGroupService
-import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
@@ -21,7 +21,7 @@ import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.service.SqlSecurityQueryService
 import ebi.ac.uk.security.service.UserPrivilegesService
 import ebi.ac.uk.security.util.SecurityUtil
-import ebi.ac.uk.security.web.SecurityFilter
+import ebi.ac.uk.security.web.SpringSecurityFilter
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import org.springframework.web.reactive.function.client.WebClient
@@ -47,7 +47,7 @@ class SecurityModuleConfig(
 
     fun groupService(): IGroupService = groupService
 
-    fun securityFilter(): ISecurityFilter = securityFilter
+    fun securityFilter(): SecurityFilter = securityFilter
 
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
@@ -73,7 +73,7 @@ class SecurityModuleConfig(
         )
     }
 
-    private val securityFilter by lazy { SecurityFilter(props.environment, securityQueryService) }
+    private val securityFilter by lazy { SpringSecurityFilter(props.environment, securityQueryService) }
     private val userPrivilegesService by lazy {
         UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)
     }
