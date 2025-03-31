@@ -77,7 +77,7 @@ internal class SecurityServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
     @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val securityQueryService: SecurityQueryService,
+    @MockK private val securityQueryService: SqlSecurityQueryService,
     @MockK private val clusterClient: ClusterClient,
 ) {
     private val testInstance: SecurityService =

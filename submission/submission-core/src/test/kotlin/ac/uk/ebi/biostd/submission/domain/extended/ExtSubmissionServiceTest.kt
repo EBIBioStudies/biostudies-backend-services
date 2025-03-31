@@ -11,8 +11,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -37,7 +37,7 @@ class ExtSubmissionServiceTest(
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionRepository: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val securityQueryService: ISecurityQueryService,
+    @MockK private val securityQueryService: SecurityQueryService,
     @MockK private val eventsPublisher: EventsPublisherService,
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class SecurityQueryServiceTest(
+class SqlSecurityQueryServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val profileService: ProfileService,
     @MockK private val securityService: SecurityService,
@@ -31,7 +31,7 @@ class SecurityQueryServiceTest(
     @MockK private val securityProperties: SecurityProperties,
 ) {
     private val testInstance =
-        SecurityQueryService(securityUtil, profileService, userRepository, securityProperties)
+        SqlSecurityQueryService(securityUtil, profileService, userRepository, securityProperties)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

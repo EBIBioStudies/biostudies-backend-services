@@ -37,8 +37,8 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
@@ -166,7 +166,7 @@ class SubmissionWebConfig {
     ): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils, properties.submissionTask)
 
     @Bean
-    fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
+    fun onBehalfUtils(securityQueryService: SecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
 
     @Bean
     fun clusterExecutor(properties: ApplicationProperties): ClusterExecutor = ClusterExecutor(properties)

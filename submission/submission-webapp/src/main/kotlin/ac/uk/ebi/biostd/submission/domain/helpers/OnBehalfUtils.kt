@@ -2,11 +2,11 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 class OnBehalfUtils(
-    private val securityQueryService: ISecurityQueryService,
+    private val securityQueryService: SecurityQueryService,
 ) {
     fun getOnBehalfUser(params: OnBehalfParameters): SecurityUser {
         val register = params.register.orFalse()

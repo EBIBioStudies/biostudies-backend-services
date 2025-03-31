@@ -2,7 +2,7 @@ package ebi.ac.uk.security.web
 
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.security.integration.components.ISecurityFilter
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -20,8 +20,9 @@ const val COOKIE_NAME = "BIOSTDSESS"
 
 internal class SecurityFilter(
     private val environment: String,
-    private val securityQueryService: ISecurityQueryService,
-) : GenericFilterBean(), ISecurityFilter {
+    private val securityQueryService: SecurityQueryService,
+) : GenericFilterBean(),
+    ISecurityFilter {
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,
@@ -41,9 +42,8 @@ internal class SecurityFilter(
             UsernamePasswordAuthenticationToken(user, token, authorities(user))
     }
 
-    private fun authorities(user: SecurityUser): List<GrantedAuthority> {
-        return if (user.superuser) listOf(SimpleGrantedAuthority("ADMIN")) else emptyList()
-    }
+    private fun authorities(user: SecurityUser): List<GrantedAuthority> =
+        if (user.superuser) listOf(SimpleGrantedAuthority("ADMIN")) else emptyList()
 
     private fun getSecurityKey(httpRequest: HttpServletRequest): String? {
         val header: String? = httpRequest.getHeader(HEADER_NAME)

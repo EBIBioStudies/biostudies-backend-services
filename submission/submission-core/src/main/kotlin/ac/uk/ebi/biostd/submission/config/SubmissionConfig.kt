@@ -14,8 +14,8 @@ import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -70,7 +70,7 @@ class SubmissionConfig {
         submissionSubmitter: ExtSubmissionSubmitter,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
-        securityQueryService: ISecurityQueryService,
+        securityQueryService: SecurityQueryService,
         eventsPublisherService: EventsPublisherService,
     ): ExtSubmissionService =
         ExtSubmissionService(

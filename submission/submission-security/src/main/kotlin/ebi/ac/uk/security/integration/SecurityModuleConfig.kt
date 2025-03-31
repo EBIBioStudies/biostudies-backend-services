@@ -11,14 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.ProfileService
-import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
+import ebi.ac.uk.security.service.SqlSecurityQueryService
 import ebi.ac.uk.security.service.UserPrivilegesService
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
@@ -43,7 +43,7 @@ class SecurityModuleConfig(
 ) {
     fun securityService(): ISecurityService = securityService
 
-    fun securityQueryService(): ISecurityQueryService = securityQueryService
+    fun securityQueryService(): SecurityQueryService = securityQueryService
 
     fun groupService(): IGroupService = groupService
 
@@ -65,7 +65,7 @@ class SecurityModuleConfig(
         )
     }
     private val securityQueryService by lazy {
-        SecurityQueryService(
+        SqlSecurityQueryService(
             securityUtil,
             profileService,
             userRepo,

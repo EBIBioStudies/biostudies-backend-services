@@ -10,8 +10,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
@@ -26,7 +26,7 @@ class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val queryService: SubmissionPersistenceQueryService,
     private val privilegesService: IUserPrivilegesService,
-    private val securityService: ISecurityQueryService,
+    private val securityService: SecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
     suspend fun reTriggerSubmission(
