@@ -47,6 +47,12 @@ interface SerializationService {
         outputStream: OutputStream,
     )
 
+    suspend fun serializeLinkList(
+        links: Flow<Link>,
+        targetFormat: SubFormat,
+        outputStream: OutputStream,
+    )
+
     suspend fun deserializeSubmission(
         content: String,
         format: SubFormat,

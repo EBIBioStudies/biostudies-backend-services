@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSection
 import org.springframework.web.util.UriUtils.encodePath
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
@@ -16,6 +17,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_U
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_LIST
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINKS
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINK_LIST
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
@@ -41,6 +43,7 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeStringField(ACC_NO, section.accNo)
         gen.writeStringField(TYPE, section.type)
         section.fileList?.let { writeFileList(it, gen) } ?: gen.writeNullField(FILE_LIST)
+        section.linkList?.let { writeLinkList(it, gen) } ?: gen.writeNullField(LINK_LIST)
         gen.writeObjectField(ATTRIBUTES, section.attributes)
         writeEitherList(SECTIONS, section.sections, gen)
         writeEitherList(FILES, section.files, gen)
@@ -58,6 +61,17 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeStringField(FILES_URL, fileUrl(fileList))
         gen.writeStringField(FILE, fileList.file.absolutePath)
         gen.writeObjectField(PAGE_TAB_FILES, fileList.pageTabFiles)
+        gen.writeEndObject()
+    }
+
+    private fun writeLinkList(
+        linkList: ExtLinkList,
+        gen: JsonGenerator,
+    ) {
+        gen.writeObjectFieldStart(LINK_LIST)
+        gen.writeStringField(FILE_NAME, linkList.filePath)
+        gen.writeStringField(FILE, linkList.file.absolutePath)
+        gen.writeObjectField(PAGE_TAB_FILES, linkList.pageTabFiles)
         gen.writeEndObject()
     }
 

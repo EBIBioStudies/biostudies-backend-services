@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.from
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
@@ -15,7 +16,10 @@ import org.bson.types.ObjectId
 
 typealias EitherList<A, B> = List<Either<A, B>>
 
-class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
+class ToDocSectionMapper(
+    private val toDocFileListMapper: ToDocFileListMapper,
+    private val toDocLinkListMapper: ToDocLinkListMapper,
+) {
     internal fun convert(
         section: ExtSection,
         accNo: String,
@@ -23,12 +27,14 @@ class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
         subId: ObjectId,
     ): DocSectionData {
         val sections = section.sections.map { it.toDocSections(accNo, version, subId) }
+        val linkList = section.linkList?.let { toDocLinkListMapper.convert(it) }
         val (sectionFileList, sectionFiles) =
             section.fileList?.let {
                 toDocFileListMapper.convert(it, subId, accNo, version)
             }
+
         return DocSectionData(
-            section = section.convert(sectionFileList, sections.subSections()),
+            section = section.convert(sectionFileList, linkList, sections.subSections()),
             fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles(),
         )
     }
@@ -41,12 +47,14 @@ class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
 
     private fun ExtSection.convert(
         fileList: DocFileList?,
+        linkList: DocLinkList?,
         sections: EitherList<DocSection, DocSectionTable>,
     ) = DocSection(
         id = ObjectId(),
         accNo = accNo,
         type = type,
         fileList = fileList,
+        linkList = linkList,
         attributes = attributes.map { it.toDocAttribute() },
         files = files.map { it.toDocFiles() },
         links = links.map { it.toDocLinks() },
@@ -61,7 +69,5 @@ class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
         accNo: String,
         version: Int,
         submissionId: ObjectId,
-    ): Either<DocSectionData, DocSectionTable> {
-        return bimap({ convert(it, accNo, version, submissionId) }) { it.toDocSectionTable() }
-    }
+    ): Either<DocSectionData, DocSectionTable> = bimap({ convert(it, accNo, version, submissionId) }) { it.toDocSectionTable() }
 }

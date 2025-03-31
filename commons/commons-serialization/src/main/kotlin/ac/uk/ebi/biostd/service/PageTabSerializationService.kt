@@ -70,4 +70,12 @@ internal class PageTabSerializationService(
     ) {
         serializer.serializeFileList(files, targetFormat, outputStream)
     }
+
+    override suspend fun serializeLinkList(
+        links: Flow<Link>,
+        targetFormat: SubFormat,
+        outputStream: OutputStream,
+    ) {
+        serializer.serializeLinkList(links, targetFormat, outputStream)
+    }
 }

@@ -21,6 +21,7 @@ class ToExtSectionMapper(
         source: FileSourcesList,
     ): ExtSection =
         sec.copy(
+            linkList = sec.linkList?.let { toExtLinkListMapper.convert(accNo, version, it) },
             fileList = sec.fileList?.let { toExtFileListMapper.convert(accNo, version, it, source) },
             files =
                 sec.files

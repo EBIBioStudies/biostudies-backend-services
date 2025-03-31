@@ -62,6 +62,11 @@ internal class JsonSerializer {
         outputStream: OutputStream,
     ) = mapper.serializeFlow(fileList, outputStream)
 
+    suspend fun serializeLinkList(
+        linkList: Flow<Link>,
+        outputStream: OutputStream,
+    ) = mapper.serializeFlow(linkList, outputStream)
+
     fun deserializeFileList(inputStream: InputStream): Flow<BioFile> = mapper.deserializeAsFlow(inputStream)
 
     fun deserializeLinkList(inputStream: InputStream): Flow<Link> = mapper.deserializeAsFlow(inputStream)

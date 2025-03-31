@@ -48,6 +48,17 @@ internal class PagetabSerializer(
         }
     }
 
+    suspend fun serializeLinkList(
+        files: Flow<Link>,
+        format: SubFormat,
+        outputStream: OutputStream,
+    ) {
+        when (format) {
+            JsonPretty, PlainJson -> jsonSerializer.serializeLinkList(files, outputStream)
+            is TsvFormat -> tsvSerializer.serializeLinkList(files, outputStream)
+        }
+    }
+
     fun deserializeFileListAsFlow(
         input: InputStream,
         format: SubFormat,

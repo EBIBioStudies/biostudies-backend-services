@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
+import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSection
@@ -26,6 +27,7 @@ import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
+import uk.ac.ebi.extended.serialization.deserializers.ExtLinkListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtSectionDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtSectionsTableDeserializer
@@ -93,7 +95,9 @@ class ExtSerializationService private constructor(
 
     fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
 
-    suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
+    fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
+
+    fun deserializeLinkListAsFlow(stream: InputStream): Flow<ExtLink> = mapper.deserializeAsFlow(stream)
 
     /**
      * Serialize a generic element. ONLY for testing purpose.
@@ -122,6 +126,7 @@ class ExtSerializationService private constructor(
                     addDeserializer(ExtFileTable::class.java, ExtFilesTableDeserializer())
                     addDeserializer(ExtLink::class.java, ExtLinkDeserializer())
                     addDeserializer(ExtFileList::class.java, ExtFileListDeserializer())
+                    addDeserializer(ExtLinkList::class.java, ExtLinkListDeserializer())
                     addDeserializer(ExtLinkTable::class.java, ExtLinksTableDeserializer())
                     addDeserializer(ExtSectionTable::class.java, ExtSectionsTableDeserializer())
                     addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer())

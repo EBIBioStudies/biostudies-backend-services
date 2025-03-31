@@ -94,7 +94,7 @@ class LinkListSubmissionTest(
                 assertThat(it.links.first().url).isEqualTo("IHECRE00000919.1")
             }
 
-//            assertSubmissionFiles(accNo = "S-LLT311", fileListName = "LinkList")
+            assertSubmissionFiles(accNo = "S-LLT311", fileListName = "LinkList")
         }
 
     @Test
@@ -152,12 +152,11 @@ class LinkListSubmissionTest(
                 assertThat(it.links.first().url).isEqualTo("IHECRE00000919.1")
             }
 
-//            assertSubmissionFiles(accNo = "S-LLT312", fileListName = "LinkList")
+            assertSubmissionFiles(accNo = "S-LLT312", fileListName = "LinkList")
         }
 
     private suspend fun assertSubmissionFiles(
         accNo: String,
-//        testFile: String,
         fileListName: String,
     ) {
         val createdSub = submissionRepository.getExtByAccNo(accNo)
@@ -165,7 +164,7 @@ class LinkListSubmissionTest(
 
         if (enableFire) {
             assertFireSubFiles(createdSub, accNo, subFolder)
-            assertFireFileListFiles(createdSub, fileListName, subFolder)
+            assertFireLinkListFiles(createdSub, fileListName, subFolder)
         } else {
             val submissionTabFiles = createdSub.pageTabFiles
             assertThat(submissionTabFiles).hasSize(2)
@@ -173,10 +172,9 @@ class LinkListSubmissionTest(
 
             val fileListTabFiles = createdSub.section.linkList!!.pageTabFiles
             assertThat(fileListTabFiles).hasSize(2)
-            assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(fileListName, subFolder))
+            assertThat(fileListTabFiles).isEqualTo(linkListNfsTabFiles(fileListName, subFolder))
         }
 
-//        assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
         assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
         assertThat(Paths.get("$subFolder/Files/$fileListName.tsv")).exists()
 
@@ -209,7 +207,7 @@ class LinkListSubmissionTest(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun assertFireFileListFiles(
+    private fun assertFireLinkListFiles(
         sub: ExtSubmission,
         fileListName: String,
         subFolder: String,
@@ -246,7 +244,7 @@ class LinkListSubmissionTest(
         )
     }
 
-    private fun fileListNfsTabFiles(
+    private fun linkListNfsTabFiles(
         fileListName: String,
         subFolder: String,
     ): List<NfsFile> {

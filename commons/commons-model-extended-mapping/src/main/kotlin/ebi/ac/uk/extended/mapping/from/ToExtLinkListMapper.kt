@@ -28,16 +28,58 @@ class ToExtLinkListMapper(
     suspend fun convert(
         accNo: String,
         version: Int,
+        linkList: ExtLinkList,
+    ): ExtLinkList {
+        val target = filesResolver.createRequestTempFile(accNo, version, linkList.fileName)
+        val file = toExtFile(accNo, linkList, target)
+        return ExtLinkList(linkList.filePath, file)
+    }
+
+    suspend fun convert(
+        accNo: String,
+        version: Int,
         linkList: LinkList,
     ): ExtLinkList {
         val name = linkList.canonicalName
         val target = filesResolver.createRequestTempFile(accNo, version, name)
-        val (file, links) = toExtLinks(accNo, linkList.file, SubFormat.fromFile(linkList.file), target)
+        val (file, links) = toExtFile(accNo, linkList.file, SubFormat.fromFile(linkList.file), target)
 
         return ExtLinkList(name, file, links)
     }
 
-    private suspend fun toExtLinks(
+    private suspend fun toExtFile(
+        accNo: String,
+        linkList: ExtLinkList,
+        target: File,
+    ): File {
+        val extLinks = mutableListOf<ExtLink>()
+
+        suspend fun copy(
+            input: InputStream,
+            target: OutputStream,
+        ) {
+            val idx = AtomicInteger(0)
+            val links =
+                extSerializationService
+                    .deserializeLinkListAsFlow(input)
+                    .onEach { link -> logger.info { "$accNo, Mapping link ${idx.getAndIncrement()}, path='${link.url}'" } }
+                    .map {
+                        extLinks.add(it)
+                        return@map it
+                    }
+
+            val serialized = extSerializationService.serializeLinks(links, target)
+            if (serialized < 1) throw InvalidFileListException.emptyFileList(linkList.fileName)
+        }
+
+        val source = linkList.file
+        logger.info { "$accNo, Started mapping/check link list ${source.name} of submission '$accNo'" }
+        use(source.inputStream(), target.outputStream()) { input, output -> copy(input, output) }
+        logger.info { "$accNo, Finished mapping/check link list ${source.name} of submission '$accNo'" }
+        return target
+    }
+
+    private suspend fun toExtFile(
         accNo: String,
         source: File,
         format: SubFormat,
