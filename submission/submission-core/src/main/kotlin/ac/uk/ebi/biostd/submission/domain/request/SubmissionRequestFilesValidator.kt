@@ -15,7 +15,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
-import ebi.ac.uk.security.service.SecurityQueryService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}

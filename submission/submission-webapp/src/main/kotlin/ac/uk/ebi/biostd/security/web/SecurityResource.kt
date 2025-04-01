@@ -11,8 +11,8 @@ import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.APPLICATION_JSON
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -33,7 +33,7 @@ import javax.validation.Valid
 class SecurityResource(
     private val securityMapper: SecurityMapper,
     private val securityService: ISecurityService,
-    private val securityQueryService: ISecurityQueryService,
+    private val securityQueryService: SecurityQueryService,
 ) {
     @PostMapping(value = ["/signup", "/register"])
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -47,9 +47,7 @@ class SecurityResource(
     @ResponseBody
     fun checkUser(
         @Valid @RequestBody register: CheckUserRequest,
-    ): SecurityUser {
-        return securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
-    }
+    ): SecurityUser = securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
 
     @PostMapping(value = ["/signin", "/login"])
     @ResponseBody
@@ -93,17 +91,13 @@ class SecurityResource(
     @ResponseBody
     suspend fun changePassword(
         @RequestBody request: ChangePasswordRequest,
-    ): User {
-        return securityService.changePassword(request)
-    }
+    ): User = securityService.changePassword(request)
 
     @PostMapping(value = ["/password/setup"])
     @ResponseBody
     suspend fun setUpPassword(
         @RequestBody request: ChangePasswordRequest,
-    ): User {
-        return securityService.activateAndSetupPassword(request)
-    }
+    ): User = securityService.activateAndSetupPassword(request)
 
     @GetMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")
