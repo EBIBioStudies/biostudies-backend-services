@@ -158,6 +158,11 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.increaseIndex(rqt.accNo, rqt.version)
     }
 
+    override suspend fun updateRqtFiles(rqtFiles: List<SubmissionRequestFile>) {
+        requestRepository.updateSubRqtFiles(rqtFiles)
+        requestRepository.increaseIndex(rqtFiles.first().accNo, rqtFiles.first().version, rqtFiles.size)
+    }
+
     override suspend fun getRequest(
         accNo: String,
         version: Int,

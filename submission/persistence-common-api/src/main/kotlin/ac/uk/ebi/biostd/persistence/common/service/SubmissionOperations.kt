@@ -159,6 +159,8 @@ interface SubmissionRequestPersistenceService {
      */
     suspend fun updateRqtFile(rqt: SubmissionRequestFile)
 
+    suspend fun updateRqtFiles(rqtFiles: List<SubmissionRequestFile>)
+
     suspend fun getRequest(
         accNo: String,
         version: Int,

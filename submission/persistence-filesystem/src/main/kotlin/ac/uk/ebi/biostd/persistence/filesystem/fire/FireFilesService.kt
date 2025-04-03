@@ -8,6 +8,8 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedFirePath
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 
@@ -52,7 +54,7 @@ class FireFilesService(
     override suspend fun deleteSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
-    ) {
+    ) = withContext(Dispatchers.IO) {
         require(file is FireFile) { "FireFilesService should only handle FireFile, '${file.filePath}' it is not" }
         client.delete(file.fireId)
     }
