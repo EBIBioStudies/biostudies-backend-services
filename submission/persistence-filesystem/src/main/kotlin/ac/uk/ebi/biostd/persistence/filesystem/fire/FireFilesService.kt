@@ -38,10 +38,11 @@ class FireFilesService(
     private suspend fun getOrCreate(
         file: NfsFile,
         expectedPath: String,
-    ): FireFile {
-        val apiFile = client.findByPath(expectedPath) ?: persistToFire(file, expectedPath)
-        return file.asFireFile(apiFile.fireOid, apiFile.path!!, apiFile.published)
-    }
+    ): FireFile =
+        withContext(Dispatchers.IO) {
+            val apiFile = client.findByPath(expectedPath) ?: persistToFire(file, expectedPath)
+            file.asFireFile(apiFile.fireOid, apiFile.path!!, apiFile.published)
+        }
 
     private suspend fun persistToFire(
         file: NfsFile,
