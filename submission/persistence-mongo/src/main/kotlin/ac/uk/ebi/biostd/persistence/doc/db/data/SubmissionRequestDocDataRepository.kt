@@ -288,20 +288,6 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubRqtFile(file: SubmissionRequestFile) {
-        val serializedFile = extSerializationService.serialize(file.file)
-        val update = update(RQT_FILE_FILE, BasicDBObject.parse(serializedFile)).set(RQT_FILE_STATUS, file.status)
-        val where =
-            where(RQT_FILE_SUB_ACC_NO)
-                .`is`(file.accNo)
-                .andOperator(
-                    where(RQT_FILE_SUB_VERSION).`is`(file.version),
-                    where(RQT_FILE_PATH).`is`(file.path),
-                    where(RQT_PREVIOUS_SUB_FILE).`is`(file.previousSubFile),
-                )
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
-    }
-
     suspend fun updateSubRqtFiles(files: List<SubmissionRequestFile>) {
         val bulkOperations =
             files.map { file ->

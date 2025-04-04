@@ -154,11 +154,8 @@ interface SubmissionRequestPersistenceService {
     fun getActiveRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
     /**
-     * Update the given request file. By default, only file index is updated in submission request. For other options
-     * @see UpdateOptions
+     * Updates the given request files. The submission request index is updated based on the given number of elements.
      */
-    suspend fun updateRqtFile(rqt: SubmissionRequestFile)
-
     suspend fun updateRqtFiles(rqtFiles: List<SubmissionRequestFile>)
 
     suspend fun getRequest(
