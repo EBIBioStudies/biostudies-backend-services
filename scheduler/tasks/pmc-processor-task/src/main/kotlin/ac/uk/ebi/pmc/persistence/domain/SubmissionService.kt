@@ -71,8 +71,8 @@ class SubmissionService(
         results: List<SubmissionId>,
     ) {
         val submitResult = results.associateBy({ it.accNo }, { it.version })
-        val submissionsResult = submissions.map { sub -> sub.copy(version = submitResult.getValue(sub.accNo)) }
-        subRepository.update(submissionsResult)
+        val result = submissions.map { sub -> sub.copy(version = submitResult.getValue(sub.accNo), status = SUBMITTED) }
+        subRepository.update(result)
     }
 
     fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDocument> =
