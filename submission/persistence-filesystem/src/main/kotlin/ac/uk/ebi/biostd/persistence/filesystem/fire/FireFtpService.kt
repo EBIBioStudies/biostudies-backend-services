@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import uk.ac.ebi.fire.client.integration.web.FireClient
 
 class FireFtpService(
@@ -14,20 +12,18 @@ class FireFtpService(
     override suspend fun releaseSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
-    ): FireFile =
-        withContext(Dispatchers.IO) {
-            require(file is FireFile) { "FireFtpService should handle only Fire Files" }
-            val apiFile = fireClient.publish(file.fireId)
-            file.copy(firePath = apiFile.path!!, published = apiFile.published)
-        }
+    ): FireFile {
+        require(file is FireFile) { "FireFtpService should handle only Fire Files" }
+        val apiFile = fireClient.publish(file.fireId)
+        return file.copy(firePath = apiFile.path!!, published = apiFile.published)
+    }
 
     override suspend fun unReleaseSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
-    ): FireFile =
-        withContext(Dispatchers.IO) {
-            require(file is FireFile) { "FireFtpService should handle only Fire Files" }
-            val apiFile = fireClient.unpublish(file.fireId)
-            file.copy(firePath = apiFile.path!!, published = apiFile.published)
-        }
+    ): FireFile {
+        require(file is FireFile) { "FireFtpService should handle only Fire Files" }
+        val apiFile = fireClient.unpublish(file.fireId)
+        return file.copy(firePath = apiFile.path!!, published = apiFile.published)
+    }
 }
