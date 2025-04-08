@@ -12,7 +12,6 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
@@ -54,12 +53,13 @@ class PmcSubmitter(
         val counter = AtomicInteger(0)
         val batchSize = configuredBatchSize ?: BATCH_SIZE
 
+        logger.info { "Submitting submission sourceFile='$sourceFile', batchSize='$batchSize', limit='$limit'" }
+
         supervisorScope {
             submissionService
-                .findReadyToSubmit(sourceFile)
-                .take(limit ?: Int.MAX_VALUE)
+                .findReadyToSubmit(sourceFile, limit ?: Int.MAX_VALUE)
                 .chunked(batchSize)
-                .concurrently(CONCURRENCY) { submitMany(it, counter.addAndGet(batchSize)) }
+                .concurrently(CONCURRENCY) { submitMany(it, counter.getAndIncrement()) }
                 .collect()
         }
     }
@@ -67,18 +67,20 @@ class PmcSubmitter(
     private suspend fun submitMany(
         sub: List<SubmissionDocument>,
         idx: Int,
-    ): Unit =
+    ) {
+        logger.info { "Submitting ${sub.size} submissions. Batch $idx" }
         submitMany(sub)
             .fold(
                 {
-                    logger.info { "submitted $idx, accNos='${sub.joinToString()}'" }
+                    logger.info { "submitted batch $idx, accNos='${sub.map { it.accNo }.joinToString()}'" }
                     submissionService.saveSubmittingSubmissions(sub, it)
                 },
                 {
-                    logger.error(it) { "failed to submit accNos='${sub.joinToString()}'" }
+                    logger.error(it) { "failed to batch $idx, accNos='${sub.map { it.accNo }.joinToString()}'" }
                     errorService.saveErrors(sub, PmcMode.SUBMIT, it)
                 },
             )
+    }
 
     private suspend fun submitMany(submissions: List<SubmissionDocument>): Result<List<SubmissionId>> {
         suspend fun getSubFiles(sub: SubmissionDocument): List<File> =
