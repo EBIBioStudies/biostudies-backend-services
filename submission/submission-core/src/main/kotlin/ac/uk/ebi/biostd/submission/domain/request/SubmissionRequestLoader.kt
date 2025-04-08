@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
@@ -68,6 +69,8 @@ class SubmissionRequestLoader(
                     val loaded = rqtFile.copy(file = loadFile(sub, file), status = RequestFileStatus.LOADED)
                     requestService.updateRqtFile(loaded)
                 }
+
+                is RequestFile -> error("RequestFile ${file.filePath} can not be loaded")
             }
             logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
         }

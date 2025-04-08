@@ -45,6 +45,13 @@ internal class SubmissionClient(
             .awaitBody()
     }
 
+    override suspend fun getSubmission(accNo: String): SubmissionDto? =
+        client
+            .get()
+            .uri("$SUBMISSIONS_URL/$accNo")
+            .retrieve()
+            .awaitBody()
+
     override suspend fun validateFileList(
         fileListPath: String,
         rootPath: String?,

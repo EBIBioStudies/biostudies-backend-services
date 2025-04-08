@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -14,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.coroutines.waitUntil
+import ebi.ac.uk.coroutines.waitUntilNoException
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
@@ -26,6 +25,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,6 +36,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.time.Duration
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
@@ -394,24 +395,16 @@ class ResubmissionApiTest(
             val (accNo, version) = webClient.submitAsync(version2, TSV)
 
             waitUntil(
-                timeout = java.time.Duration.ofSeconds(10),
+                timeout = Duration.ofSeconds(10),
             ) { requestRepository.getRequest(accNo, version).status == RequestStatus.INVALID }
 
-            val exception =
-                assertThrows<WebClientException> {
-                    webClient.submit(version2, TSV)
-                }
-            assertThat(exception).hasMessage(
-                """
-                {
-                  "log": {
-                    "level": "ERROR",
-                    "message": "Submission request can't be accepted. Version '2' of 'S-ACCNO56' is currently being processed.",
-                    "subnodes": []
-                  },
-                  "status": "FAIL"
-                }
-                """.trimIndent(),
-            )
+            val response = webClient.submitAsync(version2, TSV)
+            waitUntilNoException(timeout = FIVE_SECONDS) {
+                val result = webClient.getSubmission(response.accNo)
+                assertThat(result?.status).isEqualTo("INVALID")
+                assertThat(result?.errors).containsExactly(
+                    "File deletion/modifications require admin permission.",
+                )
+            }
         }
 }

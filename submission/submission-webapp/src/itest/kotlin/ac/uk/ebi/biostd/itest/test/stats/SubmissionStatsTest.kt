@@ -19,6 +19,7 @@ import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
@@ -406,7 +407,11 @@ class SubmissionStatsTest(
             webClient.submit(submission, TSV)
 
             val stored = submissionRepository.getExtByAccNo(accNo)
-            val tabFileSize = stored.pageTabFiles.map { it.size }.sum()
+            val tabFileSize =
+                stored.pageTabFiles
+                    .filterIsInstance<PersistedExtFile>()
+                    .map { it.size }
+                    .sum()
 
             val stats = webClient.refreshStats(accNo).toList()
             assertThat(stats).hasSize(3)

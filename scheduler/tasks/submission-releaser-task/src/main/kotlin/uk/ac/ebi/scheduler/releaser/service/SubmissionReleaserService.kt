@@ -41,7 +41,7 @@ class SubmissionReleaserService(
         withContext(Dispatchers.Default) {
             releaserRepository
                 .findAllUntil(to.toDate())
-                .filterNot { requestRepository.existsByAccNoAndStatusIn(it.accNo, RequestStatus.PROCESSING_STATUS) }
+                .filterNot { requestRepository.existsByAccNoAndStatusIn(it.accNo, RequestStatus.ACTIVE_STATUS) }
                 .map { async { releaseSafely(it) } }
                 .collect { it.await() }
         }

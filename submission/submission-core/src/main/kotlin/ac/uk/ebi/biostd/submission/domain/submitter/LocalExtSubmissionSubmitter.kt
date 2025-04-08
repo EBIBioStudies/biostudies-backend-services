@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
@@ -24,6 +24,7 @@ import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import ebi.ac.uk.model.RequestStatus.INVALID
@@ -43,9 +44,9 @@ private val logger = KotlinLogging.logger {}
 @Suppress("CyclomaticComplexMethod", "LongParameterList", "TooManyFunctions")
 class LocalExtSubmissionSubmitter(
     private val properties: ApplicationProperties,
-    private val pageTabService: PageTabService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
+    private val requestFilesValidator: SubmissionRequestFilesValidator,
     private val requestIndexer: SubmissionRequestIndexer,
     private val requestLoader: SubmissionRequestLoader,
     private val requestToCleanIndexer: SubmissionRequestCleanIndexer,
@@ -59,8 +60,7 @@ class LocalExtSubmissionSubmitter(
     private val submissionStatsService: SubmissionStatsService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
-        val withTabFiles = pageTabService.generatePageTab(rqt.submission)
-        val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
             SubmissionRequest(
                 accNo = submission.accNo,
@@ -69,6 +69,10 @@ class LocalExtSubmissionSubmitter(
                 submission = submission,
                 notifyTo = rqt.notifyTo,
                 silentMode = rqt.silentMode,
+                files = rqt.requestFiles,
+                previousVersion = rqt.previousVersion,
+                onBehalfUser = rqt.onBehalfUser,
+                preferredSources = rqt.preferredSources,
                 singleJobMode = rqt.singleJobMode,
             )
 
@@ -137,8 +141,8 @@ class LocalExtSubmissionSubmitter(
         }
 
         suspend fun fromIndexedToClean() {
-            val rqt = requestValidator.validateRequest(accNo, version, properties.processId)
-            if (rqt.status == VALIDATED) fromValidated()
+            val request = requestValidator.validateRequest(accNo, version, properties.processId)
+            if (request.status == VALIDATED) fromValidated()
         }
 
         suspend fun fromLoaded() {
@@ -151,15 +155,21 @@ class LocalExtSubmissionSubmitter(
             fromLoaded()
         }
 
-        suspend fun fromRequested() {
+        suspend fun fromFilesValidated() {
             requestIndexer.indexRequest(accNo, version, properties.processId)
             fromIndexed()
+        }
+
+        suspend fun fromRequested() {
+            val request = requestFilesValidator.checkFiles(accNo, version, properties.processId)
+            if (request.status == FILES_VALIDATED) fromFilesValidated()
         }
 
         when (status) {
             DRAFT -> TODO()
             SUBMITTED -> TODO()
             REQUESTED -> fromRequested()
+            FILES_VALIDATED -> fromFilesValidated()
             INDEXED -> fromIndexed()
             LOADED -> fromLoaded()
             INDEXED_CLEANED -> fromIndexedToClean()
@@ -181,7 +191,8 @@ class LocalExtSubmissionSubmitter(
         when (status) {
             DRAFT -> TODO()
             SUBMITTED -> TODO()
-            REQUESTED -> indexRequest(accNo, version)
+            REQUESTED -> validateFiles(accNo, version)
+            FILES_VALIDATED -> indexRequest(accNo, version)
             INDEXED -> loadRequest(accNo, version)
             LOADED -> indexToCleanRequest(accNo, version)
             INDEXED_CLEANED -> validateRequest(accNo, version)
@@ -193,6 +204,14 @@ class LocalExtSubmissionSubmitter(
             INVALID -> logger.info { "Submission $accNo, $version is in an invalid state" }
             PROCESSED -> logger.info { "Submission $accNo, $version has been already processed." }
         }
+    }
+
+    private suspend fun validateFiles(
+        accNo: String,
+        version: Int,
+    ) {
+        val request = requestFilesValidator.checkFiles(accNo, version, properties.processId)
+        if (request.status == FILES_VALIDATED) eventsPublisherService.filesValidated(accNo, version)
     }
 
     private suspend fun indexRequest(

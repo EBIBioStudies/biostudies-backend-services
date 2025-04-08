@@ -12,4 +12,5 @@ data class SubmissionDto(
     val rtime: OffsetDateTime?,
     val method: SubmissionMethod?,
     val status: String,
+    val errors: List<String>,
 )

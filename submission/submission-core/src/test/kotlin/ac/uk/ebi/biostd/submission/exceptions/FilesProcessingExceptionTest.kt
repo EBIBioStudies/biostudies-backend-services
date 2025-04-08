@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
 import ebi.ac.uk.errors.FilesProcessingException
-import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.SourcesList
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -27,7 +27,7 @@ internal class FilesProcessingExceptionTest(
     @Test
     fun message() {
         val testInstance =
-            FilesProcessingException(invalidFiles, FileSourcesList(listOf(userSource, groupSource)))
+            FilesProcessingException(invalidFiles, SourcesList(listOf(userSource, groupSource)))
 
         assertThat(testInstance.message).isEqualTo(
             """

@@ -1,11 +1,11 @@
 package uk.ac.ebi.io.sources
 
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields
 import org.apache.commons.net.ftp.FTPFile
 import uk.ac.ebi.io.builder.createFile
@@ -27,7 +27,7 @@ class FtpSource(
     override suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
+        attributes: List<ExtAttribute>,
     ): ExtFile? {
         val filePath = if (type == FileFields.DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         return findFile(filePath)?.let {

@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.io.ext.md5
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
@@ -69,6 +70,7 @@ internal object FileTestHelper {
     ) = when (extFile) {
         is FireFile -> assertFireFile(extFile)
         is NfsFile -> assertNfsFile(extFile, file)
+        is RequestFile -> error("RequestFile ${extFile.filePath} not expected")
     }
 
     fun assertFireDirectory(fireFile: FireFile) {

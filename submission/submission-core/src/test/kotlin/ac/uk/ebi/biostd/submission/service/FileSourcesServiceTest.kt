@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -42,6 +43,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with FIRE submission`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = onBehalfUser(),
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -50,7 +52,7 @@ class FileSourcesServiceTest(
                 preferredSources = emptyList(),
             )
 
-        val fileSources = testInstance.submissionSources(request)
+        val fileSources = testInstance.submissionSources(request) as SourcesList
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(7)
@@ -67,6 +69,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with NFS submission`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = onBehalfUser(),
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -75,7 +78,7 @@ class FileSourcesServiceTest(
                 preferredSources = emptyList(),
             )
 
-        val fileSources = testInstance.submissionSources(request)
+        val fileSources = testInstance.submissionSources(request) as SourcesList
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(7)
@@ -92,6 +95,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with no onBehalfUser`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = null,
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -100,7 +104,7 @@ class FileSourcesServiceTest(
                 preferredSources = emptyList(),
             )
 
-        val fileSources = testInstance.submissionSources(request)
+        val fileSources = testInstance.submissionSources(request) as SourcesList
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(5)
@@ -115,6 +119,7 @@ class FileSourcesServiceTest(
     fun `submission sources with preferred sources`() {
         val request =
             FileSourcesRequest(
+                hasFtpFileSystemAccess = false,
                 onBehalfUser = null,
                 submitter = submitter(),
                 files = null,
@@ -123,7 +128,7 @@ class FileSourcesServiceTest(
                 preferredSources = listOf(SUBMISSION),
             )
 
-        val fileSources = testInstance.submissionSources(request)
+        val fileSources = testInstance.submissionSources(request) as SourcesList
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(2)

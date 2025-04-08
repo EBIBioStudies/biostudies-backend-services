@@ -9,16 +9,17 @@ val ExtFile.storageMode: StorageMode
         when (this) {
             is NfsFile -> NFS
             is FireFile -> FIRE
+            is RequestFile -> error("RequestFile does not have an storage mode")
         }
 
-fun ExtFile.copyWithAttributes(attributes: List<ExtAttribute>): ExtFile {
-    return when (this) {
-        is FireFile -> this.copy(attributes = attributes)
-        is NfsFile -> this.copy(attributes = attributes)
+fun ExtFile.copyWithAttributes(attributes: List<ExtAttribute>): ExtFile =
+    when (this) {
+        is FireFile -> copy(attributes = attributes)
+        is NfsFile -> copy(attributes = attributes)
+        is RequestFile -> copy(attributes = attributes)
     }
-}
 
-fun ExtFile.asFireFile(
+fun NfsFile.asFireFile(
     fireId: String,
     firePath: String,
     published: Boolean,
@@ -35,7 +36,7 @@ fun ExtFile.asFireFile(
         attributes,
     )
 
-fun ExtFile.asNfsFile(file: File): NfsFile =
+fun FireFile.asNfsFile(file: File): NfsFile =
     NfsFile(
         filePath,
         relPath,

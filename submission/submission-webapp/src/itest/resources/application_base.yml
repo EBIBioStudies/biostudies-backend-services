@@ -28,6 +28,7 @@ spring:
 
 app:
   processId: Biostudies-Itest
+  asyncMode: false
   retrySubmission: false
   submissionPath:
   ftpPath:

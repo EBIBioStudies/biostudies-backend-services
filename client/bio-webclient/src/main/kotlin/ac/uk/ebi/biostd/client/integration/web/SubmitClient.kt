@@ -123,6 +123,8 @@ interface SubmissionOperations {
         rootPath: String? = null,
         accNo: String? = null,
     )
+
+    suspend fun getSubmission(accNo: String): SubmissionDto?
 }
 
 interface SecurityOperations {

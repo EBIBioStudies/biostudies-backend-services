@@ -320,7 +320,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo1",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -330,7 +330,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo2",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -340,7 +340,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo3",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -350,7 +350,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo4",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -360,7 +360,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo5",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isFalse()
             }
@@ -416,6 +416,10 @@ internal class SubmissionMongoQueryServiceTest(
             draft = null,
             status = status,
             modificationTime = Instant.now(),
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf("SUBMISSION"),
+            errors = emptyList(),
             process =
                 DocRequestProcessing(
                     silentMode = false,
