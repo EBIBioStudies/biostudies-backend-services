@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.coroutines.chunked
-import ebi.ac.uk.coroutines.concurrentlyIndexed
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
@@ -91,7 +91,7 @@ class SubmissionRequestCleaner(
         filesRequestService
             .getSubmissionRequestFiles(accNo, version, status)
             .withIndex()
-            .concurrentlyIndexed(concurrency) { idx, file -> deleteFile(idx, file) }
+            .concurrently(concurrency) { deleteFile(it.index, it.value) }
             .chunked(concurrency)
             .onEach { requestService.updateRqtFiles(it) }
             .collect()

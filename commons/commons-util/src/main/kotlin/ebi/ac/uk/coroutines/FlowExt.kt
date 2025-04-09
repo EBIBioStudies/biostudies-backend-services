@@ -25,11 +25,6 @@ fun <T, R> Flow<T>.concurrently(
     function: suspend (value: T) -> R,
 ): Flow<R> = flatMapMerge(concurrency) { flow { emit(function(it)) } }
 
-fun <T, R> Flow<IndexedValue<T>>.concurrentlyIndexed(
-    concurrency: Int,
-    function: suspend (idx: Int, value: T) -> R,
-): Flow<R> = flatMapMerge(concurrency) { flow { emit(function(it.index, it.value)) } }
-
 /**
  * Copy implementation of Kotlin coroutines function until migration 1.9
  */

@@ -254,15 +254,6 @@ class SubmissionRequestDocDataRepository(
     suspend fun increaseIndex(
         accNo: String,
         version: Int,
-    ) {
-        val update = Update().inc("$RQT_PROCESS.$RQT_IDX", 1).currentDate(RQT_MODIFICATION_TIME)
-        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
-    }
-
-    suspend fun increaseIndex(
-        accNo: String,
-        version: Int,
         increase: Int,
     ) {
         val update = Update().inc("$RQT_PROCESS.$RQT_IDX", increase).currentDate(RQT_MODIFICATION_TIME)
@@ -289,23 +280,22 @@ class SubmissionRequestDocDataRepository(
     }
 
     suspend fun updateSubRqtFiles(files: List<SubmissionRequestFile>) {
-        val bulkOperations =
-            files.map { file ->
-                UpdateOneModel<Document>(
-                    Filters.and(
-                        Filters.eq(RQT_FILE_SUB_ACC_NO, file.accNo),
-                        Filters.eq(RQT_FILE_SUB_VERSION, file.version),
-                        Filters.eq(RQT_FILE_PATH, file.path),
-                        Filters.eq(RQT_PREVIOUS_SUB_FILE, file.previousSubFile),
-                    ),
-                    listOf(
-                        Updates.set(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file.file))),
-                        Updates.set(RQT_FILE_STATUS, file.status),
-                    ),
-                    UpdateOptions().upsert(true),
-                )
-            }
+        fun asUpdateModel(file: SubmissionRequestFile) =
+            UpdateOneModel<Document>(
+                Filters.and(
+                    Filters.eq(RQT_FILE_SUB_ACC_NO, file.accNo),
+                    Filters.eq(RQT_FILE_SUB_VERSION, file.version),
+                    Filters.eq(RQT_FILE_PATH, file.path),
+                    Filters.eq(RQT_PREVIOUS_SUB_FILE, file.previousSubFile),
+                ),
+                listOf(
+                    Updates.set(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file.file))),
+                    Updates.set(RQT_FILE_STATUS, file.status),
+                ),
+                UpdateOptions().upsert(true),
+            )
 
+        val bulkOperations = files.map { file -> asUpdateModel(file) }
         mongoTemplate.collection<DocSubmissionRequestFile>().bulkWrite(bulkOperations).awaitSingle()
     }
 
