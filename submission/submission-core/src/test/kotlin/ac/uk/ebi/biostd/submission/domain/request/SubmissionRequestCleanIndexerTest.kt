@@ -47,6 +47,7 @@ class SubmissionRequestCleanIndexerTest(
 ) {
     private val testInstance =
         SubmissionRequestCleanIndexer(
+            CONCURRENCY,
             serializationService,
             queryService,
             fileRqtService,
@@ -214,6 +215,7 @@ class SubmissionRequestCleanIndexerTest(
 
     private companion object {
         const val ACC_NO = "S-BSST1"
+        const val CONCURRENCY = 2
         const val CURRENT_VERSION = 1
         const val EXT_SUB_EXT = "ebi.ac.uk.extended.model.ExtSubmissionExtensionsKt"
         const val FILE_MD5_1 = "md51"

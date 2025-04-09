@@ -6,15 +6,19 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING_P
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.coroutines.chunked
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
 
@@ -75,20 +79,22 @@ class SubmissionRequestCleaner(
 
         suspend fun deleteFile(
             index: Int,
-            file: ExtFile,
-        ) {
+            rqtFile: SubmissionRequestFile,
+        ): SubmissionRequestFile {
+            val file = rqtFile.file
             logger.info { "${sub.accNo} ${sub.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(sub, file)
+            return rqtFile
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Started cleaning submission files, concurrency: '$concurrency'" }
         filesRequestService
             .getSubmissionRequestFiles(accNo, version, status)
             .withIndex()
-            .collect { (idx, file) ->
-                deleteFile(idx, file.file)
-                requestService.updateRqtFile(file.copy(status = RequestFileStatus.CLEANED))
-            }
+            .concurrently(concurrency) { deleteFile(it.index, it.value) }
+            .chunked(concurrency)
+            .onEach { requestService.updateRqtFiles(it) }
+            .collect()
         logger.info { "${sub.accNo} ${sub.owner} Finished cleaning submission files, concurrency: '$concurrency'" }
     }
 }

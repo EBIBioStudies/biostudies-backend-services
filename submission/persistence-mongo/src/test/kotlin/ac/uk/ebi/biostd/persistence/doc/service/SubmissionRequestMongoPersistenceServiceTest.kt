@@ -265,24 +265,32 @@ class SubmissionRequestMongoPersistenceServiceTest(
         }
 
     @Test
-    fun `update requestFile`() =
+    fun `update requestFiles`() =
         runTest {
-            val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-            val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile, INDEXED)
+            val extFile1 = createNfsFile("rqt1.txt", "Files/rqt1.txt", tempFolder.createFile("rqt1.txt"))
+            val extFile2 = createNfsFile("rqt2.txt", "Files/rqt2.txt", tempFolder.createFile("rqt2.txt"))
+            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, index = 1, "rqt1.txt", extFile1, INDEXED)
+            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, index = 2, "rqt2.txt", extFile2, INDEXED)
 
-            requestRepository.upsertSubRqtFile(requestFile)
+            requestRepository.upsertSubRqtFile(rqtFile1)
+            requestRepository.upsertSubRqtFile(rqtFile2)
             requestRepository.save(testRequest())
 
-            testInstance.updateRqtFile(requestFile.copy(file = extFile.copy(md5 = "changedMd5"), status = LOADED))
+            val updatedRqtFile1 = rqtFile1.copy(file = extFile1.copy(md5 = "changedMd5-1"), status = LOADED)
+            val updatedRqtFile2 = rqtFile2.copy(file = extFile2.copy(md5 = "changedMd5-2"), status = LOADED)
+            testInstance.updateRqtFiles(listOf(updatedRqtFile1, updatedRqtFile2))
 
             val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
             assertThat(request.modificationTime).isNotNull()
-            assertThat(request.process!!.currentIndex).isEqualTo(1)
+            assertThat(request.process!!.currentIndex).isEqualTo(2)
 
-            val savedFile =
-                requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
-            assertThat(savedFile.file.get("md5")).isEqualTo("changedMd5")
-            assertThat(savedFile.status).isEqualTo(LOADED)
+            val savedFile1 = requestFilesRepository.getByPathAndAccNoAndVersion(rqtFile1.path, "S-BSST0", 1)
+            assertThat(savedFile1.file.get("md5")).isEqualTo("changedMd5-1")
+            assertThat(savedFile1.status).isEqualTo(LOADED)
+
+            val savedFile2 = requestFilesRepository.getByPathAndAccNoAndVersion(rqtFile2.path, "S-BSST0", 1)
+            assertThat(savedFile2.file.get("md5")).isEqualTo("changedMd5-2")
+            assertThat(savedFile2.status).isEqualTo(LOADED)
         }
 
     private fun testRequest() =

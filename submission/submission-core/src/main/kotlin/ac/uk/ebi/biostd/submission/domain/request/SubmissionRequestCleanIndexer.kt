@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PersistedExtFile
@@ -20,8 +21,6 @@ import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
@@ -31,6 +30,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile as SubRqt
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestCleanIndexer(
+    private val concurrency: Int,
     private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -86,7 +86,7 @@ class SubmissionRequestCleanIndexer(
 
         serializationService
             .filesFlowExt(current)
-            .mapNotNull { (isPageTab, file) ->
+            .concurrently(concurrency) { (isPageTab, file) ->
                 require(file is PersistedExtFile) { "Only persisted files are supported" }
 
                 when (newFiles.findMatch(file, isPageTab)) {
@@ -116,7 +116,7 @@ class SubmissionRequestCleanIndexer(
 
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
-            .map { it.file }
+            .concurrently(concurrency) { it.file }
             .filterIsInstance<PersistedExtFile>()
             .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode, pageTabFiles.containsKey(it.md5)) }
         return FilesRecords(response)

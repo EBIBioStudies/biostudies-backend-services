@@ -6,6 +6,9 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.itest.test.collection.ListCollectionsTest.CollectionUser
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
@@ -18,6 +21,8 @@ import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -33,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
@@ -442,15 +448,25 @@ class SubmissionDatesTest(
 
                         line("Study")
                         line()
+
+                        line("File", "file_28-10.txt")
+                        line()
                     }.toString()
 
+                colAdminWebClient.uploadFile(tempFolder.createFile("file_28-10.txt", "28-10 content"))
                 val v1Submission = colAdminWebClient.submit(v1, TSV)
                 val accNo = v1Submission.body.accNo
                 assertThat(v1Submission).isSuccessful()
 
-                val v1Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 1)
-                assertThat(v1Extended.released).isTrue()
-                assertThat(v1Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2020-04-24T00:00+00:00"))
+                val v1Ext = submissionRepository.getExtByAccNoAndVersion(accNo, 1)
+                assertThat(v1Ext.released).isTrue()
+                assertThat(v1Ext.releaseTime).isEqualTo(OffsetDateTime.parse("2020-04-24T00:00+00:00"))
+
+                val ftpFiles = FileUtils.listAllFiles(File("$ftpPath/${v1Ext.relPath}/Files"))
+                val publishedFile = File("$ftpPath/${v1Ext.relPath}/Files/file_28-10.txt")
+                assertThat(ftpFiles).containsExactly(publishedFile)
+                assertThat(publishedFile).hasContent("28-10 content")
+                assertThat(File("$submissionPath/${v1Ext.relPath}/Files/file_28-10.txt")).hasContent("28-10 content")
 
                 val v2 =
                     tsv {
@@ -462,12 +478,22 @@ class SubmissionDatesTest(
 
                         line("Study")
                         line()
+
+                        line("File", "file_28-10.txt")
+                        line()
                     }.toString()
 
                 assertThat(colAdminWebClient.submit(v2, TSV)).isSuccessful()
-                val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
-                assertThat(v2Extended.released).isFalse()
-                assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
+                val v2Ext = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
+                assertThat(v2Ext.released).isFalse()
+                assertThat(v2Ext.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
+
+                val submissionFiles = FileUtils.listAllFiles(File("$submissionPath/${v2Ext.relPath}/Files"))
+                val privateFile = File("$submissionPath/${v2Ext.relPath}/Files/file_28-10.txt")
+                val unpublishedFile = File("$ftpPath/${v2Ext.relPath}/Files/file_28-10.txt")
+                assertThat(unpublishedFile).doesNotExist()
+                assertThat(submissionFiles).containsOnly(privateFile)
+                assertThat(privateFile).hasContent("28-10 content")
             }
 
         @Test

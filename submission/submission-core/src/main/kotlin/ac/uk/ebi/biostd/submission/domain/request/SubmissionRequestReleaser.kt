@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
+import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -22,6 +23,7 @@ import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -76,26 +78,22 @@ class SubmissionRequestReleaser(
     }
 
     private suspend fun releaseSubmissionFiles(sub: ExtSubmission) {
-        suspend fun releaseFile(reqFile: SubmissionRequestFile) {
+        suspend fun releaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile =
             when (val file = reqFile.file) {
-                is NfsFile -> {
-                    val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
-                    rqtService.updateRqtFile(released)
-                }
-
+                is NfsFile -> reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
                 is FireFile -> {
                     val released = if (file.published) file else release(sub, reqFile.index, file)
-                    rqtService.updateRqtFile(reqFile.copy(file = released, status = RELEASED))
+                    reqFile.copy(file = released, status = RELEASED)
                 }
-
                 is RequestFile -> error("RequestFile ${file.filePath} can not be released")
             }
-        }
 
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(sub.accNo, sub.version, COPIED)
                 .concurrently(concurrency) { releaseFile(it) }
+                .chunked(concurrency)
+                .onEach { rqtService.updateRqtFiles(it) }
                 .collect()
         }
     }
@@ -122,26 +120,22 @@ class SubmissionRequestReleaser(
     }
 
     private suspend fun unReleaseSubmissionFiles(sub: ExtSubmission) {
-        suspend fun unReleaseFile(reqFile: SubmissionRequestFile) {
+        suspend fun unReleaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile =
             when (val file = reqFile.file) {
-                is NfsFile -> {
-                    val unreleased = reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
-                    rqtService.updateRqtFile(unreleased)
-                }
-
+                is NfsFile -> reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
                 is FireFile -> {
                     val unreleased = if (file.published) unRelease(sub, reqFile.index, file) else file
-                    rqtService.updateRqtFile(reqFile.copy(file = unreleased, status = UNRELEASED))
+                    reqFile.copy(file = unreleased, status = UNRELEASED)
                 }
-
                 is RequestFile -> error("RequestFile ${file.filePath} can not be unreleased")
             }
-        }
 
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(sub.accNo, sub.version, REUSED)
                 .concurrently(concurrency) { unReleaseFile(it) }
+                .chunked(concurrency)
+                .onEach { rqtService.updateRqtFiles(it) }
                 .collect()
         }
     }
