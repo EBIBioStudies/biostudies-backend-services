@@ -32,7 +32,7 @@ class FileSourcesServiceTest(
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
-    private val builder = FilesSourceListBuilder(true, subFolder.toPath(), fireClient, ftpClient, filesRepo)
+    private val builder = FilesSourceListBuilder(subFolder.toPath(), fireClient, ftpClient, filesRepo)
     private val testInstance = FileSourcesService(builder)
     private val extSubmission = basicExtSubmission.copy(storageMode = StorageMode.FIRE)
 
