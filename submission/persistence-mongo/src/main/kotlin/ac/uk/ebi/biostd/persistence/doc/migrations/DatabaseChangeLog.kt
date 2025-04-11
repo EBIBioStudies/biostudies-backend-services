@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PROCESS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
@@ -114,7 +115,7 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
  * 3. All submission index over internal submission.
  */
 suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
-    ensureSubmissionIndexes<DocSubmissionRequest>("$SUB.")
+    ensureSubmissionIndexes<DocSubmissionRequest>("$RQT_PROCESS.$SUB.")
     indexOps(DocSubmissionRequest::class.java).apply {
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()

@@ -65,7 +65,6 @@ class ByPassSourceList(
 }
 
 class SourcesList(
-    private val checkFilesPath: Boolean,
     val sources: List<FilesSource>,
 ) : FileSourcesList {
     override suspend fun findExtFile(
@@ -73,7 +72,7 @@ class SourcesList(
         type: String,
         attributes: List<ExtAttribute>,
     ): ExtFile? {
-        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
@@ -86,7 +85,7 @@ class SourcesList(
     override fun sourcesDescription(): String = sources.joinToString(separator = "\n") { "  - ${it.description}" }
 
     override suspend fun getFileList(path: String): File? {
-        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }

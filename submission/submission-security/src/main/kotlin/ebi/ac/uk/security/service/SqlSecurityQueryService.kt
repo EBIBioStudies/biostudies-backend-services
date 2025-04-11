@@ -4,19 +4,19 @@ import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.model.FolderStats
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.util.SecurityUtil
 
-class SecurityQueryService(
+internal class SqlSecurityQueryService(
     private val securityUtil: SecurityUtil,
     private val profileService: ProfileService,
     private val userRepository: UserDataRepository,
     private val securityProperties: SecurityProperties,
-) : ISecurityQueryService {
+) : SecurityQueryService {
     override fun existsByEmail(
         email: String,
         onlyActive: Boolean,

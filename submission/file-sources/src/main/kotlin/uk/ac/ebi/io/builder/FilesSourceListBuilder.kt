@@ -24,14 +24,13 @@ import java.nio.file.Path
 
 @Suppress("LongParameterList")
 class FilesSourceListBuilder(
-    private val checkFilesPath: Boolean,
     private val submissionPath: Path,
     private val fireClient: FireClient,
     private val ftpClient: FtpClient,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    private fun build(): FileSourcesList = SourcesList(checkFilesPath, sources.toList())
+    private fun build(): FileSourcesList = SourcesList(sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()

@@ -44,7 +44,7 @@ class FileListValidatorTest(
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
     private val serializationService = SerializationConfig.serializationService()
-    private val filesSource = SourcesList(true, listOf(source))
+    private val filesSource = SourcesList(listOf(source))
     private val testInstance = FileListValidator(fileSourcesService, serializationService, submissionQueryService)
 
     @BeforeEach

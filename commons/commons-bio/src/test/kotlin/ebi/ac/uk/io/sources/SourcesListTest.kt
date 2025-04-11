@@ -23,7 +23,7 @@ internal class SourcesListTest(
     @MockK private val oneFileSource: FilesSource,
     @MockK private val anotherFileSource: FilesSource,
 ) {
-    private val testInstance = SourcesList(true, listOf(oneFileSource, anotherFileSource))
+    private val testInstance = SourcesList(listOf(oneFileSource, anotherFileSource))
 
     private val filePath = "path/to/a/my file.txt"
     private val attributes = emptyList<ExtAttribute>()

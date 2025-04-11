@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class ApplicationProperties(
     val processId: String,
     val retrySubmission: Boolean,
-    val checkFilesPath: Boolean,
     val asyncMode: Boolean,
     val instanceBaseUrl: String,
     val subBasePath: String?,
