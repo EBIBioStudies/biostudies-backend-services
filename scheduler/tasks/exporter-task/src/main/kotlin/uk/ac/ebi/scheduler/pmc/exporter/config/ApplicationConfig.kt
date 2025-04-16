@@ -7,24 +7,22 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import ebi.ac.uk.coroutines.RetryConfig
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import org.apache.commons.net.PrintCommandListener
-import org.apache.commons.net.ftp.FTPClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.scheduler.pmc.exporter.ExporterExecutor
-import uk.ac.ebi.scheduler.pmc.exporter.cli.BioStudiesFtpClient
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository
 import uk.ac.ebi.scheduler.pmc.exporter.service.ExporterService
 import uk.ac.ebi.scheduler.pmc.exporter.service.PmcExporterService
 import uk.ac.ebi.scheduler.pmc.exporter.service.PublicOnlyExporterService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
-import java.io.PrintWriter
 
 internal const val BUFFER_SIZE = 1024 * 1024
 
@@ -34,17 +32,22 @@ class ApplicationConfig(
     private val pmcRepository: PmcRepository,
 ) {
     @Bean
-    fun pmcExporterService(
-        xmlWriter: XmlMapper,
-        ftpClient: BioStudiesFtpClient,
-        applicationProperties: ApplicationProperties,
-    ): PmcExporterService = PmcExporterService(pmcRepository, xmlWriter, ftpClient, applicationProperties)
+    fun suspendRetryTemplate(): SuspendRetryTemplate =
+        SuspendRetryTemplate(
+            RetryConfig(
+                maxAttempts = 10,
+                initialInterval = 300L,
+                multiplier = 1.2,
+                maxInterval = 10_000L,
+            ),
+        )
 
     @Bean
-    fun bioStudiesFtpClient(
-        ftpClient: FTPClient,
+    fun pmcExporterService(
+        xmlWriter: XmlMapper,
         applicationProperties: ApplicationProperties,
-    ): BioStudiesFtpClient = BioStudiesFtpClient(ftpClient, applicationProperties)
+        retryTemplate: SuspendRetryTemplate,
+    ): PmcExporterService = PmcExporterService(pmcRepository, xmlWriter, applicationProperties, retryTemplate)
 
     @Bean
     fun publicOnlyExporterService(
@@ -61,9 +64,8 @@ class ApplicationConfig(
     fun toSectionMapper(toFileListMapper: ToFileListMapper) = ToSectionMapper(toFileListMapper)
 
     @Bean
-    fun folderResolver(applicationProperties: ApplicationProperties): FilesResolver {
-        return FilesResolver(File(applicationProperties.tmpFilesPath))
-    }
+    fun folderResolver(applicationProperties: ApplicationProperties): FilesResolver =
+        FilesResolver(File(applicationProperties.tmpFilesPath))
 
     @Bean
     fun toFileListMapper(
@@ -89,13 +91,6 @@ class ApplicationConfig(
         SecurityWebClient
             .create(applicationProperties.bioStudies.url)
             .getAuthenticatedClient(applicationProperties.bioStudies.user, applicationProperties.bioStudies.password)
-
-    @Bean
-    fun ftpClient(): FTPClient =
-        FTPClient().apply {
-            bufferSize = BUFFER_SIZE
-            addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
-        }
 
     @Bean
     fun xmlWriter(): XmlMapper =
