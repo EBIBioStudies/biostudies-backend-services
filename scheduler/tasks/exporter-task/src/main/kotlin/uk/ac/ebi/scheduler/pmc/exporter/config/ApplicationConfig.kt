@@ -14,9 +14,11 @@ import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.scheduler.pmc.exporter.ExporterExecutor
+import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcDataRepository
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository
 import uk.ac.ebi.scheduler.pmc.exporter.service.ExporterService
 import uk.ac.ebi.scheduler.pmc.exporter.service.PmcExporterService
@@ -28,9 +30,13 @@ internal const val BUFFER_SIZE = 1024 * 1024
 
 @Configuration
 @Suppress("TooManyFunctions")
-class ApplicationConfig(
-    private val pmcRepository: PmcRepository,
-) {
+class ApplicationConfig {
+    @Bean
+    fun pmcDataReposotory(
+        pmcRepository: PmcRepository,
+        mongoTemplate: ReactiveMongoTemplate,
+    ): PmcDataRepository = PmcDataRepository(pmcRepository, mongoTemplate)
+
     @Bean
     fun suspendRetryTemplate(): SuspendRetryTemplate =
         SuspendRetryTemplate(
@@ -47,7 +53,8 @@ class ApplicationConfig(
         xmlWriter: XmlMapper,
         applicationProperties: ApplicationProperties,
         retryTemplate: SuspendRetryTemplate,
-    ): PmcExporterService = PmcExporterService(pmcRepository, xmlWriter, applicationProperties, retryTemplate)
+        pmcDataRepository: PmcDataRepository,
+    ): PmcExporterService = PmcExporterService(pmcDataRepository, xmlWriter, applicationProperties, retryTemplate)
 
     @Bean
     fun publicOnlyExporterService(

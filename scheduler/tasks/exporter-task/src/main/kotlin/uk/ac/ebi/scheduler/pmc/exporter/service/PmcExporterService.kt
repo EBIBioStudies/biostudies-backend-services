@@ -2,11 +2,12 @@ package uk.ac.ebi.scheduler.pmc.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.coroutines.SuspendRetryTemplate
-import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.coroutines.concurrently
+import ebi.ac.uk.coroutines.every
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.pmc.exporter.cli.BioStudiesFtpClient
@@ -15,7 +16,7 @@ import uk.ac.ebi.scheduler.pmc.exporter.mapping.toLink
 import uk.ac.ebi.scheduler.pmc.exporter.model.Link
 import uk.ac.ebi.scheduler.pmc.exporter.model.Links
 import uk.ac.ebi.scheduler.pmc.exporter.model.PmcData
-import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository
+import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcDataRepository
 import java.util.concurrent.atomic.AtomicInteger
 
 internal const val CHUNK_SIZE = 4000
@@ -23,27 +24,41 @@ internal const val CHUNK_SIZE = 4000
 private val logger = KotlinLogging.logger {}
 
 class PmcExporterService(
-    private val pmcRepository: PmcRepository,
+    private val pmcRepository: PmcDataRepository,
     private val xmlWriter: XmlMapper,
     private val appProperties: ApplicationProperties,
     private val retryTemplate: SuspendRetryTemplate,
 ) {
+    suspend fun updateView() {
+        logger.info { "Updating pmc_export_submissions view" }
+        pmcRepository.createView()
+        logger.info { "Updating pmc_export_submissions finished" }
+    }
+
     suspend fun exportPmcLinks() {
         logger.info { "Started exporting PMC links" }
-        val totalLinks = AtomicInteger(0)
-        val parts = AtomicInteger(0)
 
-        pmcRepository
-            .findAllPmc()
+        val loadedLinks = AtomicInteger(0)
+        val records =
+            pmcRepository
+                .findAllFromView()
+                .every(10_0000) {
+                    loadedLinks.addAndGet(10_000)
+                    logger.info { "Loaded '${loadedLinks.get()}' links" }
+                }.toList()
+
+        val exportedLinks = AtomicInteger(0)
+        val parts = AtomicInteger(0)
+        records
             .chunked(CHUNK_SIZE)
-            .buffer(20)
+            .asFlow()
             .concurrently(10) {
-                totalLinks.addAndGet(it.size)
+                exportedLinks.addAndGet(it.size)
                 writeLinks(parts.incrementAndGet(), it)
-                logger.info { "Exported '${totalLinks.get()}' links" }
+                logger.info { "Exported '${loadedLinks.get()}' links" }
             }.collect()
 
-        logger.info { "Finished exporting PMC links. Total links: ${totalLinks.get()}" }
+        logger.info { "Export Complete. Total links (exported/loaded): ${exportedLinks.get()}/${loadedLinks.get()}" }
     }
 
     private suspend fun writeLinks(
