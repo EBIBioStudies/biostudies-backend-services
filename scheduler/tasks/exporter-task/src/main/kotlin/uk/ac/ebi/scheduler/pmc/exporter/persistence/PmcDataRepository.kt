@@ -33,7 +33,7 @@ class PmcDataRepository(
                     while (isActive) {
                         val elapsed = Duration.between(start, Instant.now()).toSeconds()
                         logger.info { "Elapsed time: $elapsed seconds" }
-                        delay(30_000)
+                        delay(REPORT_SECONDS)
                     }
                 }
 
@@ -55,6 +55,7 @@ class PmcDataRepository(
     fun findAllPmc(): Flow<PmcData> = pmcRepository.findAllPmc()
 
     companion object {
-        val PMC_SUBMISSION_VIEW = "pmc_export_submissions"
+        private const val PMC_SUBMISSION_VIEW = "pmc_export_submissions"
+        private const val REPORT_SECONDS = 30_000L
     }
 }

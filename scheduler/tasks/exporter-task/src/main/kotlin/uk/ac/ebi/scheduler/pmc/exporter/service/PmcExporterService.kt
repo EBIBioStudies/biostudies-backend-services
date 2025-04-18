@@ -20,6 +20,8 @@ import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcDataRepository
 import java.util.concurrent.atomic.AtomicInteger
 
 internal const val CHUNK_SIZE = 4000
+internal const val FTP_CONCURRENCY = 10
+internal const val REPORT_PROGRESS_EACH = 10_0000
 
 private val logger = KotlinLogging.logger {}
 
@@ -42,8 +44,8 @@ class PmcExporterService(
         val records =
             pmcRepository
                 .findAllFromView()
-                .every(10_0000) {
-                    loadedLinks.addAndGet(10_000)
+                .every(REPORT_PROGRESS_EACH) {
+                    loadedLinks.addAndGet(REPORT_PROGRESS_EACH)
                     logger.info { "Loaded '${loadedLinks.get()}' links" }
                 }.toList()
 
@@ -52,7 +54,7 @@ class PmcExporterService(
         records
             .chunked(CHUNK_SIZE)
             .asFlow()
-            .concurrently(10) {
+            .concurrently(FTP_CONCURRENCY) {
                 exportedLinks.addAndGet(it.size)
                 writeLinks(parts.incrementAndGet(), it)
                 logger.info { "Exported '${loadedLinks.get()}' links" }
