@@ -2,6 +2,7 @@ package uk.ac.ebi.scheduler.pmc.exporter.domain
 
 import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
+import ac.uk.ebi.scheduler.properties.ExporterMode.PMC_VIEW
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
 import ac.uk.ebi.scheduler.properties.ExporterProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
@@ -27,6 +28,21 @@ class ExporterTrigger(
     private val pmcNotificationsSender: NotificationsSender,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
+    suspend fun triggerPmcViewUpdate(debugPort: Int? = null): Job {
+        logger.info { "Triggering PMC view job" }
+
+        val config =
+            ExporterJobConfig(
+                PMC_VIEW,
+                exporterProperties.pmc.fileName,
+                exporterProperties.pmc.outputPath,
+                debugPort,
+                pmcNotificationsSender,
+            )
+
+        return triggerExport(config)
+    }
+
     suspend fun triggerPmcExport(debugPort: Int? = null): Job {
         logger.info { "Triggering PMC export job" }
 

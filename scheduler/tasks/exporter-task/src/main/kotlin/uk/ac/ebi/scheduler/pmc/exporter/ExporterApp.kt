@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.pmc.exporter
 
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
+import ac.uk.ebi.scheduler.properties.ExporterMode.PMC_VIEW
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -25,11 +26,13 @@ fun main(args: Array<String>) {
 class ExporterExecutor(
     private val exporterService: ExporterService,
     private val appProperties: ApplicationProperties,
-) : CommandLineRunner, ApplicationContextAware {
+) : CommandLineRunner,
+    ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
     override fun run(vararg args: String?) {
         when (appProperties.mode) {
+            PMC_VIEW -> exporterService.updatePmcView()
             PMC -> exporterService.exportPmc()
             PUBLIC_ONLY -> exporterService.exportPublicOnly()
         }

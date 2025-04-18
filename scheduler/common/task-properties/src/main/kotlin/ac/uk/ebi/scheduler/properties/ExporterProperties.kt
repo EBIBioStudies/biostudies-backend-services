@@ -83,4 +83,5 @@ class ExporterProperties : JavaAppProperties {
 enum class ExporterMode {
     PMC,
     PUBLIC_ONLY,
+    PMC_VIEW,
 }
