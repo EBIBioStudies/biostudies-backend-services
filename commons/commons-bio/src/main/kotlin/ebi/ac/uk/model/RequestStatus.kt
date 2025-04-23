@@ -4,6 +4,7 @@ enum class RequestStatus {
     DRAFT,
     SUBMITTED,
     REQUESTED,
+    FILES_VALIDATED,
     INDEXED,
     LOADED,
     VALIDATED,
@@ -20,6 +21,8 @@ enum class RequestStatus {
         val DRAFT_STATUS: Set<RequestStatus> = setOf(DRAFT)
         val PROCESSED_STATUS: Set<RequestStatus> = setOf(PROCESSED)
 
+        val EDITABLE_STATUS: Set<RequestStatus> = setOf(DRAFT, INVALID)
+
         /**
          * List of status consider as the system is processing or owns the submission.
          */
@@ -27,6 +30,7 @@ enum class RequestStatus {
             setOf(
                 SUBMITTED,
                 REQUESTED,
+                FILES_VALIDATED,
                 INDEXED,
                 LOADED,
                 INDEXED_CLEANED,
@@ -34,7 +38,15 @@ enum class RequestStatus {
                 FILES_COPIED,
                 CHECK_RELEASED,
                 PERSISTED,
-                INVALID,
             )
+
+        /**
+         * List of status as request are consider active to the user.
+         */
+        val ACTIVE_STATUS: Set<RequestStatus> =
+            buildSet {
+                addAll(PROCESSING_STATUS)
+                add(INVALID)
+            }
     }
 }

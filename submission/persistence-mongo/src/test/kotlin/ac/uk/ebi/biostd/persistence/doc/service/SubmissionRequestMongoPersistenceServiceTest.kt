@@ -19,6 +19,7 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
@@ -92,6 +93,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
+                        files = emptyList(),
+                        preferredSources = listOf(SUBMISSION),
+                        onBehalfUser = null,
+                        previousVersion = null,
                     )
 
                 val (accNo, version) = testInstance.saveRequest(rqt)
@@ -135,6 +140,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         notifyTo = "notifyTo",
                         silentMode = false,
                         singleJobMode = false,
+                        files = emptyList(),
+                        preferredSources = listOf(SUBMISSION),
+                        onBehalfUser = null,
+                        previousVersion = null,
                     )
 
                 val (accNo, version) = testInstance.saveRequest(rqt)
@@ -172,6 +181,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     draft = "draft-content",
                     status = PROCESSED,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    onBehalfUser = null,
+                    files = emptyList(),
+                    preferredSources = listOf(SUBMISSION.name),
+                    errors = emptyList(),
                     process =
                         DocRequestProcessing(
                             notifyTo = "user@test.org",
@@ -222,6 +235,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 draft = null,
                 status = status,
                 modificationTime = modificationTime,
+                onBehalfUser = null,
+                files = emptyList(),
+                preferredSources = listOf(SUBMISSION.name),
+                errors = emptyList(),
                 process =
                     DocRequestProcessing(
                         silentMode = false,
@@ -239,12 +256,12 @@ class SubmissionRequestMongoPersistenceServiceTest(
             requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
             requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
-            assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
-            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly(
+            assertThat(testInstance.getActiveRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
+            assertThat(testInstance.getActiveRequests(ofSeconds(5)).toList()).containsExactly(
                 "abc" to 1,
                 "zxy" to 2,
             )
-            assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
+            assertThat(testInstance.getActiveRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
         }
 
     @Test
@@ -277,6 +294,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
             draft = null,
             status = CLEANED,
             modificationTime = Instant.ofEpochMilli(1664981300),
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf(SUBMISSION.name),
+            errors = emptyList(),
             process =
                 DocRequestProcessing(
                     silentMode = false,

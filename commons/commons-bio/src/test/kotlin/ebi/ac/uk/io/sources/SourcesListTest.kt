@@ -1,8 +1,8 @@
 package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.errors.InvalidPathException
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.DIRECTORY_TYPE
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import io.mockk.clearAllMocks
@@ -18,15 +18,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class)
-internal class FileSourcesListTest(
+internal class SourcesListTest(
     @MockK private val file: ExtFile,
     @MockK private val oneFileSource: FilesSource,
     @MockK private val anotherFileSource: FilesSource,
 ) {
-    private val testInstance = FileSourcesList(true, listOf(oneFileSource, anotherFileSource))
+    private val testInstance = SourcesList(listOf(oneFileSource, anotherFileSource))
 
     private val filePath = "path/to/a/my file.txt"
-    private val attributes = emptyList<Attribute>()
+    private val attributes = emptyList<ExtAttribute>()
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -110,7 +110,11 @@ internal class FileSourcesListTest(
             runTest {
                 val error =
                     assertFailsWith<InvalidPathException> {
-                        testInstance.findExtFile("Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif", FILE_TYPE.value, attributes)
+                        testInstance.findExtFile(
+                            "Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif",
+                            FILE_TYPE.value,
+                            attributes,
+                        )
                     }
                 val expectedErrorMessage =
                     """

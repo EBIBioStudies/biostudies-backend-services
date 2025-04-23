@@ -57,7 +57,7 @@ class SubmissionSubmitterTest(
         runTest {
             val extRequestSlot = slot<ExtSubmitRequest>()
 
-            coEvery { requestService.hasActiveRequest(ACC_NO) } returns false
+            coEvery { requestService.hasProcesingRequest(ACC_NO) } returns false
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
             coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
@@ -112,6 +112,9 @@ class SubmissionSubmitterTest(
     private fun setUpRequest() {
         every { request.accNo } returns ACC_NO
         every { request.draftAccNo } returns TEMP_ACC_NO
+        every { request.preferredSources } returns emptyList()
+        every { request.onBehalfUser } returns null
+        every { request.requestFiles } returns emptyList()
         every { request.version } returns 1
         every { request.owner } returns sub.owner
         every { request.previousVersion } returns null

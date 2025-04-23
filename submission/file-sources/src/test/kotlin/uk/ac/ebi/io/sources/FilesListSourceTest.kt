@@ -1,7 +1,7 @@
 package uk.ac.ebi.io.sources
 
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -12,10 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
+internal class FilesListSourceTest(
+    temporaryFolder: TemporaryFolder,
+) {
     private val file: File = temporaryFolder.createFile("abc.txt")
     private val files: List<File> = listOf(file)
-    private val attributes = emptyList<Attribute>()
+    private val attributes = emptyList<ExtAttribute>()
 
     private val testInstance: FilesListSource = FilesListSource(files)
 

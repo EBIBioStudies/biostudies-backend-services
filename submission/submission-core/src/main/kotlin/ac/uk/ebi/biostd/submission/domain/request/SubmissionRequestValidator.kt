@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
@@ -25,22 +24,24 @@ class SubmissionRequestValidator(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, RequestStatus.INDEXED_CLEANED, processId) {
-            val requestStatus = if (properties.preventFileDeletion) validateRequest(it) else VALIDATED
-            it.withNewStatus(requestStatus)
+            when {
+                properties.preventFileDeletion -> validateRequest(it)
+                else -> it.withNewStatus(VALIDATED)
+            }
         }
 
-    private suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
+    private suspend fun validateRequest(rqt: SubmissionRequest): SubmissionRequest {
         val submission = rqt.process!!.submission
         val accNo = submission.accNo
         val submitter = submission.submitter
         val currentReleased = queryService.findCoreInfo(accNo)?.released.orFalse()
 
         if (currentReleased && rqt.hasFilesChanges && userPrivilegesService.canDeleteFiles(submitter, accNo).not()) {
-            logger.error { "$accNo ${submission.owner} The user $submitter is not allowed to modify files" }
-            return INVALID
+            logger.error { "$accNo ${submission.owner} The user $submitter is not allowed to modify/delete files" }
+            return rqt.withErrors(listOf("File deletion/modifications require admin permission."))
         }
 
-        return VALIDATED
+        return rqt.withNewStatus(VALIDATED)
     }
 
     /**

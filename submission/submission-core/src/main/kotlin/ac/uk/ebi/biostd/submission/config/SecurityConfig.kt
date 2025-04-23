@@ -9,10 +9,10 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
-import ebi.ac.uk.security.integration.components.ISecurityFilter
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityFilter
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -22,7 +22,9 @@ import uk.ac.ebi.events.service.EventsPublisherService
 @Configuration
 @Import(value = [FilePersistenceConfig::class, JmsPublishingConfig::class])
 @Suppress("TooManyFunctions")
-class SecurityConfig(properties: ApplicationProperties) {
+class SecurityConfig(
+    properties: ApplicationProperties,
+) {
     private val securityProps = properties.security
 
     @Bean
@@ -53,7 +55,7 @@ class SecurityConfig(properties: ApplicationProperties) {
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
 
     @Bean
-    fun securityQueryService(securityConfig: SecurityModuleConfig): ISecurityQueryService = securityConfig.securityQueryService()
+    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService = securityConfig.securityQueryService()
 
     @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
@@ -62,5 +64,5 @@ class SecurityConfig(properties: ApplicationProperties) {
     fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService = securityConfig.userPrivilegesService()
 
     @Bean
-    fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
+    fun securityFilter(securityConfig: SecurityModuleConfig): SecurityFilter = securityConfig.securityFilter()
 }

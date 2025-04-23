@@ -8,7 +8,9 @@ import java.time.OffsetDateTime
 
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
-enum class ExtFileType(val value: String) {
+enum class ExtFileType(
+    val value: String,
+) {
     FILE("file"),
     DIR("directory"),
     ;
@@ -23,28 +25,45 @@ enum class ExtFileType(val value: String) {
     }
 }
 
-data class ExtTag(val name: String, val value: String)
+data class ExtTag(
+    val name: String,
+    val value: String,
+)
 
-data class ExtCollection(val accNo: String)
+data class ExtCollection(
+    val accNo: String,
+)
 
-data class ExtAttributeDetail(val name: String, val value: String?)
+data class ExtAttributeDetail(
+    val name: String,
+    val value: String?,
+)
 
 data class ExtLink(
     val url: String,
     val attributes: List<ExtAttribute> = listOf(),
 )
 
-sealed class ExtFile {
-    abstract val filePath: String
-    abstract val relPath: String
-    abstract val attributes: List<ExtAttribute>
-    abstract val md5: String
-    abstract val type: ExtFileType
-    abstract val size: Long
+sealed interface ExtFile {
+    val filePath: String
+    val attributes: List<ExtAttribute>
 
     val fileName: String
         get() = filePath.substringAfterLast("/")
 }
+
+sealed interface PersistedExtFile : ExtFile {
+    val relPath: String
+    val md5: String
+    val size: Long
+    val type: ExtFileType
+}
+
+data class RequestFile(
+    override val filePath: String,
+    override val attributes: List<ExtAttribute>,
+    val type: String,
+) : ExtFile
 
 data class FireFile(
     val fireId: String,
@@ -56,7 +75,7 @@ data class FireFile(
     override val size: Long,
     override val type: ExtFileType,
     override val attributes: List<ExtAttribute>,
-) : ExtFile()
+) : PersistedExtFile
 
 data class NfsFile(
     override val filePath: String,
@@ -67,7 +86,7 @@ data class NfsFile(
     override val size: Long,
     override val attributes: List<ExtAttribute> = listOf(),
     override val type: ExtFileType = if (file.isDirectory) DIR else FILE,
-) : ExtFile()
+) : PersistedExtFile
 
 data class ExtFileList(
     val filePath: String,
@@ -79,11 +98,17 @@ data class ExtFileList(
         get() = filePath.substringAfterLast("/")
 }
 
-data class ExtSectionTable(val sections: List<ExtSection>)
+data class ExtSectionTable(
+    val sections: List<ExtSection>,
+)
 
-data class ExtLinkTable(val links: List<ExtLink>)
+data class ExtLinkTable(
+    val links: List<ExtLink>,
+)
 
-data class ExtFileTable(val files: List<ExtFile>) {
+data class ExtFileTable(
+    val files: List<ExtFile>,
+) {
     constructor(vararg files: ExtFile) : this(files.toList())
 }
 
@@ -105,7 +130,9 @@ data class ExtSection(
     val links: List<Either<ExtLink, ExtLinkTable>> = listOf(),
 )
 
-data class ExtAccessTag(val name: String)
+data class ExtAccessTag(
+    val name: String,
+)
 
 interface ExtSubmissionInfo {
     val accNo: String
@@ -141,19 +168,20 @@ data class ExtSubmission(
     override val storageMode: StorageMode,
 ) : ExtSubmissionInfo
 
-enum class StorageMode(val value: String) {
+enum class StorageMode(
+    val value: String,
+) {
     FIRE("FIRE"),
     NFS("NFS"),
     ;
 
     companion object {
-        fun fromString(value: String): StorageMode {
-            return when (value) {
+        fun fromString(value: String): StorageMode =
+            when (value) {
                 "FIRE" -> FIRE
                 "NFS" -> NFS
                 else -> error("Unknown storage mode $value")
             }
-        }
     }
 }
 

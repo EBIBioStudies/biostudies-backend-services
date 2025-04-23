@@ -30,13 +30,13 @@ class SubmissionRequestDraftService(
         pageRequest: PageRequest = PageRequest(),
     ): Flow<SubmissionRequest> = requestService.findRequestDrafts(owner, pageRequest)
 
-    suspend fun hasProcessingRequest(accNo: String): Boolean = requestService.hasActiveRequest(accNo)
+    suspend fun hasProcessingRequest(accNo: String): Boolean = requestService.hasProcesingRequest(accNo)
 
     suspend fun getOrCreateRequestDraftFromSubmission(
         accNo: String,
         owner: String,
     ): SubmissionRequest =
-        requestService.findRequestDraft(accNo, owner)
+        requestService.findEditableRequest(accNo, owner)
             ?: createRequestDraftFromSubmission(accNo, owner)
 
     suspend fun getOrCreateRequestDraft(
@@ -44,7 +44,7 @@ class SubmissionRequestDraftService(
         owner: String,
         draft: String,
     ): SubmissionRequest =
-        requestService.findRequestDraft(accNo, owner)
+        requestService.findEditableRequest(accNo, owner)
             ?: createActiveRequestDraft(draft, owner, accNo.ifBlank { null })
 
     suspend fun getRequestDraft(

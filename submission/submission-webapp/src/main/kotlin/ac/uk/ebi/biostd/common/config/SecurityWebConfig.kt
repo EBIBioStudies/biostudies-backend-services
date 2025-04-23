@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.config.SecurityConfig
-import ebi.ac.uk.security.integration.components.ISecurityFilter
+import ebi.ac.uk.security.integration.components.SecurityFilter
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpMethod.GET
@@ -18,30 +18,43 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 @Import(value = [SecurityConfig::class, FilePersistenceConfig::class])
 class SecurityWebConfig(
-    private val securityFilter: ISecurityFilter,
+    private val securityFilter: SecurityFilter,
     private val accessDeniedHandler: SecurityAccessDeniedHandler,
     private val authEntryPoint: SecurityAuthEntryPoint,
 ) : WebSecurityConfigurerAdapter() {
     @Suppress("SpreadOperator")
     override fun configure(http: HttpSecurity) {
-        http.csrf()
+        http
+            .csrf()
             .disable()
             .addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .antMatchers(GET, "/security/users/extended/**").permitAll()
-            .antMatchers(GET, "/submissions/extended/**").permitAll()
-            .antMatchers(GET, "/submissions/*").permitAll()
-            .antMatchers("/submissions/ftp/*").permitAll()
-            .antMatchers("/auth/**").permitAll()
-            .antMatchers("/v2/**").permitAll()
-            .antMatchers("/webjars/**").permitAll()
-            .antMatchers("/actuator/**").permitAll()
-            .antMatchers("/fire/**").permitAll()
-            .anyRequest().fullyAuthenticated()
+            .antMatchers(GET, "/security/users/extended/**")
+            .permitAll()
+            .antMatchers(GET, "/submissions/extended/**")
+            .permitAll()
+            .antMatchers(GET, "/submissions/*")
+            .permitAll()
+            .antMatchers("/submissions/ftp/*")
+            .permitAll()
+            .antMatchers("/auth/**")
+            .permitAll()
+            .antMatchers("/v2/**")
+            .permitAll()
+            .antMatchers("/webjars/**")
+            .permitAll()
+            .antMatchers("/actuator/**")
+            .permitAll()
+            .antMatchers("/fire/**")
+            .permitAll()
+            .anyRequest()
+            .fullyAuthenticated()
             .and()
-            .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+            .exceptionHandling()
+            .accessDeniedHandler(accessDeniedHandler)
             .authenticationEntryPoint(authEntryPoint)
     }
 }

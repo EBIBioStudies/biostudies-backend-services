@@ -29,6 +29,7 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.io.ext.createOrReplaceFile
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.isAuthor
@@ -179,6 +180,7 @@ class SpecialSubmissionAttributesTest(
             ) {
                 assertThat(files).hasSize(1)
                 assertThat(files.first()).hasLeftValueSatisfying {
+                    require(it is PersistedExtFile)
                     assertThat(it.filePath).isEqualTo(fileName)
                     assertThat(it.relPath).isEqualTo("Files/$fileName")
 
@@ -275,7 +277,7 @@ class SpecialSubmissionAttributesTest(
                     val tableFile = fileTable.files
                     assertThat(tableFile).hasSize(1)
 
-                    val file = tableFile.first()
+                    val file = tableFile.first() as PersistedExtFile
                     assertThat(file.filePath).isEqualTo(fileName)
                     assertThat(file.relPath).isEqualTo("Files/$fileName")
 

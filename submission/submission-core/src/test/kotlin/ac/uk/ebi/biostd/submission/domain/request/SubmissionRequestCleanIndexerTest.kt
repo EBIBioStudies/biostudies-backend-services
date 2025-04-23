@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.allPageTabFiles
@@ -74,9 +74,9 @@ class SubmissionRequestCleanIndexerTest(
     @Nested
     inner class WhenCurrentSubmission(
         @MockK private val file: NfsFile,
-        @MockK private val newFile: ExtFile,
+        @MockK private val newFile: PersistedExtFile,
         @MockK private val pageTabFile: NfsFile,
-        @MockK private val newPageTabFile: ExtFile,
+        @MockK private val newPageTabFile: PersistedExtFile,
         @MockK private val newRqtFile: SubmissionRequestFile,
         @MockK private val newPageTabRqtFile: SubmissionRequestFile,
     ) {

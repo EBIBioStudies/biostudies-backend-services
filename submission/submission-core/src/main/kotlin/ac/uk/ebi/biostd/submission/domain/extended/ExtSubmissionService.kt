@@ -10,8 +10,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
@@ -26,7 +26,7 @@ class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val queryService: SubmissionPersistenceQueryService,
     private val privilegesService: IUserPrivilegesService,
-    private val securityService: ISecurityQueryService,
+    private val securityService: SecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
     suspend fun reTriggerSubmission(
@@ -50,7 +50,6 @@ class ExtSubmissionService(
         val toRefresh = submission.copy(released = released)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = toRefresh,
             )
@@ -72,7 +71,6 @@ class ExtSubmissionService(
         val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay(), released = released)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = toRelease,
             )
@@ -89,7 +87,6 @@ class ExtSubmissionService(
         val submission = processSubmission(user, sub)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = submission,
             )
@@ -105,7 +102,6 @@ class ExtSubmissionService(
         val submission = processSubmission(user, sub)
         val request =
             ExtSubmitRequest(
-                owner = submission.owner,
                 notifyTo = user,
                 submission = submission,
             )
@@ -126,7 +122,6 @@ class ExtSubmissionService(
         val transfer = processSubmission(user, source.copy(storageMode = target))
         val request =
             ExtSubmitRequest(
-                owner = source.owner,
                 notifyTo = user,
                 submission = transfer,
             )
