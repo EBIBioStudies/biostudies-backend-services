@@ -59,7 +59,7 @@ internal class SubmissionDraftResource(
         @PathVariable accNo: String,
     ): ResponseSubmissionDraftContent {
         val requestDraft = requestDraftService.getRequestDraft(accNo, user.email)
-        return ResponseSubmissionDraftContent(requestDraft.draft)
+        return ResponseSubmissionDraftContent(requestDraft.draft!!)
     }
 
     @DeleteMapping("/{accNo}")
@@ -111,7 +111,7 @@ internal class SubmissionDraftResource(
         return submitWebHandler.submit(request)
     }
 
-    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(accNo, draft, modificationTime)
+    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(accNo, draft!!, modificationTime)
 }
 
 internal class ResponseSubmissionDraft(

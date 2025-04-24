@@ -124,7 +124,7 @@ class SubmitWebHandler(
                     is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
                     is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
                     is DraftSubmitWebRequest -> {
-                        val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft
+                        val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft!!
                         serializationService.deserializeSubmission(draft, JSON)
                     }
                 }
@@ -143,7 +143,7 @@ class SubmitWebHandler(
                 is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
 
                 is DraftSubmitWebRequest -> {
-                    val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft
+                    val draft = requestDraftService.getRequestDraft(rqt.accNo, rqt.owner).draft!!
                     serializationService.deserializeSubmission(draft, JSON, source)
                 }
             }
