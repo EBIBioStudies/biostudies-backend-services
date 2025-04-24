@@ -5,6 +5,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedFirePath
 import uk.ac.ebi.fire.client.integration.web.FireClient
@@ -25,12 +26,12 @@ class FireFilesService(
     override suspend fun persistSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
-    ): FireFile {
-        return when (file) {
+    ): FireFile =
+        when (file) {
             is FireFile -> file
             is NfsFile -> getOrCreate(file, sub.expectedFirePath(file))
+            is RequestFile -> error("RequestFile ${file.filePath} can not be persisted")
         }
-    }
 
     private suspend fun getOrCreate(
         file: NfsFile,

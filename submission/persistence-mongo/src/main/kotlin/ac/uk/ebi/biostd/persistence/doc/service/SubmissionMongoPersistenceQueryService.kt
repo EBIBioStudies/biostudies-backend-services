@@ -8,10 +8,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.constants.ProcessingStatus.INVALID
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.Flow
@@ -116,10 +119,17 @@ internal class SubmissionMongoPersistenceQueryService(
             )
 
         return requests
-            .map { it.process?.submission ?: it.draft }
-            .map { serializationService.deserialize(it.toString()) }
-            .map { it.asBasicSubmission(PROCESSING) }
+            .map { asBasicSubmission(it) }
             .plus(findSubmissions(submissionFilter))
+    }
+
+    private fun asBasicSubmission(request: DocSubmissionRequest): BasicSubmission {
+        val serialized = request.process?.submission ?: request.draft
+        val submission = serializationService.deserialize(serialized.toString())
+        return when (request.status) {
+            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, request.errors)
+            else -> submission.asBasicSubmission(PROCESSING)
+        }
     }
 
     private suspend fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =

@@ -49,8 +49,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.Companion.ACTIVE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
-import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -369,6 +369,7 @@ class SubmissionRequestDocDataRepository(
             Update()
                 .set(RQT_STATUS, rqt.status)
                 .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+                .set(RQT_ERRORS, rqt.errors)
                 .set("$RQT_PROCESS.$SUB", rqt.process?.submission)
                 .set("$RQT_PROCESS.$RQT_TOTAL_FILES", rqt.process?.totalFiles)
                 .set("$RQT_PROCESS.$RQT_IDX", rqt.process?.currentIndex)
@@ -384,7 +385,7 @@ class SubmissionRequestDocDataRepository(
         ImmutableList
             .Builder<Criteria>()
             .apply {
-                add(where(RQT_STATUS).`in`(PROCESSING_STATUS))
+                add(where(RQT_STATUS).`in`(ACTIVE_STATUS))
                 filter.accNo?.let { add(where("$RQT_PROCESS.$SUB.$SUB_ACC_NO").`is`(it)) }
                 filter.type?.let { add(where("$RQT_PROCESS.$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
                 filter.rTimeFrom?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }

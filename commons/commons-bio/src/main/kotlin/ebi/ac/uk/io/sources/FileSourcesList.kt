@@ -2,8 +2,9 @@ package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.errors.InvalidPathException
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.extended.model.RequestFile
 import java.io.File
 
 /**
@@ -35,26 +36,56 @@ private val validPathPattern =
         append("\$") // End of the line
     }.trimIndent().toRegex()
 
-class FileSourcesList(private val checkFilesPath: Boolean, val sources: List<FilesSource>) {
+interface FileSourcesList {
     suspend fun findExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
-    ): ExtFile? {
-        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
-        return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
-    }
+        attributes: List<ExtAttribute>,
+    ): ExtFile?
 
     suspend fun getExtFile(
         path: String,
         type: String,
-        attributes: List<Attribute>,
-    ): ExtFile {
-        return findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
+        attributes: List<ExtAttribute>,
+    ): ExtFile
+
+    fun sourcesDescription(): String
+
+    suspend fun getFileList(path: String): File?
+}
+
+class ByPassSourceList(
+    private val fileSourcesList: FileSourcesList,
+) : FileSourcesList by fileSourcesList {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+    ): ExtFile = RequestFile(path, attributes, type)
+}
+
+class SourcesList(
+    val sources: List<FilesSource>,
+) : FileSourcesList {
+    override suspend fun findExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+    ): ExtFile? {
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
-    suspend fun getFileList(path: String): File? {
-        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+    ): ExtFile = findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
+
+    override fun sourcesDescription(): String = sources.joinToString(separator = "\n") { "  - ${it.description}" }
+
+    override suspend fun getFileList(path: String): File? {
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PROCESS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
@@ -145,7 +146,7 @@ internal class DatabaseChangeLogTest(
                 assertThat(requestIndexes).hasSize(16)
 
                 assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
-                assertSubmissionCoreIndexes("$SUB.", indexes = requestIndexes)
+                assertSubmissionCoreIndexes("$RQT_PROCESS.$SUB.", indexes = requestIndexes)
                 assertThat(requestIndexes[12]).containsEntry("key", Document(SUB_ACC_NO, 1))
                 assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
                 assertThat(requestIndexes[14]).containsEntry("key", Document(RQT_STATUS, 1))

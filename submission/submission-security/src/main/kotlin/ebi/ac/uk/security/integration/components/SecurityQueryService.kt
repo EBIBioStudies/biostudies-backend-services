@@ -4,7 +4,7 @@ import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
-interface ISecurityQueryService {
+interface SecurityQueryService {
     fun existsByEmail(
         email: String,
         onlyActive: Boolean = true,

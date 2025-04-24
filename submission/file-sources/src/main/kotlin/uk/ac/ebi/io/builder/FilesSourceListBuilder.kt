@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.allInnerSubmissionFiles
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
@@ -23,14 +24,13 @@ import java.nio.file.Path
 
 @Suppress("LongParameterList")
 class FilesSourceListBuilder(
-    private val checkFilesPath: Boolean,
     private val submissionPath: Path,
     private val fireClient: FireClient,
     private val ftpClient: FtpClient,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    private fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
+    private fun build(): FileSourcesList = SourcesList(sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()
@@ -48,6 +48,7 @@ class FilesSourceListBuilder(
     fun addUserSource(
         securityUser: SecurityUser,
         description: String,
+        hasFtpFileAccess: Boolean,
         rootPath: String? = null,
     ) {
         val folder = securityUser.userFolder
@@ -57,9 +58,14 @@ class FilesSourceListBuilder(
         }
 
         if (folder is FtpUserFolder) {
-            val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
             val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
-            sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient))
+            when {
+                hasFtpFileAccess -> sources.add(UserPathSource(description, nfsPath))
+                else -> {
+                    val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
+                    sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient))
+                }
+            }
         }
     }
 

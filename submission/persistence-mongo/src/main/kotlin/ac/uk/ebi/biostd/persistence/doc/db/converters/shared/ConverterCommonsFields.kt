@@ -155,6 +155,9 @@ object DocRequestFields {
     const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"
     const val RQT_STATUS_CHANGE_END_TIME = "endTime"
     const val RQT_STATUS_CHANGE_RESULT = "result"
+    const val RQT_PREFERED_SOURCES = "preferredSources"
+    const val RQT_FILES = "files"
+    const val RQT_ON_BEHALF = "onBehalfUser"
 }
 
 object DocStatsFields {

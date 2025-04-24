@@ -14,10 +14,12 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import mu.KotlinLogging
@@ -85,6 +87,8 @@ class SubmissionRequestCleanIndexer(
         serializationService
             .filesFlowExt(current)
             .mapNotNull { (isPageTab, file) ->
+                require(file is PersistedExtFile) { "Only persisted files are supported" }
+
                 when (newFiles.findMatch(file, isPageTab)) {
                     MatchType.CONFLICTING -> fileUpdate(conflictIdx, file, CONFLICTING)
                     MatchType.CONFLICTING_PAGE_TAB -> fileUpdate(conflictPageTabIdx, file, CONFLICTING_PAGE_TAB)
@@ -108,11 +112,12 @@ class SubmissionRequestCleanIndexer(
 
     private suspend fun summarizeFileRecords(new: ExtSubmission): FilesRecords {
         val response = mutableMapOf<String, FileRecord>()
-        val pageTabFiles = new.allPageTabFiles.groupBy { it.md5 }
+        val pageTabFiles = new.allPageTabFiles.filterIsInstance<PersistedExtFile>().groupBy { it.md5 }
 
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
             .map { it.file }
+            .filterIsInstance<PersistedExtFile>()
             .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode, pageTabFiles.containsKey(it.md5)) }
         return FilesRecords(response)
     }
@@ -133,7 +138,7 @@ private class FilesRecords(
      * - REUSED: The existing file hasn't changed in the new version, so it can be reused
      */
     fun findMatch(
-        existing: ExtFile,
+        existing: PersistedExtFile,
         isPageTab: Boolean,
     ): MatchType {
         val newFile = newFiles[existing.filePath]

@@ -313,8 +313,10 @@ internal class SubmissionMongoQueryServiceTest(
                 saveAsRequest(sub.copy(accNo = "accNo3", version = 2), CLEANED)
                 saveAsRequest(sub.copy(accNo = "accNo4", version = 2), FILES_COPIED)
 
-                val submitted = asRequest(sub.copy(accNo = "accNo6", version = 2), SUBMITTED).copy(process = null)
-                requestRepository.saveRequest(submitted)
+                val submitted = sub.copy(accNo = "accNo6", version = 2)
+                val draft = serializationService.serialize(submitted)
+                val submittedRqt = asRequest(submitted, SUBMITTED).copy(draft = draft, process = null)
+                requestRepository.saveRequest(submittedRqt)
 
                 val result = testInstance.getSubmissionsByUser(SubmissionListFilter(SUBMISSION_OWNER))
 
@@ -325,7 +327,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo1",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -335,7 +337,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo2",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -345,7 +347,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo3",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -355,7 +357,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo4",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isTrue()
 
@@ -375,7 +377,7 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo5",
-                        RequestStatus.PROCESSING_STATUS,
+                        RequestStatus.ACTIVE_STATUS,
                     ),
                 ).isFalse()
             }
@@ -423,30 +425,31 @@ internal class SubmissionMongoQueryServiceTest(
         private fun asRequest(
             submission: ExtSubmission,
             status: RequestStatus,
-        ): DocSubmissionRequest {
-            val serializedSub = serializationService.serialize(submission)
-            return DocSubmissionRequest(
-                id = ObjectId(),
-                accNo = submission.accNo,
-                version = submission.version,
-                owner = "owner@mail.org",
-                draft = serializedSub,
-                status = status,
-                modificationTime = Instant.now(),
-                process =
-                    DocRequestProcessing(
-                        silentMode = false,
-                        singleJobMode = false,
-                        notifyTo = submission.owner,
-                        submission = BasicDBObject.parse(serializedSub),
-                        totalFiles = 6,
-                        fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
-                        currentIndex = 0,
-                        statusChanges = emptyList(),
-                        previousVersion = 1,
-                    ),
-            )
-        }
+        ) = DocSubmissionRequest(
+            id = ObjectId(),
+            accNo = submission.accNo,
+            version = submission.version,
+            owner = "owner@mail.org",
+            draft = null,
+            status = status,
+            modificationTime = Instant.now(),
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf("SUBMISSION"),
+            errors = emptyList(),
+            process =
+                DocRequestProcessing(
+                    silentMode = false,
+                    singleJobMode = false,
+                    notifyTo = submission.owner,
+                    submission = BasicDBObject.parse(serializationService.serialize(submission)),
+                    totalFiles = 6,
+                    fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
+                    currentIndex = 0,
+                    statusChanges = emptyList(),
+                    previousVersion = 1,
+                ),
+        )
     }
 
     @Test

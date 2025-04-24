@@ -105,7 +105,7 @@ interface SubmissionRequestPersistenceService {
         pageRequest: PageRequest = PageRequest(),
     ): Flow<SubmissionRequest>
 
-    suspend fun findRequestDraft(
+    suspend fun findEditableRequest(
         accNo: String,
         owner: String,
     ): SubmissionRequest?
@@ -147,11 +147,11 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun findAllProcessed(): Flow<Pair<String, Int>>
 
-    suspend fun hasActiveRequest(accNo: String): Boolean
+    suspend fun hasProcesingRequest(accNo: String): Boolean
 
     suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
+    fun getActiveRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
     /**
      * Update the given request file. By default, only file index is updated in submission request. For other options

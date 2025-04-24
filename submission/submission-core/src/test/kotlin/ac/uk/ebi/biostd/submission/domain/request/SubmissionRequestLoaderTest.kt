@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.RequestStatus
@@ -91,8 +92,11 @@ class SubmissionRequestLoaderTest(
 
         val requestFile = filSlot.captured
         assertThat(requestFile.status).isEqualTo(LOADED)
-        assertThat(requestFile.file.md5).isEqualTo(file.md5())
-        assertThat(requestFile.file.size).isEqualTo(file.size())
+
+        val rFile = requestFile.file
+        require(rFile is PersistedExtFile)
+        assertThat(rFile.md5).isEqualTo(file.md5())
+        assertThat(rFile.size).isEqualTo(file.size())
     }
 
     private companion object {

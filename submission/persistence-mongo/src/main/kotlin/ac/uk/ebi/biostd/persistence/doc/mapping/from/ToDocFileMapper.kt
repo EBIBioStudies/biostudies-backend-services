@@ -6,12 +6,14 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.RequestDocFile
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.InputStream
@@ -39,7 +41,8 @@ class ToDocFileListMapper(
         accNo: String,
         version: Int,
     ): List<FileListDocFile> =
-        serializationService.deserializeListAsSequence(stream)
+        serializationService
+            .deserializeListAsSequence(stream)
             .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, version, accNo) }
             .toList()
 }
@@ -71,4 +74,6 @@ internal fun ExtFile.toDocFile(): DocFile =
                 md5 = md5,
                 fileSize = size,
             )
+
+        is RequestFile -> RequestDocFile(filePath, attributes.map { it.toDocAttribute() }, type)
     }

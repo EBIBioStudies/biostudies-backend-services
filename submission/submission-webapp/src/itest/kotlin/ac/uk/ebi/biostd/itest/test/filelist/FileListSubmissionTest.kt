@@ -27,6 +27,7 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
@@ -240,6 +241,7 @@ class FileListSubmissionTest(
 
             assertThat(referencedFiles).hasSize(1)
             val referenced = referencedFiles.first()
+            require(referenced is PersistedExtFile)
             assertThat(referenced.filePath).isEqualTo("referenced.txt")
             assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
             assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))

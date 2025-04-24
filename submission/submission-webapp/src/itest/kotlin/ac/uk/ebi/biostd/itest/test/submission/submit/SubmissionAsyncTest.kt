@@ -27,6 +27,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import ebi.ac.uk.model.RequestStatus.LOADED
@@ -114,7 +115,6 @@ class SubmissionAsyncTest(
             val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
             val extSubmitRequest =
                 ExtSubmitRequest(
-                    owner = extSubmission.owner,
                     notifyTo = SuperUser.email,
                     submission = extSubmission,
                     singleJobMode = false,
@@ -131,6 +131,7 @@ class SubmissionAsyncTest(
             val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).process!!.statusChanges
             assertThat(requestStatus.map { it.status }).containsExactly(
                 REQUESTED.action,
+                FILES_VALIDATED.action,
                 INDEXED.action,
                 LOADED.action,
                 INDEXED_CLEANED.action,

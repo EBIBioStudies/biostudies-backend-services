@@ -58,7 +58,6 @@ class GeneralConfig {
             fireClient = fireClient,
             filesRepository = filesRepo,
             ftpClient = ftpClient,
-            checkFilesPath = applicationProperties.checkFilesPath,
         )
 
     @Bean

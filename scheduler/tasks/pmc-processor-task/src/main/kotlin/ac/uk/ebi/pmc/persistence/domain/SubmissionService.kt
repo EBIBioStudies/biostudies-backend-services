@@ -70,10 +70,8 @@ class SubmissionService(
         submissions: List<SubmissionDocument>,
         results: List<SubmissionId>,
     ) {
-        val result =
-            submissions.mapIndexed { idx, sub ->
-                sub.copy(version = results.get(idx).version, status = SUBMITTED)
-            }
+        val submitResult = results.associateBy({ it.accNo }, { it.version })
+        val result = submissions.map { sub -> sub.copy(version = submitResult.getValue(sub.accNo), status = SUBMITTED) }
         subRepository.update(result)
     }
 
@@ -89,15 +87,20 @@ class SubmissionService(
             }
         }
 
-    fun findReadyToSubmit(sourceFile: String?): Flow<SubmissionDocument> =
+    fun findReadyToSubmit(
+        sourceFile: String?,
+        limit: Int,
+    ): Flow<SubmissionDocument> =
         flow {
-            while (true) {
+            var current = 0
+            while (current < limit) {
                 val next =
                     when (sourceFile) {
                         null -> subRepository.findAndUpdate(PROCESSED, SUBMITTING)
                         else -> subRepository.findAndUpdate(PROCESSED, SUBMITTING, sourceFile)
                     }
                 emit(next ?: break)
+                current++
             }
         }
 

@@ -16,6 +16,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import kotlinx.coroutines.flow.collect
@@ -86,6 +87,8 @@ class SubmissionRequestReleaser(
                     val released = if (file.published) file else release(sub, reqFile.index, file)
                     rqtService.updateRqtFile(reqFile.copy(file = released, status = RELEASED))
                 }
+
+                is RequestFile -> error("RequestFile ${file.filePath} can not be released")
             }
         }
 
@@ -130,6 +133,8 @@ class SubmissionRequestReleaser(
                     val unreleased = if (file.published) unRelease(sub, reqFile.index, file) else file
                     rqtService.updateRqtFile(reqFile.copy(file = unreleased, status = UNRELEASED))
                 }
+
+                is RequestFile -> error("RequestFile ${file.filePath} can not be unreleased")
             }
         }
 
