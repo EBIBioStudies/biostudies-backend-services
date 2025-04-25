@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.constants.ProcessingStatus.INVALID
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
@@ -123,11 +124,12 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(submissionFilter))
     }
 
-    private fun asBasicSubmission(request: DocSubmissionRequest): BasicSubmission {
-        val serialized = request.process?.submission ?: request.draft
+    private fun asBasicSubmission(rqt: DocSubmissionRequest): BasicSubmission {
+        val serialized = if (rqt.status == SUBMITTED) rqt.draft else rqt.process?.submission
         val submission = serializationService.deserialize(serialized.toString())
-        return when (request.status) {
-            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, request.errors)
+
+        return when (rqt.status) {
+            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, rqt.errors)
             else -> submission.asBasicSubmission(PROCESSING)
         }
     }

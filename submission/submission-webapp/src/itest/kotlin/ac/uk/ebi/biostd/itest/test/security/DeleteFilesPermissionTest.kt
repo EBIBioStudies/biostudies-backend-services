@@ -35,7 +35,7 @@ import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class DeleteFilesPermissionTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val requestRepository: SubmissionRequestPersistenceService,
