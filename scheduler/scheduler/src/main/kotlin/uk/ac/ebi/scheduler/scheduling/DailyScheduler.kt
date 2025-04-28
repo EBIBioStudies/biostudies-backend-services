@@ -65,7 +65,7 @@ internal class DailyScheduler(
             if (dailyScheduling.pmcExport) exporterTrigger.triggerPmcExport()
         }
 
-    // Execute at 7:00 pm / 21:00
+    // Execute at 9:00 pm / 21:00
     @Scheduled(cron = "0 0 21 * * *")
     fun exportPublicSubmissions() =
         runBlocking {
