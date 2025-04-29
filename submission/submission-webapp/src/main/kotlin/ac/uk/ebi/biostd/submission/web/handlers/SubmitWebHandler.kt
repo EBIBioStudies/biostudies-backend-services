@@ -29,11 +29,8 @@ import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
-import mu.KotlinLogging
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
-
-private val logger = KotlinLogging.logger {}
 
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class SubmitWebHandler(
