@@ -94,7 +94,7 @@ class LinkListSubmissionTest(
                 assertThat(it.links.first().url).isEqualTo("IHECRE00000919.1")
             }
 
-            assertSubmissionFiles(accNo = "S-LLT311", fileListName = "LinkList")
+            assertSubmissionFiles(accNo = "S-LLT311", linkListName = "LinkList")
         }
 
     @Test
@@ -152,19 +152,19 @@ class LinkListSubmissionTest(
                 assertThat(it.links.first().url).isEqualTo("IHECRE00000919.1")
             }
 
-            assertSubmissionFiles(accNo = "S-LLT312", fileListName = "LinkList")
+            assertSubmissionFiles(accNo = "S-LLT312", linkListName = "LinkList")
         }
 
     private suspend fun assertSubmissionFiles(
         accNo: String,
-        fileListName: String,
+        linkListName: String,
     ) {
         val createdSub = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 
         if (enableFire) {
             assertFireSubFiles(createdSub, accNo, subFolder)
-            assertFireLinkListFiles(createdSub, fileListName, subFolder)
+            assertFireLinkListFiles(createdSub, linkListName, subFolder)
         } else {
             val submissionTabFiles = createdSub.pageTabFiles
             assertThat(submissionTabFiles).hasSize(2)
@@ -172,11 +172,11 @@ class LinkListSubmissionTest(
 
             val fileListTabFiles = createdSub.section.linkList!!.pageTabFiles
             assertThat(fileListTabFiles).hasSize(2)
-            assertThat(fileListTabFiles).isEqualTo(linkListNfsTabFiles(fileListName, subFolder))
+            assertThat(fileListTabFiles).isEqualTo(linkListNfsTabFiles(linkListName, subFolder))
         }
 
-        assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
-        assertThat(Paths.get("$subFolder/Files/$fileListName.tsv")).exists()
+        assertThat(Paths.get("$subFolder/Files/$linkListName.json")).exists()
+        assertThat(Paths.get("$subFolder/Files/$linkListName.tsv")).exists()
 
         assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
         assertThat(Paths.get("$subFolder/${createdSub.accNo}.tsv")).exists()
@@ -209,24 +209,24 @@ class LinkListSubmissionTest(
 
     private fun assertFireLinkListFiles(
         sub: ExtSubmission,
-        fileListName: String,
+        linkListName: String,
         subFolder: String,
     ) {
-        val fileListTabFiles = sub.section.linkList!!.pageTabFiles
-        assertThat(fileListTabFiles).hasSize(2)
+        val linkListTabFiles = sub.section.linkList!!.pageTabFiles
+        assertThat(linkListTabFiles).hasSize(2)
 
-        val jsonTabFile = fileListTabFiles.first() as FireFile
-        val jsonFile = File("$subFolder/Files/$fileListName.json")
-        assertThat(jsonTabFile.filePath).isEqualTo("$fileListName.json")
-        assertThat(jsonTabFile.relPath).isEqualTo("Files/$fileListName.json")
+        val jsonTabFile = linkListTabFiles.first() as FireFile
+        val jsonFile = File("$subFolder/Files/$linkListName.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("$linkListName.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("Files/$linkListName.json")
         assertThat(jsonTabFile.fireId).isNotNull()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
-        val tsvTabFile = fileListTabFiles.second() as FireFile
-        val tsvFile = File("$subFolder/Files/$fileListName.tsv")
-        assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.tsv")
-        assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.tsv")
+        val tsvTabFile = linkListTabFiles.second() as FireFile
+        val tsvFile = File("$subFolder/Files/$linkListName.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$linkListName.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/$linkListName.tsv")
         assertThat(tsvTabFile.fireId).isNotNull()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())

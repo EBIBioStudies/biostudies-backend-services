@@ -42,7 +42,6 @@ class ToExtSectionMapper(
         sec: Section,
         source: FileSourcesList,
     ): ExtSection {
-        // TODO links should be persisted in a separate collection
         val linkList = sec.linkList?.let { toExtLinkListMapper.convert(accNo, version, it) }
         val addedLinks = Either.Right(ExtLinkTable(linkList?.links.orEmpty()))
 
