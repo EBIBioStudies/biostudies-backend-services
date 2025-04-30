@@ -5,6 +5,7 @@ import Dependencies.JacksonDataBind
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.ClientBioWebClient
@@ -15,10 +16,9 @@ import Projects.CommonsSerialization
 import Projects.SchedulerTaskProperties
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceMongo
-import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterMongo
-import SpringBootDependencies.SpringBootStarterWeb
+import SpringBootDependencies.SpringBootStarterReactiveMongo
+import SpringBootDependencies.SpringBootStarterWebFlux
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.KotlinXmlBuilder
@@ -49,9 +49,9 @@ dependencies {
     implementation(JacksonDataBind)
     implementation(JacksonKotlin)
     implementation(JacksonXml)
-    implementation(SpringBootStarter)
-    implementation(SpringBootStarterMongo)
-    implementation(SpringBootStarterWeb)
+    implementation(KotlinCoroutinesReactor)
+    implementation(SpringBootStarterReactiveMongo)
+    implementation(SpringBootStarterWebFlux)
     implementation(SpringBootStarterConfigProcessor)
 
     testImplementation(KotlinXmlBuilder)

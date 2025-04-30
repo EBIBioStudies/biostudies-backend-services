@@ -8,7 +8,9 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
 
 @RestController
-internal class ExporterResource(private val exporterTrigger: ExporterTrigger) {
+internal class ExporterResource(
+    private val exporterTrigger: ExporterTrigger,
+) {
     @PostMapping("/api/exporter/public")
     @ResponseBody
     suspend fun exportPublicSubmissions(
@@ -20,4 +22,10 @@ internal class ExporterResource(private val exporterTrigger: ExporterTrigger) {
     suspend fun exportPmcSubmissions(
         @RequestParam(required = false) debugPort: Int?,
     ): Job = exporterTrigger.triggerPmcExport(debugPort)
+
+    @PostMapping("/api/exporter/pmc/update-view")
+    @ResponseBody
+    suspend fun pmcViewUpdate(
+        @RequestParam(required = false) debugPort: Int?,
+    ): Job = exporterTrigger.triggerPmcViewUpdate(debugPort)
 }

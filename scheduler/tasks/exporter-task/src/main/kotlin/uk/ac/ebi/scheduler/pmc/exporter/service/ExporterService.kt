@@ -6,6 +6,10 @@ class ExporterService(
     private val pmcExporterService: PmcExporterService,
     private val publicOnlyExporterService: PublicOnlyExporterService,
 ) {
+    fun updatePmcView() {
+        runBlocking { pmcExporterService.updateView() }
+    }
+
     fun exportPmc() {
         runBlocking { pmcExporterService.exportPmcLinks() }
     }

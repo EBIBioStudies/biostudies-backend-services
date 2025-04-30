@@ -60,13 +60,13 @@ class LocalExtSubmissionSubmitter(
     private val submissionStatsService: SubmissionStatsService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
-        val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val sub = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
             SubmissionRequest(
-                accNo = submission.accNo,
-                version = submission.version,
-                owner = submission.owner,
-                submission = submission,
+                accNo = sub.accNo,
+                version = sub.version,
+                owner = sub.owner,
+                submission = sub,
                 notifyTo = rqt.notifyTo,
                 silentMode = rqt.silentMode,
                 files = rqt.requestFiles,

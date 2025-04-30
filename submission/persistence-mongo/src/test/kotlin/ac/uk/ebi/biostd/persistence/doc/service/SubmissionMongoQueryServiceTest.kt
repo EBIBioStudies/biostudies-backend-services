@@ -29,6 +29,7 @@ import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.model.constants.SectionFields.TITLE
@@ -305,15 +306,21 @@ internal class SubmissionMongoQueryServiceTest(
                 submissionRepo.save(docSubmission.copy(accNo = "accNo3", version = 1))
                 submissionRepo.save(docSubmission.copy(accNo = "accNo4", version = 1))
                 submissionRepo.save(docSubmission.copy(accNo = "accNo5", version = 1))
+                submissionRepo.save(docSubmission.copy(accNo = "accNo6", version = 1))
 
                 saveAsRequest(sub.copy(accNo = "accNo1", version = 2), REQUESTED)
                 saveAsRequest(sub.copy(accNo = "accNo2", version = 2), LOADED)
                 saveAsRequest(sub.copy(accNo = "accNo3", version = 2), CLEANED)
                 saveAsRequest(sub.copy(accNo = "accNo4", version = 2), FILES_COPIED)
 
+                val submitted = sub.copy(accNo = "accNo6", version = 2)
+                val draft = serializationService.serialize(submitted)
+                val submittedRqt = asRequest(submitted, SUBMITTED).copy(draft = draft, process = null)
+                requestRepository.saveRequest(submittedRqt)
+
                 val result = testInstance.getSubmissionsByUser(SubmissionListFilter(SUBMISSION_OWNER))
 
-                assertThat(result).hasSize(5)
+                assertThat(result).hasSize(6)
                 assertThat(result[0].accNo).isEqualTo("accNo1")
                 assertThat(result[0].version).isEqualTo(2)
                 assertThat(result[0].status).isEqualTo(PROCESSING)
@@ -354,9 +361,19 @@ internal class SubmissionMongoQueryServiceTest(
                     ),
                 ).isTrue()
 
-                assertThat(result[4].accNo).isEqualTo("accNo5")
-                assertThat(result[4].version).isEqualTo(1)
-                assertThat(result[4].status).isEqualTo(PROCESSED)
+                assertThat(result[4].accNo).isEqualTo("accNo6")
+                assertThat(result[4].version).isEqualTo(2)
+                assertThat(result[4].status).isEqualTo(PROCESSING)
+                assertThat(
+                    requestRepository.existsByAccNoAndStatusIn(
+                        "accNo6",
+                        RequestStatus.PROCESSING_STATUS,
+                    ),
+                ).isTrue()
+
+                assertThat(result[5].accNo).isEqualTo("accNo5")
+                assertThat(result[5].version).isEqualTo(1)
+                assertThat(result[5].status).isEqualTo(PROCESSED)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
                         "accNo5",
