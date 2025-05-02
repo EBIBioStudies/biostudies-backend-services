@@ -43,7 +43,9 @@ class ToExtSectionMapper(
         source: FileSourcesList,
     ): ExtSection {
         val linkList = sec.linkList?.let { toExtLinkListMapper.convert(accNo, version, it) }
-        val addedLinks = Either.Right(ExtLinkTable(linkList?.links.orEmpty()))
+        val sectionLinks = sec.links.biMap({ it.toExtLink() }, { it.toExtTable() })
+        val addedLinks = linkList?.let { Either.Right(ExtLinkTable(it.links)) }
+        val links = if (linkList != null) sectionLinks.plus(addedLinks!!) else sectionLinks
 
         return ExtSection(
             type = sec.type,
@@ -54,9 +56,9 @@ class ToExtSectionMapper(
             files =
                 sec.files.biMap(
                     { source.getExtFile(it) },
-                    { ExtFileTable(it.elements.map { source.getExtFile(it) }) },
+                    { filesTable -> ExtFileTable(filesTable.elements.map { source.getExtFile(it) }) },
                 ),
-            links = sec.links.biMap({ it.toExtLink() }, { it.toExtTable() }).plus(addedLinks),
+            links = links,
             sections =
                 sec.sections.biMap(
                     { convert(accNo, version, it, source) },

@@ -24,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ebi.ac.uk.base.Either
 import org.bson.Document
 
+@Suppress("LongParameterList")
 class SectionConverter(
     private val attributeConverter: AttributeConverter,
     private val linkConverter: LinkConverter,

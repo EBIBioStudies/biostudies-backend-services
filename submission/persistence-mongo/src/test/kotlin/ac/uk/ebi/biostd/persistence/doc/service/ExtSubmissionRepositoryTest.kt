@@ -4,10 +4,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileListMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocLinkListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtLinkListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
@@ -48,9 +50,11 @@ class ExtSubmissionRepositoryTest(
     private val extSerializationService = extSerializationService()
     private val toFileListMapper =
         ToExtFileListMapper(fileListDocFileRepository, extSerializationService, filesResolver)
-    private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper)
+    private val toLinkListMapper = ToExtLinkListMapper(filesResolver)
+    private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper, toLinkListMapper)
     private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
-    private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper)
+    private val toDocLinkListMapper = ToDocLinkListMapper()
+    private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper, toDocLinkListMapper)
     private val testInstance =
         ExtSubmissionRepository(
             subDataRepository,

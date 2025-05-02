@@ -25,6 +25,7 @@ import ebi.ac.uk.base.Either
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
+@SuppressWarnings("LongParameterList")
 class DocSectionConverter(
     private val docAttributeConverter: DocAttributeConverter,
     private val docLinkConverter: DocLinkConverter,

@@ -4,6 +4,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -33,20 +34,26 @@ internal class PageTabServiceTest(
     private val fileListJson = temporaryFolder.createFile("fileList.json")
     private val fileListTsv = temporaryFolder.createFile("fileList.tsv")
 
+    private val linkListJson = temporaryFolder.createFile("linkList.json")
+    private val linkListTsv = temporaryFolder.createFile("linkList.tsv")
+
     private val testInstance = PageTabService(baseTempDir, pageTabUtil)
 
     @Test
     fun `generate pagetab`() =
         runTest {
             val tempDir = File("${baseTempDir.absolutePath}/S-TEST123/1")
-            val fileList = temporaryFolder.createFile("file-list")
-            val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))
-            val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))
+            val fileList = ExtFileList(filePath = "a-path", temporaryFolder.createFile("file-list"))
+            val linkList = ExtLinkList(filePath = "b-path", temporaryFolder.createFile("link-list"))
+            val section = ExtSection(type = "t2", fileList = fileList, linkList = linkList)
+            val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(section)))
             val sub = basicExtSubmission.copy(section = rootSection)
             val fileListPageTab = mapOf("a-path" to PageTabFiles(fileListJson, fileListTsv))
+            val linkListPageTab = mapOf("b-path" to PageTabFiles(linkListJson, linkListTsv))
 
             coEvery { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subTsv)
             coEvery { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns fileListPageTab
+            coEvery { pageTabUtil.generateLinkListPageTab(sub, tempDir) } returns linkListPageTab
 
             val result = testInstance.generatePageTab(sub)
 
@@ -58,6 +65,11 @@ internal class PageTabServiceTest(
                 assertThat(resultFileList).isNotNull()
                 assertFile(it.fileList?.pageTabFiles?.first(), fileListJson, "Files/a-path.json")
                 assertFile(it.fileList?.pageTabFiles?.second(), fileListTsv, "Files/a-path.tsv")
+
+                val resultLinkList = it.linkList
+                assertThat(resultLinkList).isNotNull()
+                assertFile(it.linkList?.pageTabFiles?.first(), linkListJson, "Files/b-path.json")
+                assertFile(it.linkList?.pageTabFiles?.second(), linkListTsv, "Files/b-path.tsv")
             }
         }
 
