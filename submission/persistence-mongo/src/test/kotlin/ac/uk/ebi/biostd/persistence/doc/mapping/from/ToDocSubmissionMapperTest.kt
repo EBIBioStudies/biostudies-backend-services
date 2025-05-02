@@ -144,8 +144,9 @@ class ToDocSubmissionMapperTest(
             section = newRootSection,
             pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile),
         )
-    private val testInstance: ToDocSubmissionMapper =
-        ToDocSubmissionMapper(ToDocSectionMapper(ToDocFileListMapper(ExtSerializationService())))
+    private val linkListMapper = ToDocLinkListMapper()
+    private val fileListMapper = ToDocFileListMapper(ExtSerializationService())
+    private val testInstance = ToDocSubmissionMapper(ToDocSectionMapper(fileListMapper, linkListMapper))
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
@@ -323,7 +324,12 @@ class ToDocSubmissionMapperTest(
         assertThat(docSections.second()).hasRightValueSatisfying {
             assertThat(it.sections.first().accNo).isEqualTo(SUB_SEC_TABLE_ACC_NO3)
             assertThat(it.sections.first().type).isEqualTo(SUB_SEC_TABLE_TYPE)
-            assertSubSectionTableAttribute(it.sections.first().attributes.first())
+            assertSubSectionTableAttribute(
+                it.sections
+                    .first()
+                    .attributes
+                    .first(),
+            )
         }
     }
 
@@ -334,7 +340,12 @@ class ToDocSubmissionMapperTest(
         }
         assertThat(docLinks.first()).hasRightValueSatisfying {
             assertThat(it.links.first().url).isEqualTo(ROOT_SECTION_TABLE_LINK_URL)
-            assertRootSectionTableLinkAttribute(it.links.first().attributes.first())
+            assertRootSectionTableLinkAttribute(
+                it.links
+                    .first()
+                    .attributes
+                    .first(),
+            )
         }
     }
 

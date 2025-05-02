@@ -4,6 +4,8 @@ import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtLink
+import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -39,6 +41,8 @@ fun iterateSections(
 
 typealias ProcessFunction = suspend (file: ExtFile) -> ExtFile
 
+typealias ProcessLinkFunction = suspend (link: ExtLink) -> ExtLink
+
 class FileProcessingService(
     private val serializationService: ExtSerializationService,
     private val fileResolver: FilesResolver,
@@ -68,6 +72,7 @@ class FileProcessingService(
         section.copy(
             files = section.files.map { processFiles(it, processFile) },
             fileList = section.fileList?.let { processFileList(subAccNo, subVersion, it, processFile) },
+            linkList = section.linkList?.let { processLinkList(it, processFile) },
             sections = section.sections.map { processSections(it, subAccNo, subVersion, processFile) },
         )
 
@@ -83,6 +88,15 @@ class FileProcessingService(
             pageTabFiles = fileList.pageTabFiles.map { processFile(it) },
         )
     }
+
+    private suspend fun processLinkList(
+        linkList: ExtLinkList,
+        processFile: ProcessFunction,
+    ): ExtLinkList =
+        linkList.copy(
+            file = linkList.file,
+            pageTabFiles = linkList.pageTabFiles.map { processFile(it) },
+        )
 
     private suspend fun copyFile(
         inputFile: File,
@@ -119,4 +133,7 @@ class FileProcessingService(
     )
 }
 
-data class TrackSection(val changed: Boolean, val section: ExtSection)
+data class TrackSection(
+    val changed: Boolean,
+    val section: ExtSection,
+)

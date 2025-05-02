@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
@@ -60,5 +61,6 @@ class FilePersistenceConfig(
     fun pageTabUtil(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
-    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
+        toLinkListMapper: ToLinkListMapper,
+    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper, toLinkListMapper)
 }

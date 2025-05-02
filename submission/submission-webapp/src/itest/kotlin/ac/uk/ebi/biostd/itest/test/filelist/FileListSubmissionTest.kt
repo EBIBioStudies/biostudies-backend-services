@@ -123,7 +123,7 @@ class FileListSubmissionTest(
         }
 
     @Test
-    fun `3-2 JSON submission with XSL file list`() =
+    fun `3-2 JSON submission with XSLX file list`() =
         runTest {
             val submission =
                 jsonObj {

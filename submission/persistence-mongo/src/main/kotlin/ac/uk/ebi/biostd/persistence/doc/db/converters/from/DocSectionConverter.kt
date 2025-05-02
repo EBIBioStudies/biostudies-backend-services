@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINK_LIST
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
@@ -24,6 +25,7 @@ import ebi.ac.uk.base.Either
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
+@SuppressWarnings("LongParameterList")
 class DocSectionConverter(
     private val docAttributeConverter: DocAttributeConverter,
     private val docLinkConverter: DocLinkConverter,
@@ -31,12 +33,14 @@ class DocSectionConverter(
     private val docFileConverter: DocFileConverter,
     private val docFileTableConverter: DocFileTableConverter,
     private val docFileListConverter: DocFileListConverter,
+    private val docLinkListConverter: DocLinkListConverter,
 ) : Converter<Document, DocSection> {
     override fun convert(source: Document): DocSection =
         DocSection(
             id = source.getObjectId(SEC_ID),
             accNo = source.getString(SEC_ACC_NO),
             type = source.getString(SEC_TYPE),
+            linkList = source.findDoc(SEC_LINK_LIST)?.let { docLinkListConverter.convert(it) },
             fileList = source.findDoc(SEC_FILE_LIST)?.let { docFileListConverter.convert(it) },
             attributes = source.getDocList(SEC_ATTRIBUTES).map { docAttributeConverter.convert(it) },
             sections = source.getDocList(SEC_SECTIONS).map { toEitherSections(it) },

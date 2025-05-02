@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
+import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
@@ -49,6 +50,12 @@ object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
+}
+
+object DocLinkListFields {
+    val DOC_LINK_LIST_CLASS: String = DocLinkList::class.java.canonicalName
+    const val LINK_LIST_DOC_FILE_FILENAME = "fileName"
+    const val LINK_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
 }
 
 object FileListDocFileFields {
@@ -97,6 +104,7 @@ object DocSectionFields {
     const val SEC_ACC_NO = "accNo"
     const val SEC_TYPE = "type"
     const val SEC_FILE_LIST = "fileList"
+    const val SEC_LINK_LIST = "linkList"
     const val SEC_SECTIONS = "sections"
     const val SEC_FILES = "files"
     const val SEC_LINKS = "links"

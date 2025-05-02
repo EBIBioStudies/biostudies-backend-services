@@ -18,7 +18,8 @@ class PageTabService(
         val tempFolder = createTempFolder(sub.accNo, sub.version)
         val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder)
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)
-        val section = iterateSections(sub.section) { withTabFiles(it, fileListFiles) }
+        val linkListFiles = pageTabUtil.generateLinkListPageTab(sub, tempFolder)
+        val section = iterateSections(sub.section) { withTabFiles(it, fileListFiles, linkListFiles) }
         return when {
             section.changed -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles), section = section.section)
             else -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles))
@@ -27,22 +28,31 @@ class PageTabService(
 
     private fun withTabFiles(
         sec: ExtSection,
-        pageTabFiles: Map<String, PageTabFiles>,
+        fileListTabFiles: Map<String, PageTabFiles>,
+        linkListTabFiles: Map<String, PageTabFiles>,
     ): TrackSection {
-        return when (val fileList = sec.fileList) {
-            null -> TrackSection(changed = false, section = sec)
-            else -> {
-                val name = fileList.filePath
-                val files = pageTabFiles.getValue(name)
-                TrackSection(
-                    changed = true,
-                    section = sec.copy(fileList = fileList.copy(pageTabFiles = fileListFiles(files, name))),
-                )
-            }
+        if (sec.fileList == null && sec.linkList == null) return TrackSection(changed = false, section = sec)
+
+        var section = sec
+        val fileList = sec.fileList
+        val linkList = sec.linkList
+
+        if (fileList != null) {
+            val name = fileList.filePath
+            val files = fileListTabFiles.getValue(name)
+            section = section.copy(fileList = fileList.copy(pageTabFiles = refListFiles(files, name)))
         }
+
+        if (linkList != null) {
+            val name = linkList.filePath
+            val files = linkListTabFiles.getValue(name)
+            section = section.copy(linkList = linkList.copy(pageTabFiles = refListFiles(files, name)))
+        }
+
+        return TrackSection(changed = true, section = section)
     }
 
-    private fun fileListFiles(
+    private fun refListFiles(
         pageTab: PageTabFiles,
         fileListName: String,
     ): List<NfsFile> =

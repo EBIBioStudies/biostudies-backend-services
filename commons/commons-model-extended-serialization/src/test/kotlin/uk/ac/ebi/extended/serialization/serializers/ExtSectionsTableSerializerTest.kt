@@ -23,6 +23,7 @@ class ExtSectionsTableSerializerTest {
                             "accNo" to JsonNull
                             "type" to "Study"
                             "fileList" to JsonNull
+                            "linkList" to JsonNull
                             "attributes" to jsonArray()
                             "sections" to jsonArray()
                             "files" to jsonArray()

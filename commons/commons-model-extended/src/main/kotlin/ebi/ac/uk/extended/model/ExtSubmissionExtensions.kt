@@ -8,11 +8,14 @@ val ExtSubmission.allSections
 val ExtSubmission.allFileList
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
 
+val ExtSubmission.allLinkList
+    get(): List<ExtLinkList> = allSections.mapNotNull { it.linkList }
+
 val ExtSubmission.allSectionsFiles
     get(): List<ExtFile> = allSections.flatMap { it.allInnerFiles }
 
 val ExtSubmission.allPageTabFiles
-    get(): List<ExtFile> = pageTabFiles + allFileList.flatMap { it.pageTabFiles }
+    get(): List<ExtFile> = pageTabFiles + allFileList.flatMap { it.pageTabFiles } + allLinkList.flatMap { it.pageTabFiles }
 
 val ExtSubmission.allInnerSubmissionFiles
     get(): List<ExtFile> = allSectionsFiles + allPageTabFiles

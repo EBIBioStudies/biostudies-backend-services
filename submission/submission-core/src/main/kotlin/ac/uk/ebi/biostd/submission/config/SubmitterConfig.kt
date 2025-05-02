@@ -41,6 +41,7 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
+import ebi.ac.uk.extended.mapping.from.ToExtLinkListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -272,7 +273,10 @@ class SubmitterConfig(
     @Configuration
     class ToExtendedConfiguration {
         @Bean
-        fun toExtSection(toExtFileListMapper: ToExtFileListMapper): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
+        fun toExtSection(
+            toExtFileListMapper: ToExtFileListMapper,
+            toExtLinkListMapper: ToExtLinkListMapper,
+        ): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper, toExtLinkListMapper)
 
         @Bean
         fun toExtFileList(
@@ -280,6 +284,13 @@ class SubmitterConfig(
             serializationService: SerializationService,
             filesResolver: FilesResolver,
         ): ToExtFileListMapper = ToExtFileListMapper(extSerializationService, serializationService, filesResolver)
+
+        @Bean
+        fun toExtLinkList(
+            extSerializationService: ExtSerializationService,
+            serializationService: SerializationService,
+            filesResolver: FilesResolver,
+        ): ToExtLinkListMapper = ToExtLinkListMapper(extSerializationService, serializationService, filesResolver)
     }
 
     @Configuration

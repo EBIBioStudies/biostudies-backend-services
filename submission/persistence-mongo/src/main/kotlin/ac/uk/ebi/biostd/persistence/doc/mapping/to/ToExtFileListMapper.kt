@@ -35,12 +35,11 @@ class ToExtFileListMapper(
         subRelPath: String,
         includeFileListFiles: Boolean,
     ): ExtFileList {
-        fun fileListFiles(): Flow<ExtFile> {
-            return fileListDocFileDocDataRepository
+        fun fileListFiles(): Flow<ExtFile> =
+            fileListDocFileDocDataRepository
                 .findByFileList(subAccNo, subVersion, fileList.fileName)
                 .map { it.file.toExtFile(released, subRelPath) }
                 .flowOn(Dispatchers.Default)
-        }
 
         val files = if (includeFileListFiles) fileListFiles() else emptyFlow()
         return ExtFileList(
@@ -56,16 +55,14 @@ class ToExtFileListMapper(
         name: String,
         files: Flow<ExtFile>,
     ): File {
-        suspend fun asLogeableFlow(files: Flow<ExtFile>): Flow<ExtFile> {
-            return files.every(
+        fun asLoggableFlow(files: Flow<ExtFile>): Flow<ExtFile> =
+            files.every(
                 items = 500,
-                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$name'" } },
-            )
-        }
+            ) { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$name'" } }
 
         logger.info { "accNo:'$accNo' version: '$version', serializing file list '$name'" }
         val file = extFilesResolver.createRequestTempFile(accNo, version, name)
-        file.outputStream().use { serializationService.serialize(asLogeableFlow(files), it) }
+        file.outputStream().use { serializationService.serialize(asLoggableFlow(files), it) }
         logger.info { "accNo:'$accNo' version: '$version', completed file list '$name' serialization" }
         return file
     }

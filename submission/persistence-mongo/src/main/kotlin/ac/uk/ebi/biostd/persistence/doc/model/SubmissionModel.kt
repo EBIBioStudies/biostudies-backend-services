@@ -121,6 +121,11 @@ data class DocFileList(
     val pageTabFiles: List<DocFile> = listOf(),
 )
 
+data class DocLinkList(
+    val fileName: String,
+    val pageTabFiles: List<DocFile> = listOf(),
+)
+
 @Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id
@@ -157,6 +162,7 @@ data class DocSection(
     val id: ObjectId,
     val accNo: String? = null,
     val type: String,
+    val linkList: DocLinkList? = null,
     val fileList: DocFileList? = null,
     val attributes: List<DocAttribute> = listOf(),
     val sections: List<Either<DocSection, DocSectionTable>> = listOf(),

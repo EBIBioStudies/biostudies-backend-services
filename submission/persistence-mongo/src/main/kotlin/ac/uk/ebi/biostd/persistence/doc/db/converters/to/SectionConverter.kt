@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINK_LIST
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
@@ -23,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ebi.ac.uk.base.Either
 import org.bson.Document
 
+@Suppress("LongParameterList")
 class SectionConverter(
     private val attributeConverter: AttributeConverter,
     private val linkConverter: LinkConverter,
@@ -30,6 +32,7 @@ class SectionConverter(
     private val fileConverter: FileConverter,
     private val fileTableConverter: FileTableConverter,
     private val fileListConverter: FileListConverter,
+    private val linkListConverter: LinkListConverter,
 ) {
     fun convert(section: DocSection): Document {
         val sectionDoc = Document()
@@ -38,6 +41,7 @@ class SectionConverter(
         sectionDoc[SEC_ACC_NO] = section.accNo
         sectionDoc[SEC_TYPE] = section.type
         sectionDoc[SEC_ATTRIBUTES] = section.attributes.map { attributeConverter.convert(it) }
+        sectionDoc[SEC_LINK_LIST] = section.linkList?.let { linkListConverter.convert(it) }
         sectionDoc[SEC_FILE_LIST] = section.fileList?.let { fileListConverter.convert(it) }
         sectionDoc[SEC_SECTIONS] = getSections(section.sections)
         sectionDoc[SEC_FILES] = getFiles(section.files)
