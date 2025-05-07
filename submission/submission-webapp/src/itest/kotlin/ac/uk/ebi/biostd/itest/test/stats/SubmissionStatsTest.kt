@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.privateNfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
@@ -213,7 +213,7 @@ class SubmissionStatsTest(
             waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS2").first().value != 574L }
 
             val sub = submissionRepository.getCoreInfoByAccNoAndVersion("S-STTS2", 2)
-            val subPath = nfsSubmissionPath.resolve(sub.relPath)
+            val subPath = privateNfsSubmissionPath.resolve(sub.relPath)
 
             val subJson = subPath.resolve("S-STTS2.json").size()
             val subTsv = subPath.resolve("S-STTS2.tsv").size()

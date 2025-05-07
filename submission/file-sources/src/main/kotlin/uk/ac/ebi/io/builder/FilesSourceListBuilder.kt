@@ -8,6 +8,8 @@ import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.paths.FILES_PATH
+import ebi.ac.uk.paths.FolderType
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -24,9 +26,10 @@ import java.nio.file.Path
 
 @Suppress("LongParameterList")
 class FilesSourceListBuilder(
-    private val submissionPath: Path,
+    private val folderResolver: SubmissionFolderResolver,
     private val fireClient: FireClient,
-    private val ftpClient: FtpClient,
+    private val userFtpClient: FtpClient,
+    private val submissionFtpClient: FtpClient,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
@@ -48,7 +51,7 @@ class FilesSourceListBuilder(
     fun addUserSource(
         securityUser: SecurityUser,
         description: String,
-        hasFtpFileAccess: Boolean,
+        folderType: FolderType,
         rootPath: String? = null,
     ) {
         val folder = securityUser.userFolder
@@ -59,11 +62,11 @@ class FilesSourceListBuilder(
 
         if (folder is FtpUserFolder) {
             val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
-            when {
-                hasFtpFileAccess -> sources.add(UserPathSource(description, nfsPath))
-                else -> {
+            when (folderType) {
+                FolderType.NFS -> sources.add(UserPathSource(description, nfsPath))
+                FolderType.FTP -> {
                     val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
-                    sources.add(FtpSource(description, ftpUrl, nfsPath, ftpClient))
+                    sources.add(FtpSource(description, ftpUrl, nfsPath, userFtpClient))
                 }
             }
         }
@@ -76,14 +79,38 @@ class FilesSourceListBuilder(
         sources.add(GroupPathSource(groupName, sourcePath))
     }
 
-    fun addSubmissionSource(submission: ExtSubmission) {
-        val nfsSubPath = submissionPath.resolve("${submission.relPath}/$FILES_PATH")
-        val nfsFiles = PathSource("Previous version files", nfsSubPath)
+    fun addSubmissionSource(
+        submission: ExtSubmission,
+        folderType: FolderType,
+    ) {
+        fun submissionSource(): FilesSource =
+            when (folderType) {
+                FolderType.NFS -> {
+                    val nfsSubPath = folderResolver.getSubmisisonFolder(submission, FolderType.NFS).resolve(FILES_PATH)
+                    PathSource("Previous version files [File System]", nfsSubPath)
+                }
+
+                FolderType.FTP -> {
+                    val ftpUrl = folderResolver.getSubmisisonFolder(submission, FolderType.FTP).resolve(FILES_PATH)
+                    val nfsPath = folderResolver.getSubmisisonFolder(submission, FolderType.NFS).resolve(FILES_PATH)
+                    FtpSource("Previous version files [FTP]", ftpUrl = ftpUrl, nfsPath = nfsPath, submissionFtpClient)
+                }
+            }
+
+        val submissionSource = submissionSource()
         val previousVersionFiles =
             submission
                 .allInnerSubmissionFiles
                 .groupBy { it.filePath }
                 .mapValues { it.value.first() }
-        sources.add(SubmissionFilesSource(submission, nfsFiles, fireClient, previousVersionFiles, filesRepository))
+        sources.add(
+            SubmissionFilesSource(
+                sub = submission,
+                fileSource = submissionSource,
+                fireClient = fireClient,
+                previousVersionFiles = previousVersionFiles,
+                filesRepository = filesRepository,
+            ),
+        )
     }
 }

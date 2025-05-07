@@ -9,7 +9,7 @@ import org.apache.ftpserver.ssl.SslConfigurationFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
 import org.apache.ftpserver.usermanager.impl.WritePermission
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
 class FtpServer(
@@ -25,12 +25,13 @@ class FtpServer(
         server.stop()
     }
 
-    fun getUrl(): String {
-        return "localhost"
-    }
+    fun getUrl(): String = "localhost"
 
     val ftpPort: Int
-        get() = server.serverContext.listeners.getValue(LISTENER_NAME).port
+        get() =
+            server.serverContext.listeners
+                .getValue(LISTENER_NAME)
+                .port
 
     companion object {
         const val LISTENER_NAME = "default"
@@ -61,7 +62,7 @@ class FtpServer(
 
             serverFactory.addListener(LISTENER_NAME, listenerFactory.createListener())
             val server = serverFactory.createServer()
-            val user = newUser(config.userName, config.password)
+            val user = newUser(config.userName, config.password, config.path)
             serverFactory.userManager.save(user)
             return FtpServer(server as DefaultFtpServer, File(user.homeDirectory))
         }
@@ -69,21 +70,25 @@ class FtpServer(
         private fun newUser(
             userName: String,
             userPassword: String,
-        ): BaseUser {
-            return BaseUser().apply {
+            path: Path,
+        ): BaseUser =
+            BaseUser().apply {
                 name = userName
                 password = userPassword
-                homeDirectory = Files.createTempDirectory("$userName-ftp").absolutePathString()
+                homeDirectory = path.absolutePathString()
                 authorities = listOf(WritePermission())
             }
-        }
     }
 }
 
-data class SslConfig(val keystoreFile: File, val password: String)
+data class SslConfig(
+    val keystoreFile: File,
+    val password: String,
+)
 
 data class FtpConfig(
     val sslConfig: SslConfig,
     val userName: String,
     val password: String,
+    val path: Path,
 )

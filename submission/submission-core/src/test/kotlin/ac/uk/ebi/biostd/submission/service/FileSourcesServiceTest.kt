@@ -5,6 +5,8 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.SourcesList
+import ebi.ac.uk.paths.FolderType
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -12,10 +14,12 @@ import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireClient
@@ -26,24 +30,31 @@ import java.nio.file.Paths
 class FileSourcesServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val fireClient: FireClient,
+    @MockK private val subFtp: FtpClient,
     @MockK private val ftpClient: FtpClient,
     @MockK private val filesRepo: SubmissionFilesPersistenceService,
+    @MockK private val folderResolver: SubmissionFolderResolver,
 ) {
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
-    private val builder = FilesSourceListBuilder(subFolder.toPath(), fireClient, ftpClient, filesRepo)
+    private val builder = FilesSourceListBuilder(folderResolver, fireClient, ftpClient, subFtp, filesRepo)
     private val testInstance = FileSourcesService(builder)
     private val extSubmission = basicExtSubmission.copy(storageMode = StorageMode.FIRE)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
+    @BeforeEach
+    fun beforeEach() {
+        every { folderResolver.getSubmisisonFolder(extSubmission, FolderType.NFS) } returns subFolder.toPath()
+    }
+
     @Test
     fun `default submission sources with FIRE submission`() {
         val request =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = false,
+                folderType = FolderType.NFS,
                 onBehalfUser = onBehalfUser(),
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -69,12 +80,12 @@ class FileSourcesServiceTest(
     fun `default submission sources with NFS submission`() {
         val request =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = false,
+                folderType = FolderType.NFS,
                 onBehalfUser = onBehalfUser(),
                 submitter = submitter(),
                 files = listOf(tempFile),
                 rootPath = "root-path",
-                submission = basicExtSubmission,
+                submission = extSubmission,
                 preferredSources = emptyList(),
             )
 
@@ -95,7 +106,7 @@ class FileSourcesServiceTest(
     fun `default submission sources with no onBehalfUser`() {
         val request =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = false,
+                folderType = FolderType.NFS,
                 onBehalfUser = null,
                 submitter = submitter(),
                 files = listOf(tempFile),
@@ -119,7 +130,7 @@ class FileSourcesServiceTest(
     fun `submission sources with preferred sources`() {
         val request =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = false,
+                folderType = FolderType.NFS,
                 onBehalfUser = null,
                 submitter = submitter(),
                 files = null,

@@ -54,7 +54,7 @@ class ITestListener : TestExecutionListener {
         mysqlContainer.stop()
         rabbitMQContainer.stop()
         fireServer.stop()
-        ftpServer.stop()
+        userFtpServer.stop()
     }
 
     private fun mongoSetup() {
@@ -85,19 +85,20 @@ class ITestListener : TestExecutionListener {
         val securityProperties = "app.security"
         properties.addProperty("$securityProperties.environment", ENVIRONMENT)
 
-        ftpServer.start()
+        userFtpServer.start()
+        submissionFtpServer.start()
 
         val userFilesProperties = "$securityProperties.filesProperties"
         properties.addProperty("$userFilesProperties.filesDirPath", dropboxPath.absolutePath)
         properties.addProperty("$userFilesProperties.magicDirPath", magicDirPath.absolutePath)
-        Files.createDirectory(ftpServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
+        properties.addProperty("$userFilesProperties.userFtpDirPath", userFtpServer.fileSystemDirectory.absolutePath)
+        Files.createDirectory(userFtpServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
 
         val ftpProperties = "$userFilesProperties.ftp"
         properties.addProperty("$ftpProperties.ftpUser", FTP_USER)
         properties.addProperty("$ftpProperties.ftpPassword", FTP_PASSWORD)
-        properties.addProperty("$ftpProperties.ftpUrl", ftpServer.getUrl())
-        properties.addProperty("$ftpProperties.ftpPort", ftpServer.ftpPort.toString())
-        properties.addProperty("$ftpProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        properties.addProperty("$ftpProperties.ftpUrl", userFtpServer.getUrl())
+        properties.addProperty("$ftpProperties.ftpPort", userFtpServer.ftpPort.toString())
         properties.addProperty("$ftpProperties.ftpRootPath", FTP_ROOT_PATH)
         properties.addProperty("$ftpProperties.defaultTimeout", FTP_DEFAULT_TIMEOUT)
         properties.addProperty("$ftpProperties.connectionTimeout", FTP_DEFAULT_TIMEOUT)
@@ -105,6 +106,20 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$ftpProperties.retry.initialInterval", 100)
         properties.addProperty("$ftpProperties.retry.multiplier", 2)
         properties.addProperty("$ftpProperties.retry.maxInterval", 500)
+
+        // Submission FTP
+        val subFtpProperties = "$userFilesProperties.subFtp"
+        properties.addProperty("$subFtpProperties.ftpUser", "anonymous")
+        properties.addProperty("$subFtpProperties.ftpPassword", "")
+        properties.addProperty("$subFtpProperties.ftpUrl", submissionFtpServer.getUrl())
+        properties.addProperty("$subFtpProperties.ftpPort", submissionFtpServer.ftpPort.toString())
+        properties.addProperty("$subFtpProperties.ftpRootPath", "/")
+        properties.addProperty("$subFtpProperties.defaultTimeout", FTP_DEFAULT_TIMEOUT)
+        properties.addProperty("$subFtpProperties.connectionTimeout", FTP_DEFAULT_TIMEOUT)
+        properties.addProperty("$subFtpProperties.retry.maxAttempts", 2)
+        properties.addProperty("$subFtpProperties.retry.initialInterval", 100)
+        properties.addProperty("$subFtpProperties.retry.multiplier", 2)
+        properties.addProperty("$subFtpProperties.retry.maxInterval", 500)
     }
 
     private fun fireSetup() {
@@ -138,8 +153,10 @@ class ITestListener : TestExecutionListener {
             "${System.getProperty("includeSecretKey").toBoolean()}",
         )
         properties.addProperty("app.persistence.nfsReleaseMode", System.getProperty("nfsReleaseMode"))
-        properties.addProperty("app.persistence.privateSubmissionsPath", nfsSubmissionPath.absolutePath)
-        properties.addProperty("app.persistence.publicSubmissionsPath", nfsFtpPath.absolutePath)
+        properties.addProperty("app.persistence.privateSubmissionsPath", privateNfsSubmissionPath.absolutePath)
+        properties.addProperty("app.persistence.publicSubmissionsPath", publicNfsSubmissionPath.absolutePath)
+        properties.addProperty("app.persistence.privateSubmissionFtpPath", PRIVATE_SUBMISSION_PATH)
+        properties.addProperty("app.persistence.publicSubmissionFtpPath", PUBLIC_SUBMISSION_PATH)
         properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.persistence.requestFilesPath", requestFilesPath.absolutePath)
     }
@@ -189,7 +206,10 @@ class ITestListener : TestExecutionListener {
         private const val ENVIRONMENT = "TEST"
         private const val FTP_ROOT_PATH = ".test"
         private const val FTP_DEFAULT_TIMEOUT = 3000L
+
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
+        private val submissionsFtp = Files.createTempDirectory("submissions-ftp").toFile()
+        private val userFilesFtp = Files.createTempDirectory("users-dir").toFile()
 
         private const val DEFAULT_BUCKET = "bio-fire-bucket"
         private const val AWS_ACCESS_KEY = "anyKey"
@@ -202,12 +222,14 @@ class ITestListener : TestExecutionListener {
         private const val FTP_PASSWORD = "ftpPassword"
 
         internal const val FIXED_DELAY_ENV = "ITEST_FIXED_DELAY"
-        internal val nfsSubmissionPath = testAppFolder.createDirectory("submission")
+        internal const val PRIVATE_SUBMISSION_PATH = ".private"
+        internal val privateNfsSubmissionPath = submissionsFtp.createDirectory(PRIVATE_SUBMISSION_PATH)
         internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
         private val firePath = testAppFolder.createDirectory("fire-db")
 
         internal val fireTempFolder = testAppFolder.createDirectory("fire-temp")
-        internal val nfsFtpPath = testAppFolder.createDirectory("ftpPath")
+        internal const val PUBLIC_SUBMISSION_PATH = ""
+        internal val publicNfsSubmissionPath = submissionsFtp.resolve(PUBLIC_SUBMISSION_PATH)
         internal val fireFtpPath = testAppFolder.createDirectory("fire-ftpPath")
 
         internal val tempDirPath = testAppFolder.createDirectory("tempDirPath")
@@ -220,7 +242,8 @@ class ITestListener : TestExecutionListener {
 
         private val fireServer: WireMockServer by lazy { createFireApiMock() }
         private val doiServer: WireMockServer by lazy { createDoiApiMock() }
-        private val ftpServer = createFtpServer()
+        private val userFtpServer = createFtpServer(FTP_USER, FTP_PASSWORD, userFilesFtp)
+        private val submissionFtpServer = createFtpServer("anonymous", "", submissionsFtp)
 
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
@@ -230,8 +253,8 @@ class ITestListener : TestExecutionListener {
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val enableTask get() = System.getProperty("enableTaskMode").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
-        val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
-        val ftpPath get() = if (enableFire) fireFtpPath else nfsFtpPath
+        val submissionPath get() = if (enableFire) fireSubmissionPath else privateNfsSubmissionPath
+        val ftpPath get() = if (enableFire) fireFtpPath else publicNfsSubmissionPath
 
         private fun createMongoContainer(): MongoDBContainer =
             MongoDBContainer(parse(MONGO_VERSION))
@@ -249,12 +272,17 @@ class ITestListener : TestExecutionListener {
             S3MockContainer("latest")
                 .withInitialBuckets(DEFAULT_BUCKET)
 
-        private fun createFtpServer(): FtpServer =
+        private fun createFtpServer(
+            user: String,
+            pasword: String,
+            ftpDirectory: File,
+        ): FtpServer =
             FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks").toURI()), "123456"),
-                    userName = FTP_USER,
-                    password = FTP_PASSWORD,
+                    userName = user,
+                    password = pasword,
+                    path = ftpDirectory.toPath(),
                 ),
             )
 

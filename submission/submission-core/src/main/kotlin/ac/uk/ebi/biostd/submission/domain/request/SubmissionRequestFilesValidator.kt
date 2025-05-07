@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import mu.KotlinLogging
 
@@ -72,7 +73,7 @@ class SubmissionRequestFilesValidator(
         val previous = request.previousVersion?.let { queryService.getExtByAccNoAndVersion(submission.accNo, it) }
         var sourceRequest =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = true,
+                folderType = FolderType.NFS,
                 onBehalfUser = submissionRequest.onBehalfUser?.let { securityService.getUser(it) },
                 files = submissionRequest.files,
                 submitter = securityService.getUser(submission.submitter),

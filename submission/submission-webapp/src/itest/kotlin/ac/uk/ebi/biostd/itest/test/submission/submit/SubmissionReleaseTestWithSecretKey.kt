@@ -5,15 +5,18 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.util.date.atMidnight
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
@@ -85,7 +88,7 @@ class SubmissionReleaseTestWithSecretKey(
 
             val key = submitted.secretKey
             val subFilesPath =
-                "${ITestListener.submissionPath}/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
+                "$submissionPath/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
             Assertions.assertThat(File("$subFilesPath/file_27-3.txt")).doesNotExist()
         }
 
@@ -115,11 +118,18 @@ class SubmissionReleaseTestWithSecretKey(
             Assertions.assertThat(File("${ITestListener.ftpPath}/${submitted.relPath}")).doesNotExist()
 
             val key = submitted.secretKey
-            val subFilesPath =
-                "${ITestListener.submissionPath}/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
+            val subFilesPath = "$submissionPath/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
             val expectedFile = File("$subFilesPath/file_27-4.txt")
             Assertions.assertThat(expectedFile).exists()
             Assertions.assertThat(expectedFile).hasContent("27-4 file content")
+
+            val result =
+                webClient.submit(
+                    submission,
+                    SubmissionFormat.TSV,
+                    SubmitParameters(preferredSources = listOf(PreferredSource.SUBMISSION)),
+                )
+            assertThat(result).isSuccessful()
         }
 
     @Test

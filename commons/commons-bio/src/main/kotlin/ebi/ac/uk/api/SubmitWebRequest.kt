@@ -26,6 +26,7 @@ data class SubmitParameters(
         const val STORAGE_MODE = "storageMode"
         const val SILENT_MODE = "silentMode"
         const val SINGLE_JOB_MODE = "singleJobMode"
+        const val PREFERED_SORUCES = "preferredSources"
     }
 }
 

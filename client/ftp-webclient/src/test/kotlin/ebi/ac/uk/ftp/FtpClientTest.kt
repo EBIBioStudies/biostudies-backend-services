@@ -15,7 +15,7 @@ import java.nio.file.Paths
 class FtpClientTest(
     private val temporaryFolder: TemporaryFolder,
 ) {
-    private val ftpServer = createFtpServer().apply { start() }
+    private val ftpServer = createFtpServer(temporaryFolder.createDirectory("ftp")).apply { start() }
     private val testInstance =
         FtpClient.create(
             FTP_USER,
@@ -107,12 +107,13 @@ class FtpClientTest(
         }
 
     companion object {
-        fun createFtpServer(): FtpServer =
+        fun createFtpServer(directory: File): FtpServer =
             FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks")!!.toURI()), "123456"),
                     userName = FTP_USER,
                     password = FTP_PASSWORD,
+                    path = directory.toPath(),
                 ),
             )
 
