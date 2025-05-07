@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.files
 
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
-import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.USER_FILES_FTP_CLIENT
+import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.FTP_IN_CLIENT
 import ebi.ac.uk.ftp.FtpClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -15,6 +15,6 @@ class FileConfig {
 
     @Bean
     fun fileServiceFactory(
-        @Qualifier(USER_FILES_FTP_CLIENT) ftpClient: FtpClient,
+        @Qualifier(FTP_IN_CLIENT) ftpClient: FtpClient,
     ) = FileServiceFactory(ftpClient)
 }

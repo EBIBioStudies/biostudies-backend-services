@@ -54,7 +54,7 @@ class ITestListener : TestExecutionListener {
         mysqlContainer.stop()
         rabbitMQContainer.stop()
         fireServer.stop()
-        userFtpServer.stop()
+        ftpInServer.stop()
     }
 
     private fun mongoSetup() {
@@ -85,20 +85,20 @@ class ITestListener : TestExecutionListener {
         val securityProperties = "app.security"
         properties.addProperty("$securityProperties.environment", ENVIRONMENT)
 
-        userFtpServer.start()
-        submissionFtpServer.start()
+        ftpInServer.start()
+        ftpOutServer.start()
 
         val userFilesProperties = "$securityProperties.filesProperties"
         properties.addProperty("$userFilesProperties.filesDirPath", dropboxPath.absolutePath)
         properties.addProperty("$userFilesProperties.magicDirPath", magicDirPath.absolutePath)
-        properties.addProperty("$userFilesProperties.userFtpDirPath", userFtpServer.fileSystemDirectory.absolutePath)
-        Files.createDirectory(userFtpServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
+        properties.addProperty("$userFilesProperties.userFtpDirPath", ftpInServer.fileSystemDirectory.absolutePath)
+        Files.createDirectory(ftpInServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
 
-        val ftpProperties = "$userFilesProperties.ftp"
+        val ftpProperties = "$userFilesProperties.ftpIn"
         properties.addProperty("$ftpProperties.ftpUser", FTP_USER)
         properties.addProperty("$ftpProperties.ftpPassword", FTP_PASSWORD)
-        properties.addProperty("$ftpProperties.ftpUrl", userFtpServer.getUrl())
-        properties.addProperty("$ftpProperties.ftpPort", userFtpServer.ftpPort.toString())
+        properties.addProperty("$ftpProperties.ftpUrl", ftpInServer.getUrl())
+        properties.addProperty("$ftpProperties.ftpPort", ftpInServer.ftpPort.toString())
         properties.addProperty("$ftpProperties.ftpRootPath", FTP_ROOT_PATH)
         properties.addProperty("$ftpProperties.defaultTimeout", FTP_DEFAULT_TIMEOUT)
         properties.addProperty("$ftpProperties.connectionTimeout", FTP_DEFAULT_TIMEOUT)
@@ -108,11 +108,11 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$ftpProperties.retry.maxInterval", 500)
 
         // Submission FTP
-        val subFtpProperties = "$userFilesProperties.subFtp"
+        val subFtpProperties = "$userFilesProperties.ftpOut"
         properties.addProperty("$subFtpProperties.ftpUser", "anonymous")
         properties.addProperty("$subFtpProperties.ftpPassword", "")
-        properties.addProperty("$subFtpProperties.ftpUrl", submissionFtpServer.getUrl())
-        properties.addProperty("$subFtpProperties.ftpPort", submissionFtpServer.ftpPort.toString())
+        properties.addProperty("$subFtpProperties.ftpUrl", ftpOutServer.getUrl())
+        properties.addProperty("$subFtpProperties.ftpPort", ftpOutServer.ftpPort.toString())
         properties.addProperty("$subFtpProperties.ftpRootPath", "/")
         properties.addProperty("$subFtpProperties.defaultTimeout", FTP_DEFAULT_TIMEOUT)
         properties.addProperty("$subFtpProperties.connectionTimeout", FTP_DEFAULT_TIMEOUT)
@@ -242,8 +242,8 @@ class ITestListener : TestExecutionListener {
 
         private val fireServer: WireMockServer by lazy { createFireApiMock() }
         private val doiServer: WireMockServer by lazy { createDoiApiMock() }
-        private val userFtpServer = createFtpServer(FTP_USER, FTP_PASSWORD, userFilesFtp)
-        private val submissionFtpServer = createFtpServer("anonymous", "", submissionsFtp)
+        private val ftpInServer = createFtpServer(FTP_USER, FTP_PASSWORD, userFilesFtp)
+        private val ftpOutServer = createFtpServer("anonymous", "", submissionsFtp)
 
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()

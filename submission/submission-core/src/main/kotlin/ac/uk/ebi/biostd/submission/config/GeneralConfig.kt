@@ -51,16 +51,16 @@ class GeneralConfig {
     fun filesSourceConfig(
         submissionFolderResolver: SubmissionFolderResolver,
         fireClient: FireClient,
-        @Qualifier(FILE_SOURCE_FTP_CLIENT) userFtpClient: FtpClient,
-        @Qualifier(SUBMISSION_FTP_CLIENT) subFtpClient: FtpClient,
+        @Qualifier(FILE_SOURCE_FTP_IN_CLIENT) fileSourceFtpInClient: FtpClient,
+        @Qualifier(FTP_OUT_CLIENT) ftpOutClient: FtpClient,
         filesRepo: SubmissionFilesPersistenceService,
     ): FilesSourceConfig =
         FilesSourceConfig(
             submissionFolderResolver = submissionFolderResolver,
             fireClient = fireClient,
             filesRepository = filesRepo,
-            userFtpClient = userFtpClient,
-            subFtpClient = subFtpClient,
+            ftpInClient = fileSourceFtpInClient,
+            ftpOutClient = ftpOutClient,
         )
 
     @Bean
@@ -97,9 +97,9 @@ class GeneralConfig {
     fun localClusterClient(): ClusterClient = LocalClusterClient()
 
     @Bean
-    @Qualifier(USER_FTP_RETRY_TEMPLATE)
+    @Qualifier(FTP_IN_RETRY_TEMPLATE)
     fun userFtpRetry(properties: ApplicationProperties): SuspendRetryTemplate {
-        val retry = properties.security.filesProperties.ftp.retry
+        val retry = properties.security.filesProperties.ftpIn.retry
         val config =
             RetryConfig(
                 maxAttempts = retry.maxAttempts,
@@ -111,9 +111,9 @@ class GeneralConfig {
     }
 
     @Bean
-    @Qualifier(SUB_FTP_RETRY_TEMPLATE)
+    @Qualifier(FTP_OUT_RETRY_TEMPLATE)
     fun subFtpRetry(properties: ApplicationProperties): SuspendRetryTemplate {
-        val retry = properties.security.filesProperties.subFtp.retry
+        val retry = properties.security.filesProperties.ftpOut.retry
         val config =
             RetryConfig(
                 maxAttempts = retry.maxAttempts,
@@ -125,42 +125,43 @@ class GeneralConfig {
     }
 
     @Bean
-    @Qualifier(USER_FILES_FTP_CLIENT)
+    @Qualifier(FTP_IN_CLIENT)
     fun userFilesFtpClient(
         properties: ApplicationProperties,
-        @Qualifier(USER_FTP_RETRY_TEMPLATE) template: SuspendRetryTemplate,
+        @Qualifier(FTP_IN_RETRY_TEMPLATE) template: SuspendRetryTemplate,
     ): FtpClient {
-        val client = ftpClient(properties.security.filesProperties.ftp)
+        val client = ftpClient(properties.security.filesProperties.ftpIn)
         return RetryFtpClient(template, client)
     }
 
     @Bean
-    @Qualifier(FILE_SOURCE_FTP_CLIENT)
-    fun fileSourceFtpClient(
+    @Qualifier(FILE_SOURCE_FTP_IN_CLIENT)
+    fun fileSourceFtpInClient(
         properties: ApplicationProperties,
-        @Qualifier(USER_FTP_RETRY_TEMPLATE) template: SuspendRetryTemplate,
+        @Qualifier(FTP_IN_RETRY_TEMPLATE) template: SuspendRetryTemplate,
     ): FtpClient {
-        val client = ftpClient(properties.security.filesProperties.ftp)
+        val client = ftpClient(properties.security.filesProperties.ftpIn)
         return RetryFtpClient(template, client)
     }
 
     @Bean
-    @Qualifier(SUBMISSION_FTP_CLIENT)
-    fun submisisonFtpClient(
+    @Qualifier(FTP_OUT_CLIENT)
+    fun ftpOutClient(
         properties: ApplicationProperties,
-        @Qualifier(SUB_FTP_RETRY_TEMPLATE) template: SuspendRetryTemplate,
+        @Qualifier(FTP_OUT_RETRY_TEMPLATE) template: SuspendRetryTemplate,
     ): FtpClient {
-        val client = ftpClient(properties.security.filesProperties.subFtp)
+        val client = ftpClient(properties.security.filesProperties.ftpOut)
         return RetryFtpClient(template, client)
     }
 
     companion object {
-        const val SUBMISSION_FTP_CLIENT = "submissionFtpClient"
-        const val FILE_SOURCE_FTP_CLIENT = "fileSourceFtpClient"
-        const val USER_FILES_FTP_CLIENT = "userFilesFtpClient"
+        const val FTP_IN_CLIENT = "FtpInClient"
+        const val FTP_IN_RETRY_TEMPLATE = "ftpInRetryTemplate"
 
-        const val USER_FTP_RETRY_TEMPLATE = "ftpRetryTemplate"
-        const val SUB_FTP_RETRY_TEMPLATE = "subFtpRetryTemplate"
+        const val FTP_OUT_CLIENT = "ftpOutClient"
+        const val FTP_OUT_RETRY_TEMPLATE = "ftoOutFtpRetryTemplate"
+
+        const val FILE_SOURCE_FTP_IN_CLIENT = "fileSourceFtpInClient"
 
         fun ftpClient(ftpProperties: FtpProperties): FtpClient =
             FtpClient.create(

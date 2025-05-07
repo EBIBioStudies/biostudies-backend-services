@@ -10,8 +10,8 @@ class FilesSourceConfig(
     private val submissionFolderResolver: SubmissionFolderResolver,
     private val fireClient: FireClient,
     private val filesRepository: SubmissionFilesPersistenceService,
-    private val userFtpClient: FtpClient,
-    private val subFtpClient: FtpClient,
+    private val ftpInClient: FtpClient,
+    private val ftpOutClient: FtpClient,
 ) {
     fun filesSourceListBuilder(): FilesSourceListBuilder = filesSourceListBuilder
 
@@ -19,8 +19,8 @@ class FilesSourceConfig(
         FilesSourceListBuilder(
             submissionFolderResolver,
             fireClient,
-            userFtpClient = userFtpClient,
-            submissionFtpClient = subFtpClient,
+            userFtpClient = ftpInClient,
+            submissionFtpClient = ftpOutClient,
             filesRepository = filesRepository,
         )
     }
