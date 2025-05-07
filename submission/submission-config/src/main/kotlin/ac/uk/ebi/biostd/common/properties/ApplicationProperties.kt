@@ -59,8 +59,8 @@ data class PersistenceProperties(
     val nfsReleaseMode: String,
     val privateSubmissionsPath: String,
     val publicSubmissionsPath: String,
-    val privateSubmissionFtpPath: String,
-    val publicSubmissionFtpPath: String,
+    val privateFtpOutRelpath: String,
+    val publicSubmissionFtpOutPath: String,
     val requestFilesPath: String,
     val tempDirPath: String,
 )

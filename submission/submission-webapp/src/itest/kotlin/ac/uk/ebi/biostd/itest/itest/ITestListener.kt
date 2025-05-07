@@ -155,8 +155,8 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.persistence.nfsReleaseMode", System.getProperty("nfsReleaseMode"))
         properties.addProperty("app.persistence.privateSubmissionsPath", privateNfsSubmissionPath.absolutePath)
         properties.addProperty("app.persistence.publicSubmissionsPath", publicNfsSubmissionPath.absolutePath)
-        properties.addProperty("app.persistence.privateSubmissionFtpPath", PRIVATE_SUBMISSION_PATH)
-        properties.addProperty("app.persistence.publicSubmissionFtpPath", PUBLIC_SUBMISSION_PATH)
+        properties.addProperty("app.persistence.privateSubmissionFtpOutPath", PRIVATE_SUBMISSION_PATH)
+        properties.addProperty("app.persistence.publicSubmissionFtpOutPath", PUBLIC_SUBMISSION_PATH)
         properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.persistence.requestFilesPath", requestFilesPath.absolutePath)
     }
