@@ -57,21 +57,19 @@ internal class FireWebClient(
         client.deleteAsync("/objects/$fireOid/firePath")
     }
 
-    override suspend fun findByPath(path: String): FireApiFile? {
-        return client.getOrNull("/objects/path/$path")
-    }
+    override suspend fun findByPath(path: String): FireApiFile? = client.getOrNull("/objects/path/$path")
 
-    override suspend fun findAllInPath(path: String): List<FireApiFile> {
-        return client.getOrNull<Array<FireApiFile>>("/objects/entries/path/$path").orEmpty().toList()
-    }
+    override suspend fun findAllInPath(path: String): List<FireApiFile> =
+        client.getOrNull<Array<FireApiFile>>("/objects/entries/path/$path").orEmpty().toList()
 
-    override suspend fun publish(fireOid: String): FireApiFile {
-        return client.putForObjectAsync<FireApiFile>("/objects/$fireOid/publish")
-    }
+    override suspend fun publish(fireOid: String): FireApiFile = client.putForObjectAsync<FireApiFile>("/objects/$fireOid/publish")
 
-    override suspend fun unpublish(fireOid: String): FireApiFile {
-        return client.delete().uri("/objects/$fireOid/publish").retrieve().awaitBody()
-    }
+    override suspend fun unpublish(fireOid: String): FireApiFile =
+        client
+            .delete()
+            .uri("/objects/$fireOid/publish")
+            .retrieve()
+            .awaitBody()
 
     override suspend fun delete(fireOid: String) {
         client.deleteAsync("/objects/$fireOid")
@@ -81,8 +79,7 @@ internal class FireWebClient(
 /**
  * Perform same as @see [RestOperations.getForObject] but maps 404 status response into null result.
  */
-private suspend inline fun <reified T> WebClient.getOrNull(url: String): T? {
-    return runCatching {
+private suspend inline fun <reified T> WebClient.getOrNull(url: String): T? =
+    runCatching {
         getForObjectAsync<T>(url)
     }.getOrElse { if (it is WebClientResponseException && it.statusCode == NOT_FOUND) null else throw it }
-}

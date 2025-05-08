@@ -47,12 +47,12 @@ class SubmissionRequestFilesValidator(
     private suspend fun processSafely(request: SubmissionRequest): SubmissionRequest {
         try {
             return request.withNewStatus(FILES_VALIDATED, processSubmission(request))
-        } catch (e: Exception) {
-            logger.error(e) { "Error processing request accNo='${request.accNo}', version=${request.version}" }
-            return when (e) {
-                is FilesProcessingException -> request.withErrors(listOf(e.message))
-                is InvalidFileListException -> request.withErrors(listOf(e.message))
-                is InvalidPathException -> request.withErrors(listOf(e.message))
+        } catch (exception: Exception) {
+            logger.error(exception) { "Error processing request accNo='${request.accNo}', version=${request.version}" }
+            return when (exception) {
+                is FilesProcessingException -> request.withErrors(listOf(exception.message))
+                is InvalidFileListException -> request.withErrors(listOf(exception.message))
+                is InvalidPathException -> request.withErrors(listOf(exception.message))
                 else -> request.withErrors(listOf("Unknown processing error. Please contact Admin."))
             }
         }
