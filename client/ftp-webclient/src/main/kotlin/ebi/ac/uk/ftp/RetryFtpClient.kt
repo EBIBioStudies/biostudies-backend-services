@@ -10,6 +10,9 @@ class RetryFtpClient(
     private val retryTemplate: SuspendRetryTemplate,
     private val ftpClient: FtpClient,
 ) : FtpClient {
+    override val ftpRootPath: String
+        get() = ftpClient.ftpRootPath
+
     override suspend fun uploadFiles(
         folder: Path,
         files: List<Pair<Path, () -> InputStream>>,

@@ -15,6 +15,8 @@ import kotlin.time.Duration.Companion.milliseconds
 private val logger = KotlinLogging.logger {}
 
 interface FtpClient {
+    val ftpRootPath: String
+
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
@@ -86,7 +88,7 @@ private class SimpleFtpClient(
     private val ftpPassword: String,
     private val ftpUrl: String,
     private val ftpPort: Int,
-    private val ftpRootPath: String,
+    override val ftpRootPath: String,
     private val defaultTimeout: Long,
     private val connectionTimeout: Long,
 ) : FtpClient {

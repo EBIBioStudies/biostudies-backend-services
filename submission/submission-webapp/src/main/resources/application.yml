@@ -117,7 +117,6 @@ app:
       userFtpDirPath: # Absoluate path of folder where FTP in is mounted on NFS.
       ftpOut:
         ftpDirPath: # Absolute path of the FTP-OUT folder in NFS
-        ftpRootPath: # Root path to find the user files in the FTP-OUT folder. If blank, root level FTP-IN will be used
         ftpUser: # FTP user
         ftpPassword: # FTP password
         ftpUrl: # FTP url without port
@@ -132,7 +131,6 @@ app:
 
       ftpIn:
         ftpDirPath: # Absolute path of the FTP-IN folder in NFS
-        ftpRootPath: # Root path to find the user files in the FTP-IN folder. If blank, root level FTP-IN will be used
         ftpUser: # FTP user
         ftpPassword: # FTP password
         ftpUrl: # FTP url without port
@@ -152,9 +150,7 @@ app:
 
     privateSubmissionsPath: # Absolute path to the folder to be used as storage for private submissions
     privateSubmissionFtpOutPath: # Relative ftp path to the folder to be used as storage for private submissions
-
     publicSubmissionsPath: # Absolute path to the folder to be used as storage for public submissions
-    publicSubmissionFtpOutPath: # Relative ftp path to the folder to be used as storage for public submissions
 
     requestFilesPath: # Absolute path to the folder where request files are stored
     tempDirPath: # Absolute path to the folder used to generate temporary files

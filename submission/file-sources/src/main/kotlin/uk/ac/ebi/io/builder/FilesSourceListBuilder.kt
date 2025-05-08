@@ -13,6 +13,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.io.sources.DbFilesSource
 import uk.ac.ebi.io.sources.FilesListSource
@@ -23,6 +24,8 @@ import uk.ac.ebi.io.sources.SubmissionFilesSource
 import uk.ac.ebi.io.sources.UserPathSource
 import java.io.File
 import java.nio.file.Path
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class FilesSourceListBuilder(
@@ -63,9 +66,18 @@ class FilesSourceListBuilder(
         if (folder is FtpUserFolder) {
             val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
             when (folderType) {
-                FolderType.NFS -> sources.add(UserPathSource(description, nfsPath))
+                FolderType.NFS -> {
+                    logger.info { "Adding user nfs files source in $nfsPath" }
+                    sources.add(UserPathSource(description, nfsPath))
+                }
+
                 FolderType.FTP -> {
                     val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
+                    logger.info {
+                        "Adding user ftp files source in " +
+                            "nfsPath='$nfsPath' " +
+                            "ftpUrl='${userFtpClient.ftpRootPath}/$ftpUrl'"
+                    }
                     sources.add(FtpSource(description, ftpUrl, nfsPath, userFtpClient))
                 }
             }
@@ -93,6 +105,13 @@ class FilesSourceListBuilder(
                 FolderType.FTP -> {
                     val ftpUrl = folderResolver.getSubmisisonFolder(submission, FolderType.FTP).resolve(FILES_PATH)
                     val nfsPath = folderResolver.getSubmisisonFolder(submission, FolderType.NFS).resolve(FILES_PATH)
+
+                    logger.info {
+                        "Adding submission ftp files source in " +
+                            "nfsPath='$nfsPath' " +
+                            "ftpUrl='${submissionFtpClient.ftpRootPath}/$ftpUrl'"
+                    }
+
                     FtpSource("Previous version files [FTP]", ftpUrl = ftpUrl, nfsPath = nfsPath, submissionFtpClient)
                 }
             }
