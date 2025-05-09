@@ -22,7 +22,6 @@ class FtpClientTest(
             FTP_PASSWORD,
             ftpServer.getUrl(),
             ftpServer.ftpPort,
-            FTP_ROOT_PATH,
             FTP_TIMEOUT,
             FTP_TIMEOUT,
         )
@@ -120,7 +119,6 @@ class FtpClientTest(
         private val HOME = Paths.get("")
         const val FTP_USER = "ftpUser"
         const val FTP_PASSWORD = "ftpPassword"
-        const val FTP_ROOT_PATH = ".test"
         const val TEST_RETRY = 3
         const val FTP_TIMEOUT = 3000L
     }

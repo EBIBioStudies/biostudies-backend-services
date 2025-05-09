@@ -14,7 +14,7 @@ internal class CopyFileVisitor(
         dir: Path,
         attrs: BasicFileAttributes,
     ): FileVisitResult {
-        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions.subFolder)
+        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions.folder)
         return FileVisitResult.CONTINUE
     }
 

@@ -35,7 +35,6 @@ data class FilesProperties(
 
 @ConstructorBinding
 data class FtpProperties(
-    val ftpRootPath: String,
     val ftpUser: String,
     val ftpPassword: String,
     val ftpUrl: String,

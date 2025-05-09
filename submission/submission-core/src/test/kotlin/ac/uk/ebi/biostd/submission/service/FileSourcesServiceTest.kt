@@ -73,7 +73,7 @@ class FileSourcesServiceTest(
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[6].description).isEqualTo("Previous version files")
+        assertThat(sources[6].description).isEqualTo("Previous version files [File System]")
     }
 
     @Test
@@ -99,7 +99,7 @@ class FileSourcesServiceTest(
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[6].description).isEqualTo("Previous version files")
+        assertThat(sources[6].description).isEqualTo("Previous version files [File System]")
     }
 
     @Test
@@ -123,7 +123,7 @@ class FileSourcesServiceTest(
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[4].description).isEqualTo("Previous version files")
+        assertThat(sources[4].description).isEqualTo("Previous version files [File System]")
     }
 
     @Test
@@ -144,7 +144,7 @@ class FileSourcesServiceTest(
         val sources = fileSources.sources
         assertThat(sources).hasSize(2)
         assertThat(sources[0].description).isEqualTo("Provided Db files")
-        assertThat(sources[1].description).isEqualTo("Previous version files")
+        assertThat(sources[1].description).isEqualTo("Previous version files [File System]")
     }
 
     private fun submitter(): SecurityUser {

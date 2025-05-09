@@ -169,7 +169,6 @@ class GeneralConfig {
                 ftpPassword = ftpProperties.ftpPassword,
                 ftpUrl = ftpProperties.ftpUrl,
                 ftpPort = ftpProperties.ftpPort,
-                ftpRootPath = ftpProperties.ftpRootPath,
                 defaultTimeout = ftpProperties.defaultTimeout,
                 connectionTimeout = ftpProperties.connectionTimeout,
             )

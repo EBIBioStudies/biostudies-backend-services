@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.SubPermissions
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
@@ -11,7 +12,6 @@ import ebi.ac.uk.extended.model.asNfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
-import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
@@ -43,9 +43,9 @@ class NfsFilesService(
         sub: ExtSubmissionInfo,
         file: NfsFile,
     ): ExtFile {
-        val permissions = sub.permissions()
-        val subFile = getSubFile(sub, permissions, file.relPath)
-        if (subFile.notExist()) copyOrReplaceFile(file.file, subFile, permissions)
+        val subPermissions = sub.permissions()
+        val subFile = getSubFile(sub, subPermissions, file.relPath)
+        if (subFile.notExist()) copyOrReplaceFile(file.file, subFile, subPermissions.asPermissions())
 
         return file.copy(fullPath = subFile.absolutePath, file = subFile)
     }
@@ -54,11 +54,11 @@ class NfsFilesService(
         sub: ExtSubmissionInfo,
         file: FireFile,
     ): ExtFile {
-        val permissions = sub.permissions()
-        val subFile = getSubFile(sub, permissions, file.relPath)
+        val subPermissions = sub.permissions()
+        val subFile = getSubFile(sub, subPermissions, file.relPath)
         if (subFile.notExist()) {
             val fireFile = fireClient.downloadByPath(file.firePath)!!
-            copyOrReplaceFile(fireFile, subFile, permissions)
+            copyOrReplaceFile(fireFile, subFile, subPermissions.asPermissions())
         }
 
         return file.asNfsFile(subFile)
@@ -66,7 +66,7 @@ class NfsFilesService(
 
     private fun getSubFile(
         sub: ExtSubmissionInfo,
-        permissions: Permissions,
+        permissions: SubPermissions,
         relPath: String,
     ): File {
         val subFolder = getOrCreateSubmissionFolder(sub, permissions.parentsFolder, permissions.subFolder)

@@ -76,7 +76,7 @@ class FilesSourceListBuilder(
                     logger.info {
                         "Adding user ftp files source in " +
                             "nfsPath='$nfsPath' " +
-                            "ftpUrl='${userFtpClient.ftpRootPath}/$ftpUrl'"
+                            "ftpUrl='$ftpUrl'"
                     }
                     sources.add(FtpSource(description, ftpUrl, nfsPath, userFtpClient))
                 }
@@ -109,7 +109,7 @@ class FilesSourceListBuilder(
                     logger.info {
                         "Adding submission ftp files source in " +
                             "nfsPath='$nfsPath' " +
-                            "ftpUrl='${submissionFtpClient.ftpRootPath}/$ftpUrl'"
+                            "ftpUrl='$ftpUrl'"
                     }
 
                     FtpSource("Previous version files [FTP]", ftpUrl = ftpUrl, nfsPath = nfsPath, submissionFtpClient)

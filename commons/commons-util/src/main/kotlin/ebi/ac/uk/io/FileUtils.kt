@@ -142,7 +142,7 @@ object FileUtils {
         permissions: Permissions = Permissions(RW_______, RWX______),
     ) {
         val filePath = source.toPath()
-        Files.write(createParentDirectories(source.toPath(), permissions.subFolder), content.toByteArray())
+        Files.write(createParentDirectories(source.toPath(), permissions.folder), content.toByteArray())
         Files.setPosixFilePermissions(filePath, permissions.file)
     }
 
@@ -211,7 +211,7 @@ internal object FileUtilsHelper {
         runSafely {
             logger.info { "Processing Hardlink for file $filePath into target $target" }
             deleteIfExists(target)
-            FileUtils.createParentFolders(target, permissions.subFolder)
+            FileUtils.createParentFolders(target, permissions.folder)
             Files.createLink(target, filePath)
             Files.setPosixFilePermissions(target, permissions.file)
             logger.info { "Finished Hardlink for file $filePath into target $target" }
@@ -260,7 +260,7 @@ internal object FileUtilsHelper {
         permissions: Permissions,
     ) {
         runSafely {
-            Files.copy(source, createParentDirectories(target, permissions.subFolder), REPLACE_EXISTING)
+            Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
             Files.setPosixFilePermissions(target, permissions.file)
         }
     }
@@ -270,7 +270,7 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
-        Files.move(source, createParentDirectories(target, permissions.subFolder), REPLACE_EXISTING)
+        Files.move(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
         Files.setPosixFilePermissions(target, permissions.file)
     }
 
@@ -331,6 +331,5 @@ internal object FileUtilsHelper {
 
 data class Permissions(
     val file: Set<PosixFilePermission>,
-    val parentsFolder: Set<PosixFilePermission>,
-    val subFolder: Set<PosixFilePermission>,
+    val folder: Set<PosixFilePermission>,
 )
