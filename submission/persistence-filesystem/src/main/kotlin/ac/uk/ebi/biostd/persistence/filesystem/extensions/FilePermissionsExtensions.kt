@@ -12,6 +12,8 @@ import ebi.ac.uk.io.RW_R__R__
  * - Public Submissions: All files should be readable. Directories should be readable and listable
  * - Private Submissions: All files should be readable. Directories should be readable but not listable
  */
-fun ExtSubmissionInfo.permissions(): Permissions {
-    return if (released) Permissions(RW_R__R__, RWXR_XR_X) else Permissions(RW_R__R__, RWXR_X__X)
-}
+fun ExtSubmissionInfo.permissions(): Permissions =
+    when {
+        released -> Permissions(file = RW_R__R__, parentsFolder = RWXR_XR_X, subFolder = RWXR_XR_X)
+        else -> Permissions(file = RW_R__R__, parentsFolder = RWXR_X__X, subFolder = RWXR_XR_X)
+    }

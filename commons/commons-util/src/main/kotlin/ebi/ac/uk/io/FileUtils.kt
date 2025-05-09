@@ -86,14 +86,16 @@ object FileUtils {
     }
 
     fun deleteEmptyDirectories(dir: File) {
-        dir.walkBottomUp()
+        dir
+            .walkBottomUp()
             .asSequence()
             .filter { it.isDirectory && it.isEmpty() }
             .forEach { Files.delete(it.toPath()) }
     }
 
     fun cleanDirectory(dir: File) {
-        dir.listFilesOrEmpty()
+        dir
+            .listFilesOrEmpty()
             .asSequence()
             .forEach { deleteFile(it) }
     }
@@ -140,7 +142,7 @@ object FileUtils {
         permissions: Permissions = Permissions(RW_______, RWX______),
     ) {
         val filePath = source.toPath()
-        Files.write(createParentDirectories(source.toPath(), permissions.folder), content.toByteArray())
+        Files.write(createParentDirectories(source.toPath(), permissions.subFolder), content.toByteArray())
         Files.setPosixFilePermissions(filePath, permissions.file)
     }
 
@@ -149,9 +151,7 @@ object FileUtils {
     fun size(
         file: File,
         iterateDirectories: Boolean = true,
-    ): Long {
-        return if (file.isDirectory && iterateDirectories) calculateDirectorySize(file) else Files.size(file.toPath())
-    }
+    ): Long = if (file.isDirectory && iterateDirectories) calculateDirectorySize(file) else Files.size(file.toPath())
 
     fun md5(file: File): String = if (file.isFile) calculateMd5(file) else ""
 
@@ -159,7 +159,8 @@ object FileUtils {
 
     fun listAllFiles(file: File): List<File> {
         require(file.isDirectory) { "$file need to be a directory" }
-        return Files.walk(file.toPath())
+        return Files
+            .walk(file.toPath())
             .skip(1)
             .sorted()
             .map { it.toFile() }
@@ -175,7 +176,12 @@ object FileUtils {
 
     private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
 
-    private fun calculateDirectorySize(dir: File) = dir.walkTopDown().filter { it.isFile }.map { it.size() }.sum()
+    private fun calculateDirectorySize(dir: File) =
+        dir
+            .walkTopDown()
+            .filter { it.isFile }
+            .map { it.size() }
+            .sum()
 }
 
 private val logger = KotlinLogging.logger {}
@@ -205,7 +211,7 @@ internal object FileUtilsHelper {
         runSafely {
             logger.info { "Processing Hardlink for file $filePath into target $target" }
             deleteIfExists(target)
-            FileUtils.createParentFolders(target, permissions.folder)
+            FileUtils.createParentFolders(target, permissions.subFolder)
             Files.createLink(target, filePath)
             Files.setPosixFilePermissions(target, permissions.file)
             logger.info { "Finished Hardlink for file $filePath into target $target" }
@@ -254,7 +260,7 @@ internal object FileUtilsHelper {
         permissions: Permissions,
     ) {
         runSafely {
-            Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
+            Files.copy(source, createParentDirectories(target, permissions.subFolder), REPLACE_EXISTING)
             Files.setPosixFilePermissions(target, permissions.file)
         }
     }
@@ -264,7 +270,7 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
-        Files.move(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
+        Files.move(source, createParentDirectories(target, permissions.subFolder), REPLACE_EXISTING)
         Files.setPosixFilePermissions(target, permissions.file)
     }
 
@@ -315,11 +321,16 @@ internal object FileUtilsHelper {
 
     fun deleteFolder(path: Path) {
         if (exists(path)) {
-            Files.walk(path)
+            Files
+                .walk(path)
                 .sorted(Comparator.reverseOrder())
                 .forEach { deleteIfExists(it) }
         }
     }
 }
 
-data class Permissions(val file: Set<PosixFilePermission>, val folder: Set<PosixFilePermission>)
+data class Permissions(
+    val file: Set<PosixFilePermission>,
+    val parentsFolder: Set<PosixFilePermission>,
+    val subFolder: Set<PosixFilePermission>,
+)

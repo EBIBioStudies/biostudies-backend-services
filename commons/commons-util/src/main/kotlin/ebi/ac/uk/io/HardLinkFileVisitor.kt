@@ -14,7 +14,7 @@ internal class HardLinkFileVisitor(
         dir: Path,
         attrs: BasicFileAttributes,
     ): FileVisitResult {
-        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions.folder)
+        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions.subFolder)
         return FileVisitResult.CONTINUE
     }
 

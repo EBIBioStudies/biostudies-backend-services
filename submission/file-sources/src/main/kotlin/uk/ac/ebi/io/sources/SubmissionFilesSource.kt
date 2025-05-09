@@ -23,7 +23,7 @@ internal class SubmissionFilesSource(
     private val filesRepository: SubmissionFilesPersistenceService,
 ) : FilesSource {
     override val description: String
-        get() = "Previous version files"
+        get() = fileSource.description
 
     override suspend fun getExtFile(
         path: String,

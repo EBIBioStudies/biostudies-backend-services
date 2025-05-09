@@ -12,7 +12,6 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWXR_X__X
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
@@ -70,17 +69,18 @@ class NfsFilesService(
         permissions: Permissions,
         relPath: String,
     ): File {
-        val subFolder = getOrCreateSubmissionFolder(sub, permissions.folder)
+        val subFolder = getOrCreateSubmissionFolder(sub, permissions.parentsFolder, permissions.subFolder)
         return subFolder.resolve(relPath)
     }
 
     private fun getOrCreateSubmissionFolder(
         sub: ExtSubmissionInfo,
-        permissions: Set<PosixFilePermission>,
+        parentsFolder: Set<PosixFilePermission>,
+        subFolder: Set<PosixFilePermission>,
     ): File {
         val submissionPath = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
-        FileUtils.createParentFolders(submissionPath, RWXR_X__X)
-        return getOrCreateFolder(submissionPath, permissions).toFile()
+        FileUtils.createParentFolders(submissionPath, parentsFolder)
+        return getOrCreateFolder(submissionPath, subFolder).toFile()
     }
 
     override suspend fun deleteSubmissionFile(
