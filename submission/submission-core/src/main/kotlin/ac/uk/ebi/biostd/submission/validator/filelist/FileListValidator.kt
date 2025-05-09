@@ -11,6 +11,7 @@ import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.extended.mapping.from.findExtFile
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
+import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
 import kotlinx.coroutines.flow.filter
@@ -33,7 +34,7 @@ class FileListValidator(
         val submission = accNo?.let { submissionQueryService.findExtByAccNo(accNo, includeFileListFiles = false) }
         val fileSourcesRequest =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = false,
+                folderType = FolderType.FTP,
                 onBehalfUser = onBehalfUser,
                 submitter = submitter,
                 files = null,

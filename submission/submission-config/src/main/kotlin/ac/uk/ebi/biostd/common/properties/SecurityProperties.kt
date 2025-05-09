@@ -26,14 +26,15 @@ data class FilesProperties(
     val defaultMode: StorageMode,
     val filesDirPath: String,
     val magicDirPath: String,
+    var userFtpDirPath: String,
     @NestedConfigurationProperty
-    val ftp: FtpProperties,
+    val ftpIn: FtpProperties,
+    @NestedConfigurationProperty
+    val ftpOut: FtpProperties,
 )
 
 @ConstructorBinding
 data class FtpProperties(
-    val ftpRootPath: String,
-    val ftpDirPath: String,
     val ftpUser: String,
     val ftpPassword: String,
     val ftpUrl: String,
@@ -42,6 +43,11 @@ data class FtpProperties(
     val connectionTimeout: Long,
     @NestedConfigurationProperty
     val retry: RetryConfig,
+)
+
+data class FtpCredential(
+    val ftpUser: String,
+    val ftpPassword: String,
 )
 
 data class InstanceKeys(

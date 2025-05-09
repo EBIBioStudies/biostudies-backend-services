@@ -19,9 +19,8 @@ import java.time.Instant
 import kotlin.math.max
 
 class ProfileService(
-    private val nfsUserFtpDirPath: Path,
+    private val userFtpDirPath: Path,
     private val nfsUserFilesDirPath: Path,
-    private val ftpRootPath: String,
 ) {
     fun getUserProfile(
         user: DbUser,
@@ -97,7 +96,7 @@ class ProfileService(
             val relativePath = magicPath(secret, id, "a")
             return FtpUserFolder(
                 relativePath = Paths.get(relativePath),
-                path = Paths.get("$nfsUserFtpDirPath").resolve(ftpRootPath).resolve(relativePath),
+                path = Paths.get("$userFtpDirPath").resolve(relativePath),
             )
         }
 

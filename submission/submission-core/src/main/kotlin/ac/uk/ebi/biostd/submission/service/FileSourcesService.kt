@@ -5,6 +5,7 @@ import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
+import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.io.File
@@ -15,7 +16,7 @@ class FileSourcesService(
     private val builder: FilesSourceListBuilder,
 ) {
     fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
-        val hasFtpFileSystemAccess = rqt.hasFtpFileSystemAccess
+        val folderType = rqt.folderType
         val onBehalfUser = rqt.onBehalfUser
         val submitter = rqt.submitter
         val files = rqt.files
@@ -29,8 +30,8 @@ class FileSourcesService(
                 if (files != null) addFilesListSource(files)
                 preferred.forEach {
                     when (it) {
-                        USER_SPACE -> addUserSources(rootPath, onBehalfUser, submitter, hasFtpFileSystemAccess, this)
-                        SUBMISSION -> if (submission != null) addSubmissionSource(submission)
+                        USER_SPACE -> addUserSources(rootPath, onBehalfUser, submitter, folderType, this)
+                        SUBMISSION -> if (submission != null) addSubmissionSource(submission, folderType)
                     }
                 }
             }
@@ -42,26 +43,26 @@ class FileSourcesService(
         rootPath: String?,
         owner: SecurityUser?,
         submitter: SecurityUser,
-        hasFtpFileSystemAccess: Boolean,
+        folderType: FolderType,
         builder: FilesSourceListBuilder,
     ) {
-        addUserSource(submitter, rootPath, hasFtpFileSystemAccess, builder)
+        addUserSource(submitter, rootPath, folderType, builder)
 
         if (owner != null) {
-            addUserSource(owner, rootPath, hasFtpFileSystemAccess, builder)
+            addUserSource(owner, rootPath, folderType, builder)
         }
     }
 
     private fun addUserSource(
         user: SecurityUser,
         rootPath: String?,
-        hasFtpFileSystemAccess: Boolean,
+        folderType: FolderType,
         builder: FilesSourceListBuilder,
     ) {
         if (rootPath == null) {
-            builder.addUserSource(user, "${user.email} user files", hasFtpFileSystemAccess)
+            builder.addUserSource(user, "${user.email} user files", folderType)
         } else {
-            builder.addUserSource(user, "${user.email} user files in /$rootPath", hasFtpFileSystemAccess, rootPath)
+            builder.addUserSource(user, "${user.email} user files in /$rootPath", folderType, rootPath)
         }
 
         user.groupsFolders.forEach { builder.addGroupSource(it.groupName, it.path) }
@@ -69,7 +70,7 @@ class FileSourcesService(
 }
 
 data class FileSourcesRequest(
-    val hasFtpFileSystemAccess: Boolean,
+    val folderType: FolderType,
     val onBehalfUser: SecurityUser?,
     val submitter: SecurityUser,
     val files: List<File>?,

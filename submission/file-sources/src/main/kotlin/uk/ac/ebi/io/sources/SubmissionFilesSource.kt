@@ -17,13 +17,13 @@ import java.io.File
 
 internal class SubmissionFilesSource(
     private val sub: ExtSubmission,
-    private val nfsFiles: PathSource,
+    private val fileSource: FilesSource,
     private val fireClient: FireClient,
     private val previousVersionFiles: Map<String, ExtFile>,
     private val filesRepository: SubmissionFilesPersistenceService,
 ) : FilesSource {
     override val description: String
-        get() = "Previous version files"
+        get() = fileSource.description
 
     override suspend fun getExtFile(
         path: String,
@@ -50,7 +50,7 @@ internal class SubmissionFilesSource(
 
     private suspend fun getFile(file: ExtFile): File? =
         when (file) {
-            is NfsFile -> nfsFiles.getFileList(file.filePath)
+            is NfsFile -> fileSource.getFileList(file.filePath)
             is FireFile -> fireClient.downloadByPath(file.firePath)
             is RequestFile -> error("Can not obtain File instance from RequestFile ${file.filePath}")
         }

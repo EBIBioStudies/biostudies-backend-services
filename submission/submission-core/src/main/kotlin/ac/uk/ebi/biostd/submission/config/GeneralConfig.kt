@@ -10,6 +10,7 @@ import ebi.ac.uk.coroutines.RetryConfig
 import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.ftp.RetryFtpClient
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -30,9 +31,9 @@ import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import uk.ac.ebi.io.config.FilesSourceConfig
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
-import java.nio.file.Paths
 import kotlin.time.Duration.Companion.minutes
 
+@Suppress("TooManyFunctions")
 @Configuration
 @Import(MongoDbServicesConfig::class)
 @EnableConfigurationProperties(ApplicationProperties::class)
@@ -48,16 +49,18 @@ class GeneralConfig {
 
     @Bean
     fun filesSourceConfig(
+        submissionFolderResolver: SubmissionFolderResolver,
         fireClient: FireClient,
-        @Qualifier(FILE_SOURCE_FTP_CLIENT) ftpClient: FtpClient,
-        applicationProperties: ApplicationProperties,
+        @Qualifier(FILE_SOURCE_FTP_IN_CLIENT) fileSourceFtpInClient: FtpClient,
+        @Qualifier(FTP_OUT_CLIENT) ftpOutClient: FtpClient,
         filesRepo: SubmissionFilesPersistenceService,
     ): FilesSourceConfig =
         FilesSourceConfig(
-            submissionPath = Paths.get(applicationProperties.persistence.privateSubmissionsPath),
+            submissionFolderResolver = submissionFolderResolver,
             fireClient = fireClient,
             filesRepository = filesRepo,
-            ftpClient = ftpClient,
+            ftpInClient = fileSourceFtpInClient,
+            ftpOutClient = ftpOutClient,
         )
 
     @Bean
@@ -94,9 +97,9 @@ class GeneralConfig {
     fun localClusterClient(): ClusterClient = LocalClusterClient()
 
     @Bean
-    @Qualifier(FTP_RETRY_TEMPLATE)
-    fun ftpRetry(properties: ApplicationProperties): SuspendRetryTemplate {
-        val retry = properties.security.filesProperties.ftp.retry
+    @Qualifier(FTP_IN_RETRY_TEMPLATE)
+    fun userFtpRetry(properties: ApplicationProperties): SuspendRetryTemplate {
+        val retry = properties.security.filesProperties.ftpIn.retry
         val config =
             RetryConfig(
                 maxAttempts = retry.maxAttempts,
@@ -108,29 +111,57 @@ class GeneralConfig {
     }
 
     @Bean
-    @Qualifier(USER_FILES_FTP_CLIENT)
+    @Qualifier(FTP_OUT_RETRY_TEMPLATE)
+    fun subFtpRetry(properties: ApplicationProperties): SuspendRetryTemplate {
+        val retry = properties.security.filesProperties.ftpOut.retry
+        val config =
+            RetryConfig(
+                maxAttempts = retry.maxAttempts,
+                initialInterval = retry.initialInterval,
+                multiplier = retry.multiplier,
+                maxInterval = retry.maxInterval.minutes.inWholeMilliseconds,
+            )
+        return SuspendRetryTemplate(config)
+    }
+
+    @Bean
+    @Qualifier(FTP_IN_CLIENT)
     fun userFilesFtpClient(
         properties: ApplicationProperties,
-        @Qualifier(FTP_RETRY_TEMPLATE) template: SuspendRetryTemplate,
+        @Qualifier(FTP_IN_RETRY_TEMPLATE) template: SuspendRetryTemplate,
     ): FtpClient {
-        val client = ftpClient(properties.security.filesProperties.ftp)
+        val client = ftpClient(properties.security.filesProperties.ftpIn)
         return RetryFtpClient(template, client)
     }
 
     @Bean
-    @Qualifier(FILE_SOURCE_FTP_CLIENT)
-    fun fileSourceFtpClient(
+    @Qualifier(FILE_SOURCE_FTP_IN_CLIENT)
+    fun fileSourceFtpInClient(
         properties: ApplicationProperties,
-        @Qualifier(FTP_RETRY_TEMPLATE) template: SuspendRetryTemplate,
+        @Qualifier(FTP_IN_RETRY_TEMPLATE) template: SuspendRetryTemplate,
     ): FtpClient {
-        val client = ftpClient(properties.security.filesProperties.ftp)
+        val client = ftpClient(properties.security.filesProperties.ftpIn)
+        return RetryFtpClient(template, client)
+    }
+
+    @Bean
+    @Qualifier(FTP_OUT_CLIENT)
+    fun ftpOutClient(
+        properties: ApplicationProperties,
+        @Qualifier(FTP_OUT_RETRY_TEMPLATE) template: SuspendRetryTemplate,
+    ): FtpClient {
+        val client = ftpClient(properties.security.filesProperties.ftpOut)
         return RetryFtpClient(template, client)
     }
 
     companion object {
-        const val FILE_SOURCE_FTP_CLIENT = "fileSourceFtpClient"
-        const val USER_FILES_FTP_CLIENT = "userFilesFtpClient"
-        const val FTP_RETRY_TEMPLATE = "ftpRetryTemplate"
+        const val FTP_IN_CLIENT = "FtpInClient"
+        const val FTP_IN_RETRY_TEMPLATE = "ftpInRetryTemplate"
+
+        const val FTP_OUT_CLIENT = "ftpOutClient"
+        const val FTP_OUT_RETRY_TEMPLATE = "ftoOutFtpRetryTemplate"
+
+        const val FILE_SOURCE_FTP_IN_CLIENT = "fileSourceFtpInClient"
 
         fun ftpClient(ftpProperties: FtpProperties): FtpClient =
             FtpClient.create(
@@ -138,7 +169,6 @@ class GeneralConfig {
                 ftpPassword = ftpProperties.ftpPassword,
                 ftpUrl = ftpProperties.ftpUrl,
                 ftpPort = ftpProperties.ftpPort,
-                ftpRootPath = ftpProperties.ftpRootPath,
                 defaultTimeout = ftpProperties.defaultTimeout,
                 connectionTimeout = ftpProperties.connectionTimeout,
             )

@@ -64,7 +64,6 @@ interface FtpClient {
             ftpPassword: String,
             ftpUrl: String,
             ftpPort: Int,
-            ftpRootPath: String,
             defaultTimeout: Long,
             connectionTimeout: Long,
         ): FtpClient =
@@ -73,7 +72,6 @@ interface FtpClient {
                 ftpPassword,
                 ftpUrl,
                 ftpPort,
-                ftpRootPath,
                 defaultTimeout,
                 connectionTimeout,
             )
@@ -86,7 +84,6 @@ private class SimpleFtpClient(
     private val ftpPassword: String,
     private val ftpUrl: String,
     private val ftpPort: Int,
-    private val ftpRootPath: String,
     private val defaultTimeout: Long,
     private val connectionTimeout: Long,
 ) : FtpClient {
@@ -170,7 +167,6 @@ private class SimpleFtpClient(
         logger.debug { "Connecting to $ftpUrl, $ftpPort" }
         ftp.connect(ftpUrl, ftpPort)
         ftp.login(ftpUser, ftpPassword)
-        ftp.changeWorkingDirectory(ftpRootPath)
         ftp.setFileType(FTP.BINARY_FILE_TYPE)
         ftp.listHiddenFiles = true
         ftp.enterLocalPassiveMode()
