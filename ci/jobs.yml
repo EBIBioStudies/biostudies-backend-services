@@ -52,7 +52,7 @@ deploy-beta:
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/beta
     - gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/submitter/beta
-    - gradle deploySubmitter -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
+    - gradle deploySubmitter -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
 
 
 auto-deploy-prod:
