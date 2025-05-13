@@ -90,7 +90,6 @@ internal class SecurityServiceTest(
                 userFtpRootPath = FTP_ROOT_PATH,
                 nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
                 userFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
-                userFtpRootPath = "",
             ),
             captchaVerifier,
             eventsPublisherService,
