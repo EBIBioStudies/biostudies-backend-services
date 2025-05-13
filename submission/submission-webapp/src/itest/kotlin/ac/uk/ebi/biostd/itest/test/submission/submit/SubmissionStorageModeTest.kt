@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireFtpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireSubmissionPath
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsFtpPath
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.privateNfsSubmissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.publicNfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -122,8 +122,12 @@ class SubmissionStorageModeTest(
             assertFileListFile(fireSub.section.fileList!!, FireFile::class)
 
             // No Files in NFS submit folder/ftp
-            assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
-            assertThat(nfsFtpPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+            assertThat(
+                privateNfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile },
+            ).isEmpty()
+            assertThat(
+                publicNfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile },
+            ).isEmpty()
         }
 
     @Test
@@ -148,8 +152,12 @@ class SubmissionStorageModeTest(
             assertThat(fireSub.section.fileList).isNotNull()
             assertFileListFile(fireSub.section.fileList!!, FireFile::class)
 
-            assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
-            assertThat(nfsFtpPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+            assertThat(
+                privateNfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile },
+            ).isEmpty()
+            assertThat(
+                publicNfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile },
+            ).isEmpty()
         }
 
     @Test

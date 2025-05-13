@@ -114,9 +114,23 @@ app:
       defaultMode: # The default mode to create user folder. Valid values are: NFS, FTP
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: # Absolute path to create user magic folder for dropbox simple access
-      ftp:
+      userFtpDirPath: # Absoluate path of folder where FTP in is mounted on NFS.
+      ftpOut:
+        ftpDirPath: # Absolute path of the FTP-OUT folder in NFS
+        ftpUser: # FTP user
+        ftpPassword: # FTP password
+        ftpUrl: # FTP url without port
+        ftpPort: # FTP port
+        defaultTimeout: # FTP connection pool default timeout
+        connectionTimeout: # FTP connection pool connection timeout
+        retry:
+          maxAttempts: # Maximum retry attempts
+          initialInterval: # Initial waiting interval time in ms
+          multiplier: # Multiplier for the waiting interval
+          maxInterval: # Maximum interval duration
+
+      ftpIn:
         ftpDirPath: # Absolute path of the FTP-IN folder in NFS
-        ftpRootPath: # Root path to find the user files in the FTP-IN folder. If blank, root level FTP-IN will be used
         ftpUser: # FTP user
         ftpPassword: # FTP password
         ftpUrl: # FTP url without port
@@ -133,8 +147,11 @@ app:
     concurrency: # Number of files processed concurrently
     includeSecretKey: # Boolean flag to indicate whether the secret key should be added to the private submission path
     nfsReleaseMode: # Method used to release files for NFS submissions. Valid values are: MOVE, HARD_LINKS
+
     privateSubmissionsPath: # Absolute path to the folder to be used as storage for private submissions
+    privateSubmissionFtpOutPath: # Relative ftp path to the folder to be used as storage for private submissions
     publicSubmissionsPath: # Absolute path to the folder to be used as storage for public submissions
+
     requestFilesPath: # Absolute path to the folder where request files are stored
     tempDirPath: # Absolute path to the folder used to generate temporary files
   mongo:

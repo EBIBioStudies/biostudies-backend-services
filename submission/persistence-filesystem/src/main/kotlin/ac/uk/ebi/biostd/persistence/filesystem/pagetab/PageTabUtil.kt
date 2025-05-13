@@ -31,13 +31,13 @@ class PageTabUtil(
                 saveTabFile(
                     target.resolve("${extSub.accNo}.json"),
                     serializationService.serializeSubmission(sub, JSON_PRETTY),
-                    permissions,
+                    permissions.asPermissions(),
                 ),
             tsv =
                 saveTabFile(
                     target.resolve("${extSub.accNo}.tsv"),
                     serializationService.serializeSubmission(sub, TSV),
-                    permissions,
+                    permissions.asPermissions(),
                 ),
         )
     }
