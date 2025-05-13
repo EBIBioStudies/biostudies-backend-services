@@ -40,6 +40,7 @@ class ProfileServiceTest(
         ProfileService(
             userFtpDirPath = ftpFilesDir.toPath(),
             nfsUserFilesDirPath = filesDir.toPath(),
+            userFtpRootPath = "",
         )
 
     @Test
