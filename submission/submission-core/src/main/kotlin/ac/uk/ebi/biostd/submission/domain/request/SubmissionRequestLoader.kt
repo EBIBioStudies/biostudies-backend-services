@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
+import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
@@ -21,6 +22,7 @@ import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.LOADED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -57,28 +59,25 @@ class SubmissionRequestLoader(
         accNo: String,
         sub: ExtSubmission,
     ) {
-        suspend fun loadFile(rqtFile: SubmissionRequestFile) {
+        suspend fun loadFile(rqtFile: SubmissionRequestFile): SubmissionRequestFile {
             logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
-            when (val file = rqtFile.file) {
-                is FireFile -> {
-                    val loaded = rqtFile.copy(status = RequestFileStatus.LOADED)
-                    requestService.updateRqtFile(loaded)
+            val loaded =
+                when (val file = rqtFile.file) {
+                    is FireFile -> rqtFile.copy(status = RequestFileStatus.LOADED)
+                    is NfsFile -> rqtFile.copy(file = loadFile(sub, file), status = RequestFileStatus.LOADED)
+                    is RequestFile -> error("RequestFile ${file.filePath} can not be loaded")
                 }
-
-                is NfsFile -> {
-                    val loaded = rqtFile.copy(file = loadFile(sub, file), status = RequestFileStatus.LOADED)
-                    requestService.updateRqtFile(loaded)
-                }
-
-                is RequestFile -> error("RequestFile ${file.filePath} can not be loaded")
-            }
             logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
+
+            return loaded
         }
 
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(accNo, sub.version, RequestFileStatus.INDEXED)
                 .concurrently(concurrency) { loadFile(it) }
+                .chunked(concurrency)
+                .onEach { requestService.updateRqtFiles(it) }
                 .collect()
         }
     }

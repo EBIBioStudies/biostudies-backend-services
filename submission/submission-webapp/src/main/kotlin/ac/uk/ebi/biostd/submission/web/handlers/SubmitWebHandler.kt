@@ -29,6 +29,7 @@ import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
+import ebi.ac.uk.paths.FolderType
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
@@ -163,7 +164,7 @@ class SubmitWebHandler(
             previous: ExtSubmission?,
         ): FileSourcesRequest =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = false,
+                folderType = FolderType.FTP,
                 submitter = submitter,
                 files = requestFiles,
                 onBehalfUser = onBehalfUser,

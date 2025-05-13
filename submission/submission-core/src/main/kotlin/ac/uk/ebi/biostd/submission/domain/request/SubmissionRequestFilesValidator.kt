@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import mu.KotlinLogging
 
@@ -46,12 +47,12 @@ class SubmissionRequestFilesValidator(
     private suspend fun processSafely(request: SubmissionRequest): SubmissionRequest {
         try {
             return request.withNewStatus(FILES_VALIDATED, processSubmission(request))
-        } catch (e: Exception) {
-            logger.error(e) { "Error processing request accNo='${request.accNo}', version=${request.version}" }
-            return when (e) {
-                is FilesProcessingException -> request.withErrors(listOf(e.message))
-                is InvalidFileListException -> request.withErrors(listOf(e.message))
-                is InvalidPathException -> request.withErrors(listOf(e.message))
+        } catch (exception: Exception) {
+            logger.error(exception) { "Error processing request accNo='${request.accNo}', version=${request.version}" }
+            return when (exception) {
+                is FilesProcessingException -> request.withErrors(listOf(exception.message))
+                is InvalidFileListException -> request.withErrors(listOf(exception.message))
+                is InvalidPathException -> request.withErrors(listOf(exception.message))
                 else -> request.withErrors(listOf("Unknown processing error. Please contact Admin."))
             }
         }
@@ -72,7 +73,7 @@ class SubmissionRequestFilesValidator(
         val previous = request.previousVersion?.let { queryService.getExtByAccNoAndVersion(submission.accNo, it) }
         var sourceRequest =
             FileSourcesRequest(
-                hasFtpFileSystemAccess = true,
+                folderType = FolderType.NFS,
                 onBehalfUser = submissionRequest.onBehalfUser?.let { securityService.getUser(it) },
                 files = submissionRequest.files,
                 submitter = securityService.getUser(submission.submitter),

@@ -112,6 +112,7 @@ class SubmitterConfig(
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestCleanIndexer =
         SubmissionRequestCleanIndexer(
+            properties.persistence.concurrency,
             serializationService,
             queryService,
             filesRequestService,

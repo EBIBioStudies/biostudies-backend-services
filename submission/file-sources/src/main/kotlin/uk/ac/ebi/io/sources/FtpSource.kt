@@ -43,7 +43,6 @@ class FtpSource(
 
     override suspend fun getFileList(path: String): File? = findFile(path)?.let { downloadFile(ftpUrl.resolve(path)) }
 
-    @Suppress("TooGenericExceptionCaught")
     private suspend fun findFile(filePath: String): FTPFile? {
         val ftpPath = ftpUrl.resolve(filePath)
         return ftpClient.findFile(ftpPath)

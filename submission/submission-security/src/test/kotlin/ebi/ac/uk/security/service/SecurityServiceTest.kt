@@ -88,8 +88,7 @@ internal class SecurityServiceTest(
             securityProps,
             ProfileService(
                 nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
-                nfsUserFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
-                ftpRootPath = FTP_ROOT_PATH,
+                userFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
             ),
             captchaVerifier,
             eventsPublisherService,

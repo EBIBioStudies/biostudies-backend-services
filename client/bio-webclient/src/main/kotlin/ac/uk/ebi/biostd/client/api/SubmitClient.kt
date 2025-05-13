@@ -12,6 +12,7 @@ import ebi.ac.uk.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
 import ebi.ac.uk.api.OnBehalfParameters.Companion.REGISTER_PARAM
 import ebi.ac.uk.api.OnBehalfParameters.Companion.USER_NAME_PARAM
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.api.SubmitParameters.Companion.PREFERRED_SOURCES
 import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.SINGLE_JOB_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
@@ -110,6 +111,7 @@ internal class SubmitClient(
                 .optionalQueryParam(STORAGE_MODE, submitParameters?.storageMode)
                 .optionalQueryParam(SILENT_MODE, submitParameters?.silentMode)
                 .optionalQueryParam(SINGLE_JOB_MODE, submitParameters?.singleJobMode)
+                .optionalQueryParam(PREFERRED_SOURCES, submitParameters?.preferredSources?.joinToString())
         return when (config) {
             null -> builder.toUriString()
             else ->

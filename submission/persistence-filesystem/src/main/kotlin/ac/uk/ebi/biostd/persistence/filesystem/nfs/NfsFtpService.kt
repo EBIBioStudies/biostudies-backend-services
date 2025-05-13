@@ -72,7 +72,7 @@ class NfsFtpService(
     ): NfsFile {
         val privateSubFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
         val suppressedFile = privateSubFolder.resolve(nfsFile.relPath).toFile()
-        FileUtils.moveFile(nfsFile.file, suppressedFile, sub.permissions())
+        FileUtils.moveFile(nfsFile.file, suppressedFile, sub.permissions().asPermissions())
         return nfsFile.copy(fullPath = suppressedFile.absolutePath, file = suppressedFile)
     }
 
@@ -86,7 +86,5 @@ class NfsFtpService(
         return nfsFile
     }
 
-    private fun getPublicFolder(relPath: String): Path {
-        return FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
-    }
+    private fun getPublicFolder(relPath: String): Path = FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
 }

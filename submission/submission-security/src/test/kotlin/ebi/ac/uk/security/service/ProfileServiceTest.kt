@@ -14,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
+class ProfileServiceTest(
+    temporaryFolder: TemporaryFolder,
+) {
     private val environment = "env-test"
     private val filesDir = temporaryFolder.createDirectory("userFiles")
     private val ftpFilesDir = temporaryFolder.createDirectory("ftpFiles")
@@ -36,9 +38,8 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
 
     private val testInstance =
         ProfileService(
-            nfsUserFtpDirPath = ftpFilesDir.toPath(),
+            userFtpDirPath = ftpFilesDir.toPath(),
             nfsUserFilesDirPath = filesDir.toPath(),
-            environment,
         )
 
     @Test

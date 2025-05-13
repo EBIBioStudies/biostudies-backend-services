@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.SubmissionRequestNotFoundEx
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
+import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
@@ -48,12 +49,17 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.UpdateOneModel
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.ACTIVE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.Document
@@ -247,8 +253,9 @@ class SubmissionRequestDocDataRepository(
     suspend fun increaseIndex(
         accNo: String,
         version: Int,
+        increase: Int,
     ) {
-        val update = Update().inc("$RQT_PROCESS.$RQT_IDX", 1).currentDate(RQT_MODIFICATION_TIME)
+        val update = Update().inc("$RQT_PROCESS.$RQT_IDX", increase).currentDate(RQT_MODIFICATION_TIME)
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
@@ -271,18 +278,24 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubRqtFile(file: SubmissionRequestFile) {
-        val serializedFile = extSerializationService.serialize(file.file)
-        val update = update(RQT_FILE_FILE, BasicDBObject.parse(serializedFile)).set(RQT_FILE_STATUS, file.status)
-        val where =
-            where(RQT_FILE_SUB_ACC_NO)
-                .`is`(file.accNo)
-                .andOperator(
-                    where(RQT_FILE_SUB_VERSION).`is`(file.version),
-                    where(RQT_FILE_PATH).`is`(file.path),
-                    where(RQT_PREVIOUS_SUB_FILE).`is`(file.previousSubFile),
-                )
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
+    suspend fun updateSubRqtFiles(files: List<SubmissionRequestFile>) {
+        fun asUpdateModel(file: SubmissionRequestFile) =
+            UpdateOneModel<Document>(
+                Filters.and(
+                    Filters.eq(RQT_FILE_SUB_ACC_NO, file.accNo),
+                    Filters.eq(RQT_FILE_SUB_VERSION, file.version),
+                    Filters.eq(RQT_FILE_PATH, file.path),
+                    Filters.eq(RQT_PREVIOUS_SUB_FILE, file.previousSubFile),
+                ),
+                listOf(
+                    Updates.set(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file.file))),
+                    Updates.set(RQT_FILE_STATUS, file.status),
+                ),
+                UpdateOptions().upsert(true),
+            )
+
+        val bulkOperations = files.map { file -> asUpdateModel(file) }
+        mongoTemplate.collection<DocSubmissionRequestFile>().bulkWrite(bulkOperations).awaitSingle()
     }
 
     suspend fun updateRqtDraft(

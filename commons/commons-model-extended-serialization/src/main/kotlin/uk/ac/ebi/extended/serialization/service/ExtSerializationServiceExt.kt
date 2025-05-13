@@ -17,8 +17,11 @@ import kotlinx.coroutines.flow.map
 fun ExtSerializationService.filesFlow(submission: ExtSubmission): Flow<ExtFile> = filesFlowExt(submission).map { it.second }
 
 /**
- * Returns a pair of boolean to files of a submission. The boolean flag indicates whether the file is PageTab. Files are
- * retrieved first, followed by section files and file list files.
+ * Returns a pair of boolean to files of a submission. The boolean flag indicates whether the file is a PageTab
+ * file. The files are retrieved in the following order:
+ *   1. PageTab Files (including FileList PageTab files)
+ *   2. Inner submission files
+ *   3. File list referenced files
  */
 fun ExtSerializationService.filesFlowExt(submission: ExtSubmission): Flow<Pair<Boolean, ExtFile>> =
     flow {
