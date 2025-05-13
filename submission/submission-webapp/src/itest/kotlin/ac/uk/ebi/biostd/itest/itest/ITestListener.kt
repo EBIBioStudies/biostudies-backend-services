@@ -92,7 +92,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$userFilesProperties.filesDirPath", dropboxPath.absolutePath)
         properties.addProperty("$userFilesProperties.magicDirPath", magicDirPath.absolutePath)
         properties.addProperty("$userFilesProperties.userFtpDirPath", ftpInServer.fileSystemDirectory.absolutePath)
-        properties.addProperty("$userFilesProperties.userFtpRootPath", "")
+        properties.addProperty("$userFilesProperties.userFtpRootPath", ".test")
         Files.createDirectory(ftpInServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
 
         val ftpProperties = "$userFilesProperties.ftpIn"
