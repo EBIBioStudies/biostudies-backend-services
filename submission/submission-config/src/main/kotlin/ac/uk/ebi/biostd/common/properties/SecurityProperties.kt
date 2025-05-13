@@ -27,6 +27,7 @@ data class FilesProperties(
     val filesDirPath: String,
     val magicDirPath: String,
     var userFtpDirPath: String,
+    var userFtpRootPath: String,
     @NestedConfigurationProperty
     val ftpIn: FtpProperties,
     @NestedConfigurationProperty

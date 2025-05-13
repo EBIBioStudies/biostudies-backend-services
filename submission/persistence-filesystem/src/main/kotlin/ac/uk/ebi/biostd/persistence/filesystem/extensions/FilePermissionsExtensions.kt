@@ -24,5 +24,5 @@ data class SubPermissions(
     val parentsFolder: Set<PosixFilePermission>,
     val subFolder: Set<PosixFilePermission>,
 ) {
-    fun asPermissions(): Permissions = Permissions(file, parentsFolder)
+    fun asPermissions(): Permissions = Permissions(file, subFolder)
 }

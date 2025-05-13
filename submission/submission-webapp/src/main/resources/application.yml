@@ -114,8 +114,9 @@ app:
       defaultMode: # The default mode to create user folder. Valid values are: NFS, FTP
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: # Absolute path to create user magic folder for dropbox simple access
-      userFtpDirPath: # Absoluate path of folder where FTP in is mounted on NFS.
-      ftpOut:
+      userFtpDirPath: # Absolute path of folder where FTP in is mounted on NFS.
+      userFtpRootPath: # Root path for user files on FTP
+      ftpIn:
         ftpDirPath: # Absolute path of the FTP-OUT folder in NFS
         ftpUser: # FTP user
         ftpPassword: # FTP password
@@ -128,8 +129,7 @@ app:
           initialInterval: # Initial waiting interval time in ms
           multiplier: # Multiplier for the waiting interval
           maxInterval: # Maximum interval duration
-
-      ftpIn:
+      ftpOut:
         ftpDirPath: # Absolute path of the FTP-IN folder in NFS
         ftpUser: # FTP user
         ftpPassword: # FTP password

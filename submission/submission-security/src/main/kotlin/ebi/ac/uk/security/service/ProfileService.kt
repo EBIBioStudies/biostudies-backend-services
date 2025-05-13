@@ -21,6 +21,7 @@ import kotlin.math.max
 class ProfileService(
     private val userFtpDirPath: Path,
     private val nfsUserFilesDirPath: Path,
+    private val userFtpRootPath: String,
 ) {
     fun getUserProfile(
         user: DbUser,
@@ -36,7 +37,7 @@ class ProfileService(
             orcid = user.orcid,
             secret = user.secret,
             superuser = user.superuser,
-            userFolder = userMagicFolder(user.storageMode, user.secret, user.id),
+            userFolder = userMagicFolder(user.storageMode, userFtpRootPath, user.secret, user.id),
             groupsFolders = groupsMagicFolder(user.groups),
             permissions = getPermissions(user.permissions),
             notificationsEnabled = user.notificationsEnabled,
@@ -84,6 +85,7 @@ class ProfileService(
 
     private fun userMagicFolder(
         folderType: StorageMode,
+        ftpRootPath: String,
         secret: String,
         id: Long,
     ): UserFolder {
@@ -93,7 +95,8 @@ class ProfileService(
         }
 
         fun ftpFolder(): FtpUserFolder {
-            val relativePath = magicPath(secret, id, "a")
+            val magicPath = magicPath(secret, id, "a")
+            val relativePath = if (ftpRootPath.isBlank()) magicPath else "$ftpRootPath/$magicPath"
             return FtpUserFolder(
                 relativePath = Paths.get(relativePath),
                 path = Paths.get("$userFtpDirPath").resolve(relativePath),
