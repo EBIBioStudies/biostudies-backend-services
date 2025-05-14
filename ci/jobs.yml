@@ -54,7 +54,6 @@ deploy-beta:
     - gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/submitter/beta
     - gradle deploySubmitter -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
 
-
 auto-deploy-prod:
   extends: .deploy-prod
   stage: auto-deploy-prod

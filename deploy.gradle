@@ -191,12 +191,18 @@ task deploy {
 
                 def user = execute "whoami"
                 def host = execute "hostname -s"
+                def filesPath = System.getenv("FILES_DIR_PATH")
+                def javaPath = System.getenv("JAVA_DIR_PATH")
+                def temp = "$filesPath/$env/tmp"
+
+                execute "sed -i -e 's~JAVA_DIR_PATH~$javaPath~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_PATH~$deployPath~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
                 execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
                 execute "sed -i -e 's~BS_USER~$user~g' $deployPath/update.sh"
                 execute "sed -i -e 's~HOST~$host~g' $deployPath/update.sh"
+                execute "sed -i -e 's~TEMP_FILES_DIR_PATH~$temp~g' $deployPath/update.sh"
 
                 if (project.hasProperty("jvmParams")) {
                     execute "sed -i -e 's~JVM_PARAMS~$jvmParams~g' $deployPath/update.sh"
