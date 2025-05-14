@@ -26,12 +26,14 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -50,6 +52,10 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.attribute.PosixFilePermission
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
@@ -543,6 +549,41 @@ class SubmissionApiTest(
             webClient.uploadFiles(listOf(file))
             assertThat(webClient.submit(submission, TSV, SubmitParameters(singleJobMode = true))).isSuccessful()
         }
+
+    @Test
+    fun `16-18 Submit private study inner folder can be listed`() {
+        fun asserPermissions(
+            path: Path,
+            permissions: Set<PosixFilePermission>,
+        ) {
+            val filePermissions = Files.getPosixFilePermissions(path)
+            assertThat(filePermissions).containsExactlyInAnyOrderElementsOf(permissions)
+        }
+
+        runTest {
+            val accNo = "PERMISSIONS-18"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "inner/DataFile.PROCESS_ALL.txt")
+                }.toString()
+
+            val file = tempFolder.createFile("DataFile.PROCESS_ALL.txt", "An example content")
+            webClient.createFolder("inner")
+            webClient.uploadFiles(listOf(file), relativePath = "inner")
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo(accNo)
+            val subDir = Paths.get("$submissionPath/${submitted.relPath}")
+
+            asserPermissions(subDir, RWXR_XR_X)
+            asserPermissions(subDir.resolve(FILES_PATH), RWXR_XR_X)
+            asserPermissions(subDir.resolve(FILES_PATH).resolve("inner"), RWXR_XR_X)
+        }
+    }
 
     private suspend fun getSimpleSubmission(accNo: String) =
         toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))

@@ -38,6 +38,7 @@ class ProfileServiceTest(
 
     private val testInstance =
         ProfileService(
+            userFtpRootPath = environment,
             userFtpDirPath = ftpFilesDir.toPath(),
             nfsUserFilesDirPath = filesDir.toPath(),
         )
