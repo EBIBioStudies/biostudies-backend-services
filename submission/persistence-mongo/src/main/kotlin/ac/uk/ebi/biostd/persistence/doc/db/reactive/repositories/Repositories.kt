@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
@@ -211,4 +212,18 @@ interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, O
         version: Int,
         filePath: String,
     ): Flow<FileListDocFile>
+}
+
+interface LinkListDocLinkRepository : CoroutineCrudRepository<LinkListDocLink, ObjectId> {
+    fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndLinkListNameOrderByIndexAsc(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+    ): Flow<LinkListDocLink>
+
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndLinkListNameOrderByIndexAsc(
+        accNo: String,
+        version: Int,
+        linkListName: String,
+    ): Flow<LinkListDocLink>
 }

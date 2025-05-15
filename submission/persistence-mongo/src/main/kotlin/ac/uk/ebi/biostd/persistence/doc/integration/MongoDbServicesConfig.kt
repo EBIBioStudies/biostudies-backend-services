@@ -3,10 +3,12 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
@@ -16,6 +18,7 @@ import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestFilesMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestMongoPersistenceService
@@ -52,6 +55,11 @@ class MongoDbServicesConfig {
     internal fun submissionFilesPersistenceService(
         fileListDocFileRepository: FileListDocFileDocDataRepository,
     ): SubmissionFilesPersistenceService = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
+
+    @Bean
+    internal fun submissionLinksPersistenceService(
+        linkListDocLinkRepository: LinkListDocLinkDocDataRepository,
+    ): SubmissionLinksPersistenceService = SubmissionMongoLinksPersistenceService(linkListDocLinkRepository)
 
     @Bean
     internal fun submissionRequestPersistenceService(

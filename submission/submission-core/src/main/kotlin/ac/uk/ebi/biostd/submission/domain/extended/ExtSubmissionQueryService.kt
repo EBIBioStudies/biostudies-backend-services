@@ -2,8 +2,10 @@ package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
@@ -12,6 +14,7 @@ import java.time.OffsetDateTime
 
 class ExtSubmissionQueryService(
     private val filesRepository: SubmissionFilesPersistenceService,
+    private val linksRepository: SubmissionLinksPersistenceService,
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
     suspend fun getExtendedSubmission(
@@ -31,6 +34,15 @@ class ExtSubmissionQueryService(
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
         val files = filesRepository.getReferencedFiles(sub, fileListName).toList()
         return ExtFileTable(files.toList())
+    }
+
+    suspend fun getReferencedLinks(
+        accNo: String,
+        linkListName: String,
+    ): ExtLinkTable {
+        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo)
+        val links = linksRepository.getReferencedLinks(sub, linkListName).toList()
+        return ExtLinkTable(links.toList())
     }
 
     suspend fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
