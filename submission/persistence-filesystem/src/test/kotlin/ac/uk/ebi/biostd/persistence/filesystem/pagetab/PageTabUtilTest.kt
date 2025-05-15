@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.RW_R__R__
@@ -28,10 +29,11 @@ class PageTabUtilTest(
     @MockK private val serializationService: SerializationService,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
     @MockK private val fileListMapper: ToFileListMapper,
+    @MockK private val linkListMapper: ToLinkListMapper,
     @MockK private val extSubmission: ExtSubmission,
     @MockK private val sub: Submission,
 ) {
-    private val testInstance = PageTabUtil(serializationService, toSubmissionMapper, fileListMapper)
+    private val testInstance = PageTabUtil(serializationService, toSubmissionMapper, fileListMapper, linkListMapper)
 
     @Test
     fun `generate submission pagetab`() =

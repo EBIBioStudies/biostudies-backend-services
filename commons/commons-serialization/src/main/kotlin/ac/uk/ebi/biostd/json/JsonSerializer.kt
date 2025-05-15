@@ -45,13 +45,12 @@ internal class JsonSerializer {
     fun <T> serialize(
         element: T,
         pretty: Boolean = false,
-    ): String {
-        return if (pretty) {
+    ): String =
+        if (pretty) {
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
         } else {
             mapper.writeValueAsString(element)
         }
-    }
 
     fun serializeFileList(
         fileList: Sequence<BioFile>,
@@ -63,7 +62,14 @@ internal class JsonSerializer {
         outputStream: OutputStream,
     ) = mapper.serializeFlow(fileList, outputStream)
 
+    suspend fun serializeLinkList(
+        linkList: Flow<Link>,
+        outputStream: OutputStream,
+    ) = mapper.serializeFlow(linkList, outputStream)
+
     fun deserializeFileList(inputStream: InputStream): Flow<BioFile> = mapper.deserializeAsFlow(inputStream)
+
+    fun deserializeLinkList(inputStream: InputStream): Flow<Link> = mapper.deserializeAsFlow(inputStream)
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 

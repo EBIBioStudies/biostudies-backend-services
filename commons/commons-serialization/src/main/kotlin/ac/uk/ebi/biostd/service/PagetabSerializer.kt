@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ebi.ac.uk.model.BioFile
+import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
 import java.io.InputStream
@@ -47,13 +48,32 @@ internal class PagetabSerializer(
         }
     }
 
+    suspend fun serializeLinkList(
+        files: Flow<Link>,
+        format: SubFormat,
+        outputStream: OutputStream,
+    ) {
+        when (format) {
+            JsonPretty, PlainJson -> jsonSerializer.serializeLinkList(files, outputStream)
+            is TsvFormat -> tsvSerializer.serializeLinkList(files, outputStream)
+        }
+    }
+
     fun deserializeFileListAsFlow(
         input: InputStream,
         format: SubFormat,
-    ): Flow<BioFile> {
-        return when (format) {
+    ): Flow<BioFile> =
+        when (format) {
             is JsonFormat -> jsonSerializer.deserializeFileList(input)
             is TsvFormat -> tsvSerializer.deserializeFileList(input)
         }
-    }
+
+    fun deserializeLinkListAsFlow(
+        input: InputStream,
+        format: SubFormat,
+    ): Flow<Link> =
+        when (format) {
+            is JsonFormat -> jsonSerializer.deserializeLinkList(input)
+            is TsvFormat -> tsvSerializer.deserializeLinkList(input)
+        }
 }

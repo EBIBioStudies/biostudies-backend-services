@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
@@ -19,6 +20,13 @@ class ToSubmissionConfig {
         extSerializationService: ExtSerializationService,
         resolver: FilesResolver,
     ) = ToFileListMapper(serializationService, extSerializationService, resolver)
+
+    @Bean
+    fun toLinkListMapper(
+        serializationService: SerializationService,
+        extSerializationService: ExtSerializationService,
+        resolver: FilesResolver,
+    ) = ToLinkListMapper(serializationService, extSerializationService, resolver)
 
     @Bean
     fun toSectionMapper(toFileListMapper: ToFileListMapper): ToSectionMapper = ToSectionMapper(toFileListMapper)

@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtLink
+import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -28,7 +29,9 @@ import uk.ac.ebi.extended.serialization.service.Properties
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
+class ExtSectionSerializerTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val testInstance = ExtSerializationService()
 
     @Test
@@ -39,6 +42,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                 "accNo" to JsonNull
                 "type" to "Study"
                 "fileList" to JsonNull
+                "linkList" to JsonNull
                 "attributes" to jsonArray()
                 "sections" to jsonArray()
                 "files" to jsonArray()
@@ -102,6 +106,23 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                             listOf(
                                 pageTabFireFile,
                                 pageTabFireDirectory,
+                                NfsFile(
+                                    "folder/${fileNfs.name}",
+                                    "Files/folder/${fileNfs.name}",
+                                    fileNfs,
+                                    fileNfs.absolutePath,
+                                    fileNfs.md5(),
+                                    fileNfs.size(),
+                                ),
+                            ),
+                    ),
+                linkList =
+                    ExtLinkList(
+                        "link-list",
+                        tempFolder.createFile("link-list.tsv"),
+                        pageTabFiles =
+                            listOf(
+                                pageTabFireFile,
                                 NfsFile(
                                     "folder/${fileNfs.name}",
                                     "Files/folder/${fileNfs.name}",
@@ -205,6 +226,38 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                                 },
                             )
                     }
+                "linkList" to
+                    jsonObj {
+                        "fileName" to "link-list"
+                        "file" to allInOneSection.linkList!!.file.absolutePath
+                        "pageTabFiles" to
+                            jsonArray(
+                                jsonObj {
+                                    "fileName" to pageTabFireFile.fileName
+                                    "filePath" to pageTabFireFile.filePath
+                                    "relPath" to pageTabFireFile.relPath
+                                    "fireId" to pageTabFireFile.fireId
+                                    "firePath" to pageTabFireFile.firePath
+                                    "published" to pageTabFireDirectory.published
+                                    "attributes" to jsonArray()
+                                    "extType" to "fireFile"
+                                    "type" to "file"
+                                    "md5" to pageTabFireFile.md5
+                                    "size" to pageTabFireFile.size
+                                },
+                                jsonObj {
+                                    "fileName" to fileNfs.name
+                                    "filePath" to "folder/${fileNfs.name}"
+                                    "relPath" to "Files/folder/${fileNfs.name}"
+                                    "fullPath" to fileNfs.absolutePath
+                                    "md5" to fileNfs.md5()
+                                    "attributes" to jsonArray()
+                                    "extType" to "nfsFile"
+                                    "type" to "file"
+                                    "size" to fileNfs.size()
+                                },
+                            )
+                    }
                 "attributes" to
                     jsonArray(
                         jsonObj {
@@ -229,6 +282,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                             "accNo" to jsonNull
                             "type" to "Exp"
                             "fileList" to jsonNull
+                            "linkList" to jsonNull
                             "attributes" to jsonArray()
                             "sections" to jsonArray()
                             "files" to jsonArray()
@@ -242,6 +296,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                                         "accNo" to jsonNull
                                         "type" to "Data"
                                         "fileList" to jsonNull
+                                        "linkList" to jsonNull
                                         "attributes" to jsonArray()
                                         "sections" to jsonArray()
                                         "files" to jsonArray()
