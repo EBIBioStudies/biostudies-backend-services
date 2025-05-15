@@ -10,11 +10,7 @@ import java.time.Instant
 val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
 val fireDocFileClass: String = FireDocFile::class.java.canonicalName
 val fileListDocFileDocFileClass: String = FileListDocFile::class.java.canonicalName
-val docFileTableClass: String = DocFileTable::class.java.canonicalName
-val docLinkClass: String = DocLink::class.java.canonicalName
-val docLinkTableClass: String = DocLinkTable::class.java.canonicalName
-val docSectionClass: String = DocSection::class.java.canonicalName
-val docSectionTableClass: String = DocSectionTable::class.java.canonicalName
+val linkListDocLinkDocFileClass: String = LinkListDocLink::class.java.canonicalName
 val docSubmissionClass: String = DocSubmission::class.java.canonicalName
 
 @Document(collection = "submissions")
@@ -133,6 +129,18 @@ data class FileListDocFile(
     val submissionId: ObjectId,
     val file: DocFile,
     val fileListName: String,
+    val index: Int,
+    val submissionVersion: Int,
+    val submissionAccNo: String,
+)
+
+@Document(collection = "link_list_links")
+data class LinkListDocLink(
+    @Id
+    val id: ObjectId,
+    val submissionId: ObjectId,
+    val link: DocLink,
+    val linkListName: String,
     val index: Int,
     val submissionVersion: Int,
     val submissionAccNo: String,

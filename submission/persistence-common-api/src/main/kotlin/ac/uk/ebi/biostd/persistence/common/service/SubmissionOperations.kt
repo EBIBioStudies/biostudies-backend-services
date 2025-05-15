@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.model.RequestStatus
@@ -47,22 +48,26 @@ interface SubmissionPersistenceQueryService {
     suspend fun findExtByAccNo(
         accNo: String,
         includeFileListFiles: Boolean = false,
+        includeLinkListLinks: Boolean = false,
     ): ExtSubmission?
 
     suspend fun findLatestInactiveByAccNo(
         accNo: String,
         includeFileListFiles: Boolean = false,
+        includeLinkListLinks: Boolean = false,
     ): ExtSubmission?
 
     suspend fun getExtByAccNo(
         accNo: String,
         includeFileListFiles: Boolean = false,
+        includeLinkListLinks: Boolean = false,
     ): ExtSubmission
 
     suspend fun getExtByAccNoAndVersion(
         accNo: String,
         version: Int,
         includeFileListFiles: Boolean = false,
+        includeLinkListLinks: Boolean = false,
     ): ExtSubmission
 
     suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission>
@@ -96,6 +101,13 @@ interface SubmissionFilesPersistenceService {
         sub: ExtSubmission,
         path: String,
     ): ExtFile?
+}
+
+interface SubmissionLinksPersistenceService {
+    fun getReferencedLinks(
+        sub: ExtSubmission,
+        linkListName: String,
+    ): Flow<ExtLink>
 }
 
 @Suppress("TooManyFunctions")
