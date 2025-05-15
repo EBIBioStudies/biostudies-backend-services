@@ -26,7 +26,7 @@ internal class SubFolderResolver(
         folderType: FolderType,
     ): Path =
         when (folderType) {
-            FTP -> Paths.get(submissionRelPath)
+            FTP -> publicFtpPath.resolve(submissionRelPath)
             NFS -> publicSubPath.resolve(submissionRelPath)
         }
 
@@ -49,5 +49,6 @@ internal class SubFolderResolver(
     private val publicSubPath: Path get() = Paths.get(properties.persistence.publicSubmissionsPath)
     private val privateSubPath: Path get() = Paths.get(properties.persistence.privateSubmissionsPath)
     private val privateFtpPath: Path get() = Paths.get(properties.persistence.privateSubmissionFtpOutPath)
+    private val publicFtpPath: Path get() = Paths.get(properties.persistence.publicSubmissionFtpOutPath)
     private val includeSecretKey: Boolean get() = properties.persistence.includeSecretKey
 }

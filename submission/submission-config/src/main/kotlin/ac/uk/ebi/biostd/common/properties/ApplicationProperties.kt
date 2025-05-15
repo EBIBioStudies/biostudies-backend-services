@@ -60,6 +60,7 @@ data class PersistenceProperties(
     val privateSubmissionsPath: String,
     val publicSubmissionsPath: String,
     val privateSubmissionFtpOutPath: String,
+    var publicSubmissionFtpOutPath: String,
     val requestFilesPath: String,
     val tempDirPath: String,
 )
