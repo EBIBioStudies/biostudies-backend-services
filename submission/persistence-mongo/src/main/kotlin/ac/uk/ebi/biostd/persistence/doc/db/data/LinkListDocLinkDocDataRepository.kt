@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 class LinkListDocLinkDocDataRepository(
     private val linkListDocLinkRepository: LinkListDocLinkRepository,
-) {
+) : LinkListDocLinkRepository by linkListDocLinkRepository {
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndLinkListName(
         accNo: String,
         version: Int,

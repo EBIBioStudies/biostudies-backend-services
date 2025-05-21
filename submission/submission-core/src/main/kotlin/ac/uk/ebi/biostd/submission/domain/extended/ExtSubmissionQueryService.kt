@@ -40,8 +40,7 @@ class ExtSubmissionQueryService(
         accNo: String,
         linkListName: String,
     ): ExtLinkTable {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo)
-        val links = linksRepository.getReferencedLinks(sub, linkListName).toList()
+        val links = linksRepository.getReferencedLinks(accNo, linkListName).toList()
         return ExtLinkTable(links.toList())
     }
 

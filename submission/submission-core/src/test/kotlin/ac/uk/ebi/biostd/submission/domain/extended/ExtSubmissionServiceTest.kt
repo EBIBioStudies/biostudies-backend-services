@@ -174,8 +174,14 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
-            coEvery { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
             coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+            coEvery {
+                submissionRepository.getExtByAccNo(
+                    extSubmission.accNo,
+                    includeFileListFiles = true,
+                    includeLinkListLinks = true,
+                )
+            } returns extSubmission
 
             testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
 
@@ -195,7 +201,9 @@ class ExtSubmissionServiceTest(
         @MockK source: ExtSubmission,
     ) = runTest {
         every { source.storageMode } returns FIRE
-        coEvery { submissionRepository.getExtByAccNo("S-BSST1", true) } returns source
+        coEvery {
+            submissionRepository.getExtByAccNo("S-BSST1", includeFileListFiles = true, includeLinkListLinks = true)
+        } returns source
 
         val exception =
             assertThrows<InvalidTransferTargetException> {

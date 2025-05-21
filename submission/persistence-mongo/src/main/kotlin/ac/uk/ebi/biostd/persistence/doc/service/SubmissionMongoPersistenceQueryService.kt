@@ -49,7 +49,7 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
+        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
     }
 
     override suspend fun findLatestInactiveByAccNo(
@@ -58,7 +58,7 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
+        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
     }
 
     override suspend fun getExtByAccNo(
@@ -67,13 +67,16 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission {
         val submission = submissionRepo.getByAccNo(accNo)
-        return toExtSubmissionMapper.toExtSubmission(submission, includeFileListFiles)
+        return toExtSubmissionMapper.toExtSubmission(submission, includeFileListFiles, includeLinkListLinks)
     }
 
-    override suspend fun findAllActive(includeFileListFiles: Boolean): Flow<ExtSubmission> =
+    override suspend fun findAllActive(
+        includeFileListFiles: Boolean,
+        includeLinkListLinks: Boolean,
+    ): Flow<ExtSubmission> =
         submissionRepo
             .findAllByVersionGreaterThan(0)
-            .map { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
+            .map { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
 
     override suspend fun getExtByAccNoAndVersion(
         accNo: String,
@@ -82,12 +85,15 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission {
         val document = submissionRepo.getByAccNoAndVersion(accNo, version)
-        return toExtSubmissionMapper.toExtSubmission(document, includeFileListFiles)
+        return toExtSubmissionMapper.toExtSubmission(document, includeFileListFiles, includeLinkListLinks)
     }
 
     override suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission> {
         val page = submissionRepo.getSubmissionsPage(filter)
-        val items = page.content.map { toExtSubmissionMapper.toExtSubmission(it, false) }
+        val items =
+            page.content.map {
+                toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles = false, includeLinkListLinks = false)
+            }
         return PageImpl(items.toList(), PageRequest.of(filter.pageNumber, filter.limit), page.totalElements)
     }
 

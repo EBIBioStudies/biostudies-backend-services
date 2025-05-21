@@ -202,7 +202,7 @@ class SubmissionStorageModeTest(
     ) {
         assertThat(fileList.fileName).isEqualTo("file-list")
 
-        val files = fileList.file.inputStream().use { serializationService.deserializeListAsFlow(it).toList() }
+        val files = fileList.file.inputStream().use { serializationService.deserializeFileListAsFlow(it).toList() }
         assertThat(files).hasSize(1)
 
         val file = files.first()

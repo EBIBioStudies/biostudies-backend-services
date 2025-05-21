@@ -88,7 +88,10 @@ interface SubmissionPersistenceQueryService {
     suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
 
     @Meta(flags = [CursorOption.NO_TIMEOUT])
-    suspend fun findAllActive(includeFileListFiles: Boolean): Flow<ExtSubmission>
+    suspend fun findAllActive(
+        includeFileListFiles: Boolean,
+        includeLinkListLinks: Boolean,
+    ): Flow<ExtSubmission>
 }
 
 interface SubmissionFilesPersistenceService {
@@ -105,7 +108,7 @@ interface SubmissionFilesPersistenceService {
 
 interface SubmissionLinksPersistenceService {
     fun getReferencedLinks(
-        sub: ExtSubmission,
+        accNo: String,
         linkListName: String,
     ): Flow<ExtLink>
 }
