@@ -32,7 +32,7 @@ class SubmissionStatsService(
     private val statsFileHandler: StatsFileHandler,
     private val statsDataService: StatsDataService,
     private val serializationService: ExtSerializationService,
-    private val extSubmissionQueryService: SubmissionPersistenceQueryService,
+    private val extSubQueryService: SubmissionPersistenceQueryService,
 ) {
     suspend fun findByAccNo(accNo: String): List<SubmissionStat> = statsDataService.findStatsByAccNo(accNo)
 
@@ -73,7 +73,7 @@ class SubmissionStatsService(
     }
 
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
-        val sub = extSubmissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val stats = calculateStats(sub)
@@ -84,8 +84,8 @@ class SubmissionStatsService(
 
     suspend fun refreshAll() {
         val idx = AtomicInteger(0)
-        extSubmissionQueryService
-            .findAllActive(includeFileListFiles = true)
+        extSubQueryService
+            .findAllActive(includeFileListFiles = true, includeLinkListLinks = true)
             .filter {
                 val lastUpdated = statsDataService.lastUpdated(it.accNo)
                 lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))

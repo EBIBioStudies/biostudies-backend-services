@@ -367,7 +367,7 @@ class ExtSectionSerializerTest(
         assertThat(
             testInstance.serializeElement(
                 allInOneSection,
-                Properties(includeFileListFiles = false),
+                Properties(includeFileListFiles = false, includeLinkListLinks = false),
             ),
         ).isEqualToIgnoringWhitespace(expectedJson)
     }

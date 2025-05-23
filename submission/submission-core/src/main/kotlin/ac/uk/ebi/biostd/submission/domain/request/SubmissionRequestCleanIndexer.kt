@@ -53,7 +53,7 @@ class SubmissionRequestCleanIndexer(
         }
 
     internal suspend fun indexRequest(new: ExtSubmission): Pair<Int?, SubmissionRequestFileChanges> {
-        val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
+        val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true, includeLinkListLinks = true)
 
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started indexing submission files to be cleaned" }

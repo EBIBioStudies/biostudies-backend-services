@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.LinkListDocLinkRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -10,17 +11,18 @@ import kotlinx.coroutines.flow.collect
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
-private const val FILES_CHUNK_SIZE = 100
+private const val PERSISTENCE_CHUNK_SIZE = 100
 
 class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
+    private val linkListDocLinkRepository: LinkListDocLinkRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val toDocSubmissionMapper: ToDocSubmissionMapper,
 ) {
     suspend fun saveSubmission(submission: ExtSubmission): ExtSubmission {
         val saved = persistSubmission(submission)
-        return toExtSubmissionMapper.toExtSubmission(saved, false)
+        return toExtSubmissionMapper.toExtSubmission(saved, includeFileListFiles = false, includeLinkListLinks = false)
     }
 
     suspend fun expirePreviousVersions(accNo: String) {
@@ -32,7 +34,7 @@ class ExtSubmissionRepository(
         val owner = submission.owner
 
         logger.info { "$accNo $owner Started mapping submission into doc submission" }
-        val (docSubmission, files) = toDocSubmissionMapper.convert(submission)
+        val (docSubmission, files, links) = toDocSubmissionMapper.convert(submission)
         logger.info { "$accNo $owner Finished mapping submission into doc submission" }
 
         logger.info { "$accNo $owner Started saving submission in the database" }
@@ -40,8 +42,12 @@ class ExtSubmissionRepository(
         logger.info { "$accNo $owner Finished saving submission in the database" }
 
         logger.info { "$accNo $owner Started saving ${files.count()} file list files" }
-        files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it).collect() }
+        files.chunked(PERSISTENCE_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it).collect() }
         logger.info { "$accNo $owner Finished saving ${files.count()} file list files" }
+
+        logger.info { "$accNo $owner Started saving ${links.count()} link list links" }
+        links.chunked(PERSISTENCE_CHUNK_SIZE).forEach { linkListDocLinkRepository.saveAll(it).collect() }
+        logger.info { "$accNo $owner Finished saving ${links.count()} link list links" }
 
         return savedSubmission
     }

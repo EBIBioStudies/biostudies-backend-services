@@ -17,33 +17,28 @@ class ToExtSectionMapper(
 ) {
     suspend fun toExtSection(
         section: DocSection,
-        subAccNo: String,
-        subVersion: Int,
+        accNo: String,
+        version: Int,
         released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
+        includeLinkListLinks: Boolean,
     ): ExtSection =
         ExtSection(
             accNo = section.accNo,
             type = section.type,
-            fileList =
-                section.fileList?.toExtFileList(
-                    subAccNo,
-                    subVersion,
-                    released,
-                    subRelPath,
-                    includeFileListFiles,
-                ),
-            linkList = section.linkList?.toExtLinkList(subAccNo, subVersion, released, subRelPath),
+            fileList = section.fileList?.toExtFileList(accNo, version, released, subRelPath, includeFileListFiles),
+            linkList = section.linkList?.toExtLinkList(accNo, version, released, subRelPath, includeLinkListLinks),
             attributes = section.attributes.toExtAttributes(),
             sections =
                 section.sections.map {
                     it.toExtSections(
-                        subAccNo = subAccNo,
-                        subVersion = subVersion,
+                        subAccNo = accNo,
+                        subVersion = version,
                         released = released,
                         subRelPath = subRelPath,
                         includeFileListFiles = includeFileListFiles,
+                        includeLinkListLinks = includeLinkListLinks,
                     )
                 },
             files = section.files.map { it.toExtFiles(released, subRelPath) },
@@ -58,12 +53,13 @@ class ToExtSectionMapper(
         includeFileListFiles: Boolean,
     ): ExtFileList = fileListMapper.toExtFileList(this, subAccNo, subVersion, released, subRelPath, includeFileListFiles)
 
-    private fun DocLinkList.toExtLinkList(
+    private suspend fun DocLinkList.toExtLinkList(
         subAccNo: String,
         subVersion: Int,
         released: Boolean,
         subRelPath: String,
-    ): ExtLinkList = linkListMapper.toExtLinkList(this, subAccNo, subVersion, released, subRelPath)
+        includeLinkListLinks: Boolean,
+    ): ExtLinkList = linkListMapper.toExtLinkList(this, subAccNo, subVersion, released, subRelPath, includeLinkListLinks)
 
     private suspend fun Either<DocSection, DocSectionTable>.toExtSections(
         subAccNo: String,
@@ -71,9 +67,10 @@ class ToExtSectionMapper(
         released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
+        includeLinkListLinks: Boolean,
     ): Either<ExtSection, ExtSectionTable> =
         bimap(
-            { toExtSection(it, subAccNo, subVersion, released, subRelPath, includeFileListFiles) },
+            { toExtSection(it, subAccNo, subVersion, released, subRelPath, includeFileListFiles, includeLinkListLinks) },
             { it.toExtSectionTable() },
         )
 }

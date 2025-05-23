@@ -62,7 +62,7 @@ class SubmissionRequestReleaser(
      * Generates/refresh FTP links for a given submission.
      */
     suspend fun generateFtpLinks(accNo: String) {
-        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         require(submission.released) { throw UnreleasedSubmissionException() }
         generateFtpLinks(submission)
     }

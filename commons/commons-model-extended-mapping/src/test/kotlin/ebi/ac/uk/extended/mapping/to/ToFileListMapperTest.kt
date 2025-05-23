@@ -58,7 +58,7 @@ internal class ToFileListMapperTest(
             val target = temporaryFolder.createFile("target-file-list.json")
             mockkStatic(TO_FILE_EXTENSIONS)
             every { extFile.toFile() } returns bioFile
-            coEvery { extSerializationService.deserializeListAsFlow(any()) } returns flowOf(extFile)
+            coEvery { extSerializationService.deserializeFileListAsFlow(any()) } returns flowOf(extFile)
             coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
                 val flow = arg<Flow<BioFile>>(0)
                 val format = arg<SubFormat>(1)

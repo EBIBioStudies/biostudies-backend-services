@@ -61,7 +61,7 @@ class ToExtFileListMapper(
             val idx = AtomicInteger(0)
             val sourceFiles =
                 extSerializationService
-                    .deserializeListAsFlow(input)
+                    .deserializeFileListAsFlow(input)
                     .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.filePath}'" } }
                     .map { sources.getExtFile(it) }
             val files = extSerializationService.serialize(sourceFiles, target)

@@ -107,7 +107,7 @@ class FileProcessingService(
             inputFile.inputStream(),
             outputFile.outputStream(),
         ) { input, output ->
-            val files = serializationService.deserializeListAsFlow(input)
+            val files = serializationService.deserializeFileListAsFlow(input)
             serializationService.serialize(files.map { processFile(it) }, output)
         }
 

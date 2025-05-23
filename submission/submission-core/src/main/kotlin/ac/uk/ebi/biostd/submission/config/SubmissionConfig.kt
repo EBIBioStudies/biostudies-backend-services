@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
@@ -62,8 +63,9 @@ class SubmissionConfig {
     @Bean
     fun extSubmissionQueryService(
         queryService: SubmissionPersistenceQueryService,
+        linksRepository: SubmissionLinksPersistenceService,
         filesRepository: SubmissionFilesPersistenceService,
-    ): ExtSubmissionQueryService = ExtSubmissionQueryService(filesRepository, queryService)
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(filesRepository, linksRepository, queryService)
 
     @Bean
     fun extSubmissionService(

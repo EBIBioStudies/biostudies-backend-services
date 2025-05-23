@@ -21,7 +21,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
+class ExtSerializationServiceTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val testInstance = ExtSerializationService()
     private val testFile = tempFolder.createFile("results.txt")
     private val nfsFile = tempFolder.createFile("file.txt")
@@ -67,7 +69,7 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
 
             testFile.outputStream().use { testInstance.serialize(fileList, it) }
 
-            val result = testFile.inputStream().use { testInstance.deserializeListAsFlow(it).toList() }
+            val result = testFile.inputStream().use { testInstance.deserializeFileListAsFlow(it).toList() }
             result.onEach { assertThat(it).isEqualTo(iterator.next()) }
         }
 

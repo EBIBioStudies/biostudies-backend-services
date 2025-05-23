@@ -67,19 +67,20 @@ class ToExtSubmissionMapperTest(
                     1,
                     false,
                     REL_PATH,
-                    true,
+                    includeFileListFiles = true,
+                    includeLinkListLinks = true,
                 )
             } returns extSection
-            val submission =
+            val sub =
                 docSubmission.copy(
                     section = docSection,
                     pageTabFiles = listOf(subNfsDocFile),
                 )
 
-            val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = true)
+            val extSub = testInstance.toExtSubmission(sub, includeFileListFiles = true, includeLinkListLinks = true)
 
-            assertExtSubmission(extSubmission, fileNfs)
-            assertThat(extSubmission.section).isEqualTo(extSection)
+            assertExtSubmission(extSub, fileNfs)
+            assertThat(extSub.section).isEqualTo(extSection)
         }
 
     @Test
@@ -92,19 +93,20 @@ class ToExtSubmissionMapperTest(
                     1,
                     false,
                     REL_PATH,
-                    false,
+                    includeFileListFiles = false,
+                    includeLinkListLinks = false,
                 )
             } returns extSection
-            val submission =
+            val sub =
                 docSubmission.copy(
                     section = docSection,
                     pageTabFiles = listOf(subNfsDocFile),
                 )
 
-            val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = false)
+            val extSub = testInstance.toExtSubmission(sub, includeFileListFiles = false, includeLinkListLinks = false)
 
-            assertExtSubmission(extSubmission, fileNfs)
-            assertThat(extSubmission.section).isEqualTo(extSection)
+            assertExtSubmission(extSub, fileNfs)
+            assertThat(extSub.section).isEqualTo(extSection)
         }
 
     private fun assertExtSubmission(

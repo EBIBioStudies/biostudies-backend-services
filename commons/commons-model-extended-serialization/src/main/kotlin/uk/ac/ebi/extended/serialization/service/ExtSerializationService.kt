@@ -53,6 +53,7 @@ import java.time.OffsetDateTime
 
 data class Properties(
     val includeFileListFiles: Boolean,
+    val includeLinkListLinks: Boolean,
 ) : StringWriter()
 
 @Suppress("TooManyFunctions")
@@ -61,7 +62,7 @@ class ExtSerializationService private constructor(
 ) {
     fun serialize(
         sub: ExtSubmission,
-        props: Properties = Properties(false),
+        props: Properties = Properties(includeFileListFiles = false, includeLinkListLinks = false),
     ): String = serializeElement(sub, props)
 
     fun serialize(
@@ -93,9 +94,11 @@ class ExtSerializationService private constructor(
 
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
 
-    fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
+    fun deserializeFileListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
 
-    fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
+    fun deserializeLinkListAsSequence(stream: InputStream): Sequence<ExtLink> = mapper.deserializeAsSequence(stream)
+
+    fun deserializeFileListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
 
     fun deserializeLinkListAsFlow(stream: InputStream): Flow<ExtLink> = mapper.deserializeAsFlow(stream)
 
@@ -104,7 +107,7 @@ class ExtSerializationService private constructor(
      */
     internal fun <T> serializeElement(
         element: T,
-        properties: Properties = Properties(false),
+        properties: Properties = Properties(includeFileListFiles = false, includeLinkListLinks = false),
     ): String {
         mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)
         return properties.buffer.toString()

@@ -29,5 +29,5 @@ fun ExtSerializationService.filesFlowExt(submission: ExtSubmission): Flow<Pair<B
         submission.allSectionsFiles.forEach { emit(false to it) }
         submission.allFileList
             .map { it.file }
-            .forEach { it.inputStream().use { stream -> emitAll(deserializeListAsFlow(stream).map { false to it }) } }
+            .forEach { it.inputStream().use { stream -> emitAll(deserializeFileListAsFlow(stream).map { false to it }) } }
     }
