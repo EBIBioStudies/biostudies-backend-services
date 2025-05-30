@@ -34,6 +34,9 @@ class TestConfig {
     @Bean(name = ["FailCollectionValidator"])
     fun failCollectionValidator(): FailCollectionValidator = FailCollectionValidator()
 
+    @Bean(name = ["DelayCollectionValidator"])
+    fun delayCollectionValidator(): DelayCollectionValidator = DelayCollectionValidator()
+
     @Bean
     fun testMessageService(rabbitTemplate: RabbitTemplate): TestMessageService = TestMessageService(rabbitTemplate)
 

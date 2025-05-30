@@ -86,11 +86,8 @@ class SubmissionQueryResource(
         SubmissionDto(
             accNo,
             title.orEmpty(),
-            version,
-            creationTime,
             modificationTime,
             releaseTime,
-            method,
             status.value,
             errors,
         )

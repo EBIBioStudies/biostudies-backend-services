@@ -96,12 +96,12 @@ internal class SubmissionMongoMetaQueryServiceTest(
         runTest {
             submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -1))
             submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -2))
-            submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 4))
+            submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", title = "latest", version = 4))
 
             val lastVersion = testInstance.findLatestBasicByAccNo("accNo2")
 
             assertThat(lastVersion).isNotNull
-            assertThat(lastVersion!!.version).isEqualTo(4)
+            assertThat(lastVersion!!.title).isEqualTo("latest")
         }
 
     @Test

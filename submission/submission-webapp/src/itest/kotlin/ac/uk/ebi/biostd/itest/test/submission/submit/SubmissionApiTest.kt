@@ -18,7 +18,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
-import ebi.ac.uk.coroutines.waitUntilNoException
+import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -481,7 +481,7 @@ class SubmissionApiTest(
 
                 val response = webClient.submitAsync(submission, TSV)
 
-                waitUntilNoException(timeout = FIVE_SECONDS) {
+                waitForCompletion(timeout = FIVE_SECONDS) {
                     val result = webClient.getSubmission(response.accNo)
                     assertThat(result?.status).isEqualTo("INVALID")
                     assertThat(result?.errors).containsExactly(
@@ -498,7 +498,7 @@ class SubmissionApiTest(
 
                 webClient.uploadFile(tempFolder.createFile("missing_file.txt", "content"))
                 assertThat(webClient.submitFromDraft(accNo)).isSuccessful()
-                waitUntilNoException(timeout = FIVE_SECONDS) {
+                waitForCompletion(timeout = FIVE_SECONDS) {
                     val result = webClient.getSubmission(response.accNo)
                     assertThat(result?.status).isEqualTo("PROCESSED")
                     assertThat(result?.errors).isEmpty()

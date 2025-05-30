@@ -113,12 +113,6 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         pageRequest: Pageable,
     ): Flow<DocSubmissionRequest>
 
-    suspend fun findByAccNoAndOwnerAndStatus(
-        accNo: String,
-        owner: String,
-        status: RequestStatus,
-    ): DocSubmissionRequest?
-
     suspend fun findByAccNoAndStatusIn(
         accNo: String,
         status: Set<RequestStatus>,

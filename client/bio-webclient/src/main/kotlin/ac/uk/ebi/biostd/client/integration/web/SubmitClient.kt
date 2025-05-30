@@ -269,7 +269,7 @@ interface SubmitOperations {
         register: OnBehalfParameters? = null,
     ): SubmissionResponse
 
-    fun submitAsync(
+    suspend fun submitAsync(
         submission: String,
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
