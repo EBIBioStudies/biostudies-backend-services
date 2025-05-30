@@ -68,6 +68,8 @@ app:
     enabled: # Whether the submission tasks should be executed in the cluster
     jarLocation: # the submitter task jar location.
     javaLocation: # The path to the java installation
+    javaMemoryAllocation: # JVM memory allocation in GB
+    tmpFilesDirPath: # Path to place the temporary files
     singleJobMode: # Whether to execute all submission in a single cluster job
     configFilePath: # the submitter task application.yml file location.
     taskMemoryMgb: # Amount of memory (in MB) to be allocated for the submission processing tasks

@@ -24,6 +24,8 @@ class RemoteSubmitterExecutor(
             val command =
                 buildString {
                     appendSpaced(properties.javaLocation)
+                    appendSpaced("-Xmx${properties.javaMemoryAllocation}g")
+                    appendSpaced("-Djava.io.tmpdir=${properties.tmpFilesDirPath}")
                     appendSpaced("-jar")
                     appendSpaced(properties.jarLocation)
                     appendSpaced("--spring.config.location=${properties.configFileLocation}")
