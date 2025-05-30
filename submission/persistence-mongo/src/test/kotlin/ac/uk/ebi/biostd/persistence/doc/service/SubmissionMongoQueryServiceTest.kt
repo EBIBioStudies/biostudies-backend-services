@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.common.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -76,11 +78,13 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
     @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
-    private val serializationService: ExtSerializationService = extSerializationService()
+    private val extSerializationService: ExtSerializationService = extSerializationService()
+    private val serializationService: SerializationService = SerializationConfig.serializationService()
     private val testInstance =
         SubmissionMongoPersistenceQueryService(
             submissionRepo,
             toExtSubmissionMapper,
+            extSerializationService,
             serializationService,
             requestRepository,
         )
@@ -313,8 +317,8 @@ internal class SubmissionMongoQueryServiceTest(
                 saveAsRequest(sub.copy(accNo = "accNo3", version = 2), CLEANED)
                 saveAsRequest(sub.copy(accNo = "accNo4", version = 2), FILES_COPIED)
 
+                val draft = "{ \"accno\": \"accNo6\" }"
                 val submitted = sub.copy(accNo = "accNo6", version = 2)
-                val draft = serializationService.serialize(submitted)
                 val submittedRqt = asRequest(submitted, SUBMITTED).copy(draft = draft, process = null)
                 requestRepository.saveRequest(submittedRqt)
 
@@ -322,7 +326,6 @@ internal class SubmissionMongoQueryServiceTest(
 
                 assertThat(result).hasSize(6)
                 assertThat(result[0].accNo).isEqualTo("accNo1")
-                assertThat(result[0].version).isEqualTo(2)
                 assertThat(result[0].status).isEqualTo(PROCESSING)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
@@ -332,7 +335,6 @@ internal class SubmissionMongoQueryServiceTest(
                 ).isTrue()
 
                 assertThat(result[1].accNo).isEqualTo("accNo2")
-                assertThat(result[1].version).isEqualTo(2)
                 assertThat(result[1].status).isEqualTo(PROCESSING)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
@@ -342,7 +344,6 @@ internal class SubmissionMongoQueryServiceTest(
                 ).isTrue()
 
                 assertThat(result[2].accNo).isEqualTo("accNo3")
-                assertThat(result[2].version).isEqualTo(2)
                 assertThat(result[2].status).isEqualTo(PROCESSING)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
@@ -352,7 +353,6 @@ internal class SubmissionMongoQueryServiceTest(
                 ).isTrue()
 
                 assertThat(result[3].accNo).isEqualTo("accNo4")
-                assertThat(result[3].version).isEqualTo(2)
                 assertThat(result[3].status).isEqualTo(PROCESSING)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
@@ -362,7 +362,6 @@ internal class SubmissionMongoQueryServiceTest(
                 ).isTrue()
 
                 assertThat(result[4].accNo).isEqualTo("accNo6")
-                assertThat(result[4].version).isEqualTo(2)
                 assertThat(result[4].status).isEqualTo(PROCESSING)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
@@ -372,7 +371,6 @@ internal class SubmissionMongoQueryServiceTest(
                 ).isTrue()
 
                 assertThat(result[5].accNo).isEqualTo("accNo5")
-                assertThat(result[5].version).isEqualTo(1)
                 assertThat(result[5].status).isEqualTo(PROCESSED)
                 assertThat(
                     requestRepository.existsByAccNoAndStatusIn(
@@ -442,7 +440,7 @@ internal class SubmissionMongoQueryServiceTest(
                     silentMode = false,
                     singleJobMode = false,
                     notifyTo = submission.owner,
-                    submission = BasicDBObject.parse(serializationService.serialize(submission)),
+                    submission = BasicDBObject.parse(extSerializationService.serialize(submission)),
                     totalFiles = 6,
                     fileChanges = DocFilesChanges(1, 0, 10, 2, 2),
                     currentIndex = 0,

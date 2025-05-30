@@ -14,8 +14,6 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.model.SubmissionMethod
-import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -24,6 +22,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -32,7 +31,7 @@ import java.net.URLEncoder.encode
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class SubmissionListApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val mongoTemplate: ReactiveMongoTemplate,
@@ -79,8 +78,6 @@ class SubmissionListApiTest(
 
             assertThat(submissionList).satisfiesOnlyOnce {
                 assertThat(it.accno).isEqualTo("LIST-API-17")
-                assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 17 - list-api-keyword-17")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -98,8 +95,6 @@ class SubmissionListApiTest(
 
             assertThat(submissionList).satisfiesOnlyOnce {
                 assertThat(it.accno).isEqualTo("LIST-API-27")
-                assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.FILE)
                 assertThat(it.title).isEqualTo("Simple Submission 27 - list-api-keyword-27")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -173,8 +168,6 @@ class SubmissionListApiTest(
 
             assertThat(submissionList).satisfiesOnlyOnce {
                 assertThat(it.accno).isEqualTo("SECT-123")
-                assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission With Section")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -198,8 +191,6 @@ class SubmissionListApiTest(
             val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
             assertThat(submissionTitleList).satisfiesOnlyOnce {
                 assertThat(it.accno).isEqualTo("SECT-124")
-                assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Section secTitle")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -230,8 +221,6 @@ class SubmissionListApiTest(
 
             assertThat(submissionList).satisfiesOnlyOnce {
                 assertThat(it.accno).isEqualTo("SECT-125")
-                assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("the Submission spaces title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }

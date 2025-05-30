@@ -17,7 +17,7 @@ import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.SINGLE_JOB_MODE
 import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
 import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.postForObject
+import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionId
@@ -69,7 +69,7 @@ internal class SubmitClient(
         return serializationService.deserializeResponse(response, JSON).awaitSingle()
     }
 
-    override fun submitAsync(
+    override suspend fun submitAsync(
         submission: String,
         format: SubmissionFormat,
         submitParameters: SubmitParameters?,
@@ -77,7 +77,7 @@ internal class SubmitClient(
     ): SubmissionId {
         val headers = formatHeaders(format)
         val url = buildUrl(register, submitParameters).plus("/async")
-        return client.postForObject(url, RequestParams(headers, submission))
+        return client.postForObjectAsync(url, RequestParams(headers, submission))
     }
 
     override suspend fun submitFromDraftAsync(draftKey: String) {

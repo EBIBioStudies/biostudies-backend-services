@@ -399,7 +399,7 @@ class SubmissionRequestDocDataRepository(
             .Builder<Criteria>()
             .apply {
                 add(where(RQT_STATUS).`in`(ACTIVE_STATUS))
-                filter.accNo?.let { add(where("$RQT_PROCESS.$SUB.$SUB_ACC_NO").`is`(it)) }
+                filter.accNo?.let { add(where(RQT_ACC_NO).`is`(it)) }
                 filter.type?.let { add(where("$RQT_PROCESS.$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
                 filter.rTimeFrom?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
                 filter.rTimeTo?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }

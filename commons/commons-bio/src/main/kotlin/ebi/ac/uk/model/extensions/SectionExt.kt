@@ -6,6 +6,9 @@ import ebi.ac.uk.model.constants.AUTHOR_TYPE
 import ebi.ac.uk.model.constants.ORG_TYPES
 import ebi.ac.uk.model.constants.SectionFields
 
+val Section.title: String?
+    get() = find(SectionFields.TITLE)
+
 var Section.fileListName: String?
     get() = find(SectionFields.FILE_LIST)
     set(value) {
