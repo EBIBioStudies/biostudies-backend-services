@@ -12,6 +12,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.SUBMISSION_RESERVED_ATTRIBUTES
 import ebi.ac.uk.model.extensions.isCollection
@@ -34,7 +36,6 @@ class SubmissionProcessor(
         val accNoString = rqt.accNo
         val submission = rqt.submission
         val previousVersion = rqt.previousVersion
-        val storageMode = rqt.storageMode
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val tags = getTags(rqt)
         val ownerEmail = rqt.onBehalfUser?.email ?: previousVersion?.owner ?: rqt.submitter.email
@@ -61,9 +62,14 @@ class SubmissionProcessor(
             collections = tags.map { ExtCollection(it) },
             section = rootSection,
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
-            storageMode = storageMode ?: if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS,
+            storageMode = getStorageMode(rqt.storageMode, previousVersion),
         )
     }
+
+    private fun getStorageMode(
+        rqtMode: StorageMode?,
+        previousVersion: ExtSubmission?,
+    ): StorageMode = rqtMode ?: previousVersion?.storageMode ?: if (properties.persistence.enableFire) FIRE else NFS
 
     private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod =
         when (method) {

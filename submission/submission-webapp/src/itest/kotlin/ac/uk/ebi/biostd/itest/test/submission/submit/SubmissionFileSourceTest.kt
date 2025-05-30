@@ -56,7 +56,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -68,7 +67,6 @@ import java.nio.file.Paths
 class SubmissionFileSourceTest(
     @Autowired private val filesRepository: SubmissionFilesPersistenceService,
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired private val extSerializationService: ExtSerializationService,
     @Autowired private val requestFilesPersistenceService: SubmissionRequestFilesPersistenceService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
