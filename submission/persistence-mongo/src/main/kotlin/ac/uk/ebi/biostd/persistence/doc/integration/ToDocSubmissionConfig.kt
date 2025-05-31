@@ -24,5 +24,6 @@ class ToDocSubmissionConfig {
         ToDocFileListMapper(serializationService)
 
     @Bean
-    internal fun toDocLinkList(): ToDocLinkListMapper = ToDocLinkListMapper()
+    internal fun toDocLinkList(serializationService: ExtSerializationService): ToDocLinkListMapper =
+        ToDocLinkListMapper(serializationService)
 }

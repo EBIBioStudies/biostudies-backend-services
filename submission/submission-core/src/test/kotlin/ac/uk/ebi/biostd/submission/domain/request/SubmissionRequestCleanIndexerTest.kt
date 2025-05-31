@@ -59,7 +59,9 @@ class SubmissionRequestCleanIndexerTest(
         runTest {
             every { newSub.accNo } returns ACC_NO
             every { newSub.version } returns CURRENT_VERSION
-            coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns null
+            coEvery {
+                queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true, includeLinkListLinks = true)
+            } returns null
 
             val (previousVersion, requestChanges) = testInstance.indexRequest(newSub)
 
@@ -120,7 +122,9 @@ class SubmissionRequestCleanIndexerTest(
             every { newSub.allPageTabFiles } returns listOf(newPageTabFile)
             coEvery { serializationService.filesFlowExt(currentSub) } returns flowOf(false to file, true to pageTabFile)
 
-            coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns currentSub
+            coEvery {
+                queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true, includeLinkListLinks = true)
+            } returns currentSub
         }
 
         @Test

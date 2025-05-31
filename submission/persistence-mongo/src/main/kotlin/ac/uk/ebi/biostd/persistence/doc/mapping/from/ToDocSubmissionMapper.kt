@@ -5,24 +5,25 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import org.bson.types.ObjectId
 
-class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) {
-    fun convert(sub: ExtSubmission): Pair<DocSubmission, List<FileListDocFile>> {
-        val submissionId = ObjectId()
-        val (docSection, fileList) = toDocSectionMapper.convert(sub.section, sub.accNo, sub.version, submissionId)
-        val docSubmission = sub.convert(submissionId, docSection)
-        return Pair(docSubmission, fileList)
+class ToDocSubmissionMapper(
+    private val toDocSectionMapper: ToDocSectionMapper,
+) {
+    fun convert(sub: ExtSubmission): DocSubmissionData {
+        val subId = ObjectId()
+        val (docSection, fileList, linkList) = toDocSectionMapper.convert(sub.section, sub.accNo, sub.version, subId)
+        val docSubmission = sub.convert(subId, docSection)
+        return DocSubmissionData(docSubmission, fileList, linkList)
     }
 
     private fun ExtSubmission.convert(
         submissionId: ObjectId,
         docSection: DocSection,
-    ): DocSubmission {
-        return DocSubmission(
+    ): DocSubmission =
+        DocSubmission(
             id = submissionId,
             accNo = accNo,
             title = title,
@@ -46,7 +47,6 @@ class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) 
             pageTabFiles = pageTabFiles.map { it.toDocFile() },
             storageMode = storageMode,
         )
-    }
 
     private fun getMethod(method: ExtSubmissionMethod) =
         when (method) {

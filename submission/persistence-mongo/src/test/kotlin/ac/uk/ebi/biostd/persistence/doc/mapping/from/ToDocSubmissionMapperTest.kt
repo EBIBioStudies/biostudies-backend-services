@@ -144,8 +144,9 @@ class ToDocSubmissionMapperTest(
             section = newRootSection,
             pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile),
         )
-    private val linkListMapper = ToDocLinkListMapper()
-    private val fileListMapper = ToDocFileListMapper(ExtSerializationService())
+    private val serializationService = ExtSerializationService()
+    private val linkListMapper = ToDocLinkListMapper(serializationService)
+    private val fileListMapper = ToDocFileListMapper(serializationService)
     private val testInstance = ToDocSubmissionMapper(ToDocSectionMapper(fileListMapper, linkListMapper))
 
     @Test

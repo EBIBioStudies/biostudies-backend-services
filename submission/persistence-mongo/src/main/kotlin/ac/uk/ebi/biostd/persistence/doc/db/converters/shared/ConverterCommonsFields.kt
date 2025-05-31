@@ -68,6 +68,16 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
+object LinkListDocLinkFields {
+    const val LINK_LIST_DOC_LINK_ID = "_id"
+    const val LINK_LIST_DOC_LINK_SUBMISSION_ID = "submissionId"
+    const val LINK_LIST_DOC_LINK_SUBMISSION_ACC_NO = "submissionAccNo"
+    const val LINK_LIST_DOC_LINK_SUBMISSION_VERSION = "submissionVersion"
+    const val LINK_LIST_DOC_LINK_LINK = "link"
+    const val LINK_LIST_DOC_LINK_INDEX = "index"
+    const val LINK_LIST_DOC_LINK_LINK_LIST_NAME = "linkListName"
+}
+
 object DocSubmissionRequestFileFields {
     const val RQT_FILE_INDEX = "index"
     const val RQT_FILE_FILE = "file"
