@@ -24,6 +24,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Clock
 
 @Configuration
 @Suppress("MagicNumber")
@@ -39,7 +40,10 @@ internal class WebConfig(
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
     @Bean
-    fun tempFileGenerator(properties: ApplicationProperties): TempFileGenerator = TempFileGenerator(properties.persistence.tempDirPath)
+    fun tempFileGenerator(
+        properties: ApplicationProperties,
+        clock: Clock,
+    ): TempFileGenerator = TempFileGenerator(properties.persistence.tempDirPath, clock)
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestProcessing
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubIdentifier
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult.ERROR
@@ -112,10 +113,9 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.setRequestDraftStatus(accNo, owner, status, modificationTime)
     }
 
-    override suspend fun findAllProcessed(): Flow<Pair<String, Int>> =
+    override suspend fun findAllProcessed(): Flow<SubIdentifier> =
         requestRepository
             .findByStatusIn(PROCESSED_STATUS)
-            .map { it.accNo to it.version }
 
     override suspend fun hasProcesingRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 

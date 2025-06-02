@@ -20,3 +20,5 @@ spring:
     mongodb:
       database: # Mongo Database Name
       uri: # Mongo Database connection URL
+  main:
+    web-application-type: none
