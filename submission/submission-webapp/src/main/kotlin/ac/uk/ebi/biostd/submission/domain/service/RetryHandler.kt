@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
+import ebi.ac.uk.coroutines.chunked
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -26,7 +28,8 @@ class RetryHandler(
             logger.info { "Re processing pending submission on application start" }
             requestService
                 .getActiveRequests(Duration.of(3, ChronoUnit.HOURS))
-                .collect { (accNo, version) -> reTriggerSafely(accNo, version) }
+                .chunked(RETRY_BATCH)
+                .collect { reTriggerSafely(it.map { (accNo, version) -> SubmissionId(accNo, version) }) }
         }
 
     @Scheduled(cron = "0 0 */3 * * ?")
@@ -35,15 +38,17 @@ class RetryHandler(
             logger.info { "Scheduled re processing of pending submission" }
             requestService
                 .getActiveRequests(Duration.of(3, ChronoUnit.HOURS))
-                .collect { (accNo, version) -> reTriggerSafely(accNo, version) }
+                .chunked(RETRY_BATCH)
+                .collect { reTriggerSafely(it.map { (accNo, version) -> SubmissionId(accNo, version) }) }
         }
 
-    private suspend fun reTriggerSafely(
-        accNo: String,
-        version: Int,
-    ) {
-        runCatching { extSubmissionService.reTriggerSubmissionAsync(accNo, version) }
-            .onFailure { logger.error { "Failed to re triggering request accNo='$accNo', version='$version'" } }
-            .onSuccess { logger.info { "Completed processing of request accNo='$accNo', version='$version'" } }
+    private suspend fun reTriggerSafely(submissionIds: List<SubmissionId>) {
+        runCatching { extSubmissionService.reTriggerSubmissionAsync(submissionIds) }
+            .onFailure { logger.error { "Failed to re triggering submission batch[size='${submissionIds.size}']" } }
+            .onSuccess { logger.info { "Completed processing of request batch[size='${submissionIds.size}']" } }
+    }
+
+    private companion object {
+        const val RETRY_BATCH = 500
     }
 }

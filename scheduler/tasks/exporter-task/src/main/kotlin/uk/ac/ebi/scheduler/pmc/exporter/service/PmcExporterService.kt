@@ -7,6 +7,7 @@ import ebi.ac.uk.coroutines.every
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -38,14 +39,16 @@ class PmcExporterService(
     }
 
     suspend fun exportPmcLinks() {
-        logger.info { "Started exporting PMC links" }
+        logger.info { "Deleting current files" }
+        deleteAll()
 
+        logger.info { "Started exporting PMC links" }
         val loadedLinks = AtomicInteger(0)
         val records =
             pmcRepository
                 .findAllFromView()
+                .onEach { loadedLinks.incrementAndGet() }
                 .every(REPORT_PROGRESS_EACH) {
-                    loadedLinks.addAndGet(REPORT_PROGRESS_EACH)
                     logger.info { "Loaded '${loadedLinks.get()}' links" }
                 }.toList()
 
@@ -77,6 +80,7 @@ class PmcExporterService(
         links: List<Link>,
     ) = withContext(Dispatchers.IO) {
         val xml = xmlWriter.writeValueAsString(Links(links))
+        logger.info { "Part $part contains ${links.size} links" }
         val path = "${appProperties.outputPath}/${String.format(appProperties.fileName, part)}"
 
         retryTemplate.execute("storing file $path") {
@@ -87,5 +91,11 @@ class PmcExporterService(
             xml.byteInputStream().use { ftpClient.storeFile(path, it) }
             ftpClient.logout()
         }
+    }
+
+    private suspend fun deleteAll() {
+        val ftpClient = BioStudiesFtpClient.createFtpClient(appProperties)
+        ftpClient.login()
+        ftpClient.deleteAll(appProperties.outputPath)
     }
 }

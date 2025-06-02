@@ -155,7 +155,7 @@ app:
     publicSubmissionsPath: # Absolute path to the folder to be used as storage for public submissions
 
     requestFilesPath: # Absolute path to the folder where request files are stored
-    tempDirPath: # Absolute path to the folder used to generate temporary files
+    tempDirPath: # Absolute path to the folder used to store http temporary files
   mongo:
     execute-migrations: # Boolean flag to enable/disable the execution of mongo migrations
     migration-package: # Mongo migrations package

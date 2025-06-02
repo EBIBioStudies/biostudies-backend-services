@@ -52,4 +52,13 @@ class BioStudiesFtpClient(
     ) {
         withContext(Dispatchers.IO) { ftpClient.storeFile(path, content) }
     }
+
+    suspend fun deleteAll(path: String) {
+        withContext(Dispatchers.IO) {
+            ftpClient
+                .listFiles(path)
+                .filter { it.isFile }
+                .forEach { ftpClient.deleteFile("$path/${it.name}") }
+        }
+    }
 }

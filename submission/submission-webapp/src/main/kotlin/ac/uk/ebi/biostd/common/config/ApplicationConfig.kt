@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.domain.service.RetryHandler
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.time.Clock
 
 @Configuration
 class ApplicationConfig {
@@ -15,4 +16,7 @@ class ApplicationConfig {
         extSubmissionService: ExtSubmissionService,
         requestService: SubmissionRequestPersistenceService,
     ) = RetryHandler(extSubmissionService, requestService)
+
+    @Bean
+    fun clock(): Clock = Clock.systemDefaultZone()
 }

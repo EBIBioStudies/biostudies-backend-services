@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.service.SubIdentifier
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -118,12 +119,17 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: Set<RequestStatus>,
     ): DocSubmissionRequest?
 
-    fun findByStatusIn(status: Set<RequestStatus>): Flow<DocSubmissionRequest>
+    @Query(value = "{ 'status': { \$in: ?0 } }", fields = "{ 'accNo' : 1, 'version' : 1 }")
+    fun findByStatusIn(status: Set<RequestStatus>): Flow<SubIdentifier>
 
+    @Query(
+        value = "{ 'status': { \$in: ?0 }, 'modificationTime': { \$lt: ?1 } }",
+        fields = "{ 'accNo' : 1, 'version' : 1 }",
+    )
     fun findByStatusInAndModificationTimeLessThan(
         status: Set<RequestStatus>,
         since: Instant,
-    ): Flow<DocSubmissionRequest>
+    ): Flow<SubIdentifier>
 
     suspend fun getById(id: ObjectId): DocSubmissionRequest
 

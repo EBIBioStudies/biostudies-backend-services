@@ -98,6 +98,15 @@ interface SubmissionFilesPersistenceService {
     ): ExtFile?
 }
 
+interface SubIdentifier {
+    val accNo: String
+    val version: Int
+
+    operator fun component1() = accNo
+
+    operator fun component2() = version
+}
+
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun findRequestDrafts(
@@ -145,7 +154,7 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
-    suspend fun findAllProcessed(): Flow<Pair<String, Int>>
+    suspend fun findAllProcessed(): Flow<SubIdentifier>
 
     suspend fun hasProcesingRequest(accNo: String): Boolean
 
