@@ -177,6 +177,8 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.submissionTask.enabled", enableTask)
         properties.addProperty("app.submissionTask.jarLocation", jarLocation)
         properties.addProperty("app.submissionTask.javaLocation", javaLocation)
+        properties.addProperty("app.submissionTask.javaMemoryAllocation", 1)
+        properties.addProperty("app.submissionTask.tmpFilesDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.submissionTask.singleJobMode", true)
         properties.addProperty("app.submissionTask.configFileLocation", configFile)
         properties.addProperty("app.submissionTask.taskMemoryMgb", 4096)

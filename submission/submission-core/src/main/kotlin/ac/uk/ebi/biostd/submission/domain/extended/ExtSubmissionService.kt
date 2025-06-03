@@ -22,6 +22,7 @@ import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val queryService: SubmissionPersistenceQueryService,
@@ -38,6 +39,8 @@ class ExtSubmissionService(
         accNo: String,
         version: Int,
     ): Unit = submissionSubmitter.handleRequestAsync(accNo, version)
+
+    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit = submissionSubmitter.handleManyAsync(submissions)
 
     suspend fun refreshSubmission(
         user: String,

@@ -9,6 +9,8 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 
+const val DAILY_PMC_SUB_LIMIT = 5_000
+
 internal class DailyScheduler(
     private val dailyScheduling: DailyScheduling,
     private val exporterTrigger: ExporterTrigger,
@@ -37,11 +39,11 @@ internal class DailyScheduler(
             if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor()
         }
 
-    // Execute at 08:00 am
-    @Scheduled(cron = "0 0 8 * * *")
+    // Execute at 04:00 am
+    @Scheduled(cron = "0 0 4 * * *")
     fun submitPmc() =
         runBlocking {
-            if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter()
+            if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter(limit = DAILY_PMC_SUB_LIMIT)
         }
 
     // Execute at 10:00 am

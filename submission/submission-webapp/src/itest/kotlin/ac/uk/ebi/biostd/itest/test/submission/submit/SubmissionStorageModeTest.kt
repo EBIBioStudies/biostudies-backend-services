@@ -29,6 +29,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -36,6 +37,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -185,6 +187,25 @@ class SubmissionStorageModeTest(
 
             assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
             assertThat(fireFtpPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `10-5 previous version keeps storage mode`() =
+        runTest {
+            val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-5")
+            webClient.uploadFiles(listOf(file, fileListFile, fileList))
+
+            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
+            val subV1 = submissionRepository.getExtByAccNo("S-STR-MODE-5")
+            assertThat(subV1.version).isEqualTo(1)
+            assertThat(subV1.storageMode).isEqualTo(NFS)
+
+            val params = SubmitParameters(preferredSources = listOf(PreferredSource.SUBMISSION), storageMode = null)
+            assertThat(webClient.submit(submission, TSV, params)).isSuccessful()
+            val subV2 = submissionRepository.getExtByAccNo("S-STR-MODE-5")
+            assertThat(subV2.version).isEqualTo(2)
+            assertThat(subV2.storageMode).isEqualTo(NFS)
         }
 
     private fun assertFile(

@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
@@ -10,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.asSubmittedRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.StorageMode
@@ -31,7 +34,8 @@ import kotlin.math.max
 internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val serializationService: ExtSerializationService,
+    private val extSerializationService: ExtSerializationService,
+    private val serializationService: SerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionPersistenceQueryService {
     override suspend fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
@@ -135,9 +139,12 @@ internal class SubmissionMongoPersistenceQueryService(
     }
 
     private fun asBasicSubmission(rqt: DocSubmissionRequest): BasicSubmission {
-        val serialized = if (rqt.status == SUBMITTED) rqt.draft else rqt.process?.submission
-        val submission = serializationService.deserialize(serialized.toString())
+        if (rqt.status == SUBMITTED) {
+            val submission = serializationService.deserializeSubmission(rqt.draft.toString(), JSON)
+            return submission.asSubmittedRequest(rqt.owner)
+        }
 
+        val submission = extSerializationService.deserialize(rqt.process?.submission.toString())
         return when (rqt.status) {
             RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, rqt.errors)
             else -> submission.asBasicSubmission(PROCESSING)

@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
-import ebi.ac.uk.coroutines.waitUntilNoException
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
@@ -399,7 +399,7 @@ class ResubmissionApiTest(
             ) { requestRepository.getRequest(accNo, version).status == RequestStatus.INVALID }
 
             val response = webClient.submitAsync(version2, TSV)
-            waitUntilNoException(timeout = FIVE_SECONDS) {
+            waitForCompletion(timeout = FIVE_SECONDS) {
                 val result = webClient.getSubmission(response.accNo)
                 assertThat(result?.status).isEqualTo("INVALID")
                 assertThat(result?.errors).containsExactly(

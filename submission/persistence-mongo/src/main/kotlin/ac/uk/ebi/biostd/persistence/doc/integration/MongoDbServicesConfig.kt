@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
@@ -41,12 +42,14 @@ class MongoDbServicesConfig {
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
-        serializationService: ExtSerializationService,
+        extSerializationService: ExtSerializationService,
+        serializationService: SerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper,
     ): SubmissionPersistenceQueryService =
         SubmissionMongoPersistenceQueryService(
             submissionDocDataRepository,
             toExtSubmissionMapper,
+            extSerializationService,
             serializationService,
             submissionRequestDocDataRepository,
         )
