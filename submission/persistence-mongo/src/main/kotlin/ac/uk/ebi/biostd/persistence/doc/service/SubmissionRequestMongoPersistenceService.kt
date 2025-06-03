@@ -223,7 +223,8 @@ class SubmissionRequestMongoPersistenceService(
 
     private fun asDocRequest(rqt: SubmissionRequest): DocSubmissionRequest {
         fun requestProcessing(process: SubmissionRequestProcessing): DocRequestProcessing {
-            val content = serializationService.serialize(process.submission, Properties(includeFileListFiles = true))
+            val properties = Properties(includeFileListFiles = true, includeLinkListLinks = true)
+            val content = serializationService.serialize(process.submission, properties)
             val fileChanges =
                 DocFilesChanges(
                     reusedFiles = process.fileChanges.reusedFiles,

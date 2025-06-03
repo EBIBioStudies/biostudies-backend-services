@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -27,15 +28,15 @@ class ToDocSectionMapper(
         subId: ObjectId,
     ): DocSectionData {
         val sections = section.sections.map { it.toDocSections(accNo, version, subId) }
-        val linkList = section.linkList?.let { toDocLinkListMapper.convert(it) }
         val (sectionFileList, sectionFiles) =
-            section.fileList?.let {
-                toDocFileListMapper.convert(it, subId, accNo, version)
-            }
+            section.fileList?.let { toDocFileListMapper.convert(it, subId, accNo, version) }
+        val (sectionLinkList, sectionLinks) =
+            section.linkList?.let { toDocLinkListMapper.convert(it, subId, accNo, version) }
 
         return DocSectionData(
-            section = section.convert(sectionFileList, linkList, sections.subSections()),
+            section = section.convert(sectionFileList, sectionLinkList, sections.subSections()),
             fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles(),
+            linkListLinks = sectionLinks.orEmpty() + sections.subSectionsLinks(),
         )
     }
 
@@ -44,6 +45,9 @@ class ToDocSectionMapper(
 
     private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List<FileListDocFile> =
         reduceLeft { it.fileListFiles }.flatten()
+
+    private fun EitherList<DocSectionData, DocSectionTable>.subSectionsLinks(): List<LinkListDocLink> =
+        reduceLeft { it.linkListLinks }.flatten()
 
     private fun ExtSection.convert(
         fileList: DocFileList?,

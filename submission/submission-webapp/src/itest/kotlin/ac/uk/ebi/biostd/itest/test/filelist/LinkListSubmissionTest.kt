@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
@@ -25,7 +26,7 @@ import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.ifRight
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -47,6 +48,7 @@ import java.nio.file.Paths
 class LinkListSubmissionTest(
     @LocalServerPort val serverPort: Int,
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val extSubQueryService: ExtSubmissionQueryService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
 ) {
     private lateinit var webClient: BioWebClient
@@ -85,16 +87,8 @@ class LinkListSubmissionTest(
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(linksList)
             assertThat(webClient.submitMultipart(submission, TSV, parameters, files)).isSuccessful()
-
-            val savedSubmission = submissionRepository.getExtByAccNo("S-LLT311")
-            val links = savedSubmission.section.links
-            assertThat(links).hasSize(1)
-            links.first().ifRight {
-                assertThat(it.links).hasSize(1)
-                assertThat(it.links.first().url).isEqualTo("IHECRE00000919.1")
-            }
-
-            assertSubmissionFiles(accNo = "S-LLT311", linkListName = "LinkList")
+            assertPageTabFiles(accNo = "S-LLT311", linkListName = "LinkList")
+            assertReferencedLinks(accNo = "S-LLT311", linkListName = "LinkList")
         }
 
     @Test
@@ -143,19 +137,138 @@ class LinkListSubmissionTest(
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(linksList)
             assertThat(webClient.submitMultipart(submission, JSON, parameters, files)).isSuccessful()
-
-            val savedSubmission = submissionRepository.getExtByAccNo("S-LLT312")
-            val links = savedSubmission.section.links
-            assertThat(links).hasSize(1)
-            links.first().ifRight {
-                assertThat(it.links).hasSize(1)
-                assertThat(it.links.first().url).isEqualTo("IHECRE00000919.1")
-            }
-
-            assertSubmissionFiles(accNo = "S-LLT312", linkListName = "LinkList")
+            assertPageTabFiles(accNo = "S-LLT312", linkListName = "LinkList")
+            assertReferencedLinks(accNo = "S-LLT312", linkListName = "LinkList")
         }
 
-    private suspend fun assertSubmissionFiles(
+    @Test
+    fun `31-3 resubmission modifying links`() =
+        runTest {
+            val subV1 =
+                tsv {
+                    line("Submission", "S-LLT313")
+                    line("Title", "Resubmission With Links Modification")
+                    line()
+
+                    line("Study", "SECT-001")
+                    line("Link List", "LinkList.tsv")
+                    line()
+                }.toString()
+
+            val linksListV1 =
+                tempFolder.createFile(
+                    "LinkList.tsv",
+                    tsv {
+                        line("Links", "Type")
+                        line("IHECRE00000919.1", "EpiRR")
+                        line()
+                    }.toString(),
+                )
+
+            val parameters = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitMultipart(subV1, TSV, parameters, listOf(linksListV1))).isSuccessful()
+            linksListV1.delete()
+            assertPageTabFiles(accNo = "S-LLT313", linkListName = "LinkList")
+            assertReferencedLinks(accNo = "S-LLT313", linkListName = "LinkList")
+
+            val subV2 =
+                tsv {
+                    line("Submission", "S-LLT313")
+                    line("Title", "Resubmission With Links Modification")
+                    line()
+
+                    line("Study", "SECT-001")
+                    line("Link List", "LinkList.tsv")
+                    line()
+                }.toString()
+
+            val linksListV2 =
+                tempFolder.createFile(
+                    "LinkList.tsv",
+                    tsv {
+                        line("Links", "Type")
+                        line("ABC123.456", "Updated 1")
+                        line("DEF789.01", "Updated 2")
+                        line()
+                    }.toString(),
+                )
+
+            webClient.uploadFile(linksListV2)
+            assertThat(webClient.submit(subV2, TSV)).isSuccessful()
+
+            val extSubV2 = submissionRepository.getExtByAccNo("S-LLT313")
+            assertThat(extSubV2.version).isEqualTo(2)
+
+            val links = extSubQueryService.getReferencedLinks(accNo = "S-LLT313", linkListName = "LinkList").links
+            assertThat(links).hasSize(2)
+            assertThat(links.first().url).isEqualTo("ABC123.456")
+            assertThat(links.second().url).isEqualTo("DEF789.01")
+        }
+
+    @Test
+    fun `31-4 resubmission reusing link list`() =
+        runTest {
+            val subV1 =
+                tsv {
+                    line("Submission", "S-LLT314")
+                    line("Title", "Submission With Metadata")
+                    line()
+
+                    line("Study", "SECT-001")
+                    line("Link List", "LinkList.tsv")
+                    line()
+                }.toString()
+
+            val linksListV1 =
+                tempFolder.createFile(
+                    "LinkList.tsv",
+                    tsv {
+                        line("Links", "Type")
+                        line("IHECRE00000919.1", "EpiRR")
+                        line()
+                    }.toString(),
+                )
+
+            val paramsV1 = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitMultipart(subV1, TSV, paramsV1, listOf(linksListV1))).isSuccessful()
+            linksListV1.delete()
+            assertPageTabFiles(accNo = "S-LLT314", linkListName = "LinkList")
+            assertReferencedLinks(accNo = "S-LLT314", linkListName = "LinkList")
+
+            val subV2 =
+                tsv {
+                    line("Submission", "S-LLT314")
+                    line("Title", "Resubmission With Metadata Update")
+                    line()
+
+                    line("Study", "SECT-001")
+                    line("Link List", "LinkList.tsv")
+                    line()
+                }.toString()
+
+            val paramsV2 = SubmitParameters(preferredSources = listOf(SUBMISSION), storageMode = storageMode)
+            assertThat(webClient.submit(subV2, TSV, paramsV2)).isSuccessful()
+
+            val extSubV2 = submissionRepository.getExtByAccNo("S-LLT314")
+            assertThat(extSubV2.version).isEqualTo(2)
+            assertPageTabFiles(accNo = "S-LLT314", linkListName = "LinkList")
+            assertReferencedLinks(accNo = "S-LLT314", linkListName = "LinkList")
+        }
+
+    private suspend fun assertReferencedLinks(
+        accNo: String,
+        linkListName: String,
+    ) {
+        val refLinks = extSubQueryService.getReferencedLinks(accNo, linkListName).links
+        assertThat(refLinks).hasSize(1)
+        assertThat(refLinks.first().url).isEqualTo("IHECRE00000919.1")
+        assertThat(refLinks.first().attributes).hasSize(1)
+        val attribute = refLinks.first().attributes.first()
+        assertThat(attribute.name).isEqualTo("Type")
+        assertThat(attribute.value).isEqualTo("EpiRR")
+    }
+
+    private suspend fun assertPageTabFiles(
         accNo: String,
         linkListName: String,
     ) {

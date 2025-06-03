@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileListMapper
@@ -45,20 +46,21 @@ import java.time.Duration
 class ExtSubmissionRepositoryTest(
     @Autowired private val filesResolver: FilesResolver,
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
+    @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
+    @Autowired private val linkListDocLinkRepo: LinkListDocLinkDocDataRepository,
 ) {
     private val extSerializationService = extSerializationService()
-    private val toFileListMapper =
-        ToExtFileListMapper(fileListDocFileRepository, extSerializationService, filesResolver)
-    private val toLinkListMapper = ToExtLinkListMapper(filesResolver)
+    private val toFileListMapper = ToExtFileListMapper(fileListDocFileRepo, extSerializationService, filesResolver)
+    private val toLinkListMapper = ToExtLinkListMapper(filesResolver, extSerializationService, linkListDocLinkRepo)
     private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper, toLinkListMapper)
     private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
-    private val toDocLinkListMapper = ToDocLinkListMapper()
+    private val toDocLinkListMapper = ToDocLinkListMapper(extSerializationService)
     private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper, toDocLinkListMapper)
     private val testInstance =
         ExtSubmissionRepository(
             subDataRepository,
-            fileListDocFileRepository,
+            fileListDocFileRepo,
+            linkListDocLinkRepo,
             ToExtSubmissionMapper(toExtSectionMapper),
             ToDocSubmissionMapper(toDocSectionMapper),
         )
@@ -67,7 +69,7 @@ class ExtSubmissionRepositoryTest(
     fun beforeEach() =
         runBlocking {
             subDataRepository.deleteAll()
-            fileListDocFileRepository.deleteAll()
+            fileListDocFileRepo.deleteAll()
         }
 
     @Test
@@ -86,7 +88,7 @@ class ExtSubmissionRepositoryTest(
             val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
             assertThat(subDataRepository.findAll().toList()).hasSize(1)
 
-            val fileListDocFiles = fileListDocFileRepository.findAll().toList()
+            val fileListDocFiles = fileListDocFileRepo.findAll().toList()
             assertThat(fileListDocFiles).hasSize(1)
             val fileListDocFile = fileListDocFiles.first()
             assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
