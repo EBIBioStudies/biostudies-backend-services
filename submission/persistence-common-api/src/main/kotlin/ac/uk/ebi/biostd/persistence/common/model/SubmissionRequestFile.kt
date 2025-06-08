@@ -6,7 +6,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 data class SubmissionRequestFile(
     val accNo: String,
     val version: Int,
-    val index: Int,
     val path: String,
     val file: ExtFile,
     val status: RequestFileStatus,
@@ -14,11 +13,10 @@ data class SubmissionRequestFile(
 ) {
     constructor(
         sub: ExtSubmission,
-        index: Int,
         file: ExtFile,
         status: RequestFileStatus,
         previousSubFile: Boolean = false,
-    ) : this(sub.accNo, sub.version, index, file.filePath, file, status, previousSubFile)
+    ) : this(sub.accNo, sub.version, file.filePath, file, status, previousSubFile)
 }
 
 enum class RequestFileStatus {

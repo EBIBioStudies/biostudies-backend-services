@@ -48,6 +48,6 @@ class SubmissionRequestFilesMongoPersistenceService(
 
     private fun DocSubmissionRequestFile.toSubmissionRequestFile(): SubmissionRequestFile {
         val file = extSerializationService.deserializeFile(file.toString())
-        return SubmissionRequestFile(accNo, version, index, path, file, status, previousSubFile)
+        return SubmissionRequestFile(accNo, version, path, file, status, previousSubFile)
     }
 }

@@ -1,19 +1,19 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING_PAGE_TAB
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.coroutines.concurrently
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.StorageMode
@@ -21,11 +21,11 @@ import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
 import java.util.concurrent.atomic.AtomicInteger
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile as SubRqtFile
 
 private val logger = KotlinLogging.logger {}
 
@@ -78,35 +78,58 @@ class SubmissionRequestCleanIndexer(
         val deprecatedIdx = AtomicInteger(0)
         val deprecatedPageTabIdx = AtomicInteger(0)
 
-        fun fileUpdate(
-            idx: AtomicInteger,
-            file: ExtFile,
-            status: RequestFileStatus,
-        ) = SubRqtFile(new, idx.incrementAndGet(), file, status, true)
+        fun indexRequestFile(
+            file: PersistedExtFile,
+            isPageTab: Boolean,
+        ): SubmissionRequestFile? =
+            when (newFiles.findMatch(file, isPageTab)) {
+                MatchType.CONFLICTING -> {
+                    conflictIdx.incrementAndGet()
+                    SubmissionRequestFile(new, file, CONFLICTING, true)
+                }
+
+                MatchType.CONFLICTING_PAGE_TAB -> {
+                    conflictPageTabIdx.incrementAndGet()
+                    SubmissionRequestFile(new, file, CONFLICTING_PAGE_TAB, true)
+                }
+
+                MatchType.DEPRECATED -> {
+                    deprecatedIdx.incrementAndGet()
+                    SubmissionRequestFile(new, file, DEPRECATED, true)
+                }
+
+                MatchType.DEPRECATED_PAGE_TAB -> {
+                    deprecatedPageTabIdx.incrementAndGet()
+                    SubmissionRequestFile(new, file, DEPRECATED_PAGE_TAB, true)
+                }
+
+                MatchType.REUSED -> {
+                    when {
+                        current.released && new.released -> SubmissionRequestFile(new, file, RELEASED, false)
+                        current.released.not() && new.released.not() -> SubmissionRequestFile(new, file, COPIED, false)
+                        current.released.not() && new.released -> SubmissionRequestFile(new, file, COPIED, false)
+                        else -> null
+                    }
+                }
+            }
 
         serializationService
             .filesFlowExt(current)
             .concurrently(concurrency) { (isPageTab, file) ->
                 require(file is PersistedExtFile) { "Only persisted files are supported" }
-
-                when (newFiles.findMatch(file, isPageTab)) {
-                    MatchType.CONFLICTING -> fileUpdate(conflictIdx, file, CONFLICTING)
-                    MatchType.CONFLICTING_PAGE_TAB -> fileUpdate(conflictPageTabIdx, file, CONFLICTING_PAGE_TAB)
-                    MatchType.DEPRECATED -> fileUpdate(deprecatedIdx, file, DEPRECATED)
-                    MatchType.DEPRECATED_PAGE_TAB -> fileUpdate(deprecatedPageTabIdx, file, DEPRECATED_PAGE_TAB)
-                    MatchType.REUSED -> fileUpdate(reusedIdx, file, REUSED)
-                }
-            }.collect {
-                logger.info { "${new.accNo} ${new.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
+                indexRequestFile(file, isPageTab)
+            }.filterNotNull()
+            .collect {
+                logger.info { "${new.accNo} ${new.owner} Indexing to clean file, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
             }
 
         return SubmissionRequestFileChanges(
-            reusedIdx.get(),
-            deprecatedIdx.get(),
-            deprecatedPageTabIdx.get(),
-            conflictIdx.get(),
-            conflictPageTabIdx.get(),
+            reusedFiles = reusedIdx.get(),
+            deprecatedFiles = deprecatedIdx.get(),
+            deprecatedPageTab = deprecatedPageTabIdx.get(),
+            conflictingFiles = conflictIdx.get(),
+            conflictingPageTab = conflictPageTabIdx.get(),
         )
     }
 

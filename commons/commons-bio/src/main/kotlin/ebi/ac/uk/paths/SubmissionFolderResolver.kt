@@ -1,13 +1,13 @@
 package ebi.ac.uk.paths
 
-import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import java.nio.file.Path
 
 const val FILES_PATH = "Files"
 
 interface SubmissionFolderResolver {
     fun getSubmisisonFolder(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         folderType: FolderType,
     ): Path
 

@@ -66,7 +66,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             runTest {
                 val extFile =
                     createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-                val requestFile = SubmissionRequestFile("S-BSST0", 1, 1, "requested.txt", extFile, INDEXED)
+                val requestFile = SubmissionRequestFile("S-BSST0", 1, "requested.txt", extFile, INDEXED)
 
                 testInstance.saveSubmissionRequestFile(requestFile)
 
@@ -80,10 +80,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
                 val first = createNfsFile("first.txt", "Files/first.txt", tempFolder.createFile("first.txt"))
                 val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
 
-                val requestFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", first, INDEXED)
+                val requestFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", first, INDEXED)
                 testInstance.saveSubmissionRequestFile(requestFile)
 
-                val updatedFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", second, INDEXED)
+                val updatedFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", second, INDEXED)
                 testInstance.saveSubmissionRequestFile(updatedFile)
 
                 val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
@@ -101,10 +101,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         @BeforeEach
         fun beforeEach() =
             runBlocking {
-                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, 1, "file1.txt", extFile1, INDEXED)
-                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, 2, "file2.txt", extFile2, LOADED)
-                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, 3, "file3.txt", extFile3, COPIED)
-                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, 4, "file4.txt", extFile4, COPIED)
+                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, "file1.txt", extFile1, INDEXED)
+                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, "file2.txt", extFile2, LOADED)
+                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, "file3.txt", extFile3, COPIED)
+                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, "file4.txt", extFile4, COPIED)
 
                 testInstance.saveSubmissionRequestFile(requestFile1)
                 testInstance.saveSubmissionRequestFile(requestFile2)
@@ -117,13 +117,9 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             runTest {
                 val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 0).toList()
                 assertThat(files).hasSize(4)
-                assertThat(files[0].index).isEqualTo(1)
                 assertThat(files[0].file).isEqualTo(extFile1)
-                assertThat(files[1].index).isEqualTo(2)
                 assertThat(files[1].file).isEqualTo(extFile2)
-                assertThat(files[2].index).isEqualTo(3)
                 assertThat(files[2].file).isEqualTo(extFile3)
-                assertThat(files[3].index).isEqualTo(4)
                 assertThat(files[3].file).isEqualTo(extFile4)
             }
 
@@ -132,9 +128,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             runTest {
                 val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 2).toList()
                 assertThat(files).hasSize(2)
-                assertThat(files[0].index).isEqualTo(3)
                 assertThat(files[0].file).isEqualTo(extFile3)
-                assertThat(files[1].index).isEqualTo(4)
                 assertThat(files[1].file).isEqualTo(extFile4)
             }
 
@@ -143,9 +137,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             runTest {
                 val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, COPIED).toList()
                 assertThat(files).hasSize(2)
-                assertThat(files[0].index).isEqualTo(3)
                 assertThat(files[0].file).isEqualTo(extFile3)
-                assertThat(files[1].index).isEqualTo(4)
                 assertThat(files[1].file).isEqualTo(extFile4)
             }
     }
