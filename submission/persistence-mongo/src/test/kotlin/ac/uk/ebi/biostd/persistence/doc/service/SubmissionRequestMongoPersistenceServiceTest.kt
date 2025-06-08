@@ -204,7 +204,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     accNo = "abc-123",
                     version = 2,
                     path = "file-path",
-                    index = 1,
                     status = LOADED,
                     previousSubFile = false,
                     file = BasicDBObject("property", "value"),

@@ -115,7 +115,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         @Test
         fun `get all submission request files`() =
             runTest {
-                val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 0).toList()
+                val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1).toList()
                 assertThat(files).hasSize(4)
                 assertThat(files[0].file).isEqualTo(extFile1)
                 assertThat(files[1].file).isEqualTo(extFile2)
@@ -126,7 +126,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         @Test
         fun `get submission request files starting at N`() =
             runTest {
-                val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 2).toList()
+                val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1).toList()
                 assertThat(files).hasSize(2)
                 assertThat(files[0].file).isEqualTo(extFile3)
                 assertThat(files[1].file).isEqualTo(extFile4)

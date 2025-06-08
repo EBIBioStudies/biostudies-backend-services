@@ -31,10 +31,9 @@ class SubmissionRequestFilesMongoPersistenceService(
     override fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
-        startingAt: Int,
     ): Flow<SubmissionRequestFile> =
         requestFilesRepository
-            .findRequestFiles(accNo, version, startingAt)
+            .findRequestFiles(accNo, version)
             .map { it.toSubmissionRequestFile() }
 
     override fun getSubmissionRequestFiles(

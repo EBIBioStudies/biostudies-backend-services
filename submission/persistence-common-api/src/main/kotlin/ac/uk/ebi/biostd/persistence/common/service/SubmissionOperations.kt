@@ -203,7 +203,6 @@ interface SubmissionRequestFilesPersistenceService {
     fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
-        startingAt: Int,
     ): Flow<SubmissionRequestFile>
 
     fun getSubmissionRequestFiles(
