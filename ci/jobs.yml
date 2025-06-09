@@ -14,17 +14,17 @@ deploy-dev:
   dependencies:
     - build-test
   script:
-    - gradle deployBioCommandLine -Penv=dev -PdeployPath=$FTP_OUT_APPS_PATH/cli/dev
+    - gradle deployBioCommandLine -Penv=dev -PdeployPath=$APPS_PATH/cli/dev
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
-    - gradle deployScheduler -Penv=dev -PdeployPath=$FTP_OUT_APPS_PATH/scheduler/dev
+    - gradle deployScheduler -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev
     - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
-    - gradle deployHandlers -Penv=dev -PdeployPath=$FTP_OUT_APPS_PATH/handlers/dev
+    - gradle deployHandlers -Penv=dev -PdeployPath=$APPS_PATH/handlers/dev
     - gradle updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/dev
-    - gradle updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$FTP_OUT_APPS_PATH/submitter/dev
-    - gradle deploySubmitter -Penv=dev -PdeployPath=$FTP_OUT_APPS_PATH/submitter/dev
+    - gradle updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
+    - gradle deploySubmitter -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
 
 auto-deploy-beta:
   extends: .deploy-beta
@@ -42,17 +42,17 @@ deploy-beta:
   dependencies:
     - build-test
   script:
-    - gradle deployBioCommandLine -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/cli/beta
+    - gradle deployBioCommandLine -Penv=beta -PdeployPath=$APPS_PATH/cli/beta
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
-    - gradle deployScheduler -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/scheduler/beta
+    - gradle deployScheduler -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta
     - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
-    - gradle deployHandlers -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/handlers/beta
+    - gradle deployHandlers -Penv=beta -PdeployPath=$APPS_PATH/handlers/beta
     - gradle updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/beta
-    - gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/submitter/beta
-    - gradle deploySubmitter -Penv=beta -PdeployPath=$FTP_OUT_APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
+    - gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta
+    - gradle deploySubmitter -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
 
 auto-deploy-prod:
   extends: .deploy-prod
