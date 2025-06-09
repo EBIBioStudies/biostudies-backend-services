@@ -7,10 +7,10 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
@@ -52,11 +52,10 @@ class SubmissionRequestIndexer(
             .filesFlow(sub)
             .filterNot { paths.contains(it.filePath) }
             .onEach { paths.add(it.filePath) }
-            .withIndex()
-            .map { (idx, file) -> SubmissionRequestFile(sub, idx + 1, file, INDEXED) }
-            .collect {
-                logger.info { "${sub.accNo} ${sub.owner} Indexing submission file ${it.index}, path='${it.path}'" }
-                filesRequestService.saveSubmissionRequestFile(it)
+            .map { file -> SubmissionRequestFile(sub, file, INDEXED) }
+            .collectIndexed { index, file ->
+                logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${file.path}'" }
+                filesRequestService.saveSubmissionRequestFile(file)
                 elements.incrementAndGet()
             }
         return elements.get()

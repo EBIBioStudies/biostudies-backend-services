@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.paths.FolderType.FTP
 import ebi.ac.uk.paths.FolderType.NFS
@@ -13,7 +13,7 @@ internal class SubFolderResolver(
     private val properties: ApplicationProperties,
 ) : SubmissionFolderResolver {
     override fun getSubmisisonFolder(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         folderType: FolderType,
     ): Path =
         when (sub.released) {

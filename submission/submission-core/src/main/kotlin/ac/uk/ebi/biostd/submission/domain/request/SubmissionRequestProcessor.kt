@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
@@ -48,14 +49,17 @@ class SubmissionRequestProcessor(
         sub: ExtSubmission,
         accNo: String,
     ) {
+        val loadedFiles = AtomicInteger()
+
         suspend fun persistFile(rqtFile: SubmissionRequestFile): SubmissionRequestFile {
-            logger.info { "$accNo ${sub.owner} Started persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
+            val index = loadedFiles.incrementAndGet()
+            logger.info { "$accNo ${sub.owner} Started persisting file $index, path='${rqtFile.path}'" }
             val file =
                 when (val persisted = storageService.persistSubmissionFile(sub, rqtFile.file)) {
                     rqtFile.file -> rqtFile.copy(status = COPIED)
                     else -> rqtFile.copy(file = persisted, status = COPIED)
                 }
-            logger.info { "$accNo ${sub.owner} Finished persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
+            logger.info { "$accNo ${sub.owner} Finished persisting file $index, path='${rqtFile.path}'" }
             return file
         }
 

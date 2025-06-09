@@ -31,10 +31,9 @@ class SubmissionRequestFilesMongoPersistenceService(
     override fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
-        startingAt: Int,
     ): Flow<SubmissionRequestFile> =
         requestFilesRepository
-            .findRequestFiles(accNo, version, startingAt)
+            .findRequestFiles(accNo, version)
             .map { it.toSubmissionRequestFile() }
 
     override fun getSubmissionRequestFiles(
@@ -48,6 +47,6 @@ class SubmissionRequestFilesMongoPersistenceService(
 
     private fun DocSubmissionRequestFile.toSubmissionRequestFile(): SubmissionRequestFile {
         val file = extSerializationService.deserializeFile(file.toString())
-        return SubmissionRequestFile(accNo, version, index, path, file, status, previousSubFile)
+        return SubmissionRequestFile(accNo, version, path, file, status, previousSubFile)
     }
 }

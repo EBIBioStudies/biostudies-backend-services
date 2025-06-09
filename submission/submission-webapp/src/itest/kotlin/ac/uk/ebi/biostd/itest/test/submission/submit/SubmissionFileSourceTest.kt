@@ -561,7 +561,7 @@ class SubmissionFileSourceTest(
             assertThat(refFiles.second().attributes).containsExactly(ExtAttribute("Type", "Ref 2"))
 
             // File should be processed a single time
-            val files = requestFilesPersistenceService.getSubmissionRequestFiles("S-FSTST4", 1, 0).toList()
+            val files = requestFilesPersistenceService.getSubmissionRequestFiles("S-FSTST4", 1).toList()
             assertThat(files.filter { it.path == "MultipleReferences.txt" }).hasSize(1)
 
             webClient.deleteFile("MultipleReferences.txt")

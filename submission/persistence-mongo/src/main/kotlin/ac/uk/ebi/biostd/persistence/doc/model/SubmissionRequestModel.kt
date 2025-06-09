@@ -77,7 +77,6 @@ data class DocRequestProcessing(
 data class DocSubmissionRequestFile(
     @Id
     val id: ObjectId,
-    val index: Int,
     val accNo: String,
     val version: Int,
     val path: String,

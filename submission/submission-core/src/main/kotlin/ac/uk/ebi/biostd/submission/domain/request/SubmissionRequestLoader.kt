@@ -27,6 +27,7 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
@@ -59,15 +60,18 @@ class SubmissionRequestLoader(
         accNo: String,
         sub: ExtSubmission,
     ) {
+        val loadedFiles = AtomicInteger()
+
         suspend fun loadFile(rqtFile: SubmissionRequestFile): SubmissionRequestFile {
-            logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
+            val index = loadedFiles.incrementAndGet()
+            logger.info { "$accNo ${sub.owner} Started loading file $index, path='${rqtFile.path}'" }
             val loaded =
                 when (val file = rqtFile.file) {
                     is FireFile -> rqtFile.copy(status = RequestFileStatus.LOADED)
                     is NfsFile -> rqtFile.copy(file = loadFile(sub, file), status = RequestFileStatus.LOADED)
                     is RequestFile -> error("RequestFile ${file.filePath} can not be loaded")
                 }
-            logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
+            logger.info { "$accNo ${sub.owner} Finished loading file $index, path='${rqtFile.path}'" }
 
             return loaded
         }

@@ -28,6 +28,7 @@ import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
@@ -78,15 +79,20 @@ class SubmissionRequestReleaser(
     }
 
     private suspend fun releaseSubmissionFiles(sub: ExtSubmission) {
-        suspend fun releaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile =
-            when (val file = reqFile.file) {
-                is NfsFile -> reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
+        val releasedFiles = AtomicInteger()
+
+        suspend fun releaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile {
+            val index = releasedFiles.incrementAndGet()
+            return when (val file = reqFile.file) {
+                is NfsFile -> reqFile.copy(file = release(sub, index, file), status = RELEASED)
                 is FireFile -> {
-                    val released = if (file.published) file else release(sub, reqFile.index, file)
+                    val released = if (file.published) file else release(sub, index, file)
                     reqFile.copy(file = released, status = RELEASED)
                 }
+
                 is RequestFile -> error("RequestFile ${file.filePath} can not be released")
             }
+        }
 
         supervisorScope {
             filesRequestService
@@ -120,15 +126,20 @@ class SubmissionRequestReleaser(
     }
 
     private suspend fun unReleaseSubmissionFiles(sub: ExtSubmission) {
-        suspend fun unReleaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile =
-            when (val file = reqFile.file) {
-                is NfsFile -> reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
+        val releasedFiles = AtomicInteger()
+
+        suspend fun unReleaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile {
+            val index = releasedFiles.incrementAndGet()
+            return when (val file = reqFile.file) {
+                is NfsFile -> reqFile.copy(file = unRelease(sub, index, file), status = UNRELEASED)
                 is FireFile -> {
-                    val unreleased = if (file.published) unRelease(sub, reqFile.index, file) else file
+                    val unreleased = if (file.published) unRelease(sub, index, file) else file
                     reqFile.copy(file = unreleased, status = UNRELEASED)
                 }
+
                 is RequestFile -> error("RequestFile ${file.filePath} can not be unreleased")
             }
+        }
 
         supervisorScope {
             filesRequestService
