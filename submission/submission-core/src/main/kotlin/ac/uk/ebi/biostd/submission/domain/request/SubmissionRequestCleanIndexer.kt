@@ -106,8 +106,7 @@ class SubmissionRequestCleanIndexer(
                 MatchType.REUSED -> {
                     when {
                         current.released && new.released -> SubmissionRequestFile(new, file, RELEASED, false)
-                        current.released.not() && new.released.not() -> SubmissionRequestFile(new, file, COPIED, false)
-                        current.released.not() && new.released -> SubmissionRequestFile(new, file, COPIED, false)
+                        current.released.not() -> SubmissionRequestFile(new, file, COPIED, false)
                         else -> null
                     }
                 }
