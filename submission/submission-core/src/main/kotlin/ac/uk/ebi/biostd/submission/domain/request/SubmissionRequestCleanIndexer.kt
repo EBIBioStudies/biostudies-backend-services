@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
@@ -21,7 +22,6 @@ import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.filterNotNull
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
@@ -81,7 +81,7 @@ class SubmissionRequestCleanIndexer(
         fun indexRequestFile(
             file: PersistedExtFile,
             isPageTab: Boolean,
-        ): SubmissionRequestFile? =
+        ): SubmissionRequestFile =
             when (newFiles.findMatch(file, isPageTab)) {
                 MatchType.CONFLICTING -> {
                     conflictIdx.incrementAndGet()
@@ -107,7 +107,7 @@ class SubmissionRequestCleanIndexer(
                     when {
                         current.released && new.released -> SubmissionRequestFile(new, file, RELEASED, false)
                         current.released.not() -> SubmissionRequestFile(new, file, COPIED, false)
-                        else -> null
+                        else -> SubmissionRequestFile(new, file, REUSED, true)
                     }
                 }
             }
@@ -117,8 +117,7 @@ class SubmissionRequestCleanIndexer(
             .concurrently(concurrency) { (isPageTab, file) ->
                 require(file is PersistedExtFile) { "Only persisted files are supported" }
                 indexRequestFile(file, isPageTab)
-            }.filterNotNull()
-            .collect {
+            }.collect {
                 logger.info { "${new.accNo} ${new.owner} Indexing to clean file, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
             }
