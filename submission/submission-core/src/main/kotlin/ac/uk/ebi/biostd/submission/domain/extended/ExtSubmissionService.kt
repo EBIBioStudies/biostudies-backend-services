@@ -119,7 +119,7 @@ class ExtSubmissionService(
         target: StorageMode,
     ) {
         logger.info { "$accNo $user Received transfer request with target='$target'" }
-        val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         require(source.storageMode != target) { throw InvalidTransferTargetException() }
 
         val transfer = processSubmission(user, source.copy(storageMode = target))

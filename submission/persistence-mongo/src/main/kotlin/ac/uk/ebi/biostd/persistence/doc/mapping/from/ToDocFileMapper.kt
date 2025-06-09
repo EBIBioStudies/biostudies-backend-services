@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.from
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
-import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -12,7 +11,6 @@ import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
@@ -44,14 +42,9 @@ class ToDocFileListMapper(
         version: Int,
     ): List<FileListDocFile> =
         serializationService
-            .deserializeListAsSequence(stream)
+            .deserializeFileListAsSequence(stream)
             .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, version, accNo) }
             .toList()
-}
-
-class ToDocLinkListMapper {
-    internal fun convert(extLinkList: ExtLinkList): DocLinkList =
-        DocLinkList(extLinkList.filePath, extLinkList.pageTabFiles.map { it.toDocFile() })
 }
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })

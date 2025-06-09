@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtLinkListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
@@ -20,7 +21,11 @@ class ToExtSubmissionConfig {
     ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileDocDataRepository, extSerializationService, extFilesResolver)
 
     @Bean
-    internal fun toExtLinkListMapper(extFilesResolver: FilesResolver): ToExtLinkListMapper = ToExtLinkListMapper(extFilesResolver)
+    internal fun toExtLinkListMapper(
+        extFilesResolver: FilesResolver,
+        serializationService: ExtSerializationService,
+        linkListDocDataRepository: LinkListDocLinkDocDataRepository,
+    ): ToExtLinkListMapper = ToExtLinkListMapper(extFilesResolver, serializationService, linkListDocDataRepository)
 
     @Bean
     internal fun toExtSectionMapper(

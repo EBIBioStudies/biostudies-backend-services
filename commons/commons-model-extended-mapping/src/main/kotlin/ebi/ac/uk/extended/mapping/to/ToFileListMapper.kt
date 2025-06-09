@@ -79,7 +79,7 @@ class ToFileListMapper(
         targetFormat: SubFormat,
         target: OutputStream,
     ) {
-        val sourceFiles = extSerializationService.deserializeListAsFlow(input).map { it.toFile() }
+        val sourceFiles = extSerializationService.deserializeFileListAsFlow(input).map { it.toFile() }
         serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }
 }

@@ -8,14 +8,13 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import java.time.ZoneOffset.UTC
 
-internal const val FILES_DIR = "Files"
-
 class ToExtSubmissionMapper(
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
     internal suspend fun toExtSubmission(
         sub: DocSubmission,
         includeFileListFiles: Boolean,
+        includeLinkListLinks: Boolean,
     ): ExtSubmission =
         ExtSubmission(
             accNo = sub.accNo,
@@ -41,6 +40,7 @@ class ToExtSubmissionMapper(
                     sub.released,
                     sub.relPath,
                     includeFileListFiles,
+                    includeLinkListLinks,
                 ),
             attributes = sub.attributes.toExtAttributes(),
             collections = sub.collections.map { ExtCollection(it.accNo) },
