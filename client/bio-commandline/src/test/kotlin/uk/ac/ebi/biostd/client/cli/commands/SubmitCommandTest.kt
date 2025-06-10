@@ -43,7 +43,7 @@ internal class SubmitCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val params = SubmitParameters(storageMode = StorageMode.FIRE, singleJobMode = true)
+        val params = SubmitParameters(singleJobMode = true)
         val request =
             SubmissionRequest(
                 submissionFile = submission,
