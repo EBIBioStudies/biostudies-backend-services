@@ -91,7 +91,8 @@ data class RequestDocFile(
 ) : DocFile
 
 /**
- * As md5Calculated field was added after submission store
+ * The `md5Calculated` field was added after the model was initially created. Adding this field to every existing
+ * document is complex due to the possibility of nested sections. Therefore, we default its value to `true`.
  */
 data class NfsDocFile(
     val fileName: String,
