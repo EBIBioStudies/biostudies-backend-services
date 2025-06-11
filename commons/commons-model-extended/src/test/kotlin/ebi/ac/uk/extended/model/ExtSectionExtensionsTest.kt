@@ -12,7 +12,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
+class ExtSectionExtensionsTest(
+    private val temporaryFolder: TemporaryFolder,
+) {
     @Test
     fun allSections() {
         val extSection =
@@ -41,11 +43,12 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
     fun allFiles() {
         val tmpFile = temporaryFolder.createFile("file.txt")
 
-        val nfsFile = NfsFile("filePath", "relPath", tmpFile, tmpFile.absolutePath, tmpFile.md5(), tmpFile.size())
+        val nfsFile = NfsFile("filePath", "relPath", tmpFile, tmpFile.absolutePath, true, tmpFile.md5(), tmpFile.size())
         val fireFile = FireFile("fireId", "firePath", false, "filePath", "relPath", "md5", 1, FILE, listOf())
 
         val tmpFile2 = temporaryFolder.createFile("file2.txt")
-        val nfsFile2 = NfsFile("filePath", "relPath", tmpFile2, tmpFile2.absolutePath, tmpFile2.md5(), tmpFile2.size())
+        val nfsFile2 =
+            NfsFile("filePath", "relPath", tmpFile2, tmpFile2.absolutePath, true, tmpFile2.md5(), tmpFile2.size())
 
         val extSection =
             ExtSection(

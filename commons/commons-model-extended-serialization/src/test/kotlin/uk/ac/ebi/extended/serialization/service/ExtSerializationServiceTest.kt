@@ -80,6 +80,7 @@ class ExtSerializationServiceTest(
             fullPath = nfsFile.absolutePath,
             file = nfsFile,
             attributes = (1..4).map { ExtAttribute(name = "name$it-file$index", value = "value$it-file$index") },
+            md5Calculated = true,
             md5 = nfsFile.md5(),
             size = nfsFile.size(),
         )

@@ -9,4 +9,4 @@ fun createNfsFile(
     relpath: String,
     file: File,
     attributes: List<ExtAttribute> = listOf(),
-): NfsFile = NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
+): NfsFile = NfsFile(filePath, relpath, file, file.absolutePath, true, file.md5(), file.size(), attributes)

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5_CALCULATED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
@@ -18,7 +19,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
-class DocFileConverter(private val docAttributeConverter: DocAttributeConverter) : Converter<Document, DocFile> {
+class DocFileConverter(
+    private val docAttributeConverter: DocAttributeConverter,
+) : Converter<Document, DocFile> {
     override fun convert(source: Document): DocFile {
         val fileName = source.getString(FILE_DOC_FILENAME)
         val filePath = source.getString(FILE_DOC_FILEPATH)
@@ -50,6 +53,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                     attributes = attributes,
                     md5 = md5,
                     fileSize = fileSize,
+                    md5Calculated = source.getBoolean(FILE_DOC_MD5_CALCULATED),
                     fileType = fileType,
                 )
 
@@ -58,4 +62,6 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
     }
 }
 
-class InvalidClassNameDocFileException(className: String) : RuntimeException("could not be found $className class")
+class InvalidClassNameDocFileException(
+    className: String,
+) : RuntimeException("could not be found $className class")

@@ -82,6 +82,7 @@ data class NfsFile(
     override val relPath: String,
     val file: File,
     val fullPath: String,
+    val md5Calculated: Boolean,
     override val md5: String,
     override val size: Long,
     override val attributes: List<ExtAttribute> = listOf(),

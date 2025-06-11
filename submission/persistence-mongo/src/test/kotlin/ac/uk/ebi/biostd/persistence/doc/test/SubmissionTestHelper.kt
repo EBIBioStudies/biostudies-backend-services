@@ -28,9 +28,40 @@ internal const val PROJECT_ACC_NO = "BioImages"
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 internal const val DOI = "10.6019/S-TEST123"
 
-val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, FILE.value)
-val fireDocDirectory = FireDocFile("filename", "filePath", "relPath", "dirFireId", listOf(), "md5", 1L, DIR.value)
-val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", listOf(), "md5", 1L, "fileType")
+val fireDocFile =
+    FireDocFile(
+        fileName = "filename",
+        filePath = "filePath",
+        relPath = "relPath",
+        fireId = "fireId",
+        attributes = listOf(),
+        md5 = "md5",
+        fileSize = 1L,
+        fileType = FILE.value,
+    )
+val fireDocDirectory =
+    FireDocFile(
+        fileName = "filename",
+        filePath = "filePath",
+        relPath = "relPath",
+        fireId = "dirFireId",
+        attributes = listOf(),
+        md5 = "md5",
+        fileSize = 1L,
+        fileType = DIR.value,
+    )
+val nfsDocFile =
+    NfsDocFile(
+        fileName = "filename",
+        filePath = "filePath",
+        relPath = "relPath",
+        fullPath = "fileAbsPath",
+        attributes = listOf(),
+        md5Calculated = true,
+        md5 = "md5",
+        fileSize = 1L,
+        fileType = "fileType",
+    )
 
 object SubmissionTestHelper {
     internal val time = Instant.now()

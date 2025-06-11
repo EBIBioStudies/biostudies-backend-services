@@ -18,7 +18,9 @@ import uk.ac.ebi.extended.serialization.service.createExtFileList
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
+class ExtSectionDeserializerTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val testInstance = ExtSerializationService.mapper
 
     @Test
@@ -162,6 +164,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                 "Files/file-list.xml",
                 fileListPageTab,
                 fileListPageTab.absolutePath,
+                true,
                 "abc-md5",
                 55,
             ),

@@ -31,7 +31,9 @@ import uk.ac.ebi.extended.serialization.service.files
 import uk.ac.ebi.serialization.common.FilesResolver
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
+class ToExtFileListMapperTest(
+    temporaryFolder: TemporaryFolder,
+) {
     private val fileListDocFileRepository: FileListDocFileDocDataRepository = mockk()
     private val extSerializationService = ExtSerializationService()
     private val testInstance =
@@ -43,14 +45,15 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     private val fileNfs = temporaryFolder.createDirectory("folder").newFile("nfsFileFile.txt")
     private val nfsDocFile =
         NfsDocFile(
-            fileNfs.name,
-            "filePath",
-            "relPath",
-            fileNfs.absolutePath,
-            listOf(),
-            fileNfs.md5(),
-            fileNfs.size(),
-            "file",
+            fileName = fileNfs.name,
+            filePath = "filePath",
+            relPath = "relPath",
+            fullPath = fileNfs.absolutePath,
+            attributes = listOf(),
+            md5Calculated = true,
+            md5 = fileNfs.md5(),
+            fileSize = fileNfs.size(),
+            fileType = "file",
         )
     private val fileListDocFile =
         FileListDocFile(

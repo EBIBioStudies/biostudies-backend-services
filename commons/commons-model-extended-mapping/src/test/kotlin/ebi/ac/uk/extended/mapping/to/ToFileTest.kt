@@ -34,6 +34,7 @@ internal class ToFileTest(
             "Files/folder/myFile",
             file,
             file.absolutePath,
+            true,
             md5,
             file.size(),
             listOf(extAttribute),

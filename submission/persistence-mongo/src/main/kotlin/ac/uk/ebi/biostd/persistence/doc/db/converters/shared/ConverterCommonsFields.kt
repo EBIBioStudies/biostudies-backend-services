@@ -32,6 +32,7 @@ object DocFileFields {
     const val FILE_DOC_REL_PATH = "relPath"
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
+    const val FILE_DOC_MD5_CALCULATED = "md5Calculated"
     const val FILE_DOC_SIZE = "fileSize"
     const val FILE_DOC_TYPE = "type"
 }

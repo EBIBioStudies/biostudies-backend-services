@@ -25,25 +25,26 @@ fun NfsFile.asFireFile(
     published: Boolean,
 ): FireFile =
     FireFile(
-        fireId,
-        firePath,
-        published,
-        filePath,
-        relPath,
-        md5,
-        size,
-        type,
-        attributes,
+        fireId = fireId,
+        firePath = firePath,
+        published = published,
+        filePath = filePath,
+        relPath = relPath,
+        md5 = md5,
+        size = size,
+        type = type,
+        attributes = attributes,
     )
 
 fun FireFile.asNfsFile(file: File): NfsFile =
     NfsFile(
-        filePath,
-        relPath,
-        file,
-        file.absolutePath,
-        md5,
-        size,
-        attributes,
-        type,
+        filePath = filePath,
+        relPath = relPath,
+        file = file,
+        fullPath = file.absolutePath,
+        md5Calculated = true,
+        md5 = md5,
+        size = size,
+        attributes = attributes,
+        type = type,
     )

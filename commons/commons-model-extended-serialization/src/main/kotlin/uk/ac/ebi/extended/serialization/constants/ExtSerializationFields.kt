@@ -25,6 +25,7 @@ object ExtSerializationFields {
     const val FILE_FIRE_PATH = "firePath"
     const val FILE_SIZE = "size"
     const val FILE_MD5 = "md5"
+    const val FILE_MD5_CALCULATED = "md5Calculated"
 
     // Ext Attributes Fields
     const val ATTR_NAME = "name"

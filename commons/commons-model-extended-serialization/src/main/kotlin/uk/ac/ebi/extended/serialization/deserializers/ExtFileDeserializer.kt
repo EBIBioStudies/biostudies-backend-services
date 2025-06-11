@@ -21,6 +21,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FI
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_PUBLISHED
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5_CALCULATED
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
@@ -82,6 +83,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fullPath = fullPath,
             file = Paths.get(fullPath).toFile(),
+            md5Calculated = node.getNode<BooleanNode>(FILE_MD5_CALCULATED).booleanValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),

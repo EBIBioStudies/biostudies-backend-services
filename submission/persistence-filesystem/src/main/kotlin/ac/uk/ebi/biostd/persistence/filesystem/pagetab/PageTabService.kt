@@ -80,6 +80,7 @@ class PageTabService(
             relPath = relPath,
             file = file,
             fullPath = file.absolutePath,
+            md5Calculated = true,
             md5 = file.md5(),
             size = file.size(),
             attributes = emptyList(),

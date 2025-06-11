@@ -93,7 +93,8 @@ class SubmissionRequestLoader(
         withContext(Dispatchers.IO) {
             when {
                 file.type == DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
-                else -> file.copy(md5 = file.file.md5(), size = file.file.size())
+                file.md5Calculated -> file
+                else -> file.copy(md5 = file.file.md5())
             }
         }
 

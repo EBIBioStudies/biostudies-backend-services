@@ -40,6 +40,7 @@ internal fun DocFile.toExtFile(
                 fullPath = fullPath,
                 md5 = md5,
                 size = fileSize,
+                md5Calculated = md5Calculated,
                 attributes = attributes.toExtAttributes(),
             )
 

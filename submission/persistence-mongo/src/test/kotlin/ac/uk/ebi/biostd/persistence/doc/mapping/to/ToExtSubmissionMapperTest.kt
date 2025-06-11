@@ -47,14 +47,15 @@ class ToExtSubmissionMapperTest(
     private val fileNfs = temporaryFolder.createDirectory("folder").newFile("nfsFileFile.txt")
     private val subNfsDocFile =
         NfsDocFile(
-            fileNfs.name,
-            "filePath",
-            "relPath",
-            fileNfs.absolutePath,
-            listOf(),
-            fileNfs.md5(),
-            fileNfs.size(),
-            "file",
+            fileName = fileNfs.name,
+            filePath = "filePath",
+            relPath = "relPath",
+            fullPath = fileNfs.absolutePath,
+            attributes = listOf(),
+            md5Calculated = true,
+            md5 = fileNfs.md5(),
+            fileSize = fileNfs.size(),
+            fileType = "file",
         )
 
     @Test

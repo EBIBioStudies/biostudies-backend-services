@@ -90,12 +90,16 @@ data class RequestDocFile(
     val type: String,
 ) : DocFile
 
+/**
+ * As md5Calculated field was added after submission store
+ */
 data class NfsDocFile(
     val fileName: String,
     override val filePath: String,
     val relPath: String,
     val fullPath: String,
     override var attributes: List<DocAttribute>,
+    val md5Calculated: Boolean = true,
     val md5: String,
     val fileSize: Long,
     val fileType: String,

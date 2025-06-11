@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5_CALCULATED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
@@ -40,6 +41,7 @@ internal class FileConverterTest(
                 relPath = FILE_DOC_REL_PATH,
                 fullPath = NFS_FILE_FULL_PATH,
                 attributes = listOf(docAttribute),
+                md5Calculated = true,
                 md5 = FILE_DOC_MD5,
                 fileSize = 10L,
                 fileType = "file",
@@ -54,6 +56,7 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
         assertThat(result[FILE_DOC_TYPE]).isEqualTo("file")
+        assertThat(result[FILE_DOC_MD5_CALCULATED]).isEqualTo(true)
     }
 
     @Test

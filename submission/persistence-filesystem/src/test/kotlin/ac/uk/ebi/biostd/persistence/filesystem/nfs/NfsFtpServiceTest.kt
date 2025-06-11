@@ -61,7 +61,9 @@ internal class NfsFtpServiceTest(
             runTest {
                 val subFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH)
                 val filesDir =
-                    subFolder.resolve("Files").createDirectories()
+                    subFolder
+                        .resolve("Files")
+                        .createDirectories()
                         .apply { createDirectories() }
                         .toFile()
                 val file = filesDir.createNewFile("file.txt", "file content")
@@ -71,6 +73,7 @@ internal class NfsFtpServiceTest(
                         relPath = "Files/file.txt",
                         file = file,
                         fullPath = file.absolutePath,
+                        md5Calculated = true,
                         md5 = file.md5(),
                         size = file.size(),
                     )
@@ -95,6 +98,7 @@ internal class NfsFtpServiceTest(
                         relPath = "Files/test.txt",
                         file = publicFile,
                         fullPath = publicFile.absolutePath,
+                        md5Calculated = true,
                         md5 = publicFile.md5(),
                         size = publicFile.size(),
                     )
@@ -114,7 +118,9 @@ internal class NfsFtpServiceTest(
             runTest {
                 val subFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH)
                 val filesDir =
-                    subFolder.resolve("Files").createDirectories()
+                    subFolder
+                        .resolve("Files")
+                        .createDirectories()
                         .apply { createDirectories() }
                         .toFile()
                 val file = filesDir.createNewFile("file.txt", "file content")
@@ -124,6 +130,7 @@ internal class NfsFtpServiceTest(
                         relPath = "Files/file.txt",
                         file = file,
                         fullPath = file.absolutePath,
+                        md5Calculated = true,
                         md5 = file.md5(),
                         size = file.size(),
                     )
@@ -148,6 +155,7 @@ internal class NfsFtpServiceTest(
                         relPath = "Files/move-test.txt",
                         file = file,
                         fullPath = file.absolutePath,
+                        md5Calculated = true,
                         md5 = file.md5(),
                         size = file.size(),
                     )

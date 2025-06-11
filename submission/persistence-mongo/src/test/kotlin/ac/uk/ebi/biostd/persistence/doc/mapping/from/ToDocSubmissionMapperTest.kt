@@ -178,38 +178,39 @@ class ToDocSubmissionMapperTest(
         assertThat(pageTabFiles).hasSize(3)
         assertThat(pageTabFiles.first()).isEqualTo(
             FireDocFile(
-                fireFile.fileName,
-                fireFile.filePath,
-                fireFile.relPath,
-                fireFile.fireId,
-                listOf(),
-                fireFile.md5,
-                fireFile.size,
-                fireFile.type.value,
+                fileName = fireFile.fileName,
+                filePath = fireFile.filePath,
+                relPath = fireFile.relPath,
+                fireId = fireFile.fireId,
+                attributes = listOf(),
+                md5 = fireFile.md5,
+                fileSize = fireFile.size,
+                fileType = fireFile.type.value,
             ),
         )
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDocFile(
-                fireDirectory.fileName,
-                fireDirectory.filePath,
-                fireDirectory.relPath,
-                fireDirectory.fireId,
-                listOf(),
-                fireDirectory.md5,
-                fireDirectory.size,
-                fireDirectory.type.value,
+                fileName = fireDirectory.fileName,
+                filePath = fireDirectory.filePath,
+                relPath = fireDirectory.relPath,
+                fireId = fireDirectory.fireId,
+                attributes = listOf(),
+                md5 = fireDirectory.md5,
+                fileSize = fireDirectory.size,
+                fileType = fireDirectory.type.value,
             ),
         )
         assertThat(pageTabFiles.third()).isEqualTo(
             NfsDocFile(
-                extNfsFile.fileName,
-                extNfsFile.filePath,
-                extNfsFile.relPath,
-                nfsFileFile.absolutePath,
-                listOf(),
-                nfsFileFile.md5(),
-                extNfsFile.size,
-                "file",
+                fileName = extNfsFile.fileName,
+                filePath = extNfsFile.filePath,
+                relPath = extNfsFile.relPath,
+                fullPath = nfsFileFile.absolutePath,
+                attributes = listOf(),
+                md5Calculated = true,
+                md5 = nfsFileFile.md5(),
+                fileSize = extNfsFile.size,
+                fileType = "file",
             ),
         )
     }

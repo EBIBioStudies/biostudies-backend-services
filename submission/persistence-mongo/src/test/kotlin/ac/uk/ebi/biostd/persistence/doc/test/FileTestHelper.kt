@@ -23,6 +23,7 @@ internal const val TEST_FILEPATH_DIRECTORY = "filePath/folder/fire-directory.txt
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list"
 private const val TEST_MD5 = "a-test-md5"
+private const val MD5_CALCULATED = true
 private const val TEST_FIRE_FILE_ID = "fireFileId"
 private const val TEST_FIRE_DIR_ID = "fireDirId"
 private const val TEST_FIRE_FILE_SIZE = 10L
@@ -36,6 +37,7 @@ internal object FileTestHelper {
             relPath = TEST_REL_PATH,
             fullPath = TEST_FULL_PATH,
             attributes = listOf(basicDocAttribute),
+            md5Calculated = MD5_CALCULATED,
             md5 = TEST_MD5,
             fileSize = SIZE,
             fileType = FILE.value,

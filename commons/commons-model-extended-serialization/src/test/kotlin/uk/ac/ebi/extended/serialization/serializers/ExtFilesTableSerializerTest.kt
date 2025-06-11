@@ -15,7 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
+class ExtFilesTableSerializerTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val testInstance = ExtSerializationService.mapper
 
     @Test
@@ -28,6 +30,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                     relPath = "Files/folder/test-file.txt",
                     fullPath = file.absolutePath,
                     file = file,
+                    md5Calculated = true,
                     md5 = file.md5(),
                     size = file.size(),
                     attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
