@@ -323,6 +323,46 @@ class SubmissionApiTest(
         }
 
     @Test
+    fun `16-10-1 Submit study with invalid characters file path in file list`() =
+        runTest {
+            tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
+            tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
+
+            val file1 = tempFolder.createFile("file_16-10.txt")
+            val file2 = tempFolder.createFile("merged-%.tif")
+            val fileList =
+                tempFolder.createFile(
+                    "file-list.tsv",
+                    tsv {
+                        line("Files", "Type")
+                        line("file_16-10.txt", "A")
+                        line("h_EglN1-Δβ2β3-GFP/#4/merged-%.tif", "B")
+                    }.toString(),
+                )
+            val submission =
+                tsv {
+                    line("Submission", "S-BSST16101")
+                    line("Title", "Submission")
+                    line("ReleaseDate", "2030-01-25")
+                    line()
+
+                    line("Study")
+                    line("File List", "file-list.tsv")
+                    line()
+                }.toString()
+
+            webClient.uploadFiles(listOf(file1, file2, fileList))
+            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            val request = submissionRequestRepository.getByAccNoAndStatusNotIn("S-BSST16101", PROCESSED_STATUS)
+            val expectedError = "The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif"
+            val expectedFileListError = "Referenced in file list: file-list.tsv"
+            assertThat(exception).hasMessageContainingAll(expectedError, expectedFileListError)
+            assertThat(request.status).isEqualTo(DRAFT)
+            assertThat(request.errors).hasSize(1)
+            assertThat(request.errors.first()).contains(expectedError, expectedFileListError)
+        }
+
+    @Test
     fun `16-11 Submit study containing folder with trailing slash`() =
         runTest {
             val submission =

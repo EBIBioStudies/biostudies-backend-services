@@ -41,17 +41,22 @@ interface FileSourcesList {
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
+        fileListName: String? = null,
     ): ExtFile?
 
     suspend fun getExtFile(
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
+        fileListName: String? = null,
     ): ExtFile
 
     fun sourcesDescription(): String
 
-    suspend fun getFileList(path: String): File?
+    suspend fun getFileList(
+        path: String,
+        fileListName: String? = null,
+    ): File?
 }
 
 class ByPassSourceList(
@@ -61,6 +66,7 @@ class ByPassSourceList(
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
+        fileListName: String?,
     ): ExtFile = RequestFile(path, attributes, type)
 }
 
@@ -71,8 +77,9 @@ class SourcesList(
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
+        fileListName: String?,
     ): ExtFile? {
-        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path, fileListName) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
@@ -80,12 +87,16 @@ class SourcesList(
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
-    ): ExtFile = findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
+        fileListName: String?,
+    ): ExtFile = findExtFile(path, type, attributes, fileListName) ?: throw FilesProcessingException(path, this, fileListName)
 
     override fun sourcesDescription(): String = sources.joinToString(separator = "\n") { "  - ${it.description}" }
 
-    override suspend fun getFileList(path: String): File? {
-        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
+    override suspend fun getFileList(
+        path: String,
+        fileListName: String?,
+    ): File? {
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path, fileListName) }
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }

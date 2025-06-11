@@ -76,6 +76,22 @@ internal class SourcesListTest(
             }
 
         @Test
+        fun `file with relative path in file list`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("./folder/file.txt", FILE_TYPE.value, attributes, "file-list.tsv")
+                    }
+                val expectedErrorMessage =
+                    """
+                    The given file path contains invalid characters: ./folder/file.txt
+                    Referenced in file list: file-list.tsv
+                    For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
+
+        @Test
         fun `file with previous folder relative path`() =
             runTest {
                 val error =
@@ -100,6 +116,22 @@ internal class SourcesListTest(
                 val expectedErrorMessage =
                     """
                     The given file path contains invalid characters: folder/filé.txt
+                    For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
+
+        @Test
+        fun `file with invalid character in file list`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("folder/filé.txt", FILE_TYPE.value, attributes, "file-list.tsv")
+                    }
+                val expectedErrorMessage =
+                    """
+                    The given file path contains invalid characters: folder/filé.txt
+                    Referenced in file list: file-list.tsv
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
                     """.trimIndent()
                 assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)

@@ -5,7 +5,10 @@ import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 
-suspend fun FileSourcesList.getExtFile(file: BioFile): ExtFile = getExtFile(file.path, file.type, file.attributes.toExtAttributes())
+suspend fun FileSourcesList.getExtFile(
+    file: BioFile,
+    fileListName: String? = null,
+): ExtFile = getExtFile(file.path, file.type, file.attributes.toExtAttributes(), fileListName)
 
 suspend fun FileSourcesList.findExtFile(file: BioFile): ExtFile? = findExtFile(file.path, file.type, file.attributes.toExtAttributes())
 
