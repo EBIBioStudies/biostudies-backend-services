@@ -92,7 +92,7 @@ class ToExtFileListMapper(
                 serializationService
                     .deserializeFileListAsFlow(input, format)
                     .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.path}'" } }
-                    .map { sources.getExtFile(it) }
+                    .map { sources.getExtFile(it, source.name) }
             val files = extSerializationService.serialize(sourceFiles, target)
             if (files < 1) throw InvalidFileListException.emptyFileList(source.name)
         }

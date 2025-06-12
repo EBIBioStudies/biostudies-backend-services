@@ -1,9 +1,14 @@
 package ebi.ac.uk.errors
 
-class InvalidPathException(val path: String) : RuntimeException() {
+class InvalidPathException(
+    private val path: String,
+    private val fileListName: String? = null,
+) : RuntimeException() {
     override val message: String
-        get() = """
-            The given file path contains invalid characters: $path
-            For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-        """
+        get() =
+            buildString {
+                append("The given file path contains invalid characters: $path\n")
+                fileListName?.let { append("Referenced in file list: $it\n") }
+                append("For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list")
+            }
 }

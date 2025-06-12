@@ -101,6 +101,7 @@ Contains test related to submission
 | SubmissionApiTest      | 16-8    | Submit public study with file make files public                           |
 | SubmissionApiTest      | 16-9    | Submit study not released makes files private                             |
 | SubmissionApiTest      | 16-10   | Submit study with invalid characters file path                            |
+| SubmissionApiTest      | 16-10-1 | Submit study with invalid characters file path in file list               |
 | SubmissionApiTest      | 16-11   | Submit study containing folder with trailing slash                        |
 | SubmissionApiTest      | 16-12   | Submit study containing filelist with invalid name                        |
 | SubmissionApiTest      | 16-13   | Submit study by Regular user with Ftp home directory                      |
