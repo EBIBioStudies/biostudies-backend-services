@@ -95,7 +95,7 @@ class SubmissionRequestLoader(
             when {
                 file.type == DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
                 file.hasMd5 -> file
-                else -> file.copy(md5 = file.file.md5())
+                else -> file.copy(md5 = file.file.md5(), size = file.file.size())
             }
         }
 
