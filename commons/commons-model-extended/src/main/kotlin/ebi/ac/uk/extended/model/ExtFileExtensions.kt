@@ -36,6 +36,9 @@ fun NfsFile.asFireFile(
         attributes,
     )
 
+const val NOT_CALCULATED_MD5 = "NOT_CALCULATED"
+val NfsFile.hasMd5 get() = md5 != NOT_CALCULATED_MD5
+
 fun FireFile.asNfsFile(file: File): NfsFile =
     NfsFile(
         filePath,
