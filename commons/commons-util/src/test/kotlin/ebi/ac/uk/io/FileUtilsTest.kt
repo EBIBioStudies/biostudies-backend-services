@@ -22,9 +22,91 @@ import java.nio.file.Files.getPosixFilePermissions
 import java.util.concurrent.TimeUnit
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
+internal class FileUtilsTest(
+    private val temporaryFolder: TemporaryFolder,
+) {
     @BeforeEach
     fun beforeEach() = temporaryFolder.clean()
+
+    @Nested
+    inner class Md5 {
+        @Nested
+        inner class WhenDirectory {
+            @Test
+            fun whenFileContentIsChanged() {
+                val mainDir = temporaryFolder.createDirectory("main")
+                val file = mainDir.createFile("file.txt", "example")
+                val mainDirHash = FileUtils.md5(mainDir)
+
+                file.writeText("example2")
+                val newMd5 = FileUtils.md5(mainDir)
+
+                assertThat(mainDirHash).isNotEqualTo(newMd5)
+            }
+
+            @Test
+            fun whenFileIsDelete() {
+                val mainDir = temporaryFolder.createDirectory("main")
+                val file = mainDir.createFile("file.txt", "example")
+                val mainDirHash = FileUtils.md5(mainDir)
+
+                file.delete()
+                val newMd5 = FileUtils.md5(mainDir)
+
+                assertThat(mainDirHash).isNotEqualTo(newMd5)
+            }
+
+            @Test
+            fun whenNewEmptyFolderIsAdded() {
+                val mainDir = temporaryFolder.createDirectory("main")
+                mainDir.createFile("file.txt", "example")
+                val mainDirHash = FileUtils.md5(mainDir)
+
+                mainDir.createDirectory("empty")
+                val newMd5 = FileUtils.md5(mainDir)
+
+                assertThat(mainDirHash).isNotEqualTo(newMd5)
+            }
+
+            @Test
+            fun whenInnerFolderIsRenamed() {
+                val mainDir = temporaryFolder.createDirectory("main")
+                val inner = mainDir.createDirectory("inner1")
+                val mainDirHash = FileUtils.md5(mainDir)
+
+                inner.renameTo(mainDir.resolve("inner2"))
+                val newMd5 = FileUtils.md5(mainDir)
+
+                assertThat(mainDirHash).isNotEqualTo(newMd5)
+            }
+
+            @Test
+            fun whenInnerFolderIsMoved() {
+                val mainDir = temporaryFolder.createDirectory("main")
+                val inner = mainDir.createDirectory("inner1")
+                val inner2 = inner.createDirectory("inner2")
+                val mainDirHash = FileUtils.md5(mainDir)
+
+                inner2.renameTo(mainDir.resolve("inner2"))
+                val newMd5 = FileUtils.md5(mainDir)
+
+                assertThat(mainDirHash).isNotEqualTo(newMd5)
+            }
+
+            @Test
+            fun whenNoChanges() {
+                val mainDir = temporaryFolder.createDirectory("main")
+                val inner = mainDir.createDirectory("inner1")
+                val inner2 = inner.createDirectory("inner2")
+                val file = inner2.createFile("file.txt", "same content")
+
+                val mainDirHash = FileUtils.md5(mainDir)
+                file.writeText("same content")
+
+                assertThat(mainDirHash).isEqualTo(FileUtils.md5(mainDir))
+            }
+        }
+    }
 
     @Nested
     inner class CopyOrReplaceFile {

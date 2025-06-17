@@ -407,4 +407,34 @@ class ResubmissionApiTest(
                 )
             }
         }
+
+    @Test
+    fun `5-6 Resubmit study adding new files to folder`() =
+        runTest {
+            webClient.createFolder("oneFolder")
+            webClient.uploadFile(tempFolder.createFile("file1.txt", "file1 content"), "oneFolder")
+
+            val version1 =
+                tsv {
+                    line("Submission", "S-RSTST56")
+                    line("Title", "Add Submission Files to Folder")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "oneFolder")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+
+            webClient.uploadFile(tempFolder.createFile("file2.txt", "file2 content"), "oneFolder")
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+
+            val sub = submissionRepository.getExtByAccNo("S-RSTST56")
+
+            val directory = File("$submissionPath/${sub.relPath}/Files/oneFolder")
+            assertThat(directory).isDirectory()
+            assertThat(directory.listFiles()).hasSize(2)
+        }
 }

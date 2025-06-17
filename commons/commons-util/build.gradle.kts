@@ -7,6 +7,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWebFlux
 import Dependencies.XlsxStreamer
+import Dependencies.ZeroAllocationHashing
 import Projects.CommonsTest
 import Projects.ExcelLibrary
 import Projects.TsvLibrary
@@ -29,6 +30,7 @@ dependencies {
     compileOnly(Guava)
 
     implementation(CommonsIO)
+    implementation(ZeroAllocationHashing)
     implementation(CommonsLang3)
     implementation(KotlinCoroutines)
     implementation(KotlinLogging)

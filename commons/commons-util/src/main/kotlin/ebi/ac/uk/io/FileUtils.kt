@@ -11,6 +11,7 @@ import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
+import net.openhft.hashing.LongHashFunction
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.core.io.InputStreamSource
 import java.io.File
@@ -153,7 +154,7 @@ object FileUtils {
         iterateDirectories: Boolean = true,
     ): Long = if (file.isDirectory && iterateDirectories) calculateDirectorySize(file) else Files.size(file.toPath())
 
-    fun md5(file: File): String = if (file.isFile) calculateMd5(file) else ""
+    fun md5(file: File): String = if (file.isFile) calculateMd5(file) else hashFolder(file).toString()
 
     fun md5(value: String): String = DigestUtils.md5Hex(value).uppercase()
 
@@ -333,3 +334,46 @@ data class Permissions(
     val file: Set<PosixFilePermission>,
     val folder: Set<PosixFilePermission>,
 )
+
+fun hashFolder(folder: File): Long {
+    val hasher = LongHashFunction.xx3()
+
+    fun listFiles(root: File): List<Pair<String, File>> =
+        root
+            .walkTopDown()
+            .sortedBy { it.relativeTo(root).invariantSeparatorsPath }
+            .map { it.relativeTo(root).invariantSeparatorsPath to it }
+            .toList()
+
+    fun hashFileContent(file: File): Long {
+        file.inputStream().use { input ->
+            val buffer = ByteArray(8192)
+            var hash = 0L
+            var bytesRead: Int
+
+            while (input.read(buffer).also { bytesRead = it } != -1) {
+                hash = hash xor hasher.hashBytes(buffer, 0, bytesRead)
+            }
+            return hash
+        }
+    }
+
+    fun hashFile(pair: Pair<String, File>): Long {
+        val (relativePath, file) = pair
+        val pathBytes = relativePath.toByteArray()
+
+        return when {
+            file.isFile -> hasher.hashBytes(pathBytes) xor hashFileContent(file)
+            else -> hasher.hashBytes(pathBytes) xor hasher.hashBytes("<DIR>".toByteArray())
+        }
+    }
+
+    require(folder.isDirectory)
+    logger.info { "Calculating folder '${folder.absolutePath}' hash" }
+    val hash =
+        listFiles(folder)
+            .map { hashFile(it) }
+            .fold(0L) { acc, h -> acc xor h }
+    logger.info { "Folder hash '${folder.absolutePath}' calculation completed" }
+    return hash
+}
