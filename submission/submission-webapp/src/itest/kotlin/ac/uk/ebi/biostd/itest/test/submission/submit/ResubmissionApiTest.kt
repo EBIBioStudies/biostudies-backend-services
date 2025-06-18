@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -411,12 +412,13 @@ class ResubmissionApiTest(
     @Test
     fun `5-6 Resubmit study adding new files to folder`() =
         runTest {
+            val accNo = "S-RSTST56"
             webClient.createFolder("oneFolder")
             webClient.uploadFile(tempFolder.createFile("file1.txt", "file1 content"), "oneFolder")
 
             val version1 =
                 tsv {
-                    line("Submission", "S-RSTST56")
+                    line("Submission", accNo)
                     line("Title", "Add Submission Files to Folder")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -429,9 +431,11 @@ class ResubmissionApiTest(
             assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
             webClient.uploadFile(tempFolder.createFile("file2.txt", "file2 content"), "oneFolder")
+
+            securityTestService.addPermission(SuperUser.email, accNo, AccessType.DELETE_FILES)
             assertThat(webClient.submit(version1, TSV)).isSuccessful()
 
-            val sub = submissionRepository.getExtByAccNo("S-RSTST56")
+            val sub = submissionRepository.getExtByAccNo(accNo)
 
             val directory = File("$submissionPath/${sub.relPath}/Files/oneFolder")
             assertThat(directory).isDirectory()

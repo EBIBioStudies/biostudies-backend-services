@@ -345,6 +345,7 @@ fun hashFolder(folder: File): Long {
             .map { it.relativeTo(root).invariantSeparatorsPath to it }
             .toList()
 
+    @Suppress("MagicNumber")
     fun hashFileContent(file: File): Long {
         file.inputStream().use { input ->
             val buffer = ByteArray(8192)

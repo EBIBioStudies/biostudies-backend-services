@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.itest.common
 
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -22,7 +24,17 @@ class TestConfig {
         sequenceDataRepository: SequenceDataRepository,
         securityService: SecurityService,
         securityQueryService: SecurityQueryService,
-    ): SecurityTestService = SecurityTestService(securityService, securityQueryService, userDataRepository, sequenceDataRepository)
+        accessPermissionRepository: AccessPermissionRepository,
+        accessTagDataRepo: AccessTagDataRepo,
+    ): SecurityTestService =
+        SecurityTestService(
+            securityService,
+            securityQueryService,
+            userDataRepository,
+            sequenceDataRepository,
+            accessPermissionRepository,
+            accessTagDataRepo,
+        )
 
     @Bean
     fun submissionTestService(submissionRepository: SubmissionPersistenceQueryService): SubmissionTestService =

@@ -1,7 +1,12 @@
 package ac.uk.ebi.biostd.itest.common
 
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSequence
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.io.FileUtils
@@ -16,7 +21,20 @@ class SecurityTestService(
     private val securityQueryService: SecurityQueryService,
     private val userDataRepository: UserDataRepository,
     private val sequenceRepository: SequenceDataRepository,
+    private val accessPermissionRepository: AccessPermissionRepository,
+    private val accessTagDataRepo: AccessTagDataRepo,
 ) {
+    fun addPermission(
+        email: String,
+        accNo: String,
+        accessType: AccessType,
+    ) {
+        val user = userDataRepository.getByEmail(email)
+        val tag = accessTagDataRepo.save(DbAccessTag(name = accNo))
+        val permission = DbAccessPermission(accessType = accessType, user = user, accessTag = tag)
+        accessPermissionRepository.save(permission)
+    }
+
     fun ensureSequence(prefix: String) {
         if (sequenceRepository.existsByPrefix(prefix).not()) sequenceRepository.save(DbSequence(prefix))
     }
