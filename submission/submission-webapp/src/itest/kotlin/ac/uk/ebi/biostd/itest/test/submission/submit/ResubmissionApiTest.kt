@@ -30,6 +30,7 @@ import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -410,6 +411,7 @@ class ResubmissionApiTest(
         }
 
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `5-6 Resubmit study adding new files to folder`() =
         runTest {
             val accNo = "S-RSTST56"
