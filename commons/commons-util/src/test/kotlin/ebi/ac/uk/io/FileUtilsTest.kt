@@ -451,7 +451,7 @@ internal class FileUtilsTest(
             val folder = temporaryFolder.createDirectory("md5-test")
             val file = temporaryFolder.createFile("md5-test.txt", "a file for md5 test")
 
-            assertThat(FileUtils.md5(folder)).isEmpty()
+            assertThat(FileUtils.md5(folder)).isEqualTo("642928941404046304")
             assertThat(FileUtils.md5(file)).isEqualTo("FC5D029EE5D34A268F8FA016E949073B")
         }
 
