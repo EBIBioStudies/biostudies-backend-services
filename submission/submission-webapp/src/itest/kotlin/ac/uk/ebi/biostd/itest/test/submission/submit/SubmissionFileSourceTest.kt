@@ -437,7 +437,7 @@ class SubmissionFileSourceTest(
                     require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(18L)
-                    assertThat(it.md5).isEmpty()
+                    assertThat(it.md5).isEqualTo("4266048183609550374")
 
                     val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/directory")
                     assertDirFile(dir.resolve("file1.txt"), "content-1")
@@ -483,7 +483,7 @@ class SubmissionFileSourceTest(
                     require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(11L)
-                    assertThat(it.md5).isEmpty()
+                    assertThat(it.md5).isEqualTo("8130123295614227210")
 
                     val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/duplicated")
                     assertDirFile(dir.resolve("fileA.txt"), "one content")
@@ -492,7 +492,7 @@ class SubmissionFileSourceTest(
                     require(it is PersistedExtFile)
                     assertThat(it.type).isEqualTo(ExtFileType.DIR)
                     assertThat(it.size).isEqualTo(15L)
-                    assertThat(it.md5).isEmpty()
+                    assertThat(it.md5).isEqualTo("6393089272914456300")
 
                     val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder/duplicated")
                     assertDirFile(dir.resolve("fileB.txt"), "another content")

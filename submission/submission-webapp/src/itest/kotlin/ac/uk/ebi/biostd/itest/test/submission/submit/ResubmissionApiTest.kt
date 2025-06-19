@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -29,6 +30,7 @@ import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -406,5 +408,39 @@ class ResubmissionApiTest(
                     "File deletion/modifications require admin permission.",
                 )
             }
+        }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+    fun `5-6 Resubmit study adding new files to folder`() =
+        runTest {
+            val accNo = "S-RSTST56"
+            webClient.createFolder("oneFolder")
+            webClient.uploadFile(tempFolder.createFile("file1.txt", "file1 content"), "oneFolder")
+
+            val version1 =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "Add Submission Files to Folder")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "oneFolder")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+
+            webClient.uploadFile(tempFolder.createFile("file2.txt", "file2 content"), "oneFolder")
+
+            securityTestService.addPermission(SuperUser.email, accNo, AccessType.DELETE_FILES)
+            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+
+            val sub = submissionRepository.getExtByAccNo(accNo)
+
+            val directory = File("$submissionPath/${sub.relPath}/Files/oneFolder")
+            assertThat(directory).isDirectory()
+            assertThat(directory.listFiles()).hasSize(2)
         }
 }
