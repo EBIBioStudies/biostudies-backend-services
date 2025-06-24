@@ -42,7 +42,7 @@ class UserFilesResource(
         return filesMapper.asUserFiles(filesService.listFiles(pathDescriptor.path))
     }
 
-    @PostMapping("/files/query")
+    @PostMapping("/files/user/query")
     @ResponseBody
     suspend fun listFiles(
         @BioUser user: SecurityUser,
