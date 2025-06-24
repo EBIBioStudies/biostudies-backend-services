@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.files.web.resources
 
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
+import ac.uk.ebi.biostd.files.web.common.FilePath
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.GroupPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -35,6 +37,17 @@ class GroupFilesResource(
     ): List<UserFile> {
         val groupService = fileServiceFactory.forUserGroup(user, groupName)
         return filesMapper.asGroupFiles(groupName, groupService.listFiles(pathDescriptor.path))
+    }
+
+    @PostMapping("/files/groups/query")
+    @ResponseBody
+    suspend fun listGroupFiles(
+        @BioUser user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestBody filePath: FilePath,
+    ): List<UserFile> {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        return filesMapper.asGroupFiles(groupName, groupService.listFiles(filePath.path))
     }
 
     @GetMapping("/files/groups/{groupName}/**", produces = [APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])

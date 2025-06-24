@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.files.web.resources
 
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
+import ac.uk.ebi.biostd.files.web.common.FilePath
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -17,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -38,6 +40,16 @@ class UserFilesResource(
     ): List<UserFile> {
         val filesService = fileServiceFactory.forUser(user)
         return filesMapper.asUserFiles(filesService.listFiles(pathDescriptor.path))
+    }
+
+    @PostMapping("/files/query")
+    @ResponseBody
+    suspend fun listFiles(
+        @BioUser user: SecurityUser,
+        @RequestBody filePath: FilePath,
+    ): List<UserFile> {
+        val filesService = fileServiceFactory.forUser(user)
+        return filesMapper.asUserFiles(filesService.listFiles(filePath.path))
     }
 
     @GetMapping("/files/user/**", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
