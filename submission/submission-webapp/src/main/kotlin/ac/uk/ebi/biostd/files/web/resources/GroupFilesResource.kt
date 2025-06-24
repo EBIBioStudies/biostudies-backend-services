@@ -39,7 +39,7 @@ class GroupFilesResource(
         return filesMapper.asGroupFiles(groupName, groupService.listFiles(pathDescriptor.path))
     }
 
-    @PostMapping("/files/groups/query")
+    @PostMapping("/files/groups/{groupName}/query")
     @ResponseBody
     suspend fun listGroupFiles(
         @BioUser user: SecurityUser,
