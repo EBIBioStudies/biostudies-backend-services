@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
+import ac.uk.ebi.biostd.test.sectionWithEmptyAccParentSection
 import ac.uk.ebi.biostd.test.submissionWithBlankAttribute
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
@@ -189,6 +190,19 @@ class TsvDeserializerTest {
                 section("Compound") {
                     attribute("Title", "Generic Root Section")
                 }
+            },
+        )
+    }
+
+    @Test
+    fun `submission with a section with empty string parent section accNo`() {
+        val result = deserializer.deserialize(sectionWithEmptyAccParentSection().toString())
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(
+            submission("S-007A") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("AttachTo", "EuropePMC")
             },
         )
     }
@@ -443,7 +457,11 @@ class TsvDeserializerTest {
             }
 
         val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
-        val errorCause = exception.errors.entries().first().value.cause
+        val errorCause =
+            exception.errors
+                .entries()
+                .first()
+                .value.cause
 
         assertThat(errorCause).isInstanceOf(DuplicatedSectionAccNoException::class.java)
         assertThat(errorCause.message).isEqualTo("A section with accNo s-E-MTAB-8568 already exists")
