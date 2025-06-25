@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.files.web.resources
 
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
+import ac.uk.ebi.biostd.files.web.common.DirFilePath
 import ac.uk.ebi.biostd.files.web.common.FilePath
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.GroupPath
@@ -62,7 +63,33 @@ class GroupFilesResource(
         return FileSystemResource(groupService.getFile(pathDescriptor.path, fileName))
     }
 
+    @PostMapping(
+        "/files/groups/{groupName}/download",
+        produces = [APPLICATION_OCTET_STREAM_VALUE],
+    )
+    @ResponseBody
+    suspend fun downloadFile(
+        @BioUser user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestBody filePath: DirFilePath,
+    ): FileSystemResource {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        return FileSystemResource(groupService.getFile(filePath.path, filePath.fileName))
+    }
+
     @PostMapping("/files/groups/{groupName}/**")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun uploadGroupFile(
+        @BioUser user: SecurityUser,
+        @RequestBody filePath: FilePath,
+        @PathVariable groupName: String,
+        @RequestParam("files") files: Array<MultipartFile>,
+    ) {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        groupService.uploadFiles(filePath.path, files.toList())
+    }
+
+    @PostMapping("/files/groups/{groupName}/upload")
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun uploadGroupFile(
         @BioUser user: SecurityUser,
@@ -86,6 +113,18 @@ class GroupFilesResource(
         groupService.deleteFile(pathDescriptor.path, fileName)
     }
 
+    @PostMapping("/files/groups/{groupName}/delete")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun deleteFile(
+        @BioUser user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestParam(name = "fileName") fileName: String,
+        @RequestBody filePath: FilePath,
+    ) {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        groupService.deleteFile(filePath.path, fileName)
+    }
+
     @PostMapping("/folder/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun createFolder(
@@ -96,5 +135,16 @@ class GroupFilesResource(
     ) {
         val groupService = fileServiceFactory.forUserGroup(user, groupName)
         groupService.createFolder(pathDescriptor.path, folder)
+    }
+
+    @PostMapping("/folder/groups/{groupName}/create")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun createFolder(
+        @BioUser user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestBody filePath: DirFilePath,
+    ) {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        groupService.createFolder(filePath.path, filePath.fileName)
     }
 }
