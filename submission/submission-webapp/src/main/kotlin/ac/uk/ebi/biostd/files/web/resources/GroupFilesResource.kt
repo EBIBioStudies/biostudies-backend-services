@@ -82,24 +82,24 @@ class GroupFilesResource(
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun uploadGroupFile(
         @BioUser user: SecurityUser,
-        @RequestBody filePath: FilePath,
-        @PathVariable groupName: String,
-        @RequestParam("files") files: Array<MultipartFile>,
-    ) {
-        val groupService = fileServiceFactory.forUserGroup(user, groupName)
-        groupService.uploadFiles(filePath.path, files.toList())
-    }
-
-    @PostMapping("/files/groups/{groupName}/upload")
-    @ResponseStatus(value = HttpStatus.OK)
-    suspend fun uploadGroupFile(
-        @BioUser user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String,
         @RequestParam("files") files: Array<MultipartFile>,
     ) {
         val groupService = fileServiceFactory.forUserGroup(user, groupName)
         groupService.uploadFiles(pathDescriptor.path, files.toList())
+    }
+
+    @PostMapping("/files/groups/{groupName}/upload")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun uploadGroupFile(
+        @BioUser user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestParam("filePath") filePath: FilePath,
+        @RequestParam("files") files: Array<MultipartFile>,
+    ) {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        groupService.uploadFiles(filePath.path, files.toList())
     }
 
     @DeleteMapping("/files/groups/{groupName}/**")

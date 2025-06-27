@@ -122,7 +122,7 @@ class UserFilesResource(
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun uploadFile(
         @BioUser user: SecurityUser,
-        @RequestBody filePath: FilePath,
+        @RequestParam("filePath") filePath: FilePath,
         @RequestParam("files") files: Array<MultipartFile>,
     ) {
         val filesService = fileServiceFactory.forUser(user)
