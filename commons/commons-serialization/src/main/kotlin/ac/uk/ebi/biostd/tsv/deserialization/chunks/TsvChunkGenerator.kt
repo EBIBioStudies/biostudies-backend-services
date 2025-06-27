@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
 import ebi.ac.uk.base.like
+import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.base.scape
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
@@ -27,18 +28,20 @@ import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
-    fun chunks(pageTab: String): Queue<TsvChunk> {
-        return chunkLines(pageTab)
+internal class TsvChunkGenerator(
+    private val parser: CSVFormat = createParser(),
+) {
+    fun chunks(pageTab: String): Queue<TsvChunk> =
+        chunkLines(pageTab)
             .split { it.isEmpty() }
             .mapTo(Lists.newLinkedList()) { createChunk(it) }
-    }
 
     private fun createChunk(lines: List<TsvChunkLine>): TsvChunk {
         val header = lines.first()
         val type = header.first()
 
         return when {
+            type == null -> error("a type is required")
             type like LinkFields.LINK -> LinkChunk(lines)
             type like FileFields.FILE -> FileChunk(lines)
             type like SectionFields.LINKS -> LinksTableChunk(lines)
@@ -48,26 +51,35 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
                     null -> RootSectionTableChunk(lines)
                     else -> SubSectionTableChunk(lines, group)
                 }
+
             else -> header.findThird()?.let { SubSectionChunk(lines, it) } ?: RootSubSectionChunk(lines)
         }
     }
 
     private fun chunkLines(pageTab: String): List<TsvChunkLine> {
-        val parsedChunks = parser.parse(StringReader(escapeQuotes(pageTab)))
+        /**
+         * Change scape character in records values (values defined tab limited). If value is an empty String is
+         * replaced with null.
+         */
+        fun processRecord(record: String): String? =
+            record
+                .replace(ESCAPED_QUOTE, SIMPLE_QUOTE)
+                .nullIfBlank()
 
+        val parsedChunks = parser.parse(StringReader(escapeQuotes(pageTab)))
         return parsedChunks.mapIndexed { idx, csvRecord ->
             val record = csvRecord.asList()
             when {
                 record.all(String::isBlank) -> TsvChunkLine(idx, emptyList())
-                else -> TsvChunkLine(idx, record.map { it.replace(ESCAPED_QUOTE, SIMPLE_QUOTE) })
+                else -> TsvChunkLine(idx, record.map { processRecord(it) })
             }
         }
     }
 
-    private fun escapeQuotes(pageTab: String): String {
-        return SIMPLE_QUOTE_REGEX.findAll(pageTab)
+    private fun escapeQuotes(pageTab: String): String =
+        SIMPLE_QUOTE_REGEX
+            .findAll(pageTab)
             .fold(pageTab) { result, match -> result.replace(match.value, match.value.scape(QUOTE)) }
-    }
 
     private fun CSVRecord.asList(): List<String> = map { it }
 
@@ -77,13 +89,12 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
         private const val ESCAPED_QUOTE = "\\\""
         private const val SIMPLE_QUOTE = "\""
 
-        private fun createParser(): CSVFormat {
-            return CSVFormat.DEFAULT
+        private fun createParser(): CSVFormat =
+            CSVFormat.DEFAULT
                 .withDelimiter(TAB)
                 .withQuote('"')
                 .withIgnoreSurroundingSpaces()
                 .withIgnoreEmptyLines(false)
                 .withCommentMarker(TSV_COMMENT)
-        }
     }
 }

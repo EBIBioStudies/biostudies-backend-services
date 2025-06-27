@@ -200,9 +200,13 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-007A") {
-                attribute("Title", "Basic Submission")
-                attribute("DataSource", "EuropePMC")
-                attribute("AttachTo", "EuropePMC")
+                attribute("Title", "Test Submission")
+                section("RootSection") {
+                    attribute("Title", "Generic Root Section")
+                    section("Funding") {
+                        attribute("Agency", "National Support Program of China")
+                    }
+                }
             },
         )
     }
