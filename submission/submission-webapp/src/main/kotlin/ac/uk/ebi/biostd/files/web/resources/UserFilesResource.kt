@@ -144,11 +144,10 @@ class UserFilesResource(
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun deleteFile(
         @BioUser user: SecurityUser,
-        @RequestParam(name = "fileName") fileName: String,
-        @RequestBody filePath: FilePath,
+        @RequestBody filePath: DirFilePath,
     ) {
         val filesService = fileServiceFactory.forUser(user)
-        filesService.deleteFile(filePath.path, fileName)
+        filesService.deleteFile(filePath.path, filePath.fileName)
     }
 
     @PostMapping("/folder/user/**")
