@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.files.web.resources
 
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
+import ac.uk.ebi.biostd.files.web.common.DirFilePath
 import ac.uk.ebi.biostd.files.web.common.FilePath
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
 
+@Suppress("TooManyFunctions")
 @RestController
 @PreAuthorize("isAuthenticated()")
 class UserFilesResource(
@@ -70,6 +72,41 @@ class UserFilesResource(
                 .body(fileResource)
         }
 
+    @PostMapping("/files/user/download", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    @ResponseBody
+    suspend fun downloadFile(
+        @BioUser user: SecurityUser,
+        @RequestBody fileDirPath: DirFilePath,
+    ): ResponseEntity<FileSystemResource> =
+        withContext(Dispatchers.IO) {
+            val filesService = fileServiceFactory.forUser(user)
+            val file = filesService.getFile(fileDirPath.path, fileDirPath.fileName)
+            val fileResource = FileSystemResource(file)
+            ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${fileDirPath.fileName}\"")
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(file.toPath()) ?: "application/octet-stream")
+                .body(fileResource)
+        }
+
+    @GetMapping("/files/user/download", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
+    @ResponseBody
+    suspend fun downloadFile(
+        @BioUser user: SecurityUser,
+        @RequestParam(name = "fileName") fileName: String,
+        @RequestBody filePath: FilePath,
+    ): ResponseEntity<FileSystemResource> =
+        withContext(Dispatchers.IO) {
+            val filesService = fileServiceFactory.forUser(user)
+            val file = filesService.getFile(filePath.path, fileName)
+            val fileResource = FileSystemResource(file)
+            ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"")
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(file.toPath()) ?: "application/octet-stream")
+                .body(fileResource)
+        }
+
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun uploadFile(
@@ -79,6 +116,17 @@ class UserFilesResource(
     ) {
         val filesService = fileServiceFactory.forUser(user)
         filesService.uploadFiles(pathDescriptor.path, files.toList())
+    }
+
+    @PostMapping("/files/user/upload")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun uploadFile(
+        @BioUser user: SecurityUser,
+        @RequestParam("filePath") filePath: FilePath,
+        @RequestParam("files") files: Array<MultipartFile>,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.uploadFiles(filePath.path, files.toList())
     }
 
     @DeleteMapping("/files/user/**")
@@ -92,6 +140,16 @@ class UserFilesResource(
         filesService.deleteFile(pathDescriptor.path, fileName)
     }
 
+    @PostMapping("/files/user/delete")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun deleteFile(
+        @BioUser user: SecurityUser,
+        @RequestBody filePath: DirFilePath,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.deleteFile(filePath.path, filePath.fileName)
+    }
+
     @PostMapping("/folder/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     suspend fun createFolder(
@@ -101,5 +159,15 @@ class UserFilesResource(
     ) {
         val filesService = fileServiceFactory.forUser(user)
         filesService.createFolder(pathDescriptor.path, folder)
+    }
+
+    @PostMapping("/folder/user/create")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun createFolder(
+        @BioUser user: SecurityUser,
+        @RequestBody dirFilePath: DirFilePath,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.createFolder(dirFilePath.path, dirFilePath.fileName)
     }
 }

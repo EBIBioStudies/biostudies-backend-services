@@ -44,6 +44,7 @@ import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
+import Versions.ZeroAllocationHashingVersion
 import Versions.ZipUtilVersion
 
 object TestVersions {
@@ -97,6 +98,7 @@ object Versions {
     const val SpringfoxSwaggerVersion = "2.9.2"
     const val Log4JVersion = "1.7.29"
     const val ZipUtilVersion = "1.15"
+    const val ZeroAllocationHashingVersion = "0.16"
     const val ReactorNettyVersion = "1.1.8"
 }
 
@@ -178,6 +180,7 @@ object Dependencies {
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
     const val JavaValidationApi = "javax.validation:validation-api"
     const val ZipUtil = "org.zeroturnaround:zt-zip:$ZipUtilVersion"
+    const val ZeroAllocationHashing = "net.openhft:zero-allocation-hashing:$ZeroAllocationHashingVersion"
 
     // Kotlin specific
     const val JetBrainsAnnotations = "org.jetbrains:annotations:$JetBrainsAnnotationsVersion"

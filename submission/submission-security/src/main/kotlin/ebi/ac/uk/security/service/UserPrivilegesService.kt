@@ -24,7 +24,7 @@ internal class UserPrivilegesService(
     override suspend fun canProvideAccNo(
         submitter: String,
         collection: String,
-    ): Boolean = isSuperUser(submitter) || isAdmin(submitter, collection)
+    ): Boolean = isSuperUser(submitter) || isCollectionAdmin(submitter, collection)
 
     override fun canSubmitCollections(email: String) = isSuperUser(email)
 
@@ -35,7 +35,7 @@ internal class UserPrivilegesService(
         collection: String,
     ): Boolean =
         isSuperUser(submitter) ||
-            isAdmin(submitter, collection) ||
+            isCollectionAdmin(submitter, collection) ||
             hasPermissions(submitter, collection, ATTACH)
 
     override fun allowedCollections(
@@ -56,7 +56,7 @@ internal class UserPrivilegesService(
         accNo: String,
     ): Boolean =
         isSuperUser(submitter) ||
-            isAdmin(submitter, accNo) ||
+            isCollectionAdmin(submitter, accNo) ||
             isAuthor(getOwner(accNo), submitter) ||
             hasPermissions(submitter, accNo, UPDATE)
 
@@ -70,7 +70,7 @@ internal class UserPrivilegesService(
     override suspend fun canDeleteFiles(
         submitter: String,
         accNo: String,
-    ): Boolean = isAdmin(submitter, accNo) || hasPermissions(submitter, accNo, DELETE_FILES)
+    ): Boolean = isCollectionAdmin(submitter, accNo) || hasPermissions(submitter, accNo, DELETE_FILES)
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
@@ -95,7 +95,7 @@ internal class UserPrivilegesService(
 
     private fun isSuperUser(email: String) = getUser(email).superuser
 
-    private suspend fun isAdmin(
+    private suspend fun isCollectionAdmin(
         email: String,
         accNo: String,
     ): Boolean {

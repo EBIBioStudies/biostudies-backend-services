@@ -75,3 +75,8 @@ class FileListPath(
 class FilePath(
     val path: String,
 )
+
+class DirFilePath(
+    val path: String,
+    val fileName: String,
+)

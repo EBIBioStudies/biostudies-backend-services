@@ -25,7 +25,7 @@ class PathFilesService internal constructor(
     ) = withContext(Dispatchers.IO) {
         FileUtils.copyOrReplaceFile(
             source = file,
-            target = basePath.resolve(file.name),
+            target = basePath.safeResolve(file.name),
             permissions = Permissions(RW_RW____, RWXRWX___),
         )
     }
@@ -34,7 +34,7 @@ class PathFilesService internal constructor(
         path: String,
         files: List<MultipartFile>,
     ) = withContext(Dispatchers.IO) {
-        files.forEach { file -> transferTo(basePath.resolve(path).toPath(), file) }
+        files.forEach { file -> transferTo(basePath.safeResolve(path).toPath(), file) }
     }
 
     override suspend fun getFile(
@@ -42,7 +42,7 @@ class PathFilesService internal constructor(
         fileName: String,
     ): File =
         withContext(Dispatchers.IO) {
-            val userFile = basePath.resolve(path).resolve(fileName)
+            val userFile = basePath.safeResolve(path).safeResolve(fileName)
             require(userFile.exists() && userFile.isFile) { "Invalid request $path is not a valid user file" }
             userFile
         }
@@ -51,13 +51,14 @@ class PathFilesService internal constructor(
         path: String,
         folderName: String,
     ) = withContext(Dispatchers.IO) {
-        val folder = basePath.resolve(path).resolve(folderName)
+        val folder = basePath.safeResolve(path).safeResolve(folderName)
         FileUtils.createEmptyFolder(folder.toPath(), RWXRWX___)
     }
 
     override suspend fun listFiles(path: String): FilesSpec =
         withContext(Dispatchers.IO) {
-            val folder = basePath.resolve(path)
+            val folder = basePath.safeResolve(path)
+
             val files =
                 folder
                     .listFilesOrEmpty()
@@ -76,8 +77,13 @@ class PathFilesService internal constructor(
         path: String,
         fileName: String,
     ) = withContext(Dispatchers.IO) {
-        val userFile = basePath.resolve(path).resolve(fileName)
-        require(basePath != userFile.toPath()) { "Can not delete user root folder" }
+        val userFile = basePath.safeResolve(path).safeResolve(fileName)
         FileUtils.deleteFile(userFile)
+    }
+
+    private fun File.safeResolve(path: String): File {
+        val resolved = resolve(path)
+        require(resolved.startsWith(basePath)) { "The user does not have permission for accessing path '$path'" }
+        return resolved
     }
 }

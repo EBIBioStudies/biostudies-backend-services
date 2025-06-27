@@ -19,15 +19,15 @@ class FtpFileService(
         path: String,
         file: File,
     ) {
-        ftp.uploadFile(basePath.resolve(path).resolve(file.name)) { file.inputStream() }
+        ftp.uploadFile(basePath.safeResolve(path).safeResolve(file.name)) { file.inputStream() }
     }
 
     override suspend fun uploadFiles(
         path: String,
         files: List<MultipartFile>,
     ) {
-        val ftpFiles = files.map { basePath.resolve(path).resolve(it.originalFilename!!) to { it.inputStream } }
-        ftp.uploadFiles(basePath.resolve(path), ftpFiles)
+        val ftpFiles = files.map { basePath.safeResolve(path).safeResolve(it.originalFilename!!) to { it.inputStream } }
+        ftp.uploadFiles(basePath.safeResolve(path), ftpFiles)
     }
 
     override suspend fun getFile(
@@ -35,7 +35,7 @@ class FtpFileService(
         fileName: String,
     ): File {
         val target = Files.createTempFile(null, fileName)
-        val ftpPath = basePath.resolve(path).resolve(fileName)
+        val ftpPath = basePath.safeResolve(path).safeResolve(fileName)
 
         target.outputStream().use { ftp.downloadFile(ftpPath, it) }
         return target.toFile()
@@ -45,13 +45,13 @@ class FtpFileService(
         path: String,
         folderName: String,
     ) {
-        ftp.createFolder(basePath.resolve(path))
+        ftp.createFolder(basePath.safeResolve(path))
     }
 
     override suspend fun listFiles(path: String): FilesSpec {
         val files =
             ftp
-                .listFiles(basePath.resolve(path))
+                .listFiles(basePath.safeResolve(path))
                 .map {
                     UserFile(
                         name = it.name,
@@ -67,6 +67,12 @@ class FtpFileService(
         path: String,
         fileName: String,
     ) {
-        ftp.deleteFile(basePath.resolve(path).resolve(fileName))
+        ftp.deleteFile(basePath.safeResolve(path).safeResolve(fileName))
+    }
+
+    private fun Path.safeResolve(path: String): Path {
+        val resolved = resolve(path)
+        require(resolved.startsWith(basePath)) { "The user does not have permission for accessing path '$path'" }
+        return resolved
     }
 }
