@@ -12,7 +12,7 @@ import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
-import java.nio.file.Files
 
 @RestController
 @RequestMapping("/submissions")
@@ -74,7 +73,7 @@ class SubmissionQueryResource(
         subFormat: SubFormat,
     ): ResponseEntity<Resource> {
         val fileList = submissionService.getFileList(accNo, fileListName, subFormat)
-        val resource = ByteArrayResource(Files.readAllBytes(fileList.toPath()))
+        val resource = InputStreamResource(fileList.inputStream())
         return ResponseEntity
             .ok()
             .contentLength(fileList.length())

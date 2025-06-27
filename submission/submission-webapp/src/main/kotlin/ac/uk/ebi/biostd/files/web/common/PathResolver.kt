@@ -51,10 +51,32 @@ private fun getServletRequest(webRequest: NativeWebRequest) = webRequest.getNati
 private fun getPath(
     prefix: Regex,
     webRequest: HttpServletRequest,
-): String = URLDecoder.decode(webRequest.requestURL.toString().removeFirstOccurrence(prefix).trim('/'), UTF_8.name())
+): String =
+    URLDecoder.decode(
+        webRequest.requestURL
+            .toString()
+            .removeFirstOccurrence(prefix)
+            .trim('/'),
+        UTF_8.name(),
+    )
 
-class UserPath(val path: String)
+class UserPath(
+    val path: String,
+)
 
-class GroupPath(val path: String)
+class GroupPath(
+    val path: String,
+)
 
-class FileListPath(val path: String)
+class FileListPath(
+    val path: String,
+)
+
+class FilePath(
+    val path: String,
+)
+
+class DirFilePath(
+    val path: String,
+    val fileName: String,
+)
