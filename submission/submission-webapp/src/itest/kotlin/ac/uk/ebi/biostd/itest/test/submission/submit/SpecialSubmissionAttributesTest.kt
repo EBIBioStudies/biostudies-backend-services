@@ -132,7 +132,7 @@ class SpecialSubmissionAttributesTest(
                 assertThat(it.sections).hasSize(1)
 
                 val subSection = it.sections.first()
-                assertThat(subSection.accNo).isEmpty()
+                assertThat(subSection.accNo).isNull()
                 assertThat(subSection.attributes).hasSize(1)
                 assertThat(subSection.attributes.first()).isEqualTo(ExtAttribute("Title", "Group 1"))
             }

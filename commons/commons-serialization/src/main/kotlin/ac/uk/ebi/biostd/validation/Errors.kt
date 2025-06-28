@@ -6,15 +6,24 @@ import ebi.ac.uk.model.Submission
 
 const val CHUNK_SIZE_ERROR_MSG = "Several page tab elements detected. Exactly one element must be provided"
 
-class InvalidElementException(message: String) : RuntimeException("$message. Element was not created.")
+class InvalidElementException(
+    message: String,
+) : RuntimeException("$message. Element was not created.")
 
-class SerializationError(val chunk: TsvChunk, val cause: Exception)
+class SerializationError(
+    val chunk: TsvChunk,
+    val cause: Exception,
+)
 
 class InvalidChunkSizeException : RuntimeException(CHUNK_SIZE_ERROR_MSG)
 
-class InvalidSectionException(accNo: String) : RuntimeException(String.format(SECTION_NOT_CREATED, accNo))
+class SectionNotFoundException(
+    accNo: String,
+) : RuntimeException("Can not find referenced section with accNo='$accNo'")
 
-class DuplicatedSectionAccNoException(accNo: String) : RuntimeException("A section with accNo $accNo already exists")
+class DuplicatedSectionAccNoException(
+    accNo: String,
+) : RuntimeException("A section with accNo $accNo already exists")
 
 class SerializationException(
     val submission: Submission,

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.common.findId
 import ac.uk.ebi.biostd.tsv.deserialization.common.getIdOrElse
 import ac.uk.ebi.biostd.tsv.deserialization.common.getType
 import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
+import ac.uk.ebi.biostd.tsv.deserialization.common.validate
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import ebi.ac.uk.model.BioFile
@@ -17,9 +18,11 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.util.collections.findSecond
 
-sealed class TsvChunk(lines: List<TsvChunkLine>) {
-    val header = lines.first()
-    val lines = lines.drop(1)
+sealed class TsvChunk(
+    lines: List<TsvChunkLine>,
+) {
+    val header: TsvChunkLine = lines.first()
+    val lines: List<TsvChunkLine> = lines.drop(1)
 
     val startIndex: Int
         get(): Int {
@@ -32,7 +35,9 @@ sealed class TsvChunk(lines: List<TsvChunkLine>) {
         }
 }
 
-internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
+internal class LinkChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
     fun asLink(): Link {
         val linkUrl = getIdOrElse(InvalidElementException(REQUIRED_LINK_URL))
         val attributes = toAttributes(lines)
@@ -40,7 +45,9 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     }
 }
 
-class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
+class FileChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
     fun asFile(): BioFile {
         val fileName = validatedFilePath(header.findSecond())
         val attributes = toAttributes(lines)
@@ -49,11 +56,21 @@ class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     }
 }
 
-internal class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-    fun asTable() = LinksTable(asTable(this) { url, attributes -> Link(url, attributes) })
+internal class LinksTableChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    fun asTable() =
+        LinksTable(
+            asTable(this) { url, attributes ->
+                validate(url != null) { throw InvalidElementException(REQUIRED_LINK_URL) }
+                Link(url!!, attributes)
+            },
+        )
 }
 
-internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
+internal class FileTableChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
     fun asTable() =
         FilesTable(
             asTable(this) { name, attributes ->
@@ -62,16 +79,29 @@ internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
         )
 }
 
-internal sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
+internal sealed class SectionTableChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
     open fun asTable() =
         SectionsTable(
-            asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) },
+            asTable(this) { accNo, attributes ->
+                Section(
+                    type = this.getType(),
+                    accNo = accNo,
+                    attributes = attributes,
+                )
+            },
         )
 }
 
-internal class RootSectionTableChunk(body: List<TsvChunkLine>) : SectionTableChunk(body)
+internal class RootSectionTableChunk(
+    body: List<TsvChunkLine>,
+) : SectionTableChunk(body)
 
-internal class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String) : SectionTableChunk(body) {
+internal class SubSectionTableChunk(
+    body: List<TsvChunkLine>,
+    val parent: String,
+) : SectionTableChunk(body) {
     override fun asTable() =
         SectionsTable(
             asTable(this) { accNo, attributes ->
@@ -80,10 +110,17 @@ internal class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String
         )
 }
 
-internal sealed class SectionChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
+internal sealed class SectionChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
     fun asSection() = Section(type = getType(), accNo = findId(), attributes = toAttributes(lines))
 }
 
-internal class RootSubSectionChunk(body: List<TsvChunkLine>) : SectionChunk(body)
+internal class RootSubSectionChunk(
+    body: List<TsvChunkLine>,
+) : SectionChunk(body)
 
-internal class SubSectionChunk(body: List<TsvChunkLine>, val parent: String) : SectionChunk(body)
+internal class SubSectionChunk(
+    body: List<TsvChunkLine>,
+    val parent: String,
+) : SectionChunk(body)
