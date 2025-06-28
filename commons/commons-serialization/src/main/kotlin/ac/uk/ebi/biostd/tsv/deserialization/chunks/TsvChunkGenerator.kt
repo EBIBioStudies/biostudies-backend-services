@@ -41,7 +41,7 @@ internal class TsvChunkGenerator(
         val type = header.first()
 
         return when {
-            type == null -> error("a type is required")
+            type == null -> error("PageTab blocks type is required")
             type like LinkFields.LINK -> LinkChunk(lines)
             type like FileFields.FILE -> FileChunk(lines)
             type like SectionFields.LINKS -> LinksTableChunk(lines)

@@ -128,7 +128,11 @@ class TsvDeserializationErrorsTest {
         val exception = assertThrows<SerializationException> { deserializer.deserialize(submissionTsv.toString()) }
         assertThat(exception.errors.values()).hasSize(1)
 
-        val cause = exception.errors.values().first().cause
+        val cause =
+            exception.errors
+                .values()
+                .first()
+                .cause
         assertThat(cause).isInstanceOf(InvalidElementException::class.java)
         assertThat(cause).hasMessage("$expectedMessage. Element was not created.")
     }

@@ -250,6 +250,38 @@ class TsvDeserializerTest {
     }
 
     @Test
+    fun `section table with no type`() {
+        val submission =
+            tsv {
+                line("Submission", "S-STBL123")
+                line("Title", "Test Section Table")
+                line()
+
+                line("Study")
+                line()
+
+                line("Data[]", "Title")
+                line("", "Group 1")
+                line()
+            }.toString()
+
+        val result = deserializer.deserialize(submission.toString())
+        assertThat(result).usingRecursiveComparison().isEqualTo(
+            submission("S-STBL123") {
+                attribute("Title", "Test Section Table")
+
+                section("Study") {
+                    sectionsTable {
+                        section("Data") {
+                            attribute("Title", "Group 1")
+                        }
+                    }
+                }
+            },
+        )
+    }
+
+    @Test
     fun `inner subsections`() {
         val result = deserializer.deserialize(submissionWithInnerSubsections().toString())
 

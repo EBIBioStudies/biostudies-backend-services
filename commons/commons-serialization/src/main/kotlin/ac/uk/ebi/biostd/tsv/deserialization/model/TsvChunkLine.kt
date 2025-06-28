@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
-import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ebi.ac.uk.util.collections.findSecond
 
 class TsvChunkLine(
@@ -13,9 +11,9 @@ class TsvChunkLine(
             return rawLines.drop(1)
         }
 
-    val name: String
+    val name: String?
         get() {
-            return rawLines.first() ?: throw InvalidElementException(REQUIRED_ATTR_NAME)
+            return rawLines.first()
         }
 
     val value: String?

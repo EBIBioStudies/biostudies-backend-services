@@ -23,19 +23,19 @@ internal inline fun validate(
 }
 
 internal fun toAttributes(chunkLines: List<TsvChunkLine>): List<Attribute> {
-    val attributes = chunkLines.map { it.name to it.value }
-    return getAttributes(attributes)
+    val attributes = chunkLines.map { (it.name ?: throw InvalidElementException(REQUIRED_ATTR_NAME)) to it.value }
+    return getTableAttributes(attributes)
 }
 
 internal fun <T> asTable(
     chunk: TsvChunk,
-    initializer: (String, List<Attribute>) -> T,
+    initializer: (String?, List<Attribute>) -> T,
 ): List<T> {
     val rows =
         buildList {
             chunk.lines.ifEmpty { throw InvalidElementException(REQUIRED_TABLE_ROWS) }
             chunk.lines.forEach { line ->
-                val attrs = getAttributes(line, chunk)
+                val attrs = getTableAttributes(line, chunk)
                 add(initializer(line.name(), attrs))
             }
         }
@@ -43,7 +43,7 @@ internal fun <T> asTable(
     return rows
 }
 
-private fun getAttributes(
+private fun getTableAttributes(
     line: TsvChunkLine,
     chunk: TsvChunk,
 ): List<Attribute> {
@@ -53,10 +53,10 @@ private fun getAttributes(
     validate(tableHeaders.all { it.isNotBlank() }) { throw InvalidElementException(TABLE_HEADER_CAN_NOT_BE_BLANK) }
 
     val values = tableHeaders.mapIndexed { i, value -> value!! to line.rawValues.getOrNull(i) }
-    return getAttributes(values)
+    return getTableAttributes(values)
 }
 
-private fun getAttributes(values: List<Pair<String, String?>>): List<Attribute> =
+private fun getTableAttributes(values: List<Pair<String, String?>>): List<Attribute> =
     buildList {
         var previous: Attribute? = null
         for ((header, value) in values) {

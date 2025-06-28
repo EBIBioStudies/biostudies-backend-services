@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.common.findId
 import ac.uk.ebi.biostd.tsv.deserialization.common.getIdOrElse
 import ac.uk.ebi.biostd.tsv.deserialization.common.getType
 import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
+import ac.uk.ebi.biostd.tsv.deserialization.common.validate
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import ebi.ac.uk.model.BioFile
@@ -58,7 +59,13 @@ class FileChunk(
 internal class LinksTableChunk(
     body: List<TsvChunkLine>,
 ) : TsvChunk(body) {
-    fun asTable() = LinksTable(asTable(this) { url, attributes -> Link(url, attributes) })
+    fun asTable() =
+        LinksTable(
+            asTable(this) { url, attributes ->
+                validate(url != null) { throw InvalidElementException(REQUIRED_LINK_URL) }
+                Link(url!!, attributes)
+            },
+        )
 }
 
 internal class FileTableChunk(
@@ -77,7 +84,13 @@ internal sealed class SectionTableChunk(
 ) : TsvChunk(body) {
     open fun asTable() =
         SectionsTable(
-            asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) },
+            asTable(this) { accNo, attributes ->
+                Section(
+                    type = this.getType(),
+                    accNo = accNo,
+                    attributes = attributes,
+                )
+            },
         )
 }
 
