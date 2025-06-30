@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
+import ac.uk.ebi.biostd.test.sectionWithEmptyAccParentSection
 import ac.uk.ebi.biostd.test.submissionWithBlankAttribute
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
@@ -194,6 +195,23 @@ class TsvDeserializerTest {
     }
 
     @Test
+    fun `submission with a section with empty string parent section accNo`() {
+        val result = deserializer.deserialize(sectionWithEmptyAccParentSection().toString())
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(
+            submission("S-007A") {
+                attribute("Title", "Test Submission")
+                section("RootSection") {
+                    attribute("Title", "Generic Root Section")
+                    section("Funding") {
+                        attribute("Agency", "National Support Program of China")
+                    }
+                }
+            },
+        )
+    }
+
+    @Test
     fun `submission with multiple line breaks`() {
         val result = deserializer.deserialize(submissionWithMultipleLineBreaks().toString())
 
@@ -225,6 +243,70 @@ class TsvDeserializerTest {
                         accNo = "F-001"
                         attribute("Agency", "National Support Program of China")
                         attribute("Grant Id", "No. 2015BAD27B01")
+                    }
+                }
+            },
+        )
+    }
+
+    @Test
+    fun `section table with no Accno`() {
+        val submission =
+            tsv {
+                line("Submission", "S-STBL123")
+                line("Title", "Test Section Table")
+                line()
+
+                line("Study")
+                line()
+
+                line("Data[]", "Title")
+                line("", "Group 1")
+                line()
+            }.toString()
+
+        val result = deserializer.deserialize(submission.toString())
+        assertThat(result).usingRecursiveComparison().isEqualTo(
+            submission("S-STBL123") {
+                attribute("Title", "Test Section Table")
+
+                section("Study") {
+                    sectionsTable {
+                        section("Data") {
+                            attribute("Title", "Group 1")
+                        }
+                    }
+                }
+            },
+        )
+    }
+
+    @Test
+    fun `section table with trailing tabs`() {
+        val submission =
+            tsv {
+                line("Submission", "S-STBL123")
+                line("Title", "Test Section Table")
+                line()
+
+                line("Study")
+                line()
+
+                line("Data[]", "Title", "", "")
+                line("", "Group 1", "")
+                line()
+            }.toString()
+
+        val result = deserializer.deserialize(submission.toString())
+        assertThat(result).usingRecursiveComparison().isEqualTo(
+            submission("S-STBL123") {
+                attribute("Title", "Test Section Table")
+
+                section("Study") {
+                    sectionsTable {
+                        section("Data") {
+                            attribute("Title", "Group 1")
+                        }
                     }
                 }
             },
@@ -443,7 +525,11 @@ class TsvDeserializerTest {
             }
 
         val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
-        val errorCause = exception.errors.entries().first().value.cause
+        val errorCause =
+            exception.errors
+                .entries()
+                .first()
+                .value.cause
 
         assertThat(errorCause).isInstanceOf(DuplicatedSectionAccNoException::class.java)
         assertThat(errorCause.message).isEqualTo("A section with accNo s-E-MTAB-8568 already exists")

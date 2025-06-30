@@ -5,6 +5,28 @@ import java.util.LinkedList
 private const val NO_FOUND = -1
 
 /**
+ * Remove element from the tail of the list while condition is match.
+ */
+fun <T> List<T>.trimTrailingWhile(predicate: (T) -> Boolean): List<T> {
+    var lastIndex = this.lastIndex
+    while (lastIndex > 0 && predicate(this[lastIndex])) {
+        lastIndex--
+    }
+    return subList(0, lastIndex + 1)
+}
+
+/**
+ * Remove element from the tail of the list while condition is match.
+ */
+fun <T> List<T>.trimTrailingIndexedWhile(predicate: (Int, T) -> Boolean): List<T> {
+    var lastIndex = this.lastIndex
+    while (lastIndex > 0 && predicate(lastIndex, this[lastIndex])) {
+        lastIndex--
+    }
+    return subList(0, lastIndex + 1)
+}
+
+/**
  * Return the first element paired with the remaining list after it.
  */
 fun <T> List<T>.destructure(): Pair<T, List<T>> = first() to drop(1)

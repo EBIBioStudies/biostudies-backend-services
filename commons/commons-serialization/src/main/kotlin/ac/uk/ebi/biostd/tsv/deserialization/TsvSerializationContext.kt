@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.DuplicatedSectionAccNoException
-import ac.uk.ebi.biostd.validation.InvalidSectionException
+import ac.uk.ebi.biostd.validation.SectionNotFoundException
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
@@ -98,5 +98,5 @@ internal class TsvSectionContext {
         sections[accNo] = section
     }
 
-    fun getSection(accNo: String) = sections.getOrElse(accNo) { throw InvalidSectionException(accNo) }
+    fun getSection(accNo: String) = sections.getOrElse(accNo) { throw SectionNotFoundException(accNo) }
 }

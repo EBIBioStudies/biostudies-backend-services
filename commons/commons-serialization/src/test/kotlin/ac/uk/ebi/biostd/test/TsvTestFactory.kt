@@ -225,3 +225,18 @@ fun submissionWithFilesTable() =
         line("inner/folder", "A super important folder", "Important inner folder")
         line()
     }
+
+fun sectionWithEmptyAccParentSection() =
+    tsv {
+        line("Submission", "S-007A")
+        line("Title", "Test Submission")
+        line()
+
+        line("RootSection")
+        line("Title", "Generic Root Section")
+        line()
+
+        line("Funding", "", "")
+        line("Agency", "National Support Program of China")
+        line()
+    }
