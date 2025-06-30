@@ -12,6 +12,8 @@ import ac.uk.ebi.biostd.validation.TABLE_HEADER_CAN_NOT_BE_BLANK
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.util.collections.trimTrailingIndexedWhile
+import ebi.ac.uk.util.collections.trimTrailingWhile
 
 internal inline fun validate(
     value: Boolean,
@@ -47,12 +49,13 @@ private fun getTableAttributes(
     line: TsvChunkLine,
     chunk: TsvChunk,
 ): List<Attribute> {
-    validate(line.size <= chunk.header.size) { throw InvalidElementException(INVALID_TABLE_ROW) }
+    val headers = chunk.header.rawValues.trimTrailingWhile { it == null }
+    val lineValues = line.rawValues.trimTrailingIndexedWhile { idx, value -> value == null && idx > headers.lastIndex }
 
-    val tableHeaders = chunk.header.rawValues
-    validate(tableHeaders.all { it.isNotBlank() }) { throw InvalidElementException(TABLE_HEADER_CAN_NOT_BE_BLANK) }
+    validate(lineValues.size <= headers.size) { throw InvalidElementException(INVALID_TABLE_ROW) }
+    validate(headers.all { it.isNotBlank() }) { throw InvalidElementException(TABLE_HEADER_CAN_NOT_BE_BLANK) }
 
-    val values = tableHeaders.mapIndexed { i, value -> value!! to line.rawValues.getOrNull(i) }
+    val values = headers.mapIndexed { i, value -> value!! to lineValues.getOrNull(i) }
     return getTableAttributes(values)
 }
 

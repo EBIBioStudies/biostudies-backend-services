@@ -5,6 +5,13 @@ import org.junit.jupiter.api.Test
 
 internal class ListExtensionsTest {
     @Test
+    fun trimWhile() {
+        val result = listOf(1, 2, 3, 4, 5).trimTrailingWhile { x -> setOf(2, 4, 5).contains(x) }
+
+        assertThat(result).isEqualTo(listOf(1, 2, 3))
+    }
+
+    @Test
     fun destructure() {
         val result = listOf(1, 2, 3, 4, 5).destructure()
 
