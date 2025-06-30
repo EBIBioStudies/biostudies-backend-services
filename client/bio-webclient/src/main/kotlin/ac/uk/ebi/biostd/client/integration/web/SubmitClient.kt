@@ -125,6 +125,8 @@ interface SubmissionOperations {
     )
 
     suspend fun getSubmission(accNo: String): SubmissionDto?
+
+    suspend fun getSubmissionJson(accNo: String): String?
 }
 
 interface SecurityOperations {
