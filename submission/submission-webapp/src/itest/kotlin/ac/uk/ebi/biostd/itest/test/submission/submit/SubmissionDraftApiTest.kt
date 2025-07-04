@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -26,6 +27,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.serialization.extensions.getProperty
+import java.time.Instant
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -287,5 +289,41 @@ class SubmissionDraftApiTest(
 
             val updatedSubmission = response.body
             assertThat(updatedSubmission.section.type).isEqualTo("Another")
+        }
+
+    @Test
+    fun `12-10 update a draft with an processing request`() =
+        runTest {
+            val accNo = "ABC-132"
+            val sub =
+                jsonObj {
+                    "accno" to accNo
+                    "section" to
+                        jsonObj {
+                            "type" to "Study"
+                        }
+                    "type" to "submission"
+                }.toString()
+
+            assertThat(webClient.submit(sub)).isSuccessful()
+            webClient.getSubmissionDraft(accNo)
+            requestRepository.setDraftStatus(accNo, SuperUser.email, SUBMITTED, Instant.now())
+
+            val exception =
+                assertThrows<WebClientException> {
+                    webClient.updateSubmissionDraft(
+                        accNo,
+                        jsonObj {
+                            "accno" to accNo
+                            "section" to
+                                jsonObj {
+                                    "type" to "ByDraft"
+                                }
+                            "type" to "submission"
+                        }.toString(),
+                    )
+                }
+            val error = "Submission request draft can't be updated. Request 'ABC-132' is currently being processed."
+            assertThat(exception).hasMessageContaining(error)
         }
 }
