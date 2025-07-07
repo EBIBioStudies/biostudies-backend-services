@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
+import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentRequestDraftException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -65,6 +66,8 @@ class SubmissionRequestDraftService(
         owner: String,
         draft: String,
     ): SubmissionRequest {
+        require(requestService.hasProcesingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
+
         val requestDraft = getOrCreateRequestDraftFromSubmission(accNo, owner)
         val modificationTime = Instant.now()
 
