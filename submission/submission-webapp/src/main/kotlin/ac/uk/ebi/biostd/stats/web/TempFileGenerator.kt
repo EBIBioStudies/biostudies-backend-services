@@ -36,12 +36,12 @@ class TempFileGenerator(
                 .filter { it.isDirectory }
 
         val now = ZonedDateTime.now(clock).minusMonths(monthsOld)
-        val deleteThreahold = "${now.year}${now.monthValue}".toInt()
+        val deleteThreshold = "${now.year}${now.monthValue}".toInt()
 
         listSubDirectories()
             .forEach { folder ->
                 val name = Paths.get(tempDirPath).relativize(folder.toPath())
-                if (name.toString().toInt() < deleteThreahold) {
+                if (name.toString().toInt() < deleteThreshold) {
                     logger.info { "Deleting files in ${folder.absolutePath}" }
                     FileUtils.deleteFile(folder)
                 }

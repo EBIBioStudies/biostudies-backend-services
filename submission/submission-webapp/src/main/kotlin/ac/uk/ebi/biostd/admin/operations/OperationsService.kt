@@ -57,7 +57,7 @@ class OperationsService(
                 }
             }.collect()
 
-    suspend fun archiveRequests(
+    fun archiveRequests(
         accNo: String,
         version: Int,
     ) = runBlocking {
@@ -76,13 +76,17 @@ class OperationsService(
 
     suspend fun cleanTempFolders() {
         withContext(Dispatchers.IO) {
-            tempFileGenerator.deleteOldFiles(FILE_MONTHS_DELETE_THREADHOLD)
-            FileUtils.cleanDirectory(tempFolder().toFile())
+            tempFileGenerator.deleteOldFiles(FILE_MONTHS_DELETE_THRESHOLD)
+
+            val tempFolder = tempFolder().toFile()
+            logger.info { "Started cleaning temp folder $tempFolder" }
+            FileUtils.cleanDirectory(tempFolder)
+            logger.info { "Finished cleaning temp folder $tempFolder" }
         }
     }
 
     companion object {
-        const val FILE_MONTHS_DELETE_THREADHOLD = 3L
+        const val FILE_MONTHS_DELETE_THRESHOLD = 3L
         const val ARCHIVE_CONCURRENCY = 30
     }
 }
