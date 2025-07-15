@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.pmc.persistence.docs.SubFileDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_SUBMIT
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSING
@@ -20,6 +21,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import org.bson.types.ObjectId
@@ -92,12 +94,23 @@ class SubmissionService(
         limit: Int,
     ): Flow<SubmissionDocument> =
         flow {
+            emitAll(findByStatus(sourceFile, limit, ERROR_SUBMIT, SUBMITTING))
+            emitAll(findByStatus(sourceFile, limit, PROCESSED, SUBMITTING))
+        }
+
+    private fun findByStatus(
+        sourceFile: String?,
+        limit: Int,
+        status: SubmissionStatus,
+        newStatus: SubmissionStatus,
+    ): Flow<SubmissionDocument> =
+        flow {
             var current = 0
             while (current < limit) {
                 val next =
                     when (sourceFile) {
-                        null -> subRepository.findAndUpdate(PROCESSED, SUBMITTING)
-                        else -> subRepository.findAndUpdate(PROCESSED, SUBMITTING, sourceFile)
+                        null -> subRepository.findAndUpdate(status, newStatus)
+                        else -> subRepository.findAndUpdate(status, newStatus, sourceFile)
                     }
                 emit(next ?: break)
                 current++
