@@ -2,7 +2,6 @@ package uk.ac.ebi.serialization.extensions
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
-import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
@@ -81,9 +80,7 @@ inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Se
             object : Iterator<T> {
                 private var next: JsonToken? = jsonParser.nextToken()
 
-                override fun hasNext(): Boolean {
-                    return next != null && next != JsonToken.END_ARRAY
-                }
+                override fun hasNext(): Boolean = next != null && next != JsonToken.END_ARRAY
 
                 override fun next(): T {
                     if (hasNext().not()) throw NoSuchElementException()
@@ -93,14 +90,3 @@ inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Se
                 }
             }
     }
-
-/**
- * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
- * be converter.
- */
-fun ObjectMapper.tryConvertValue(
-    node: JsonNode,
-    type: JavaType,
-): Any? {
-    return runCatching<Any> { convertValue(node, type) }.getOrNull()
-}

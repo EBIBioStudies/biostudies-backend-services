@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
+import ac.uk.ebi.biostd.json.exception.EmptyTableException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -25,7 +26,10 @@ internal abstract class TableDeserializer<T : Any, S : Table<T>>(
         val node: JsonNode = mapper.readTree(jp)
 
         val listType = mapper.typeFactory.constructCollectionType(List::class.java, itemType)
-        return tableCreator(mapper.convertValue(node, listType))
+        val elements: List<T> = mapper.convertValue(node, listType)
+        require(elements.isNotEmpty()) { throw EmptyTableException(itemType.simpleName) }
+
+        return tableCreator(elements)
     }
 }
 
@@ -33,5 +37,4 @@ internal class LinksTableJsonDeserializer : TableDeserializer<Link, LinksTable>(
 
 internal class FilesTableJsonDeserializer : TableDeserializer<BioFile, FilesTable>(BioFile::class.java, ::FilesTable)
 
-internal class SectionsTableJsonDeserializer :
-    TableDeserializer<Section, SectionsTable>(Section::class.java, ::SectionsTable)
+internal class SectionsTableJsonDeserializer : TableDeserializer<Section, SectionsTable>(Section::class.java, ::SectionsTable)

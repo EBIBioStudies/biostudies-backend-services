@@ -10,12 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import ebi.ac.uk.base.Either
-import uk.ac.ebi.serialization.extensions.tryConvertValue
+import ebi.ac.uk.base.Either.Left
+import ebi.ac.uk.base.Either.Right
 
 /**
- * Either deserializer, try to unserialize each either wrapper type to obtain the correct representation.
+ * Either deserializer, try to deserialize each either wrapper type to get the correct representation.
  */
-class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), ContextualDeserializer {
+class EitherDeserializer :
+    StdDeserializer<Either<*, *>>(Either::class.java),
+    ContextualDeserializer {
     private lateinit var leftType: JavaType
     private lateinit var rightType: JavaType
 
@@ -37,9 +40,11 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
     ): Either<*, *> {
         with(jp.codec as ObjectMapper) {
             val node: JsonNode = readTree(jp)
-            return tryConvertValue(node, rightType)?.let { Either.Right(it) }
-                ?: tryConvertValue(node, leftType)?.let { Either.Left(it) }
-                ?: error("can not deserialize $node into $leftType neither $rightType")
+
+            return when (node.isArray) {
+                true -> Right(convertValue<Any>(node, rightType))
+                else -> Left(convertValue<Any>(node, leftType))
+            }
         }
     }
 }

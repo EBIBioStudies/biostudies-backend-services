@@ -137,7 +137,7 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize attribute with empty value qualifier value`() {
-        val valDetails = AttributeDetail("t1", "v1")
+        val valDetails = AttributeDetail("t1", null)
         val nameDetails = AttributeDetail("t2", "v2")
 
         val attr =
@@ -166,13 +166,13 @@ class AttributeJsonDeserializerTest {
                     })
             }.toString()
 
-        assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
+        assertThat(testInstance.readValue<Attribute>(attributeJson)).isEqualTo(attr)
     }
 
     @Test
     fun `deserialize attribute with empty name qualifier value`() {
         val valDetails = AttributeDetail("t1", "v1")
-        val nameDetails = AttributeDetail("t2", "v2")
+        val nameDetails = AttributeDetail("t2", null)
 
         val attr =
             Attribute(
@@ -200,7 +200,7 @@ class AttributeJsonDeserializerTest {
                     })
             }.toString()
 
-        assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
+        assertThat(testInstance.readValue<Attribute>(attributeJson)).isEqualTo(attr)
     }
 
     @Test
