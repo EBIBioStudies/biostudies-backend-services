@@ -323,7 +323,30 @@ class SubmissionDraftApiTest(
                         }.toString(),
                     )
                 }
-            val error = "Submission request draft can't be updated. Request 'ABC-132' is currently being processed."
+            val error = "Request 'ABC-132' is being processed. Submission request draft operations are blocked."
+            assertThat(exception).hasMessageContaining(error)
+        }
+
+    @Test
+    fun `12-11 create a draft with an processing request`() =
+        runTest {
+            val accNo = "ABC-133"
+            val sub =
+                jsonObj {
+                    "accno" to accNo
+                    "section" to
+                        jsonObj {
+                            "type" to "Study"
+                        }
+                    "type" to "submission"
+                }.toString()
+
+            assertThat(webClient.submit(sub)).isSuccessful()
+            webClient.getSubmissionDraft(accNo)
+            requestRepository.setDraftStatus(accNo, SuperUser.email, SUBMITTED, Instant.now())
+
+            val exception = assertThrows<WebClientException> { webClient.getSubmissionDraft("ABC-133") }
+            val error = "Request 'ABC-133' is being processed. Submission request draft operations are blocked."
             assertThat(exception).hasMessageContaining(error)
         }
 }
