@@ -47,7 +47,7 @@ class RemoteSubmitterExecutor(
                 {
                     logger.info {
                         "Triggered submission task $mode. " +
-                            "Job Id: ${it.id}. ${it.logsPath}. " +
+                            "Job Id: ${it.id} | Logs: ${it.logsPath}. " +
                             "args: '${args.joinToString("\n")}'"
                     }
                 },

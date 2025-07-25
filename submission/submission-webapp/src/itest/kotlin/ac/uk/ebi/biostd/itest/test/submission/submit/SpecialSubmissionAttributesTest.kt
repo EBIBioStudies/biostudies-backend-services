@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -14,7 +16,10 @@ import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.base.Either
+import ebi.ac.uk.dsl.json.jsonArray
+import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -103,7 +108,7 @@ class SpecialSubmissionAttributesTest(
         }
 
     @Test
-    fun `15-3 new submission with empty accNo subsection table`() =
+    fun `15-3 new submission with sections table without elements`() =
         runTest {
             val submission =
                 tsv {
@@ -448,6 +453,63 @@ class SpecialSubmissionAttributesTest(
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL127")
             assertThat(savedSubmission.title).isEqualTo("Submission with DOI and no name")
             assertThat(savedSubmission.doi).isEqualTo("$BS_DOI_ID/S-STBL127")
+        }
+
+    @Test
+    fun `15-12 submission with empty sections table`() =
+        runTest {
+            val submission =
+                jsonObj {
+                    "accno" to "S-STBL1212"
+                    "attributes" to
+                        jsonArray(
+                            {
+                                "name" to "Title"
+                                "value" to "Submission With Empty Sections Table"
+                            },
+                            {
+                                "name" to "ReleaseDate"
+                                "value" to OffsetDateTime.now().toStringDate()
+                            },
+                        )
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Project"
+                                    "value" to "CEEHRC (McGill)"
+                                },
+                            )
+                        "subsections" to
+                            jsonArray(
+                                jsonObj {
+                                    "accno" to "SECT-002"
+                                    "type" to "Study"
+                                },
+                                jsonArray({
+                                    "accno" to "DT-1"
+                                    "type" to "Data"
+                                    "attributes" to
+                                        jsonArray(
+                                            {
+                                                "name" to "Title"
+                                                "value" to "Group 1 Transcription Data"
+                                            },
+                                            {
+                                                "name" to "Description"
+                                                "value" to "The data for zygotic transcription in mammals group 1"
+                                            },
+                                        )
+                                }),
+                                jsonArray(),
+                            )
+                    }
+                }.toString()
+
+            val exception = assertThrows<WebClientException> { webClient.submit(submission, JSON) }
+            assertThat(exception).hasMessageContaining("Section tables can't be empty")
         }
 
     @Nested
