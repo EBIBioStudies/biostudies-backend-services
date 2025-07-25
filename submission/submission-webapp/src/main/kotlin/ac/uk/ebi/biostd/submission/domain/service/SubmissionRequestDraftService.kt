@@ -87,6 +87,8 @@ class SubmissionRequestDraftService(
         owner: String,
     ): SubmissionRequest {
         require(userPrivilegesService.canResubmit(owner, accNo)) { throw UserCanNotUpdateSubmit(accNo, owner) }
+        require(requestService.hasProcesingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
+
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val draft = serializationService.serializeSubmission(submission, JsonPretty)
 
