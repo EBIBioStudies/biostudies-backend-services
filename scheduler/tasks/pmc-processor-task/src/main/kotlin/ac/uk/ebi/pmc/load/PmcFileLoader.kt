@@ -4,6 +4,9 @@ import ebi.ac.uk.base.Either
 import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.functions.milisToInstant
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
@@ -14,7 +17,9 @@ import java.util.zip.GZIPInputStream
 
 private val logger = KotlinLogging.logger {}
 
-class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
+class PmcFileLoader(
+    private val pmcLoader: PmcSubmissionLoader,
+) {
     /**
      * List the files in the given folder and load into the system the ones not already loaded. Sequence is used so the
      * full list of file content is not loaded into memory.
@@ -23,9 +28,14 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
      * @param file optional file to load.
      */
     fun loadFile(
-        folder: File,
-        file: File?,
-    ) {
+        folderPath: String?,
+        filePath: String?,
+    ) = runBlocking {
+        logger.info { "Executing loader with loadFolder='$folderPath', loadFile='$filePath'" }
+
+        val folder = File(requireNotNull(folderPath) { "load folder parameter is required" })
+        val file = filePath?.let { folder.resolve(it) }
+
         val files = if (file != null) listOf(file) else folder.listFiles(GzFilter).orEmpty().toList()
         logger.info { "loading files ${files.joinToString()}" }
         processFiles(
@@ -35,17 +45,16 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
         )
     }
 
-    private fun processFiles(
+    private suspend fun processFiles(
         toProcess: List<File>,
         processedFolder: File,
         failedFolder: File,
     ): Unit =
-        runBlocking {
-            toProcess.asSequence()
-                .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
-                .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
-                .forEach { either -> processFile(either, processedFolder, failedFolder) }
-        }
+        toProcess
+            .asFlow()
+            .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
+            .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
+            .collect { either -> processFile(either, processedFolder, failedFolder) }
 
     private suspend fun processFile(
         loadResult: Either<FileSpec, Pair<File, Throwable>>,
