@@ -8,8 +8,14 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedFirePath
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.createDirectories
 
 class FireFilesService(
     private val client: FireClient,
@@ -66,5 +72,18 @@ class FireFilesService(
 
     override suspend fun deleteEmptyFolders(sub: ExtSubmissionInfo) {
         // No need to delete FIRE empty bucket as they only exists as files are in them
+    }
+
+    override suspend fun copyFile(
+        file: ExtFile,
+        path: Path,
+    ) {
+        withContext(Dispatchers.IO) {
+            require(file is FireFile) { "FireFilesService should only handle FireFile, '${file.filePath}' it is not" }
+            val downloadedFile = client.downloadByPath(file.firePath)!!.toPath()
+
+            path.createDirectories()
+            Files.copy(downloadedFile, path, StandardCopyOption.REPLACE_EXISTING)
+        }
     }
 }

@@ -19,7 +19,12 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermission
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteIfExists
 
 private val logger = KotlinLogging.logger {}
 
@@ -117,4 +122,16 @@ class NfsFilesService(
             logger.info { "${sub.accNo} ${sub.owner} Deleting sub empty folders in ${subFolder.parentFile.absolutePath}" }
             FileUtils.deleteEmptyDirectories(subFolder)
         }
+
+    override suspend fun copyFile(
+        file: ExtFile,
+        path: Path,
+    ) {
+        withContext(Dispatchers.IO) {
+            require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
+            path.deleteIfExists()
+            path.createDirectories()
+            Files.copy(Paths.get(file.fullPath), path)
+        }
+    }
 }

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.privateNfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -24,6 +25,7 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.SubmissionStat
+import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -457,5 +459,47 @@ class SubmissionStatsTest(
 
             assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original1)
             assertThat(statsDataService.findByAccNo(accNo2)).isEqualTo(original2)
+        }
+
+    @Test
+    fun `26-10 files are generated`() =
+        runTest {
+            val accNo = "STATS-FILES-001"
+            val submission1 =
+                tsv {
+                    line("Submission", accNo)
+                    line()
+                    line("Study")
+                    line("File List", "file-list-stats.tsv")
+                }.toString()
+
+            val fileList =
+                tsv {
+                    line("Files", "Type")
+                    line("file-1-stats.txt", "Referenced")
+                    line()
+                }.toString()
+
+            webClient.uploadFile(tempFolder.createFile("file-1-stats.txt", "file content"))
+            webClient.uploadFile(tempFolder.createFile("file-list-stats.tsv", fileList))
+            webClient.submit(submission1, TSV)
+
+            val sub = submissionRepository.getExtByAccNo(accNo)
+            val files = pageTabSubmissionPath.resolve(sub.relPath)
+            waitUntil(TEN_SECONDS) { files.listFiles()?.isNotEmpty() ?: false }
+
+            val subPath = pageTabSubmissionPath.resolve(sub.relPath)
+
+            val jsonPageTab = subPath.resolve("STATS-FILES-001.json")
+            assertThat(jsonPageTab).exists()
+
+            val tsvPageTab = subPath.resolve("STATS-FILES-001.tsv")
+            assertThat(tsvPageTab).exists()
+
+            val jsonFileListTab = subPath.resolve(FILES).resolve("file-list-stats.json")
+            assertThat(jsonFileListTab).exists()
+
+            val tsvFileListTab = subPath.resolve(FILES).resolve("file-list-stats.tsv")
+            assertThat(tsvFileListTab).exists()
         }
 }

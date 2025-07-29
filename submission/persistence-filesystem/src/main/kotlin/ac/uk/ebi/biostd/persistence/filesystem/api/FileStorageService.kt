@@ -4,6 +4,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import kotlinx.coroutines.flow.Flow
+import java.nio.file.Path
 
 interface FileStorageService {
     suspend fun releaseSubmissionFile(
@@ -32,4 +33,9 @@ interface FileStorageService {
     )
 
     suspend fun deleteEmptyFolders(sub: ExtSubmission)
+
+    suspend fun copyFile(
+        file: ExtFile,
+        path: Path,
+    )
 }
