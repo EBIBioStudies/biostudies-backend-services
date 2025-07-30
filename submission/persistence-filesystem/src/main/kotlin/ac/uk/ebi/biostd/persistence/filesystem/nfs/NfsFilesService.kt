@@ -24,6 +24,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.PosixFilePermission
+import kotlin.io.path.createDirectories
 
 private val logger = KotlinLogging.logger {}
 
@@ -124,11 +125,13 @@ class NfsFilesService(
 
     override suspend fun copyFile(
         file: ExtFile,
-        path: Path,
+        targetFilePath: Path,
     ) {
         withContext(Dispatchers.IO) {
             require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
-            Files.copy(Paths.get(file.fullPath), path, StandardCopyOption.REPLACE_EXISTING)
+
+            targetFilePath.parent.createDirectories()
+            Files.copy(Paths.get(file.fullPath), targetFilePath, StandardCopyOption.REPLACE_EXISTING)
         }
     }
 }

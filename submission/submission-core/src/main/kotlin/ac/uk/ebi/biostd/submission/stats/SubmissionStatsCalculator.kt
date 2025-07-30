@@ -9,7 +9,6 @@ import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.allPageTabFiles
-import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
-import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
@@ -67,7 +65,6 @@ class SubmissionStatsCalculator(
     private suspend fun copyPageTabFiles(sub: ExtSubmission) =
         with(Dispatchers.IO) {
             val expectedPath = subFolderResolver.getCopyPageTabPath(sub)
-            Files.createDirectories(expectedPath.resolve(FILES))
             sub.allPageTabFiles.onEach { fileStorageService.copyFile(it, expectedPath) }
         }
 }

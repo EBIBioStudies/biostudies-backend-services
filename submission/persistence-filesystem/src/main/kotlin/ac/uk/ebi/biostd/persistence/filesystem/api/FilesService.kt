@@ -24,6 +24,6 @@ internal interface FilesService {
 
     suspend fun copyFile(
         file: ExtFile,
-        path: Path,
+        targetFilePath: Path,
     )
 }
