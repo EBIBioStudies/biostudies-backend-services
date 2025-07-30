@@ -17,7 +17,6 @@ import mu.KotlinLogging
 import org.springframework.beans.factory.getBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
-import java.io.File
 
 private const val SYSTEM = "PMC_PROCESSOR"
 private val logger = KotlinLogging.logger {}
@@ -67,12 +66,7 @@ class PmcTaskExecutor(
 
     private fun runProcess(mode: PmcMode) {
         when (mode) {
-            LOAD -> {
-                val folder = File(requireNotNull(props.loadFolder) { "load folder parameter is required" })
-                val file = props.loadFile?.let { folder.resolve(it) }
-                context.getBean<PmcFileLoader>().loadFile(folder, file)
-            }
-
+            LOAD -> context.getBean<PmcFileLoader>().loadFile(props.loadFolder, props.loadFile)
             PROCESS -> context.getBean<PmcProcessor>().processAll(props.sourceFile)
             SUBMIT -> context.getBean<PmcSubmitter>().submitAll(props.sourceFile, props.limit, props.batchSize)
             SUBMIT_SINGLE -> context.getBean<PmcSubmitter>().submitSingle(requireNotNull(props.submissionId))
