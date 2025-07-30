@@ -2,8 +2,9 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
@@ -46,8 +47,8 @@ class SubmissionListSubmittedTest(
     @BeforeAll
     fun init() =
         runBlocking {
-            securityTestService.ensureUserRegistration(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+            securityTestService.ensureUserRegistration(SubmissionUser)
+            webClient = getWebClient(serverPort, SubmissionUser)
         }
 
     @Test
@@ -95,4 +96,15 @@ class SubmissionListSubmittedTest(
                 assertThat(submissionList.second().status).isEqualTo(PROCESSED.name)
             }
         }
+
+    /**
+     * Represents a bio studies super user.
+     */
+    object SubmissionUser : TestUser {
+        override val username = "Super User"
+        override val email = "biostudies-mgmt-list@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
+        override val storageMode = StorageMode.NFS
+    }
 }
