@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -485,21 +486,20 @@ class SubmissionStatsTest(
             webClient.submit(submission, TSV)
 
             val sub = submissionRepository.getExtByAccNo(accNo)
-            val files = pageTabSubmissionPath.resolve(sub.relPath)
-            waitUntil(TEN_SECONDS) { files.listFiles()?.isNotEmpty() ?: false }
-
             val subPath = pageTabSubmissionPath.resolve(sub.relPath)
 
-            val jsonPageTab = subPath.resolve("STATS-FILES-001.json")
-            assertThat(jsonPageTab).exists()
+            waitForCompletion(TEN_SECONDS) {
+                val jsonPageTab = subPath.resolve("STATS-FILES-001.json")
+                assertThat(jsonPageTab).exists()
 
-            val tsvPageTab = subPath.resolve("STATS-FILES-001.tsv")
-            assertThat(tsvPageTab).exists()
+                val tsvPageTab = subPath.resolve("STATS-FILES-001.tsv")
+                assertThat(tsvPageTab).exists()
 
-            val jsonFileListTab = subPath.resolve(FILES).resolve("file-list-stats.json")
-            assertThat(jsonFileListTab).exists()
+                val jsonFileListTab = subPath.resolve(FILES).resolve("file-list-stats.json")
+                assertThat(jsonFileListTab).exists()
 
-            val tsvFileListTab = subPath.resolve(FILES).resolve("file-list-stats.tsv")
-            assertThat(tsvFileListTab).exists()
+                val tsvFileListTab = subPath.resolve(FILES).resolve("file-list-stats.tsv")
+                assertThat(tsvFileListTab).exists()
+            }
         }
 }
