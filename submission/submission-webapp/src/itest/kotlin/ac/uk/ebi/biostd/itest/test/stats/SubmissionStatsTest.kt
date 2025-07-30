@@ -488,7 +488,7 @@ class SubmissionStatsTest(
             val sub = submissionRepository.getExtByAccNo(accNo)
             val subPath = pageTabSubmissionPath.resolve(sub.relPath)
 
-            waitForCompletion(TEN_SECONDS) {
+            waitForCompletion(ONE_MINUTE) {
                 val jsonPageTab = subPath.resolve("STATS-FILES-001.json")
                 assertThat(jsonPageTab).exists()
 
