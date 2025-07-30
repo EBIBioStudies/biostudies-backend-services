@@ -465,7 +465,7 @@ class SubmissionStatsTest(
     fun `26-10 files are generated`() =
         runTest {
             val accNo = "STATS-FILES-001"
-            val submission1 =
+            val submission =
                 tsv {
                     line("Submission", accNo)
                     line()
@@ -482,7 +482,7 @@ class SubmissionStatsTest(
 
             webClient.uploadFile(tempFolder.createFile("file-1-stats.txt", "file content"))
             webClient.uploadFile(tempFolder.createFile("file-list-stats.tsv", fileList))
-            webClient.submit(submission1, TSV)
+            webClient.submit(submission, TSV)
 
             val sub = submissionRepository.getExtByAccNo(accNo)
             val files = pageTabSubmissionPath.resolve(sub.relPath)
