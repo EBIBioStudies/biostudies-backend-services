@@ -15,7 +15,6 @@ import uk.ac.ebi.fire.client.model.FireApiFile
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import kotlin.io.path.createDirectories
 
 class FireFilesService(
     private val client: FireClient,
@@ -81,8 +80,6 @@ class FireFilesService(
         withContext(Dispatchers.IO) {
             require(file is FireFile) { "FireFilesService should only handle FireFile, '${file.filePath}' it is not" }
             val downloadedFile = client.downloadByPath(file.firePath)!!.toPath()
-
-            path.createDirectories()
             Files.copy(downloadedFile, path, StandardCopyOption.REPLACE_EXISTING)
         }
     }

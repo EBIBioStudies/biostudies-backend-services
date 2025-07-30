@@ -22,9 +22,8 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.PosixFilePermission
-import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteIfExists
 
 private val logger = KotlinLogging.logger {}
 
@@ -129,9 +128,7 @@ class NfsFilesService(
     ) {
         withContext(Dispatchers.IO) {
             require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
-            path.deleteIfExists()
-            path.createDirectories()
-            Files.copy(Paths.get(file.fullPath), path)
+            Files.copy(Paths.get(file.fullPath), path, StandardCopyOption.REPLACE_EXISTING)
         }
     }
 }
