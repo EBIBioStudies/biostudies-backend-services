@@ -190,12 +190,8 @@ class SubmissionDocDataRepository(
                     is SimpleFilter -> {}
                     is SubmissionListFilter -> {
                         when {
-                            filter.findAnyAccNo -> {
-                                if (filter.accNo != null) {
-                                    add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
-                                } else {
-                                    filter.keywords?.let { add(match(keywordsCriteria(it))) }
-                                }
+                            filter.findAnyAccNo && filter.accNo != null -> {
+                                add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
                             }
 
                             else -> {

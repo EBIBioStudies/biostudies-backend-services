@@ -3,10 +3,12 @@ package ebi.ac.uk.coroutines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import java.time.Duration
 import java.time.Duration.ofMillis
 
 private const val DEFAULT_INTERVAL = 300L
+private val logger = KotlinLogging.logger {}
 
 val FOREVER: Duration = ofMillis(Long.MAX_VALUE)
 
@@ -63,6 +65,8 @@ suspend fun waitForCompletion(
             require(available >= interval) { "Await condition expired" }
             val result = runCatching { function() }
             if (result.isFailure) {
+                var exception = result.exceptionOrNull()
+                logger.error(exception) { "exception evaluating condition {${exception?.message}}" }
                 delay(interval)
                 waitUntil(function, available - interval, interval)
             }
