@@ -26,7 +26,6 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.SubmissionStat
-import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -495,10 +494,10 @@ class SubmissionStatsTest(
                 val tsvPageTab = subPath.resolve("STATS-FILES-001.tsv")
                 assertThat(tsvPageTab).exists()
 
-                val jsonFileListTab = subPath.resolve(FILES).resolve("file-list-stats.json")
+                val jsonFileListTab = subPath.resolve("Files").resolve("file-list-stats.json")
                 assertThat(jsonFileListTab).exists()
 
-                val tsvFileListTab = subPath.resolve(FILES).resolve("file-list-stats.tsv")
+                val tsvFileListTab = subPath.resolve("Files").resolve("file-list-stats.tsv")
                 assertThat(tsvFileListTab).exists()
             }
         }

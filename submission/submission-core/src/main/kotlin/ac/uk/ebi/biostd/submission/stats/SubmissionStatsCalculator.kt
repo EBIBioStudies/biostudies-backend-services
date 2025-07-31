@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PersistedExtFile
@@ -62,9 +63,11 @@ class SubmissionStatsCalculator(
             .filter { it.type == ExtFileType.FILE }
             .firstOrNull { it.filePath.contains(directoryPath) } != null
 
-    private suspend fun copyPageTabFiles(sub: ExtSubmission) =
-        with(Dispatchers.IO) {
+    private suspend fun copyPageTabFiles(sub: ExtSubmission): List<ExtFile> {
+        logger.info { "Copying pagetab files for submission ${sub.accNo}, version ${sub.version}" }
+        return with(Dispatchers.IO) {
             val expectedPath = subFolderResolver.getCopyPageTabPath(sub)
             sub.allPageTabFiles.onEach { fileStorageService.copyFile(it, expectedPath) }
         }
+    }
 }
