@@ -195,8 +195,8 @@ class SubmissionDocDataRepository(
                             }
 
                             else -> {
-                                add(match(where(SUB_OWNER).`is`(filter.filterUser)))
                                 filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                                add(match(where(SUB_OWNER).`is`(filter.filterUser)))
                             }
                         }
 

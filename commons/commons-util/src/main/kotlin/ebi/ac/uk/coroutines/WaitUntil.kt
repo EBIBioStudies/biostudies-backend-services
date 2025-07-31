@@ -67,6 +67,7 @@ suspend fun waitForCompletion(
             if (result.isFailure) {
                 var exception = result.exceptionOrNull()
                 logger.error(exception) { "exception evaluating condition {${exception?.message}}" }
+
                 delay(interval)
                 waitUntil(function, available - interval, interval)
             }
