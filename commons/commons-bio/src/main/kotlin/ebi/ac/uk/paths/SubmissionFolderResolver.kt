@@ -21,6 +21,8 @@ interface SubmissionFolderResolver {
         relPath: String,
         folderType: FolderType = FolderType.NFS,
     ): Path
+
+    fun getCopyPageTabPath(sub: ExtSubmissionInfo): Path
 }
 
 enum class FolderType {
