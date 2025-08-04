@@ -48,6 +48,8 @@ import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.index.Index
+import org.springframework.data.mongodb.core.query.Collation
+import org.springframework.data.mongodb.core.query.Collation.ComparisonLevel
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 suspend fun ReactiveMongoTemplate.executeMigrations() {
@@ -68,7 +70,7 @@ suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmission
  * Submission Indexes
  * 1. AccNo
  * 2. AccNo - Version
- * 3. Owner
+ * 3. Owner (Case insensitive)
  * 4. Submitter
  * 5. Root Section Type
  * 6. Release Time
@@ -82,7 +84,11 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
     indexOps(T::class.java).apply {
         ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
+        ensureIndex(
+            backgroundIndex()
+                .on("$prefix$SUB_OWNER", ASC)
+                .collation(Collation.of("en").strength(ComparisonLevel.secondary())),
+        ).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
