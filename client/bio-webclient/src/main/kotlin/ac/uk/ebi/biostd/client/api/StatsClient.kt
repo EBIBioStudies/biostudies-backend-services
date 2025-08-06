@@ -92,10 +92,10 @@ class StatsClient(
             .awaitBody()
     }
 
-    override fun refreshStats(accNo: String): Flow<SubmissionStat> =
+    override suspend fun refreshStats(accNo: String): List<SubmissionStat> =
         client
             .post()
             .uri("$STATS_URL/refresh/$accNo")
             .retrieve()
-            .bodyToFlow()
+            .awaitBody()
 }

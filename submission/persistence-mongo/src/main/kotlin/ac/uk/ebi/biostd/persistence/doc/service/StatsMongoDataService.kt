@@ -26,6 +26,7 @@ import org.bson.Document
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import java.time.Instant
@@ -41,9 +42,10 @@ class StatsMongoDataService(
         suspend fun findNext(): DocSubmissionStats? {
             val query =
                 Query(
-                    Criteria
-                        .where(STATS_LAST_UPDATED)
-                        .lt(lastUpdated),
+                    Criteria().orOperator(
+                        where(STATS_LAST_UPDATED).lt(lastUpdated),
+                        where(STATS_LAST_UPDATED).isNull,
+                    ),
                 ).limit(1)
             val update = Update().set(STATS_LAST_UPDATED, Instant.now())
             return mongoTemplate
@@ -138,8 +140,9 @@ class StatsMongoDataService(
 
     override suspend fun lastUpdated(accNo: String): Instant? = statsDataRepository.findByAccNo(accNo)?.lastUpdated
 
-    override suspend fun deleteByAccNo(accNo: String) {
-        statsDataRepository.deleteByAccNo(accNo)
+    override suspend fun cleanStatsByAccNo(accNo: String) {
+        val stats = statsDataRepository.getByAccNo(accNo)
+        statsDataRepository.save(stats.copy(stats = emptyMap(), lastUpdated = null))
     }
 
     override suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult {

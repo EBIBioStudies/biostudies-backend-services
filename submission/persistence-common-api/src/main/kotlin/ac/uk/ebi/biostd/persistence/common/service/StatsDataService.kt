@@ -8,6 +8,7 @@ import com.mongodb.bulk.BulkWriteResult
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
+@Suppress("TooManyFunctions")
 interface StatsDataService {
     fun findAll(lastUpdated: Instant): Flow<String>
 
@@ -44,5 +45,5 @@ interface StatsDataService {
 
     suspend fun lastUpdated(accNo: String): Instant?
 
-    suspend fun deleteByAccNo(accNo: String)
+    suspend fun cleanStatsByAccNo(accNo: String)
 }
