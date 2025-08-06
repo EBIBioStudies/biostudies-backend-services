@@ -190,13 +190,19 @@ class SubmissionDocDataRepository(
                     is SimpleFilter -> {}
                     is SubmissionListFilter -> {
                         when {
-                            filter.findAnyAccNo && filter.accNo != null -> {
-                                add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
+                            filter.findAnyAccNo -> {
+                                if (filter.accNo != null) {
+                                    add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
+                                } else {
+                                    // use Text based index.
+                                    filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                                }
                             }
 
                             else -> {
-                                filter.keywords?.let { add(match(keywordsCriteria(it))) }
                                 add(match(where(SUB_OWNER).`is`(filter.filterUser)))
+                                // Use filter based on section and submission title.
+                                filter.keywords?.let { add(match(keywordsFilter(it))) }
                             }
                         }
 
