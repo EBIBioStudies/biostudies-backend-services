@@ -1,20 +1,36 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.PermissionOperations
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.put
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 
 class PermissionOperationsClient(
     private val client: WebClient,
 ) : PermissionOperations {
-    override fun grantPermission(
+    override suspend fun grantPermission(
         user: String,
         accNo: String,
         accessType: String,
     ) {
-        val body = hashMapOf("userEmail" to user, "accessType" to accessType, "accNo" to accNo)
-        client.put(PERMISSIONS_URL, RequestParams(body = body))
+        client
+            .put()
+            .uri(PERMISSIONS_URL)
+            .bodyValue(hashMapOf("userEmail" to user, "accessType" to accessType, "accNo" to accNo))
+            .retrieve()
+            .awaitBodilessEntity()
+    }
+
+    override suspend fun revokePermission(
+        user: String,
+        accNo: String,
+        accessType: String,
+    ) {
+        client
+            .post()
+            .uri("$PERMISSIONS_URL/revoke")
+            .bodyValue(hashMapOf("userEmail" to user, "accessType" to accessType, "accNo" to accNo))
+            .retrieve()
+            .awaitBodilessEntity()
     }
 
     companion object {

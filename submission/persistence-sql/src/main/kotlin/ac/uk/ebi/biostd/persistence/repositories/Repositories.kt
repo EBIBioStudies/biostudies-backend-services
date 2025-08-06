@@ -86,6 +86,12 @@ interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
         type: AccessType,
         accessTag: String,
     ): Boolean
+
+    fun deleteByUserEmailAndAccessTypeAndAccessTagName(
+        user: String,
+        type: AccessType,
+        accessTag: String,
+    )
 }
 
 interface SubmissionRtRepository : JpaRepository<DbSubmissionRT, Long> {

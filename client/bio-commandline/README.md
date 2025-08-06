@@ -147,5 +147,26 @@ java -jar BioStudiesCLI-2.0.jar grantPermission \
 * **u or --user:** BioStudies user with privileges to delete the submission.
 * **p or --password:** The user password.
 * **at or --accessType:** Access type to be granted to the user. Valid values are: *ADMIN, ATTACH, UPDATE, READ, DELETE*
-* **tu or --targetUser:** User to whom the access permission will be provided.
+* **tu or --targetUser:** User to whom the access permission will be granted.
 * **ac or --accNo:** The accession to grant the permission to. The accession must exist.
+
+### Revoke Permission
+Revokes the specified permissions for the given user in the given collection.
+
+```
+java -jar BioStudiesCLI-2.0.jar revokePermission \
+-s <server> \
+-u <user> \
+-p <password> \
+-at <access type> \
+-tu <target user> \
+-ac <collection accNo>
+```
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** BioStudies user with privileges to delete the submission.
+* **p or --password:** The user password.
+* **at or --accessType:** Access type to be revoked to the user. Valid values are: *ADMIN, ATTACH, UPDATE, READ, DELETE*
+* **tu or --targetUser:** User to whom the access permission will be revoked.
+* **ac or --accNo:** The accession to revoke the permission to. The accession must exist.
