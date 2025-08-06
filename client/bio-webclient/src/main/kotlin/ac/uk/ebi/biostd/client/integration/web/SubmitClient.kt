@@ -196,7 +196,7 @@ interface StatsOperations {
         statsFile: File,
     ): UpdateResult
 
-    fun refreshStats(accNo: String): Flow<SubmissionStat>
+    suspend fun refreshStats(accNo: String): List<SubmissionStat>
 }
 
 interface DraftSubmissionOperations {

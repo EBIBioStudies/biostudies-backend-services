@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import java.io.File
@@ -63,27 +61,32 @@ class SubmissionStatsService(
     }
 
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
+        refreshStats(accNo)
+        val stats = statsDataService.findByAccNo(accNo)?.stats.orEmpty()
+        logger.info { "Finished calculating submission '$accNo' stats. $stats" }
+        return stats
+    }
+
+    suspend fun refreshAll() {
+        val idx = AtomicInteger(0)
+        statsDataService
+            .findAll(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
+            .onEach { accNo -> "Calculating stats ${idx.incrementAndGet()} accNo '$accNo'" }
+            .collect({ accNo -> refreshStatsSafely(accNo) })
+    }
+
+    private suspend fun refreshStatsSafely(accNo: String) {
+        runCatching { refreshStats(accNo) }
+            .onFailure { logger.error(it) { "Issues calculating stats for accNo: '$accNo'" } }
+            .onSuccess { logger.info { "Finished calculating stats for accNo: '$accNo'" } }
+    }
+
+    private suspend fun refreshStats(accNo: String) {
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val stats = submissionStatsCalculator.calculateStats(sub)
         statsDataService.saveAll(accNo, stats)
-        logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $stats" }
-        return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
-    }
-
-    suspend fun refreshAll() {
-        val idx = AtomicInteger(0)
-        extSubQueryService
-            .findAllActive(includeFileListFiles = true, includeLinkListLinks = true)
-            .filter {
-                val lastUpdated = statsDataService.lastUpdated(it.accNo)
-                lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
-            }.onEach { sub ->
-                val stats = submissionStatsCalculator.calculateStats(sub)
-                statsDataService.saveAll(sub.accNo, stats)
-                logger.info { "Calculated stats submission ${idx.incrementAndGet()}. accNo='${sub.accNo}'" }
-            }.collect()
     }
 
     companion object {

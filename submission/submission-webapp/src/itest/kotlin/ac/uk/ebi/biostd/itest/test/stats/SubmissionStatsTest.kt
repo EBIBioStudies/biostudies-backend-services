@@ -452,8 +452,8 @@ class SubmissionStatsTest(
             val original1 = statsDataService.findByAccNo(accNo)
             val original2 = statsDataService.findByAccNo(accNo2)
 
-            statsDataService.deleteByAccNo(accNo)
-            statsDataService.deleteByAccNo(accNo2)
+            statsDataService.cleanStatsByAccNo(accNo)
+            statsDataService.cleanStatsByAccNo(accNo2)
 
             webClient.refreshAllStats()
 
