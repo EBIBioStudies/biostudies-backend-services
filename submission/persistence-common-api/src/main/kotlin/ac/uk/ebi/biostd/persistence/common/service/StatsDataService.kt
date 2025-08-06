@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
 interface StatsDataService {
+    fun findAll(lastUpdated: Instant): Flow<String>
+
     suspend fun findByAccNo(accNo: String): SubmissionStats?
 
     suspend fun findStatsByAccNo(accNo: String): List<SubmissionStat>
