@@ -50,16 +50,17 @@ Contains test related to Submission and collection manipulation.
 | SubmitPermissionTest | 4-9     | Regular user resubmits another user submission                                  |
 | SubmitPermissionTest | 4-10    | Regular user resubmits another user submission with UPDATE permission           |
 
-### Permission API Test Suite
+### User Permissions API Test Suite
 
 Contains permissions API test.
 
-| Class             | Test No | Test name                                          |
-|-------------------|---------|----------------------------------------------------|
-| PermissionApiTest | 21-1    | Grant permission to a Regular user by Superuser    |
-| PermissionApiTest | 21-2    | Grant permission to a Regular user by Regular user |
-| PermissionApiTest | 21-3    | Grant permission to non-existing user              |
-| PermissionApiTest | 21-4    | Grant permission to non-existing submission        |
+| Class                  | Test No | Test name                                          |
+|------------------------|---------|----------------------------------------------------|
+| UserPermissionsApiTest | 21-1    | Grant permission to a Regular user by Superuser    |
+| UserPermissionsApiTest | 21-2    | Grant permission to a Regular user by Regular user |
+| UserPermissionsApiTest | 21-3    | Grant permission to non-existing user              |
+| UserPermissionsApiTest | 21-4    | Grant permission to non-existing submission        |
+| UserPermissionsApiTest | 21-5    | Revoke permissions to a Regular user by Superuser  |
 
 ## File List Test Suite
 

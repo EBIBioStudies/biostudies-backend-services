@@ -21,7 +21,7 @@ fun bioWebClientErrorHandler(): ExchangeFilterFunction {
         val statusCode = response.statusCode()
         if (statusCode.isError) {
             return@ofResponseProcessor response.bodyToMono<String>().flatMap {
-                Mono.error<ClientResponse>(WebClientException(statusCode, errorMessage(it, statusCode)))
+                Mono.error(WebClientException(statusCode, errorMessage(it, statusCode)))
             }
         }
 
