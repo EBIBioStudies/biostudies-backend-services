@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
 import uk.ac.ebi.scheduler.common.properties.DailyScheduling
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
-import uk.ac.ebi.scheduler.pmc.importer.DEFAULT_FOLDER
 import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
@@ -29,7 +28,7 @@ internal class DailyScheduler(
     @Scheduled(cron = "0 0 6 * * *")
     fun loadPmc() =
         runBlocking {
-            if (dailyScheduling.pmcImport) pmcLoaderService.loadFile(DEFAULT_FOLDER, file = null)
+            if (dailyScheduling.pmcImport) pmcLoaderService.loadFile()
         }
 
     // Execute at 07:00 am

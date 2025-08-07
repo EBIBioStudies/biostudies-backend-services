@@ -38,8 +38,8 @@ internal class PmcLoaderService private constructor(
     ) : this(PmcLoader(clusterClient, properties, appProperties), notificationsSender)
 
     suspend fun loadFile(
-        folder: String?,
-        file: String?,
+        folder: String? = null,
+        file: String? = null,
         debugPort: Int? = null,
     ): Job {
         val job = pmcLoaderService.loadFile(folder, file, debugPort)

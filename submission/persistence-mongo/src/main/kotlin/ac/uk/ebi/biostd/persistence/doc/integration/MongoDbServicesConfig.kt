@@ -26,6 +26,7 @@ import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestMongoPersistenc
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -98,7 +99,8 @@ class MongoDbServicesConfig {
     internal fun statsDataService(
         submissionsRepository: SubmissionDocDataRepository,
         statsDataRepository: SubmissionStatsDataRepository,
-    ): StatsDataService = StatsMongoDataService(submissionsRepository, statsDataRepository)
+        reactiveMongoTemplate: ReactiveMongoTemplate,
+    ): StatsDataService = StatsMongoDataService(submissionsRepository, statsDataRepository, reactiveMongoTemplate)
 
     @Bean
     fun fileProcessingService(
