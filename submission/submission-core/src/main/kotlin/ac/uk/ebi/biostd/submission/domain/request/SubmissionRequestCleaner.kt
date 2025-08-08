@@ -32,8 +32,8 @@ class SubmissionRequestCleaner(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     /**
-     *  Executes the clean submission stage where conflicted files (files updated in new submission version) are
-     *  deleting to be able to persist new one.
+     *  Executes the clean submission stage where conflicted files (files updated in a new submission version) are
+     *  deleted to be able to persist the new one.
      */
     suspend fun cleanCurrentVersion(
         accNo: String,
@@ -50,11 +50,11 @@ class SubmissionRequestCleaner(
         }
 
     /**
-     * Executes the finalize or submission processing stage when files deprecated (file not used anymore) from previous
-     * version are deleted. Note that submission is query wth negative version as new version has been already
+     * Executes the clean previous version stage where deprecated files from the previous version (files that are no
+     * longer used) are deleted. Note that submission is query wth negative version as new version has been already
      * persisted at this point.
      */
-    suspend fun finalizeRequest(
+    suspend fun cleanPreviousVersion(
         accNo: String,
         version: Int,
         processId: String,

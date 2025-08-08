@@ -25,6 +25,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubFolderResolver
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -222,6 +223,7 @@ class SubmitterConfig(
         submissionSaver: SubmissionRequestSaver,
         eventsPublisherService: EventsPublisherService,
         submissionStatsService: SubmissionStatsService,
+        submissionPostProcessingService: SubmissionPostProcessingService,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
@@ -239,6 +241,7 @@ class SubmitterConfig(
             submissionQueryService,
             eventsPublisherService,
             submissionStatsService,
+            submissionPostProcessingService,
         )
 
     @Bean
@@ -253,6 +256,20 @@ class SubmitterConfig(
             submissionProcessor,
             collectionValidationService,
             requestPersistenceService,
+        )
+
+    @Bean
+    fun submissionPostProcessingService(
+        fileStorageService: FileStorageService,
+        subFolderResolver: SubmissionFolderResolver,
+        statsService: SubmissionStatsService,
+        extSubQueryService: SubmissionPersistenceQueryService,
+    ): SubmissionPostProcessingService =
+        SubmissionPostProcessingService(
+            fileStorageService,
+            subFolderResolver,
+            statsService,
+            extSubQueryService,
         )
 
     @Bean
