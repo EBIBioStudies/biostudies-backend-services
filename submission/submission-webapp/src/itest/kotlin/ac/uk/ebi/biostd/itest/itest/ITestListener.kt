@@ -152,7 +152,7 @@ class ITestListener : TestExecutionListener {
             "${System.getProperty("includeSecretKey").toBoolean()}",
         )
         properties.addProperty("app.persistence.nfsReleaseMode", System.getProperty("nfsReleaseMode"))
-        properties.addProperty("app.persistence.pageTabSubmissionPath", pageTabSubmissionPath.absolutePath)
+        properties.addProperty("app.persistence.pageTabSubmissionPath", pageTabBackupSubmissionPath.absolutePath)
         properties.addProperty("app.persistence.privateSubmissionsPath", privateNfsSubmissionPath.absolutePath)
         properties.addProperty("app.persistence.publicSubmissionsPath", publicNfsSubmissionPath.absolutePath)
         properties.addProperty("app.persistence.privateSubmissionFtpOutPath", PRIVATE_SUBMISSION_PATH)
@@ -226,7 +226,7 @@ class ITestListener : TestExecutionListener {
         internal const val FIXED_DELAY_ENV = "ITEST_FIXED_DELAY"
         internal const val PRIVATE_SUBMISSION_PATH = ".private"
 
-        internal val pageTabSubmissionPath = testAppFolder.createDirectory("pagetab-backup")
+        internal val pageTabBackupSubmissionPath = testAppFolder.createDirectory("pagetab-backup")
         internal val privateNfsSubmissionPath = submissionsFtp.createDirectory(PRIVATE_SUBMISSION_PATH)
         internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
         internal val firePath = testAppFolder.createDirectory("fire-db")
