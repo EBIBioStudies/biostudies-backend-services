@@ -6,11 +6,13 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabBackupSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -242,6 +244,47 @@ class SubmissionStatsTest(
             val stat3 = stats[2]
             assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
             assertThat(stat3.value).isEqualTo(1)
+
+            val baseFolder = "STATS-WITH-DIR-/001/STATS-WITH-DIR-0001"
+            val jsonCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.json")
+            assertThat(jsonCopyFile).hasContent(
+                """
+                {
+                  "accno" : "STATS-WITH-DIR-0001",
+                  "section" : {
+                    "type" : "Study",
+                    "files" : [ [ {
+                      "path" : "a-Dir.zip",
+                      "size" : 22,
+                      "type" : "directory"
+                    }, {
+                      "path" : "b-Dir.zip",
+                      "size" : 166,
+                      "type" : "directory"
+                    }, {
+                      "path" : "b-Dir/a_file.txt",
+                      "size" : 12,
+                      "type" : "file"
+                    } ] ]
+                  },
+                  "type" : "submission"
+                }
+                """.trimIndent(),
+            )
+
+            val tsvCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.tsv")
+            assertThat(tsvCopyFile).hasContent(
+                """
+                Submission	STATS-WITH-DIR-0001
+
+                Study
+
+                Files
+                a-Dir.zip
+                b-Dir.zip
+                b-Dir/a_file.txt
+                """.trimIndent(),
+            )
         }
 
     @Test
@@ -272,5 +315,90 @@ class SubmissionStatsTest(
 
             assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original1)
             assertThat(statsDataService.findByAccNo(accNo2)).isEqualTo(original2)
+        }
+
+    @Test
+    fun `26-8 private submission with double blind review stats are not filter`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "STATSDB-0001")
+                    line("ReleaseDate", "2099-09-21")
+                    line("ReviewType", "DoubleBlind")
+                    line()
+
+                    line("Study", "SECT-001")
+                    line("Type", "Experiment")
+                    line()
+
+                    line("Author", "a1")
+                    line("Name", "Jane Doe")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "EMBL")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+            val baseFolder = "STATSDB-/001/STATSDB-0001"
+            val jsonCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATSDB-0001.json")
+            assertThat(jsonCopyFile).hasContent(
+                """
+                {
+                  "accno" : "STATSDB-0001",
+                  "attributes" : [ {
+                    "name" : "ReviewType",
+                    "value" : "DoubleBlind"
+                  }, {
+                    "name" : "ReleaseDate",
+                    "value" : "2099-09-21"
+                  } ],
+                  "section" : {
+                    "accno" : "SECT-001",
+                    "type" : "Study",
+                    "attributes" : [ {
+                      "name" : "Type",
+                      "value" : "Experiment"
+                    } ],
+                    "subsections" : [ {
+                      "accno" : "a1",
+                      "type" : "Author",
+                      "attributes" : [ {
+                        "name" : "Name",
+                        "value" : "Jane Doe"
+                      } ]
+                    }, {
+                      "accno" : "o1",
+                      "type" : "Organization",
+                      "attributes" : [ {
+                        "name" : "Name",
+                        "value" : "EMBL"
+                      } ]
+                    } ]
+                  },
+                  "type" : "submission"
+                }
+                """.trimIndent(),
+            )
+
+            val tsvCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATSDB-0001.tsv")
+            assertThat(tsvCopyFile).hasContent(
+                """
+                Submission	STATSDB-0001
+                ReviewType	DoubleBlind
+                ReleaseDate	2099-09-21
+
+                Study	SECT-001
+                Type	Experiment
+
+                Author	a1	SECT-001
+                Name	Jane Doe
+
+                Organization	o1	SECT-001
+                Name	EMBL
+                """.trimIndent(),
+            )
         }
 }

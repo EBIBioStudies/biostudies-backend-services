@@ -45,3 +45,10 @@ fun <A : Any, B, C> List<Either<A, B>>.reduceLeft(mapFunc: (A) -> C): List<C> =
  * @return a list of [Either<C, B>] which his left side is the result of map function application.
  */
 fun <A : Any, B, C> List<Either<A, B>>.mapLeft(mapFunc: (A) -> C): List<Either<C, B>> = map { it.mapLeft(mapFunc) }
+
+/**
+ * Map left values of a list of either.
+ *
+ * @return a list of [Either<C, B>] which his left side is the result of map function application.
+ */
+fun <A : Any, B, C> List<Either<A, B>>.mapRigh(mapFunc: (B) -> C): List<Either<A, C>> = map { it.mapRigh(mapFunc) }
