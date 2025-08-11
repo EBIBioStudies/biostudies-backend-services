@@ -16,7 +16,7 @@ class ToSectionMapper(
         sec: ExtSection,
         anonymize: Boolean,
     ): Section {
-        fun ExtSection.skipSection(): Boolean = anonymize && (isOrganization() || isAuthor())
+        fun skipSection(section: ExtSection): Boolean = anonymize && (section.isOrganization() || section.isAuthor())
 
         suspend fun convert(sec: ExtSection): Section = convert(sec, anonymize)
 
@@ -27,11 +27,11 @@ class ToSectionMapper(
             sec.sections
                 .filterNot {
                     when (it) {
-                        is Either.Left -> it.value.skipSection()
+                        is Either.Left -> skipSection(it.value)
                         is Either.Right -> false
                     }
                 }.mapRigh {
-                    it.copy(sections = it.sections.filterNot { it.skipSection() })
+                    it.copy(sections = it.sections.filterNot { skipSection(it) })
                 }
 
         return Section(
