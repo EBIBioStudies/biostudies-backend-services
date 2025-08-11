@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.coroutines.waitUntil
@@ -58,6 +59,7 @@ class LocalExtSubmissionSubmitter(
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
     private val submissionStatsService: SubmissionStatsService,
+    private val submissionPostProcessingService: SubmissionPostProcessingService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val sub = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
@@ -114,8 +116,8 @@ class LocalExtSubmissionSubmitter(
         status: RequestStatus,
     ) {
         suspend fun fromSavedSubmission() {
-            requestCleaner.finalizeRequest(accNo, version, properties.processId)
-            submissionStatsService.calculateStats(accNo)
+            requestCleaner.cleanPreviousVersion(accNo, version, properties.processId)
+            submissionPostProcessingService.postProcess(accNo)
         }
 
         suspend fun fromCheckReleased() {
@@ -284,7 +286,7 @@ class LocalExtSubmissionSubmitter(
         accNo: String,
         version: Int,
     ) {
-        requestCleaner.finalizeRequest(accNo, version, properties.processId)
+        requestCleaner.cleanPreviousVersion(accNo, version, properties.processId)
         eventsPublisherService.submissionFinalized(accNo, version)
     }
 }
