@@ -117,7 +117,7 @@ class ListCollectionsTest(
         collectionAdminUserWebClient = getWebClient(serverPort, CollectionUser)
     }
 
-    private fun setUpPermissions() {
+    private suspend fun setUpPermissions() {
         superUserWebClient.grantPermission(DefaultUser.email, "DefaultCollection", ATTACH.name)
         superUserWebClient.grantPermission(RegularUser.email, "SampleCollection", ATTACH.name)
         superUserWebClient.grantPermission(CollectionUser.email, "SampleCollection", ADMIN.name)

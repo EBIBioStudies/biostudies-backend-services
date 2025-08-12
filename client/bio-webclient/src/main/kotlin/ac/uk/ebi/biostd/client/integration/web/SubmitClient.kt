@@ -249,7 +249,13 @@ interface ExtSubmissionOperations {
 }
 
 interface PermissionOperations {
-    fun grantPermission(
+    suspend fun grantPermission(
+        user: String,
+        accNo: String,
+        accessType: String,
+    )
+
+    suspend fun revokePermission(
         user: String,
         accNo: String,
         accessType: String,

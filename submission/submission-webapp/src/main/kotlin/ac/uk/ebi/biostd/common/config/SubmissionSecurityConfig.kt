@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import ac.uk.ebi.biostd.security.domain.service.PermissionService
+import ac.uk.ebi.biostd.security.domain.service.RevokePermissionService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
@@ -27,6 +28,12 @@ class SubmissionSecurityConfig(
         accessTagDataRepository: AccessTagDataRepo,
         submissionQueryService: SubmissionMetaQueryService,
     ) = PermissionService(submissionQueryService, permissionRepository, userDataRepository, accessTagDataRepository)
+
+    @Bean
+    fun revokePermissionService(
+        userDataRepository: UserDataRepository,
+        permissionRepository: AccessPermissionRepository,
+    ): RevokePermissionService = RevokePermissionService(userDataRepository, permissionRepository)
 
     @Bean
     fun securityMapper() = SecurityMapper()

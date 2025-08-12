@@ -76,7 +76,7 @@ class ToSectionMapperTest(
                 every { extFileTable.toTable() } returns fileTable
                 every { extLinkTable.toTable() } returns linkTable
 
-                val sectionResult = testInstance.convert(section)
+                val sectionResult = testInstance.convert(section, false)
 
                 assertThat(sectionResult.accNo).isEqualTo(section.accNo)
                 assertThat(sectionResult.type).isEqualTo(section.type)

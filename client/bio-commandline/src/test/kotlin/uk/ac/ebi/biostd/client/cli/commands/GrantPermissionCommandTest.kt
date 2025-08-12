@@ -2,10 +2,10 @@ package uk.ac.ebi.biostd.client.cli.commands
 
 import com.github.ajalt.clikt.core.MissingParameter
 import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -29,20 +29,26 @@ internal class GrantPermissionCommandTest(
         val securityConfig = SecurityConfig("server", "user", "password")
         val request = PermissionRequest(securityConfig, "UPDATE", "user@mail.org", "S-BSST123")
 
-        every { securityService.grantPermission(request) } answers { nothing }
+        coEvery { securityService.grantPermission(request) } answers { nothing }
 
         testInstance.parse(
             listOf(
-                "-s", "server",
-                "-u", "user",
-                "-p", "password",
-                "-at", "UPDATE",
-                "-tu", "user@mail.org",
-                "-ac", "S-BSST123",
+                "-s",
+                "server",
+                "-u",
+                "user",
+                "-p",
+                "password",
+                "-at",
+                "UPDATE",
+                "-tu",
+                "user@mail.org",
+                "-ac",
+                "S-BSST123",
             ),
         )
 
-        verify(exactly = 1) { securityService.grantPermission(request) }
+        coVerify(exactly = 1) { securityService.grantPermission(request) }
     }
 
     @Test

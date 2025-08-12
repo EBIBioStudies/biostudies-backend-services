@@ -41,6 +41,12 @@ internal object GrantPermissionParameters {
     const val ACC_NO = "The accession to grant the permission to"
 }
 
+internal object RevokePermissionParameters {
+    const val TARGET_USER = "BioStudies user to revoke permission"
+    const val ACCESS_TYPE = "Access Type to revoke to the target user"
+    const val ACC_NO = "The accession to revoke the permission to"
+}
+
 internal object FileListValidationParameters {
     const val ROOT_PATH = "Base path to search for the files in the user folder"
     const val ACC_NO = "The accNo for the submission which files will be included in the search"

@@ -50,16 +50,27 @@ Contains test related to Submission and collection manipulation.
 | SubmitPermissionTest | 4-9     | Regular user resubmits another user submission                                  |
 | SubmitPermissionTest | 4-10    | Regular user resubmits another user submission with UPDATE permission           |
 
-### Permission API Test Suite
+### User Permissions API Test Suite
 
 Contains permissions API test.
 
-| Class             | Test No | Test name                                          |
-|-------------------|---------|----------------------------------------------------|
-| PermissionApiTest | 21-1    | Grant permission to a Regular user by Superuser    |
-| PermissionApiTest | 21-2    | Grant permission to a Regular user by Regular user |
-| PermissionApiTest | 21-3    | Grant permission to non-existing user              |
-| PermissionApiTest | 21-4    | Grant permission to non-existing submission        |
+| Class                  | Test No | Test name                                          |
+|------------------------|---------|----------------------------------------------------|
+| UserPermissionsApiTest | 21-1    | Grant permission to a Regular user by Superuser    |
+| UserPermissionsApiTest | 21-2    | Grant permission to a Regular user by Regular user |
+| UserPermissionsApiTest | 21-3    | Grant permission to non-existing user              |
+| UserPermissionsApiTest | 21-4    | Grant permission to non-existing submission        |
+| UserPermissionsApiTest | 21-5    | Revoke permissions to a Regular user by Superuser  |
+
+### User Files operations Test suite
+
+| Class           | Test No | Test name                                                          |
+|-----------------|---------|--------------------------------------------------------------------|
+| UserFileApiTest | 17-1    | upload download delete file and retrieve in user root folder       | 
+| UserFileApiTest | 17-2    | upload download delete file and retrieve in user folder            |
+| UserFileApiTest | 17-3    | upload download delete file and retrieve in user folder with space |
+| UserFileApiTest | 17-4    | download a binary file                                             |
+| UserFileApiTest | 17-5    | download a text file                                               |
 
 ## File List Test Suite
 
@@ -129,15 +140,13 @@ Contains test related to resubmission
 
 | Class               | Test No | Test name                                       |
 |---------------------|---------|-------------------------------------------------|
-| SubmissionStatsTest | 26-1    | files size stat calculation on submit over FIRE | 
-| SubmissionStatsTest | 26-2    | files size stat calculation on submit over NFS  | 
-| SubmissionStatsTest | 26-3    | find stats by accNo                             |
-| SubmissionStatsTest | 26-4    | find stats by type                              |
-| SubmissionStatsTest | 26-5    | find stats by type and AccNo                    |
-| SubmissionStatsTest | 26-6    | register stats by file                          |
-| SubmissionStatsTest | 26-7    | increment stats by file                         |
-| SubmissionStatsTest | 26-8    | refresh submission stats                        |
-| SubmissionStatsTest | 26-9    | refresh all submissions stats                   |
+| SubmissionStatsTest | 26-1    | find stats by accNo                             |
+| SubmissionStatsTest | 26-2    | find stats by type                              |
+| SubmissionStatsTest | 26-3    | find stats by type and AccNo                    |
+| SubmissionStatsTest | 26-4    | register stats by file                          |
+| SubmissionStatsTest | 26-5    | increment stats by file                         |
+| SubmissionStatsTest | 26-6    | refresh submission stats                        |
+| SubmissionStatsTest | 26-7    | refresh all submissions stats                   |
 
 ### Async submission Test suite
 
@@ -147,16 +156,6 @@ Contains test related to resubmission
 | SubmissionAsyncTest | 19-2    | Check submission stages                     |
 | SubmissionAsyncTest | 19-3    | Multiple async submissions with files       |
 | SubmissionAsyncTest | 19-4    | Multiple async submissions when one invalid |
-
-### File operations Test suite
-
-| Class           | Test No | Test name                                                          |
-|-----------------|---------|--------------------------------------------------------------------|
-| UserFileApiTest | 17-1    | upload download delete file and retrieve in user root folder       | 
-| UserFileApiTest | 17-2    | upload download delete file and retrieve in user folder            |
-| UserFileApiTest | 17-3    | upload download delete file and retrieve in user folder with space |
-| UserFileApiTest | 17-4    | download a binary file                                             |
-| UserFileApiTest | 17-5    | download a text file                                               |
 
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
@@ -275,6 +274,8 @@ Contains test related to resubmission
 | SubmissionDatesTest             | 28-11   | Collection Admin make a Regular user public submission private                   |                                                                                               |
 | SubmissionRequestApiTest        | 29-1    | Get submission request status                                                    |                                                                                               |
 | SubmissionRequestApiTest        | 29-2    | Archive submission request                                                       |                                                                                               |
+| SubmissionPostProcessingTest    | 31-1    | submission post processing on FIRE                                               | Verifies: stats calculation, backup pagetab generation on FIRE                                |
+| SubmissionPostProcessingTest    | 31-2    | submission post processing on NFS                                                | Verifies: stats calculation, backup pagetab generation on NFS                                 |
 
 ### Admin Operations Test suite
 

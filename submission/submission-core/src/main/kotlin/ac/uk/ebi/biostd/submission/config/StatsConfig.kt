@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.config
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsCalculator
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
@@ -21,19 +22,20 @@ class StatsConfig {
         serializationService: ExtSerializationService,
         fileStorageService: FileStorageService,
         subFolderResolver: SubmissionFolderResolver,
-    ): SubmissionStatsCalculator = SubmissionStatsCalculator(serializationService, fileStorageService, subFolderResolver)
+        pageTabService: PageTabService,
+    ): SubmissionStatsCalculator = SubmissionStatsCalculator(serializationService, fileStorageService, subFolderResolver, pageTabService)
 
     @Bean
     fun submissionStatsService(
         statsFileHandler: StatsFileHandler,
         submissionStatsService: StatsDataService,
         submissionStatsCalculator: SubmissionStatsCalculator,
-        pesistenceQueryService: SubmissionPersistenceQueryService,
+        persistenceQueryService: SubmissionPersistenceQueryService,
     ): SubmissionStatsService =
         SubmissionStatsService(
             statsFileHandler,
             submissionStatsService,
-            pesistenceQueryService,
+            persistenceQueryService,
             submissionStatsCalculator,
         )
 }

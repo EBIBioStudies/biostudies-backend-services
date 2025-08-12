@@ -43,7 +43,7 @@ class ToSubmissionMapperTest(
     fun toSimpleSubmission() =
         runTest {
             val section = Section()
-            coEvery { toSectionMapper.convert(extSubmission.section) } returns section
+            coEvery { toSectionMapper.convert(extSubmission.section, false) } returns section
 
             val submission = testInstance.toSimpleSubmission(extSubmission)
 
