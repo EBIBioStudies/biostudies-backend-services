@@ -26,6 +26,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -202,6 +203,7 @@ class SubmissionStatsTest(
         }
 
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `26-6 refresh submission stats`() =
         runTest {
             val accNo = "STATS-WITH-DIR-0001"
@@ -282,6 +284,93 @@ class SubmissionStatsTest(
                 Files
                 a-Dir.zip
                 b-Dir.zip
+                b-Dir/a_file.txt
+                """.trimIndent(),
+            )
+        }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+    fun `26-6-2 refresh submission stats NFS`() =
+        runTest {
+            val accNo = "STATS-WITH-DIR-0001"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line()
+                    line("Study")
+                    line()
+                    line("Files")
+                    line("a-Dir")
+                    line("b-Dir")
+                    line("b-Dir/a_file.txt")
+                }.toString()
+
+            val subFile = tempFolder.createFile("a_file.txt", "file content")
+
+            webClient.createFolder("a-Dir")
+            webClient.uploadFile(subFile, "b-Dir")
+            webClient.submit(submission, TSV)
+
+            val stored = submissionRepository.getExtByAccNo(accNo)
+            val tabFileSize =
+                stored.pageTabFiles
+                    .filterIsInstance<PersistedExtFile>()
+                    .map { it.size }
+                    .sum()
+
+            val stats = webClient.refreshStats(accNo).toList().sortedBy { it.type }
+            assertThat(stats).hasSize(3)
+
+            val stat2 = stats[0]
+            assertThat(stat2.type).isEqualTo("DIRECTORIES")
+            assertThat(stat2.value).isEqualTo(2)
+
+            val stat1 = stats[1]
+            assertThat(stat1.value).isEqualTo(subFile.size() + tabFileSize)
+            assertThat(stat1.type).isEqualTo("FILES_SIZE")
+
+            val stat3 = stats[2]
+            assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
+            assertThat(stat3.value).isEqualTo(1)
+
+            val baseFolder = "STATS-WITH-DIR-/001/STATS-WITH-DIR-0001"
+            val jsonCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.json")
+            assertThat(jsonCopyFile).hasContent(
+                """
+                {
+                  "accno" : "STATS-WITH-DIR-0001",
+                  "section" : {
+                    "type" : "Study",
+                    "files" : [ [ {
+                      "path" : "a-Dir",
+                      "size" : 0,
+                      "type" : "directory"
+                    }, {
+                      "path" : "b-Dir",
+                      "size" : 12,
+                      "type" : "directory"
+                    }, {
+                      "path" : "b-Dir/a_file.txt",
+                      "size" : 12,
+                      "type" : "file"
+                    } ] ]
+                  },
+                  "type" : "submission"
+                }
+                """.trimIndent(),
+            )
+
+            val tsvCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.tsv")
+            assertThat(tsvCopyFile).hasContent(
+                """
+                Submission	STATS-WITH-DIR-0001
+
+                Study
+
+                Files
+                a-Dir
+                b-Dir
                 b-Dir/a_file.txt
                 """.trimIndent(),
             )
