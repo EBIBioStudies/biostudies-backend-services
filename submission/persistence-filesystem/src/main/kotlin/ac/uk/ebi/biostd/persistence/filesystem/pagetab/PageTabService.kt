@@ -18,8 +18,10 @@ class PageTabService(
     private val pageTabUtil: PageTabUtil,
 ) : PageTabService {
     override suspend fun generatePageTab(sub: ExtSubmission): ExtSubmission {
+        fun doubleBlindReview(): Boolean = sub.attributes.firstOrNull { it.name == REVIEW_TYPE.value }?.value == DOUBLE_BLIND
+
         val tempFolder = createTempFolder(sub.accNo, sub.version)
-        val anonymize = sub.attributes.firstOrNull { it.name == REVIEW_TYPE.name }?.value == DOUBLE_BLIND
+        val anonymize = doubleBlindReview() && sub.released.not()
         val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder, anonymize = anonymize)
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)
         val linkListFiles = pageTabUtil.generateLinkListPageTab(sub, tempFolder)
