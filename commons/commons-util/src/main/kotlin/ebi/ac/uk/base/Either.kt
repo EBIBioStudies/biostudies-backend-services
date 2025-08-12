@@ -28,6 +28,12 @@ sealed class Either<out A, out B> {
             is Right -> this
         }
 
+    inline fun <C> mapRigh(mapFunc: (B) -> C): Either<A, C> =
+        when (this) {
+            is Left -> this
+            is Right -> right<C>(mapFunc(value))
+        }
+
     inline fun <C, D> bimap(
         leftFunc: (A) -> C,
         rightFunc: (B) -> D,

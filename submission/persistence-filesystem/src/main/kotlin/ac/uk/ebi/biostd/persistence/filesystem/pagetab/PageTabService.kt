@@ -1,11 +1,14 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.PageTabService
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper.Companion.DOUBLE_BLIND
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.model.constants.SubFields.REVIEW_TYPE
 import uk.ac.ebi.extended.serialization.service.TrackSection
 import uk.ac.ebi.extended.serialization.service.iterateSections
 import java.io.File
@@ -15,14 +18,32 @@ class PageTabService(
     private val pageTabUtil: PageTabUtil,
 ) : PageTabService {
     override suspend fun generatePageTab(sub: ExtSubmission): ExtSubmission {
+        fun doubleBlindReview(): Boolean = sub.attributes.firstOrNull { it.name == REVIEW_TYPE.value }?.value == DOUBLE_BLIND
+
         val tempFolder = createTempFolder(sub.accNo, sub.version)
-        val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder)
+        val anonymize = doubleBlindReview() && sub.released.not()
+        val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder, anonymize = anonymize)
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)
         val linkListFiles = pageTabUtil.generateLinkListPageTab(sub, tempFolder)
         val section = iterateSections(sub.section) { withTabFiles(it, fileListFiles, linkListFiles) }
         return when {
             section.changed -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles), section = section.section)
             else -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles))
+        }
+    }
+
+    override suspend fun generatePageTab(
+        sub: ExtSubmission,
+        anonymize: Boolean,
+    ): List<ExtFile> {
+        val tempFolder = createTempFolder(sub.accNo, sub.version)
+        val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder, anonymize = anonymize)
+        val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)
+        val linkListFiles = pageTabUtil.generateLinkListPageTab(sub, tempFolder)
+        return buildList {
+            addAll(subExtFiles(sub.accNo, subFiles))
+            addAll(fileListFiles.flatMap { refListFiles(it.value, it.key) })
+            addAll(linkListFiles.flatMap { refListFiles(it.value, it.key) })
         }
     }
 

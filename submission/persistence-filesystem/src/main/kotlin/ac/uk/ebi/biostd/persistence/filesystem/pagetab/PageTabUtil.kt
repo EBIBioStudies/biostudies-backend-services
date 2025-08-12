@@ -26,8 +26,9 @@ class PageTabUtil(
     suspend fun generateSubPageTab(
         extSub: ExtSubmission,
         target: File,
+        anonymize: Boolean,
     ): PageTabFiles {
-        val sub = toSubmissionMapper.toSimpleSubmission(extSub, filterBlindReview = true)
+        val sub = toSubmissionMapper.toSimpleSubmission(extSub, anonymize)
         val permissions = extSub.permissions()
 
         return PageTabFiles(

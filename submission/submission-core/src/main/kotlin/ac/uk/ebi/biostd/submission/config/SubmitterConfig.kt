@@ -259,17 +259,9 @@ class SubmitterConfig(
         )
 
     @Bean
-    fun submissionPostProcessingService(
-        fileStorageService: FileStorageService,
-        subFolderResolver: SubmissionFolderResolver,
-        statsService: SubmissionStatsService,
-        extSubQueryService: SubmissionPersistenceQueryService,
-    ): SubmissionPostProcessingService =
+    fun submissionPostProcessingService(statsService: SubmissionStatsService): SubmissionPostProcessingService =
         SubmissionPostProcessingService(
-            fileStorageService,
-            subFolderResolver,
             statsService,
-            extSubQueryService,
         )
 
     @Bean
