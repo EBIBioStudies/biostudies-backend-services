@@ -230,16 +230,16 @@ class SubmissionStatsTest(
                     .map { it.size }
                     .sum()
 
-            val stats = webClient.refreshStats(accNo).toList()
+            val stats = webClient.refreshStats(accNo).toList().sortedBy { it.type }
             assertThat(stats).hasSize(3)
 
-            val stat1 = stats.first()
-            assertThat(stat1.value).isEqualTo(subFile.size() + tabFileSize)
-            assertThat(stat1.type).isEqualTo("FILES_SIZE")
-
-            val stat2 = stats[1]
+            val stat2 = stats[0]
             assertThat(stat2.type).isEqualTo("DIRECTORIES")
             assertThat(stat2.value).isEqualTo(2)
+
+            val stat1 = stats[1]
+            assertThat(stat1.value).isEqualTo(subFile.size() + tabFileSize)
+            assertThat(stat1.type).isEqualTo("FILES_SIZE")
 
             val stat3 = stats[2]
             assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
