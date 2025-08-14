@@ -169,6 +169,7 @@ data class ExtSubmission(
     override val released: Boolean,
     override val secretKey: String,
     val releaseTime: OffsetDateTime?,
+    val submissionTime: OffsetDateTime,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
     val section: ExtSection,

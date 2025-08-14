@@ -25,6 +25,7 @@ const val SUBMISSION_SECRET_KEY = "a-secret-key"
 const val SUBMISSION_DOI = "10.6019/S-TEST1"
 
 val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
+val SUBMISSION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 9, 30, 34, 15, ZoneOffset.UTC)
 val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 
@@ -94,6 +95,7 @@ val fullExtSubmission =
         released = SUBMISSION_RELEASED,
         secretKey = SUBMISSION_SECRET_KEY,
         releaseTime = RELEASE_TIME,
+        submissionTime = SUBMISSION_TIME,
         modificationTime = MODIFICATION_TIME,
         creationTime = CREATION_TIME,
         attributes = listOf(submissionAttribute),

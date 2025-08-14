@@ -10,6 +10,7 @@ import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -31,8 +32,8 @@ class SubmissionRequestSaver(
 
     private suspend fun saveRequest(sub: ExtSubmission): ExtSubmission {
         logger.info { "${sub.accNo} ${sub.owner} Started saving submission '${sub.accNo}', version=${sub.version}" }
-        val assembled = assembleSubmission(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
+        val assembled = assembleSubmission(sub).copy(modificationTime = OffsetDateTime.now())
         val saved = persistenceService.saveSubmission(assembled)
         logger.info { "${sub.accNo} ${sub.owner} Finished saving submission '${sub.accNo}', version=${sub.version}" }
         return saved

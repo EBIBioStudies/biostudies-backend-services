@@ -47,6 +47,7 @@ class ExtSerializationServiceTest(
                 released = false,
                 secretKey = "a-secret-key",
                 releaseTime = time,
+                submissionTime = time,
                 modificationTime = time,
                 creationTime = time,
                 attributes = listOf(ExtAttribute("AttachTo", "BioImages")),

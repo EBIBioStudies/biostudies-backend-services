@@ -115,12 +115,15 @@ class ResubmissionApiTest(
                 assertThat(File("$submissionPath/${sub.relPath}/Files/a/fileFileList.pdf")).hasContent("pdf content")
 
                 val v1ModificationTime = sub.modificationTime
+                val v1SubmissionTime = sub.submissionTime
                 val changedFile = tempFolder.resolve("fileSubSection.txt").apply { writeText("newContent") }
                 webClient.uploadFiles(listOf(changedFile))
                 assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
                 val deprecatedVersion = submissionRepository.getExtByAccNoAndVersion("S-RSTST1", -1)
                 assertThat(deprecatedVersion.modificationTime).isEqualTo(v1ModificationTime)
+                assertThat(deprecatedVersion.submissionTime).isEqualTo(v1SubmissionTime)
+                assertThat(v1ModificationTime.isAfter(v1SubmissionTime)).isTrue()
 
                 val subV2 = submissionRepository.getExtByAccNo("S-RSTST1")
                 assertThat(subV2.version).isEqualTo(2)

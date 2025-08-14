@@ -16,7 +16,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset.UTC
 
 /**
- * Calculates the submission release date based on current state of the submission in the system. Calculation rules.
+ * Calculates the submission release date based on the current state of the submission in the system. Calculation rules.
  */
 class TimesService(
     private val privileges: IUserPrivilegesService,
@@ -59,7 +59,7 @@ class TimesService(
 
 data class Times(
     val createTime: OffsetDateTime,
-    val modificationTime: OffsetDateTime,
+    val submissionTime: OffsetDateTime,
     val releaseTime: OffsetDateTime?,
     val released: Boolean,
 )
