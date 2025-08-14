@@ -26,6 +26,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STORAGE_MODE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUBMITTER
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUB_TIME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TITLE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.VERSION
@@ -55,6 +56,7 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeBooleanField(RELEASED, submission.released)
         gen.writeStringField(SECRET_KEY, submission.secretKey)
         gen.writeObjectField(RELEASE_TIME, submission.releaseTime)
+        gen.writeObjectField(SUB_TIME, submission.submissionTime)
         gen.writeObjectField(MOD_TIME, submission.modificationTime)
         gen.writeObjectField(CREATION_TIME, submission.creationTime)
         gen.writeObjectField(SECTION, submission.section)
