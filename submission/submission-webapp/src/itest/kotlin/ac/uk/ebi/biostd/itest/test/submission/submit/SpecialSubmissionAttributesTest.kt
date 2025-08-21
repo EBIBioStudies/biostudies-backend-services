@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPageTabCopyPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -526,34 +527,100 @@ class SpecialSubmissionAttributesTest(
                         line()
 
                         line("Study", "SECT-001")
-                        line()
-
-                        line("Organization", "o1")
-                        line("Name", "EMBL")
+                        line("Type", "Experiment")
                         line()
 
                         line("Author", "a1")
                         line("Name", "Jane Doe")
                         line()
 
-                        line("Author", "a2", "o1")
-                        line("Name", "John Doe")
+                        line("Organization", "o1")
+                        line("Name", "EMBL")
                         line()
 
                         line("Grants", "g1")
-                        line()
-
-                        line("Organization", "Name")
-                        line("o2", "Sanger")
+                        line("GrantNumber", "GBMF010101")
                         line()
                     }.toString()
 
                 assertThat(webClient.submit(submission, TSV)).isSuccessful()
-
                 val savedSubmission = submissionRepository.getExtByAccNo("S-STBL129")
                 val pageTabFiles = getPageTabFilesContent(savedSubmission)
                 checkReviewInfoIsHidden(pageTabFiles.first)
                 checkReviewInfoIsHidden(pageTabFiles.second)
+
+                // Verify page tab copy contains the full pagetab with all the authors/organizations info
+                val jsonCopyFile = submissionPageTabCopyPath.resolve("${savedSubmission.relPath}/S-STBL129.json")
+                assertThat(jsonCopyFile).hasContent(
+                    """
+                    {
+                      "accno" : "S-STBL129",
+                      "attributes" : [ {
+                        "name" : "ReviewType",
+                        "value" : "DoubleBlind"
+                      }, {
+                        "name" : "Title",
+                        "value" : "Private Submission With Double Blind Review"
+                      }, {
+                        "name" : "ReleaseDate",
+                        "value" : "2099-09-21"
+                      } ],
+                      "section" : {
+                        "accno" : "SECT-001",
+                        "type" : "Study",
+                        "attributes" : [ {
+                          "name" : "Type",
+                          "value" : "Experiment"
+                        } ],
+                        "subsections" : [ {
+                          "accno" : "a1",
+                          "type" : "Author",
+                          "attributes" : [ {
+                            "name" : "Name",
+                            "value" : "Jane Doe"
+                          } ]
+                        }, {
+                          "accno" : "o1",
+                          "type" : "Organization",
+                          "attributes" : [ {
+                            "name" : "Name",
+                            "value" : "EMBL"
+                          } ]
+                        }, {
+                          "accno" : "g1",
+                          "type" : "Grants",
+                          "attributes" : [ {
+                            "name" : "GrantNumber",
+                            "value" : "GBMF010101"
+                          } ]
+                        } ]
+                      },
+                      "type" : "submission"
+                    }
+                    """.trimIndent(),
+                )
+
+                val tsvCopyFile = submissionPageTabCopyPath.resolve("${savedSubmission.relPath}/S-STBL129.tsv")
+                assertThat(tsvCopyFile).hasContent(
+                    """
+                    Submission	S-STBL129
+                    ReviewType	DoubleBlind
+                    Title	Private Submission With Double Blind Review
+                    ReleaseDate	2099-09-21
+
+                    Study	SECT-001
+                    Type	Experiment
+
+                    Author	a1	SECT-001
+                    Name	Jane Doe
+
+                    Organization	o1	SECT-001
+                    Name	EMBL
+
+                    Grants	g1	SECT-001
+                    GrantNumber	GBMF010101
+                    """.trimIndent(),
+                )
             }
 
         @Test
