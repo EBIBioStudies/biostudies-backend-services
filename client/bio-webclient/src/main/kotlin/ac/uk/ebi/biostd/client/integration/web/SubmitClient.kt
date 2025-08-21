@@ -196,8 +196,6 @@ interface StatsOperations {
         type: String,
         statsFile: File,
     ): UpdateResult
-
-    suspend fun refreshStats(accNo: String): List<SubmissionStat>
 }
 
 interface DraftSubmissionOperations {

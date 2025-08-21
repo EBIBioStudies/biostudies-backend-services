@@ -17,7 +17,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
@@ -58,7 +57,6 @@ class LocalExtSubmissionSubmitter(
     private val requestSaver: SubmissionRequestSaver,
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
-    private val submissionStatsService: SubmissionStatsService,
     private val submissionPostProcessingService: SubmissionPostProcessingService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
@@ -103,10 +101,6 @@ class LocalExtSubmissionSubmitter(
 
     override suspend fun handleManyAsync(submissions: List<SubmissionId>) {
         submissions.forEach { handleRequestAsync(it.accNo, it.version) }
-    }
-
-    override suspend fun refreshAllStats() {
-        submissionStatsService.refreshAll()
     }
 
     @Suppress("CyclomaticComplexMethod")
