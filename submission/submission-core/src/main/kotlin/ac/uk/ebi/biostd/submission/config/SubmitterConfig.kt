@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -259,9 +260,21 @@ class SubmitterConfig(
         )
 
     @Bean
-    fun submissionPostProcessingService(statsService: SubmissionStatsService): SubmissionPostProcessingService =
+    fun submissionPostProcessingService(
+        pageTabService: PageTabService,
+        statsDataService: StatsDataService,
+        fileStorageService: FileStorageService,
+        subFolderResolver: SubmissionFolderResolver,
+        extSerializationService: ExtSerializationService,
+        extSubQueryService: SubmissionPersistenceQueryService,
+    ): SubmissionPostProcessingService =
         SubmissionPostProcessingService(
-            statsService,
+            pageTabService,
+            statsDataService,
+            fileStorageService,
+            subFolderResolver,
+            extSerializationService,
+            extSubQueryService,
         )
 
     @Bean
