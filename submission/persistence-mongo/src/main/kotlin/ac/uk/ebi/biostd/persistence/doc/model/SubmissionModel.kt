@@ -30,6 +30,7 @@ data class DocSubmission(
     val released: Boolean,
     val secretKey: String,
     val releaseTime: Instant?,
+    val submissionTime: Instant,
     val modificationTime: Instant,
     val creationTime: Instant,
     val section: DocSection,

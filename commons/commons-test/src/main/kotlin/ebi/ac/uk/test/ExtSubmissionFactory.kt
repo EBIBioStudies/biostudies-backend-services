@@ -21,6 +21,7 @@ val basicExtSubmission =
         rootPath = null,
         released = false,
         secretKey = "a-secret-key",
+        submissionTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC),
         modificationTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC),
         creationTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC),
         releaseTime = null,

@@ -52,8 +52,8 @@ internal class ExtSerializationServiceExtTest(
             )
         }
 
-    private fun createFireFile(idx: Int): FireFile {
-        return FireFile(
+    private fun createFireFile(idx: Int): FireFile =
+        FireFile(
             "fireId-$idx",
             "firePath-$idx",
             false,
@@ -64,15 +64,14 @@ internal class ExtSerializationServiceExtTest(
             FILE,
             emptyList(),
         )
-    }
 
     private fun createTestSubmission(
         fileList: File,
         pageTabFile: FireFile,
         sectionFile: FireFile,
         sectionTableFile: FireFile,
-    ): ExtSubmission {
-        return ExtSubmission(
+    ): ExtSubmission =
+        ExtSubmission(
             accNo = "S-TEST1",
             version = 1,
             schemaVersion = "1.0",
@@ -87,6 +86,7 @@ internal class ExtSerializationServiceExtTest(
             released = true,
             secretKey = "a-secret-key",
             releaseTime = OffsetDateTime.now(),
+            submissionTime = OffsetDateTime.now(),
             modificationTime = OffsetDateTime.now(),
             creationTime = OffsetDateTime.now(),
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
@@ -100,5 +100,4 @@ internal class ExtSerializationServiceExtTest(
                 ),
             pageTabFiles = listOf(pageTabFile),
         )
-    }
 }

@@ -80,6 +80,7 @@ class ExtSubmissionExtensionsTest(
             releaseTime = null,
             released = true,
             secretKey = "a-secret-key",
+            submissionTime = OffsetDateTime.of(2020, 9, 21, 9, 30, 34, 15, ZoneOffset.UTC),
             modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
             creationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
             attributes = listOf(),
