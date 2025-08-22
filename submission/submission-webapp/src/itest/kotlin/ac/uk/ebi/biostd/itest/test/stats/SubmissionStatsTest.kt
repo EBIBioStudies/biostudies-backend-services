@@ -6,19 +6,14 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabBackupSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.SubmissionStat
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -26,7 +21,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -38,7 +32,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionStatsTest(
-    @Autowired val statsDataService: StatsDataService,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
@@ -200,294 +193,5 @@ class SubmissionStatsTest(
             assertThat(stats).isEqualTo(SubmissionStat(accNo, 260L, "VIEWS"))
             assertThat(result.insertedRecords).isZero()
             assertThat(result.modifiedRecords).isEqualTo(2)
-        }
-
-    @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `26-6 refresh submission stats`() =
-        runTest {
-            val accNo = "STATS-WITH-DIR-0001"
-            val submission =
-                tsv {
-                    line("Submission", accNo)
-                    line()
-                    line("Study")
-                    line()
-                    line("Files")
-                    line("a-Dir")
-                    line("b-Dir")
-                    line("b-Dir/a_file.txt")
-                }.toString()
-
-            val subFile = tempFolder.createFile("a_file.txt", "file content")
-
-            webClient.createFolder("a-Dir")
-            webClient.uploadFile(subFile, "b-Dir")
-            webClient.submit(submission, TSV)
-
-            val stored = submissionRepository.getExtByAccNo(accNo)
-            val tabFileSize =
-                stored.pageTabFiles
-                    .filterIsInstance<PersistedExtFile>()
-                    .map { it.size }
-                    .sum()
-
-            val stats = webClient.refreshStats(accNo).toList().sortedBy { it.type }
-            assertThat(stats).hasSize(3)
-
-            val stat2 = stats[0]
-            assertThat(stat2.type).isEqualTo("DIRECTORIES")
-            assertThat(stat2.value).isEqualTo(2)
-
-            val stat1 = stats[1]
-            assertThat(stat1.value).isEqualTo(subFile.size() + tabFileSize)
-            assertThat(stat1.type).isEqualTo("FILES_SIZE")
-
-            val stat3 = stats[2]
-            assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
-            assertThat(stat3.value).isEqualTo(1)
-
-            val baseFolder = "STATS-WITH-DIR-/001/STATS-WITH-DIR-0001"
-            val jsonCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.json")
-            assertThat(jsonCopyFile).hasContent(
-                """
-                {
-                  "accno" : "STATS-WITH-DIR-0001",
-                  "section" : {
-                    "type" : "Study",
-                    "files" : [ [ {
-                      "path" : "a-Dir.zip",
-                      "size" : 22,
-                      "type" : "directory"
-                    }, {
-                      "path" : "b-Dir.zip",
-                      "size" : 166,
-                      "type" : "directory"
-                    }, {
-                      "path" : "b-Dir/a_file.txt",
-                      "size" : 12,
-                      "type" : "file"
-                    } ] ]
-                  },
-                  "type" : "submission"
-                }
-                """.trimIndent(),
-            )
-
-            val tsvCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.tsv")
-            assertThat(tsvCopyFile).hasContent(
-                """
-                Submission	STATS-WITH-DIR-0001
-
-                Study
-
-                Files
-                a-Dir.zip
-                b-Dir.zip
-                b-Dir/a_file.txt
-                """.trimIndent(),
-            )
-        }
-
-    @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `26-6-2 refresh submission stats NFS`() =
-        runTest {
-            val accNo = "STATS-WITH-DIR-0001"
-            val submission =
-                tsv {
-                    line("Submission", accNo)
-                    line()
-                    line("Study")
-                    line()
-                    line("Files")
-                    line("a-Dir")
-                    line("b-Dir")
-                    line("b-Dir/a_file.txt")
-                }.toString()
-
-            val subFile = tempFolder.createFile("a_file.txt", "file content")
-
-            webClient.createFolder("a-Dir")
-            webClient.uploadFile(subFile, "b-Dir")
-            webClient.submit(submission, TSV)
-
-            val stored = submissionRepository.getExtByAccNo(accNo)
-            val tabFileSize =
-                stored.pageTabFiles
-                    .filterIsInstance<PersistedExtFile>()
-                    .map { it.size }
-                    .sum()
-
-            val stats = webClient.refreshStats(accNo).toList().sortedBy { it.type }
-            assertThat(stats).hasSize(3)
-
-            val stat2 = stats[0]
-            assertThat(stat2.type).isEqualTo("DIRECTORIES")
-            assertThat(stat2.value).isEqualTo(2)
-
-            val stat1 = stats[1]
-            assertThat(stat1.value).isEqualTo(subFile.size() + tabFileSize)
-            assertThat(stat1.type).isEqualTo("FILES_SIZE")
-
-            val stat3 = stats[2]
-            assertThat(stat3.type).isEqualTo("NON_DECLARED_FILES_DIRECTORIES")
-            assertThat(stat3.value).isEqualTo(1)
-
-            val baseFolder = "STATS-WITH-DIR-/001/STATS-WITH-DIR-0001"
-            val jsonCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.json")
-            assertThat(jsonCopyFile).hasContent(
-                """
-                {
-                  "accno" : "STATS-WITH-DIR-0001",
-                  "section" : {
-                    "type" : "Study",
-                    "files" : [ [ {
-                      "path" : "a-Dir",
-                      "size" : 0,
-                      "type" : "directory"
-                    }, {
-                      "path" : "b-Dir",
-                      "size" : 12,
-                      "type" : "directory"
-                    }, {
-                      "path" : "b-Dir/a_file.txt",
-                      "size" : 12,
-                      "type" : "file"
-                    } ] ]
-                  },
-                  "type" : "submission"
-                }
-                """.trimIndent(),
-            )
-
-            val tsvCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATS-WITH-DIR-0001.tsv")
-            assertThat(tsvCopyFile).hasContent(
-                """
-                Submission	STATS-WITH-DIR-0001
-
-                Study
-
-                Files
-                a-Dir
-                b-Dir
-                b-Dir/a_file.txt
-                """.trimIndent(),
-            )
-        }
-
-    @Test
-    fun `26-7 refresh all submissions stats`() =
-        runTest {
-            val accNo = "STATS-2691"
-            val accNo2 = "STATS-2692"
-
-            val submission1 =
-                tsv {
-                    line("Submission", accNo)
-                }.toString()
-            val submission2 =
-                tsv {
-                    line("Submission", accNo2)
-                }.toString()
-
-            webClient.submit(submission1, TSV)
-            webClient.submit(submission2, TSV)
-
-            val original1 = statsDataService.findByAccNo(accNo)
-            val original2 = statsDataService.findByAccNo(accNo2)
-
-            statsDataService.cleanStatsByAccNo(accNo)
-            statsDataService.cleanStatsByAccNo(accNo2)
-
-            webClient.refreshAllStats()
-
-            assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original1)
-            assertThat(statsDataService.findByAccNo(accNo2)).isEqualTo(original2)
-        }
-
-    @Test
-    fun `26-8 private submission with double blind review stats are not filter`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "STATSDB-0001")
-                    line("ReleaseDate", "2099-09-21")
-                    line("ReviewType", "DoubleBlind")
-                    line()
-
-                    line("Study", "SECT-001")
-                    line("Type", "Experiment")
-                    line()
-
-                    line("Author", "a1")
-                    line("Name", "Jane Doe")
-                    line()
-
-                    line("Organization", "o1")
-                    line("Name", "EMBL")
-                    line()
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-
-            val baseFolder = "STATSDB-/001/STATSDB-0001"
-            val jsonCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATSDB-0001.json")
-            assertThat(jsonCopyFile).hasContent(
-                """
-                {
-                  "accno" : "STATSDB-0001",
-                  "attributes" : [ {
-                    "name" : "ReviewType",
-                    "value" : "DoubleBlind"
-                  }, {
-                    "name" : "ReleaseDate",
-                    "value" : "2099-09-21"
-                  } ],
-                  "section" : {
-                    "accno" : "SECT-001",
-                    "type" : "Study",
-                    "attributes" : [ {
-                      "name" : "Type",
-                      "value" : "Experiment"
-                    } ],
-                    "subsections" : [ {
-                      "accno" : "a1",
-                      "type" : "Author",
-                      "attributes" : [ {
-                        "name" : "Name",
-                        "value" : "Jane Doe"
-                      } ]
-                    }, {
-                      "accno" : "o1",
-                      "type" : "Organization",
-                      "attributes" : [ {
-                        "name" : "Name",
-                        "value" : "EMBL"
-                      } ]
-                    } ]
-                  },
-                  "type" : "submission"
-                }
-                """.trimIndent(),
-            )
-
-            val tsvCopyFile = pageTabBackupSubmissionPath.resolve("$baseFolder/STATSDB-0001.tsv")
-            assertThat(tsvCopyFile).hasContent(
-                """
-                Submission	STATSDB-0001
-                ReviewType	DoubleBlind
-                ReleaseDate	2099-09-21
-
-                Study	SECT-001
-                Type	Experiment
-
-                Author	a1	SECT-001
-                Name	Jane Doe
-
-                Organization	o1	SECT-001
-                Name	EMBL
-                """.trimIndent(),
-            )
         }
 }

@@ -15,7 +15,6 @@ import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -24,7 +23,6 @@ import java.time.Instant
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 
-@Suppress("TooManyFunctions")
 class ExtSubmissionClient(
     private val client: WebClient,
     private val extSerializationService: ExtSerializationService,
@@ -73,14 +71,6 @@ class ExtSubmissionClient(
     }
 
     override fun refreshSubmission(accNo: String): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
-
-    override suspend fun refreshAllStats() {
-        client
-            .post()
-            .uri("$EXT_SUBMISSIONS_URL/stats/refreshAll")
-            .retrieve()
-            .awaitBodilessEntity()
-    }
 
     override fun releaseSubmission(
         accNo: String,

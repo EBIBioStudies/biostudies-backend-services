@@ -8,10 +8,7 @@ import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
-import mu.KotlinLogging
 import java.time.Duration.ofMinutes
-
-private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
@@ -47,12 +44,8 @@ class RemoteExtSubmissionSubmitter(
         remoteSubmitterExecutor.executeRemotely(args, Mode.HANDLE_REQUEST)
     }
 
-    override suspend fun refreshAllStats() {
-        remoteSubmitterExecutor.executeRemotely(emptyList(), Mode.CALCULATE_ALL_STATS)
-    }
-
     private fun asExecutionArgs(submissions: List<SubmissionId>): List<ExecutionArg> =
-        buildList<ExecutionArg> {
+        buildList {
             submissions.forEachIndexed { index, submissionId ->
                 add(ExecutionArg("submissions[$index].accNo", submissionId.accNo))
                 add(ExecutionArg("submissions[$index].version", submissionId.version))

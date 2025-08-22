@@ -5,11 +5,14 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabBackupSubmissionPath
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.privateNfsSubmissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPageTabCopyPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
@@ -19,7 +22,11 @@ import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.PersistedExtFile
+import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.date.toStringDate
@@ -29,13 +36,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Durations.TEN_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.nio.file.Path
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
@@ -58,9 +65,13 @@ class SubmissionPostProcessingTest(
         }
 
     @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `31-1 submission post processing on FIRE`() =
+    fun `31-1 submission post processing`() =
         runTest {
+            fun tabFilesSize(sub: ExtSubmission) =
+                sub.allPageTabFiles
+                    .filterIsInstance<PersistedExtFile>()
+                    .sumOf { it.size }
+
             val version1 =
                 tsv {
                     line("Submission", "S-STTS1")
@@ -108,39 +119,58 @@ class SubmissionPostProcessingTest(
                     line("a", "folder")
                 }.toString()
 
-            webClient.uploadFiles(
-                listOf(
-                    tempFolder.createFile("statsFile2.txt", "content"),
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("stats file 1.doc", "doc content"),
-                ),
-            )
-            webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
+            val fileList = tempFolder.createFile("file-list.tsv", fileListContent)
+            val subFile1 = tempFolder.createFile("stats file 1.doc", "doc content")
+            val subFile2 = tempFolder.createFile("statsFile2.txt", "content")
+            val subFile3 = tempFolder.createFile("statsFile3.pdf", "pdf content")
+            val params = if (enableFire) SubmitParameters(storageMode = NFS) else SubmitParameters(storageMode = FIRE)
+            webClient.uploadFiles(listOf(subFile1, subFile2, fileList))
+            webClient.uploadFiles(listOf(subFile3), "a")
 
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
-            waitUntil(timeout = TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
+            assertThat(webClient.submit(version1, TSV, params)).isSuccessful()
+            waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
 
-            val statVersion1 = statsDataService.findStatsByAccNo("S-STTS1")
-            assertThat(statVersion1).hasSize(3)
-            val fileStats = statVersion1.first()
-            assertThat(fileStats.value).isEqualTo(576L)
-            assertThat(fileStats.type).isEqualTo(FILES_SIZE)
-            assertThat(fileStats.accNo).isEqualTo("S-STTS1")
+            val subV1 = submissionRepository.getExtByAccNo("S-STTS1")
+            val statsV1 = statsDataService.findStatsByAccNo("S-STTS1")
+            val expectedFilesSize = tabFilesSize(subV1) + subFile1.size()
+            assertThat(statsV1).satisfiesOnlyOnce {
+                assertThat(it.type).isEqualTo(DIRECTORIES)
+                assertThat(it.value).isEqualTo(0)
+            }
+            assertThat(statsV1).satisfiesOnlyOnce {
+                assertThat(it.type).isEqualTo(FILES_SIZE)
+                assertThat(it.value).isEqualTo(expectedFilesSize)
+            }
+            assertThat(statsV1).satisfiesOnlyOnce {
+                assertThat(it.type).isEqualTo(NON_DECLARED_FILES_DIRECTORIES)
+                assertThat(it.value).isEqualTo(0)
+            }
 
-            assertThat(webClient.submit(version2, TSV)).isSuccessful()
-            waitUntil(timeout = TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").first().value != 576L }
+            assertThat(webClient.submit(version2, TSV, params)).isSuccessful()
+            waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
+
+            val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
+            val subFilesSize = subFile1.size() + subFile2.size() + subFile3.size()
 
             // Verify submission stats are calculated
-            val stats = statsDataService.findStatsByAccNo("S-STTS1")
-            assertThat(stats).hasSize(3)
-            val fileSize = stats.first()
-            assertThat(fileSize.value).isEqualTo(1474L)
-            assertThat(fileSize.type).isEqualTo(FILES_SIZE)
-            assertThat(fileSize.accNo).isEqualTo("S-STTS1")
+            val statsV2 = statsDataService.findStatsByAccNo("S-STTS1")
+            assertThat(statsV2).hasSize(3)
+            assertThat(statsV2).satisfiesOnlyOnce {
+                assertThat(it.type).isEqualTo(DIRECTORIES)
+                assertThat(it.value).isEqualTo(1)
+            }
+            assertThat(statsV2).satisfiesOnlyOnce {
+                assertThat(it.type).isEqualTo(FILES_SIZE)
+                assertThat(it.value).isEqualTo(tabFilesSize(subV2) + subFilesSize)
+            }
+            assertThat(statsV2).satisfiesOnlyOnce {
+                assertThat(it.type).isEqualTo(NON_DECLARED_FILES_DIRECTORIES)
+                assertThat(it.value).isEqualTo(1)
+            }
 
             // Verify page tab files are backed up
             val sub = submissionRepository.getExtByAccNo("S-STTS1")
-            val pageTabBackupPath = pageTabBackupSubmissionPath.resolve(sub.relPath)
+            val pageTabBackupPath = submissionPageTabCopyPath.resolve(sub.relPath)
             waitForCompletion(TEN_SECONDS) {
                 val jsonPageTab = pageTabBackupPath.resolve("S-STTS1.json")
                 assertThat(jsonPageTab).exists()
@@ -157,112 +187,75 @@ class SubmissionPostProcessingTest(
         }
 
     @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `31-2 submission post processing on NFS`() =
+    fun `31-2 refresh submissions stats`() =
         runTest {
-            val version1 =
+            val accNo = "STATS-2691"
+            val accNo2 = "STATS-2692"
+
+            val submission1 =
                 tsv {
-                    line("Submission", "S-STTS2")
-                    line("Title", "Stats Registration Test Over NFS")
-                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line("Submission", accNo)
+                }.toString()
+            val submission2 =
+                tsv {
+                    line("Submission", accNo2)
+                }.toString()
+
+            webClient.submit(submission1, TSV)
+            webClient.submit(submission2, TSV)
+
+            val original1 = statsDataService.findByAccNo(accNo)
+            val original2 = statsDataService.findByAccNo(accNo2)
+
+            statsDataService.cleanStatsByAccNo(accNo)
+            statsDataService.cleanStatsByAccNo(accNo2)
+
+            webClient.recalculateStats(accNo)
+            webClient.recalculateStats(accNo2)
+
+            assertThat(statsDataService.findByAccNo(accNo)).isEqualTo(original1)
+            assertThat(statsDataService.findByAccNo(accNo2)).isEqualTo(original2)
+        }
+
+    @Test
+    fun `31-3 refresh pagetab copy`() =
+        runTest {
+            val accNo = "STATS-WITH-DIR-0001"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line("ReleaseDate", "2099-09-21")
                     line()
 
                     line("Study")
                     line()
 
-                    line("File", "stats file 1.doc")
-                    line("Type", "test")
-                    line()
+                    line("Files")
+                    line("a-Dir/a_file.txt")
                 }.toString()
 
-            val version2 =
-                tsv {
-                    line("Submission", "S-STTS2")
-                    line("Title", "Stats Registration Test Over NFS")
-                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                    line()
+            val storageMode = if (enableFire) FIRE else NFS
+            webClient.uploadFile(tempFolder.createFile("a_file.txt", "file content"), "a-Dir")
+            webClient.submit(submission, TSV, SubmitParameters(storageMode = storageMode))
 
-                    line("Study")
-                    line("Type", "Experiment")
-                    line("File List", "file-list.tsv")
-                    line()
+            val sub = submissionRepository.getExtByAccNo(accNo)
+            val pageTabPath = submissionPath.resolve(sub.relPath)
+            val tsv = Path.of("$pageTabPath/$accNo.tsv").toFile()
+            val json = Path.of("$pageTabPath/$accNo.json").toFile()
 
-                    line("File", "stats file 1.doc")
-                    line("Type", "test")
-                    line()
+            val pageTabCopyPath = submissionPageTabCopyPath.resolve(sub.relPath)
+            val tsvPageTabCopy = pageTabCopyPath.resolve("$accNo.tsv")
+            val jsonPageTabCopy = pageTabCopyPath.resolve("$accNo.json")
 
-                    line("Experiment", "Exp1")
-                    line("Type", "Subsection")
-                    line()
+            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabCopy).exists() }
+            tsvPageTabCopy.delete()
+            jsonPageTabCopy.delete()
+            assertThat(tsvPageTabCopy).doesNotExist()
+            assertThat(jsonPageTabCopy).doesNotExist()
 
-                    line("File", "statsFile2.txt")
-                    line("Type", "Attached")
-                    line()
-                }.toString()
-
-            val fileListContent =
-                tsv {
-                    line("Files", "Type")
-                    line("a/statsFile3.pdf", "inner")
-                    line("a", "folder")
-                }.toString()
-
-            webClient.uploadFiles(
-                listOf(
-                    tempFolder.createFile("statsFile2.txt", "content"),
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("stats file 1.doc", "doc content"),
-                ),
-            )
-            webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
-
-            assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
-            waitUntil(timeout = TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS2").isNotEmpty() }
-            val statVersion1 = statsDataService.findStatsByAccNo("S-STTS2")
-            assertThat(statVersion1).hasSize(3)
-            assertThat(statVersion1.first().value).isEqualTo(574L)
-            assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
-            assertThat(statVersion1.first().accNo).isEqualTo("S-STTS2")
-
-            assertThat(webClient.submit(version2, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS2").first().value != 574L }
-
-            val sub = submissionRepository.getCoreInfoByAccNoAndVersion("S-STTS2", 2)
-            val subPath = privateNfsSubmissionPath.resolve(sub.relPath)
-
-            val subJson = subPath.resolve("S-STTS2.json").size()
-            val subTsv = subPath.resolve("S-STTS2.tsv").size()
-            val fileListJson = subPath.resolve("Files/file-list.json").size()
-            val fileListTsv = subPath.resolve("Files/file-list.tsv").size()
-            val file1Size = subPath.resolve("Files/statsFile2.txt").size()
-            val file2Size = subPath.resolve("Files/stats file 1.doc").size()
-            val fileListFile = subPath.resolve("Files/a/statsFile3.pdf").size()
-
-            val expectedSize =
-                subJson + subTsv + fileListJson + fileListTsv + file1Size + file2Size + fileListFile
-
-            // Verify stats are calculated
-            val stats = statsDataService.findStatsByAccNo("S-STTS2")
-            assertThat(stats).hasSize(3)
-            val fileStats = stats.first()
-            assertThat(fileStats.value).isEqualTo(expectedSize)
-            assertThat(fileStats.type).isEqualTo(FILES_SIZE)
-            assertThat(fileStats.accNo).isEqualTo("S-STTS2")
-
-            // Verify page tab files are backed up
-            val pageTabBackupPath = pageTabBackupSubmissionPath.resolve(sub.relPath)
-            waitForCompletion(TEN_SECONDS) {
-                val jsonPageTab = pageTabBackupPath.resolve("S-STTS2.json")
-                assertThat(jsonPageTab).exists()
-
-                val tsvPageTab = pageTabBackupPath.resolve("S-STTS2.tsv")
-                assertThat(tsvPageTab).exists()
-
-                val jsonFileListTab = pageTabBackupPath.resolve("Files").resolve("file-list.json")
-                assertThat(jsonFileListTab).exists()
-
-                val tsvFileListTab = pageTabBackupPath.resolve("Files").resolve("file-list.tsv")
-                assertThat(tsvFileListTab).exists()
-            }
+            webClient.copyPageTab(accNo)
+            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabCopy).exists() }
+            assertThat(tsvPageTabCopy).hasSameTextualContentAs(tsv)
+            assertThat(jsonPageTabCopy).hasSameTextualContentAs(json)
         }
 }
