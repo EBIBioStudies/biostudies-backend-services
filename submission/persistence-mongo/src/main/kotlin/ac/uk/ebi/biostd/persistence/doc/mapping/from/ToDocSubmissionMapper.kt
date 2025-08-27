@@ -36,6 +36,7 @@ class ToDocSubmissionMapper(
             released = released,
             secretKey = secretKey,
             creationTime = creationTime.toInstant(),
+            submissionTime = submissionTime.toInstant(),
             modificationTime = modificationTime.toInstant(),
             releaseTime = releaseTime?.toInstant(),
             owner = owner,

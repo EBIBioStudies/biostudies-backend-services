@@ -52,6 +52,7 @@ object SubmissionTestHelper {
             released = false,
             secretKey = SECRET_KEY,
             releaseTime = time,
+            submissionTime = time,
             modificationTime = time,
             creationTime = time,
             attributes = listOf(fullDocAttribute),
