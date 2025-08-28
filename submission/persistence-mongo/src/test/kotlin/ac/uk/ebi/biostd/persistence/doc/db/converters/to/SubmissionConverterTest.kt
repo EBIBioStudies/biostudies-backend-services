@@ -96,8 +96,8 @@ internal class SubmissionConverterTest(
         docSection: DocSection,
         docAttribute: DocAttribute,
         docFile: DocFile,
-    ): DocSubmission {
-        return DocSubmission(
+    ): DocSubmission =
+        DocSubmission(
             id = submissionId,
             accNo = ACC_NO,
             version = VERSION,
@@ -112,6 +112,7 @@ internal class SubmissionConverterTest(
             released = RELEASED,
             secretKey = SECRET_KEY,
             releaseTime = submissionReleaseTime,
+            submissionTime = submissionTime,
             modificationTime = submissionModificationTime,
             creationTime = submissionCreationTime,
             section = docSection,
@@ -121,7 +122,6 @@ internal class SubmissionConverterTest(
             pageTabFiles = listOf(docFile),
             storageMode = StorageMode.NFS,
         )
-    }
 
     private companion object {
         private val submissionId = ObjectId()
@@ -137,6 +137,7 @@ internal class SubmissionConverterTest(
         private const val RELEASED = false
         private const val SECRET_KEY = "a-secret-key"
         private val submissionReleaseTime: Instant = Instant.ofEpochSecond(1)
+        private val submissionTime: Instant = Instant.ofEpochSecond(1)
         private val submissionModificationTime: Instant = Instant.ofEpochSecond(2)
         private val submissionCreationTime: Instant = Instant.ofEpochSecond(3)
 

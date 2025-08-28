@@ -336,6 +336,7 @@ internal class RtNotificationServiceTest(
                 released = false,
                 secretKey = "a-secret-key",
                 releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
+                submissionTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
                 modificationTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
                 creationTime = OffsetDateTime.of(2019, 9, 19, 10, 30, 34, 15, ZoneOffset.UTC),
                 attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
