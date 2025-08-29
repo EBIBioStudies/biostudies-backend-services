@@ -81,6 +81,7 @@ class ExtSubmissionSerializerTest {
                 "released" to released
                 "secretKey" to "a-secret-key"
                 "releaseTime" to "2019-09-21T10:30:34.000000015Z"
+                "submissionTime" to "2020-09-21T09:30:34.000000015Z"
                 "modificationTime" to "2020-09-21T10:30:34.000000015Z"
                 "creationTime" to "2018-09-21T10:30:34.000000015Z"
                 "section" to
@@ -141,6 +142,7 @@ class ExtSubmissionSerializerTest {
 
         private fun createTestSubmission(released: Boolean): ExtSubmission {
             val releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
+            val submissionTime = OffsetDateTime.of(2020, 9, 21, 9, 30, 34, 15, ZoneOffset.UTC)
             val modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val creationTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 
@@ -159,6 +161,7 @@ class ExtSubmissionSerializerTest {
                 released = released,
                 secretKey = "a-secret-key",
                 releaseTime = releaseTime,
+                submissionTime = submissionTime,
                 modificationTime = modificationTime,
                 creationTime = creationTime,
                 attributes = listOf(ExtAttribute("AttachTo", "BioImages")),

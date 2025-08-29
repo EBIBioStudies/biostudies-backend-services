@@ -143,6 +143,7 @@ object DocSubmissionFields {
     const val SUB_RELEASED = "released"
     const val SUB_SECRET_KEY = "secretKey"
     const val SUB_RELEASE_TIME = "releaseTime"
+    const val SUB_SUBMISSION_TIME = "submissionTime"
     const val SUB_MODIFICATION_TIME = "modificationTime"
     const val SUB_CREATION_TIME = "creationTime"
     const val SUB_SECTION = "section"

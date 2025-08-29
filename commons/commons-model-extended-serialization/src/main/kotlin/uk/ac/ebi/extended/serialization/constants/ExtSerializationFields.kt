@@ -46,6 +46,7 @@ object ExtSerializationFields {
     const val RELEASED = "released"
     const val SECRET_KEY = "secretKey"
     const val RELEASE_TIME = "releaseTime"
+    const val SUB_TIME = "submissionTime"
     const val MOD_TIME = "modificationTime"
     const val CREATION_TIME = "creationTime"
     const val SECTION = "section"

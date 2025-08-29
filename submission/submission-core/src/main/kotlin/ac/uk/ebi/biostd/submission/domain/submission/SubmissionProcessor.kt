@@ -32,7 +32,7 @@ class SubmissionProcessor(
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
     suspend fun processSubmission(rqt: SubmitRequest): ExtSubmission {
-        val (creationTime, modificationTime, releaseTime, released) = timesService.getTimes(rqt)
+        val (creationTime, submissionTime, releaseTime, released) = timesService.getTimes(rqt)
         val accNoString = rqt.accNo
         val submission = rqt.submission
         val previousVersion = rqt.previousVersion
@@ -56,7 +56,8 @@ class SubmissionProcessor(
             released = released,
             secretKey = secretKey,
             releaseTime = releaseTime,
-            modificationTime = modificationTime,
+            submissionTime = submissionTime,
+            modificationTime = submissionTime,
             creationTime = creationTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },

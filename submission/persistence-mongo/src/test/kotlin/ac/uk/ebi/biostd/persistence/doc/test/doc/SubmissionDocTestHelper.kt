@@ -38,12 +38,12 @@ internal const val SECRET_KEY = "a-secret-key"
 internal const val TAG_NAME = "component"
 internal const val TAG_VALUE = "web"
 internal const val COLLECTION_ACC_NO = "BioImages"
-internal const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 internal const val DOI = "10.6019/S-TEST123"
 internal val CREATION_TIME = Instant.now()
-internal val MODIFICATION_TIME = CREATION_TIME.plus(1, ChronoUnit.HOURS)
-internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
+internal val SUBMISSION_TIME = CREATION_TIME.plus(1, ChronoUnit.HOURS)
+internal val MODIFICATION_TIME = CREATION_TIME.plus(2, ChronoUnit.HOURS)
+internal val RELEASE_TIME = CREATION_TIME.plus(3, ChronoUnit.DAYS)
 
 internal val testDocSection = DocSection(id = ObjectId(), type = "Study")
 
@@ -66,6 +66,7 @@ internal val testDocSubmission: DocSubmission
             released = false,
             secretKey = SECRET_KEY,
             releaseTime = RELEASE_TIME.truncatedTo(ChronoUnit.MILLIS),
+            submissionTime = SUBMISSION_TIME.truncatedTo(ChronoUnit.MILLIS),
             modificationTime = MODIFICATION_TIME.truncatedTo(ChronoUnit.MILLIS),
             creationTime = CREATION_TIME.truncatedTo(ChronoUnit.MILLIS),
             attributes = listOf(testDocAttribute),

@@ -30,6 +30,7 @@ class ToExtSubmissionMapper(
             released = sub.released,
             secretKey = sub.secretKey,
             releaseTime = sub.releaseTime?.atOffset(UTC),
+            submissionTime = sub.submissionTime.atOffset(UTC),
             modificationTime = sub.modificationTime.atOffset(UTC),
             creationTime = sub.creationTime.atOffset(UTC),
             section =

@@ -3,7 +3,7 @@ object PluginVersions {
     const val KotlinPluginVersion = Versions.KotlinVersion
     const val KtLintVersion = "12.1.0"
     const val ShadowPluginVersion = "8.1.1"
-    const val SshVersion = "2.10.1"
+    const val SshVersion = "2.12.0"
     const val SpringBootPluginVersion = "2.7.18"
     const val SpringDependencyManagementPluginVersion = "1.0.12.RELEASE"
     const val GradleRetryVersion = "1.5.5"

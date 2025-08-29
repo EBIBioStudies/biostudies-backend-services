@@ -106,6 +106,7 @@ class StatsReporterDataRepositoryTest(
                 released = true,
                 secretKey = "",
                 creationTime = Instant.now(),
+                submissionTime = Instant.now(),
                 modificationTime = Instant.now(),
                 releaseTime = Instant.now(),
                 section = DocSection(id = ObjectId(), type = "Study"),

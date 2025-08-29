@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMISSION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TAGS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
@@ -54,6 +55,7 @@ class DocSubmissionConverter(
             released = source.getBoolean(SUB_RELEASED),
             secretKey = source.getString(SUB_SECRET_KEY),
             releaseTime = source.getDate(SUB_RELEASE_TIME)?.toInstant(),
+            submissionTime = source.getDate(SUB_SUBMISSION_TIME).toInstant(),
             modificationTime = source.getDate(SUB_MODIFICATION_TIME).toInstant(),
             creationTime = source.getDate(SUB_CREATION_TIME).toInstant(),
             section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),
