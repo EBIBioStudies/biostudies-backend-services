@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPageTabCopyPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -168,20 +168,20 @@ class SubmissionPostProcessingTest(
                 assertThat(it.value).isEqualTo(1)
             }
 
-            // Verify page tab files are backed up
+            // Verify fallback page tab files are generated
             val sub = submissionRepository.getExtByAccNo("S-STTS1")
-            val pageTabBackupPath = submissionPageTabCopyPath.resolve(sub.relPath)
+            val pageTabFallbackPath = pageTabFallbackPath.resolve(sub.relPath)
             waitForCompletion(TEN_SECONDS) {
-                val jsonPageTab = pageTabBackupPath.resolve("S-STTS1.json")
+                val jsonPageTab = pageTabFallbackPath.resolve("S-STTS1.json")
                 assertThat(jsonPageTab).exists()
 
-                val tsvPageTab = pageTabBackupPath.resolve("S-STTS1.tsv")
+                val tsvPageTab = pageTabFallbackPath.resolve("S-STTS1.tsv")
                 assertThat(tsvPageTab).exists()
 
-                val jsonFileListTab = pageTabBackupPath.resolve("Files").resolve("file-list.json")
+                val jsonFileListTab = pageTabFallbackPath.resolve("Files").resolve("file-list.json")
                 assertThat(jsonFileListTab).exists()
 
-                val tsvFileListTab = pageTabBackupPath.resolve("Files").resolve("file-list.tsv")
+                val tsvFileListTab = pageTabFallbackPath.resolve("Files").resolve("file-list.tsv")
                 assertThat(tsvFileListTab).exists()
             }
         }
@@ -218,7 +218,7 @@ class SubmissionPostProcessingTest(
         }
 
     @Test
-    fun `31-3 refresh pagetab copy`() =
+    fun `31-3 refresh pagetab fallback files`() =
         runTest {
             val accNo = "STATS-WITH-DIR-0001"
             val submission =
@@ -243,19 +243,19 @@ class SubmissionPostProcessingTest(
             val tsv = Path.of("$pageTabPath/$accNo.tsv").toFile()
             val json = Path.of("$pageTabPath/$accNo.json").toFile()
 
-            val pageTabCopyPath = submissionPageTabCopyPath.resolve(sub.relPath)
-            val tsvPageTabCopy = pageTabCopyPath.resolve("$accNo.tsv")
-            val jsonPageTabCopy = pageTabCopyPath.resolve("$accNo.json")
+            val pageTabFallbackPath = pageTabFallbackPath.resolve(sub.relPath)
+            val tsvPageTabFallback = pageTabFallbackPath.resolve("$accNo.tsv")
+            val jsonPageTabFallback = pageTabFallbackPath.resolve("$accNo.json")
 
-            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabCopy).exists() }
-            tsvPageTabCopy.delete()
-            jsonPageTabCopy.delete()
-            assertThat(tsvPageTabCopy).doesNotExist()
-            assertThat(jsonPageTabCopy).doesNotExist()
+            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
+            tsvPageTabFallback.delete()
+            jsonPageTabFallback.delete()
+            assertThat(tsvPageTabFallback).doesNotExist()
+            assertThat(jsonPageTabFallback).doesNotExist()
 
             webClient.copyPageTab(accNo)
-            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabCopy).exists() }
-            assertThat(tsvPageTabCopy).hasSameTextualContentAs(tsv)
-            assertThat(jsonPageTabCopy).hasSameTextualContentAs(json)
+            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
+            assertThat(tsvPageTabFallback).hasSameTextualContentAs(tsv)
+            assertThat(jsonPageTabFallback).hasSameTextualContentAs(json)
         }
 }

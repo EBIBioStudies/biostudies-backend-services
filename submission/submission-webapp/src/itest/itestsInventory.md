@@ -274,7 +274,7 @@ Contains test related to resubmission
 | SubmissionRequestApiTest        | 29-2    | Archive submission request                                                       |                                                                                               |
 | SubmissionPostProcessingTest    | 31-1    | submission post processing.                                                      | Verifies: stats calculation, and pagetab copy generation.                                     |
 | SubmissionPostProcessingTest    | 31-2    | refresh submissions stats                                                        |                                                                                               |
-| SubmissionPostProcessingTest    | 31-3    | refresh pagetab copy                                                             |                                                                                               |
+| SubmissionPostProcessingTest    | 31-3    | refresh pagetab fallback files                                                   |                                                                                               |
 
 ### Admin Operations Test suite
 

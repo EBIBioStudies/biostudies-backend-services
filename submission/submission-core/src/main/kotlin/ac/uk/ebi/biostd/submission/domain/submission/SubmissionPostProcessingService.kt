@@ -41,18 +41,18 @@ class SubmissionPostProcessingService(
         return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
     }
 
-    suspend fun copyPageTabFiles(accNo: String): List<ExtFile> {
+    suspend fun generateFallbackPageTabFiles(accNo: String): List<ExtFile> {
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
-        return copyPageTabFiles(sub)
+        return generateFallbackPageTabFiles(sub)
     }
 
     suspend fun postProcess(accNo: String) {
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
-        copyPageTabFiles(sub)
+        generateFallbackPageTabFiles(sub)
         calculateStats(sub)
     }
 
-    private suspend fun copyPageTabFiles(sub: ExtSubmission): List<ExtFile> {
+    private suspend fun generateFallbackPageTabFiles(sub: ExtSubmission): List<ExtFile> {
         logger.info { "Started copying pagetab files for submission ${sub.accNo}, version ${sub.version}" }
         val copiedFiles =
             with(Dispatchers.IO) {

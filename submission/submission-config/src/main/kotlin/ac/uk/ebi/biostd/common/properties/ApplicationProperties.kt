@@ -57,7 +57,7 @@ data class PersistenceProperties(
     val enableFire: Boolean = false,
     val includeSecretKey: Boolean = false,
     val nfsReleaseMode: String,
-    val pageTabSubmissionPath: String,
+    val pageTabFallbackPath: String,
     val privateSubmissionsPath: String,
     val publicSubmissionsPath: String,
     val privateSubmissionFtpOutPath: String,
