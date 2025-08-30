@@ -1,10 +1,11 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Mode.CALCULATE_ALL_STATS
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
+import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -38,13 +39,14 @@ class Execute(
     private val properties: TaskProperties,
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
+    private val submissionPostProcessingService: SubmissionPostProcessingService,
 ) : CommandLineRunner {
     override fun run(vararg args: String?): Nothing {
         logger.info { "Starting submission task command line runner." }
         runBlocking {
             when (properties.taskMode) {
                 HANDLE_REQUEST -> handleRequest()
-                CALCULATE_ALL_STATS -> refreshStats()
+                POST_PROCESS_ALL -> postProcessAll()
             }
             exitProcess(SpringApplication.exit(context))
         }
@@ -56,10 +58,10 @@ class Execute(
         logger.info { "Completed handling submission requests ----------------------------------------" }
     }
 
-    private suspend fun refreshStats() {
-        logger.info { "Refreshing all submission stats ----------------------------------------" }
-        submissionSubmitter.refreshAllStats()
-        logger.info { "Completed refreshing all submission stats ----------------------------------------" }
+    private suspend fun postProcessAll() {
+        logger.info { "Started post processing all submissions ----------------------------------------" }
+        submissionPostProcessingService.postProcessAll()
+        logger.info { "Finished post processing all submissions ---------------------------------------" }
     }
 
     private suspend fun runProcess(

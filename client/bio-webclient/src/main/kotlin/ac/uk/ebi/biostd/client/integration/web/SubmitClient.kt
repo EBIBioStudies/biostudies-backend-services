@@ -44,6 +44,7 @@ interface SubmitClient :
     GeneralOperations,
     DraftSubmissionOperations,
     ExtSubmissionOperations,
+    PostProcessOperations,
     PermissionOperations,
     StatsOperations,
     SubmissionRequestOperations,
@@ -195,8 +196,6 @@ interface StatsOperations {
         type: String,
         statsFile: File,
     ): UpdateResult
-
-    suspend fun refreshStats(accNo: String): List<SubmissionStat>
 }
 
 interface DraftSubmissionOperations {
@@ -244,8 +243,14 @@ interface ExtSubmissionOperations {
         accNo: String,
         releaseDate: Instant,
     ): Pair<String, Int>
+}
 
-    suspend fun refreshAllStats()
+interface PostProcessOperations {
+    suspend fun postProcess(accNo: String)
+
+    suspend fun recalculateStats(accNo: String)
+
+    suspend fun copyPageTab(accNo: String)
 }
 
 interface PermissionOperations {

@@ -47,7 +47,7 @@ internal class SubFolderResolver(
     }
 
     override fun getCopyPageTabPath(sub: ExtSubmissionInfo): Path {
-        val basePath = Paths.get(properties.persistence.pageTabSubmissionPath)
+        val basePath = Paths.get(properties.persistence.pageTabFallbackPath)
         return basePath.resolve(sub.relPath)
     }
 

@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -27,10 +27,10 @@ private val logger = KotlinLogging.logger {}
 @Suppress("TooManyFunctions")
 @RabbitListener(queues = ["\${app.notifications.requestQueue}"], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionMessageListener(
-    private val statsService: SubmissionStatsService,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val properties: SubmissionNotificationsProperties,
     private val eventsPublisherService: EventsPublisherService,
+    private val submissionPostProcessingService: SubmissionPostProcessingService,
 ) {
     @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {
@@ -123,11 +123,11 @@ class SubmissionMessageListener(
     }
 
     @RabbitHandler
-    fun calculateStats(rqt: RequestFinalized) {
+    fun postProcess(rqt: RequestFinalized) {
         processSafely(rqt) {
             val (accNo, version) = rqt
-            logger.info { "$accNo, Received calculate stats message for submission $accNo, version: $version" }
-            statsService.calculateStats(rqt.accNo)
+            logger.info { "$accNo, Received post process message for submission $accNo, version: $version" }
+            submissionPostProcessingService.postProcess(accNo)
         }
     }
 

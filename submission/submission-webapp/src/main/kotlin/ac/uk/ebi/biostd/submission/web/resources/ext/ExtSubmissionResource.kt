@@ -63,11 +63,6 @@ class ExtSubmissionResource(
         @PathVariable releaseDate: String,
     ): Pair<String, Int> = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
 
-    @PostMapping("/stats/refreshAll")
-    suspend fun refreshAllStatus() {
-        extSubmissionService.refreshAllStats()
-    }
-
     @PostMapping("/{accNo}/transfer/{target}")
     suspend fun transferSubmission(
         @BioUser user: SecurityUser,

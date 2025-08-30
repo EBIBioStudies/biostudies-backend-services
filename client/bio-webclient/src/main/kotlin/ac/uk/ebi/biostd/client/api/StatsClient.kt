@@ -91,11 +91,4 @@ class StatsClient(
             .retrieve()
             .awaitBody()
     }
-
-    override suspend fun refreshStats(accNo: String): List<SubmissionStat> =
-        client
-            .post()
-            .uri("$STATS_URL/refresh/$accNo")
-            .retrieve()
-            .awaitBody()
 }
