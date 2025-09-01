@@ -412,6 +412,20 @@ internal class SubmissionMongoQueryServiceTest(
                 assertThat(result.first().title).isEqualTo("one")
             }
 
+        @Test
+        fun `owner is case insensitive`() =
+            runTest {
+                submissionRepo.save(docSubmission.copy(accNo = "OwnerSub100", title = "one-sub-100", version = 1))
+
+                val result =
+                    testInstance.getSubmissionsByUser(
+                        SubmissionListFilter(SUBMISSION_OWNER.lowercase(), limit = 1),
+                    )
+
+                assertThat(result).hasSize(1)
+                assertThat(result.first().title).isEqualTo("one-sub-100")
+            }
+
         private suspend fun saveAsRequest(
             extSubmission: ExtSubmission,
             status: RequestStatus,
