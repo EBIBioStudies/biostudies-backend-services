@@ -32,7 +32,6 @@ import ac.uk.ebi.biostd.submission.domain.submitter.RemoteExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -72,7 +71,6 @@ class SubmissionWebConfig {
         submissionSaver: SubmissionRequestSaver,
         submissionQueryService: ExtSubmissionQueryService,
         eventsPublisherService: EventsPublisherService,
-        submissionStatsService: SubmissionStatsService,
         submissionPostProcessingService: SubmissionPostProcessingService,
     ): ExtSubmissionSubmitter {
         val local =
@@ -91,7 +89,6 @@ class SubmissionWebConfig {
                 submissionSaver,
                 submissionQueryService,
                 eventsPublisherService,
-                submissionStatsService,
                 submissionPostProcessingService,
             )
         val remote =
