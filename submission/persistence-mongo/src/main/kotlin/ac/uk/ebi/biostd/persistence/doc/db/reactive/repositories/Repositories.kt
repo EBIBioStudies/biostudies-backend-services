@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.service.SubIdentifier
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -188,6 +189,13 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         accNo: String,
         version: Int,
     )
+}
+
+interface SubmissionDocFileRepository : CoroutineCrudRepository<DocSubmissionFile, ObjectId> {
+    suspend fun findAllBySubmissionAccNoAndSubmissionVersion(
+        accNo: String,
+        version: Int,
+    ): Flow<DocSubmissionFile>
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {

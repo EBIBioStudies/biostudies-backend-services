@@ -1,5 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUBS
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_FILES
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_FILE_LIST_FILES
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_LINK_LIST_LINKS
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_STATS
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
@@ -9,11 +14,12 @@ import java.time.Instant
 
 val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
 val fireDocFileClass: String = FireDocFile::class.java.canonicalName
+val subFileDocClass: String = DocSubmissionFile::class.java.canonicalName
 val fileListDocFileDocFileClass: String = FileListDocFile::class.java.canonicalName
 val linkListDocLinkDocFileClass: String = LinkListDocLink::class.java.canonicalName
 val docSubmissionClass: String = DocSubmission::class.java.canonicalName
 
-@Document(collection = "submissions")
+@Document(collection = SUBS)
 data class DocSubmission(
     @Id
     val id: ObjectId,
@@ -123,7 +129,16 @@ data class DocLinkList(
     val pageTabFiles: List<DocFile> = listOf(),
 )
 
-@Document(collection = "file_list_files")
+@Document(collection = SUB_FILES)
+data class DocSubmissionFile(
+    @Id
+    val id: ObjectId,
+    val file: DocFile,
+    val submissionAccNo: String,
+    val submissionVersion: Int,
+)
+
+@Document(collection = SUB_FILE_LIST_FILES)
 data class FileListDocFile(
     @Id
     val id: ObjectId,
@@ -131,11 +146,11 @@ data class FileListDocFile(
     val file: DocFile,
     val fileListName: String,
     val index: Int,
-    val submissionVersion: Int,
     val submissionAccNo: String,
+    val submissionVersion: Int,
 )
 
-@Document(collection = "link_list_links")
+@Document(collection = SUB_LINK_LIST_LINKS)
 data class LinkListDocLink(
     @Id
     val id: ObjectId,
@@ -143,8 +158,8 @@ data class LinkListDocLink(
     val link: DocLink,
     val linkListName: String,
     val index: Int,
-    val submissionVersion: Int,
     val submissionAccNo: String,
+    val submissionVersion: Int,
 )
 
 data class DocSectionTable(
@@ -185,7 +200,7 @@ data class DocSectionTableRow(
     val attributes: List<DocAttribute> = listOf(),
 )
 
-@Document(collection = "submission_stats")
+@Document(collection = SUB_STATS)
 data class DocSubmissionStats(
     @Id
     val id: ObjectId,

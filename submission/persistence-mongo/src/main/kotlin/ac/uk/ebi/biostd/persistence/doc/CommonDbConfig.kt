@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSubmissionConverter
+import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSubmissionFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
@@ -20,6 +21,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionFileConverter
 import org.springframework.core.convert.converter.Converter
 
 fun converters(): MutableList<Converter<*, *>> {
@@ -29,7 +31,9 @@ fun converters(): MutableList<Converter<*, *>> {
     converters.add(FileConverter(AttributeConverter()))
     converters.add(DocFileConverter(DocAttributeConverter()))
     converters.add(FileListDocFileConverter(FileConverter(AttributeConverter())))
+    converters.add(SubmissionFileConverter(FileConverter(AttributeConverter())))
     converters.add(DocFileListDocFileConverter(DocFileConverter(DocAttributeConverter())))
+    converters.add(DocSubmissionFileConverter(DocFileConverter(DocAttributeConverter())))
     return converters
 }
 
