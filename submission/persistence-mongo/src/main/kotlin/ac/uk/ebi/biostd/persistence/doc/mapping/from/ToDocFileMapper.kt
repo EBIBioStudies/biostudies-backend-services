@@ -43,13 +43,13 @@ class ToDocFileListMapper(
     ): List<FileListDocFile> =
         serializationService
             .deserializeFileListAsSequence(stream)
-            .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, version, accNo) }
+            .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, accNo, version) }
             .toList()
 }
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 
-internal fun ExtFile.toDocFile(): DocFile =
+fun ExtFile.toDocFile(): DocFile =
     when (this) {
         is FireFile ->
             FireDocFile(

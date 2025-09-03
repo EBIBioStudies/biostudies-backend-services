@@ -275,6 +275,7 @@ Contains test related to resubmission
 | SubmissionPostProcessingTest    | 31-1    | submission post processing.                                                      | Verifies: stats calculation, and pagetab copy generation.                                     |
 | SubmissionPostProcessingTest    | 31-2    | refresh submissions stats                                                        |                                                                                               |
 | SubmissionPostProcessingTest    | 31-3    | refresh pagetab fallback files                                                   |                                                                                               |
+| SubmissionPostProcessingTest    | 31-4    | refresh inner submission files                                                   |                                                                                               |
 
 ### Admin Operations Test suite
 

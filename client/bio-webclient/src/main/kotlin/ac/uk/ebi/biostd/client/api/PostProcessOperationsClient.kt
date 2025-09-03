@@ -30,4 +30,12 @@ class PostProcessOperationsClient(
             .retrieve()
             .awaitBodilessEntity()
     }
+
+    override suspend fun indexInnerFiles(accNo: String) {
+        client
+            .post()
+            .uri("$EXT_SUBMISSIONS_URL/$accNo/post-process/inner-files")
+            .retrieve()
+            .awaitBodilessEntity()
+    }
 }

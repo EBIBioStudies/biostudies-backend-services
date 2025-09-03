@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest.test.submission.files
+package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
@@ -30,6 +31,7 @@ import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -52,6 +54,7 @@ class SubmissionPostProcessingTest(
     @Autowired val statsDataService: StatsDataService,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @Autowired val submissionFilesDocDataRepository: SubmissionFilesDocDataRepository,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -168,6 +171,18 @@ class SubmissionPostProcessingTest(
                 assertThat(it.value).isEqualTo(1)
             }
 
+            // Verify submission inner files are persisted
+            val innerFilesV2 = submissionFilesDocDataRepository.findByAccNoAndVersion("S-STTS1", 2).toList()
+            assertThat(innerFilesV2).hasSize(2)
+            assertThat(innerFilesV2).satisfiesOnlyOnce { assertThat(it.file.filePath).isEqualTo("stats file 1.doc") }
+            assertThat(innerFilesV2).satisfiesOnlyOnce { assertThat(it.file.filePath).isEqualTo("statsFile2.txt") }
+
+            // Verify previous version files are deprecated
+            assertThat(submissionFilesDocDataRepository.findByAccNoAndVersion("S-STTS1", 1).toList()).isEmpty()
+            val innerFilesV1 = submissionFilesDocDataRepository.findByAccNoAndVersion("S-STTS1", -1).toList()
+            assertThat(innerFilesV1).hasSize(1)
+            assertThat(innerFilesV1).satisfiesOnlyOnce { assertThat(it.file.filePath).isEqualTo("stats file 1.doc") }
+
             // Verify fallback page tab files are generated
             val sub = submissionRepository.getExtByAccNo("S-STTS1")
             val pageTabFallbackPath = pageTabFallbackPath.resolve(sub.relPath)
@@ -257,5 +272,38 @@ class SubmissionPostProcessingTest(
             waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
             assertThat(tsvPageTabFallback).hasSameTextualContentAs(tsv)
             assertThat(jsonPageTabFallback).hasSameTextualContentAs(json)
+        }
+
+    @Test
+    fun `31-4 refresh inner submission files`() =
+        runTest {
+            val accNo = "INNER-FILES-0001"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line("ReleaseDate", "2099-09-21")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("Files")
+                    line("a-Dir/inner_file.txt")
+                }.toString()
+
+            val storageMode = if (enableFire) FIRE else NFS
+            webClient.uploadFile(tempFolder.createFile("inner_file.txt", "file content"), "a-Dir")
+            webClient.submit(submission, TSV, SubmitParameters(storageMode = storageMode))
+
+            waitForCompletion(TEN_SECONDS) {
+                submissionFilesDocDataRepository.findByAccNoAndVersion(accNo, 1).toList().isNotEmpty()
+            }
+
+            submissionFilesDocDataRepository.deleteAll()
+            webClient.indexInnerFiles(accNo)
+
+            val innerFiles = submissionFilesDocDataRepository.findByAccNoAndVersion(accNo, 1).toList()
+            assertThat(innerFiles).hasSize(1)
+            assertThat(innerFiles).satisfiesOnlyOnce { assertThat(it.file.filePath).isEqualTo("a-Dir/inner_file.txt") }
         }
 }

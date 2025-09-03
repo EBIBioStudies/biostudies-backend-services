@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -264,6 +265,7 @@ class SubmitterConfig(
         subFolderResolver: SubmissionFolderResolver,
         extSerializationService: ExtSerializationService,
         extSubQueryService: SubmissionPersistenceQueryService,
+        submissionFileRepository: SubmissionFilesDocDataRepository,
     ): SubmissionPostProcessingService =
         SubmissionPostProcessingService(
             pageTabService,
@@ -272,6 +274,7 @@ class SubmitterConfig(
             subFolderResolver,
             extSerializationService,
             extSubQueryService,
+            submissionFileRepository,
         )
 
     @Bean

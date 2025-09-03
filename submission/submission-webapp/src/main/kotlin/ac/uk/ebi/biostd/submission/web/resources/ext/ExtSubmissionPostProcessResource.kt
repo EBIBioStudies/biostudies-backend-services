@@ -33,6 +33,13 @@ class ExtSubmissionPostProcessResource(
         @PathVariable accNo: String,
     ): List<SubmissionStat> = submissionPostProcessingService.calculateStats(accNo)
 
+    @PostMapping("{accNo}/post-process/inner-files")
+    suspend fun generateInnerSubmissionFiles(
+        @PathVariable accNo: String,
+    ) {
+        submissionPostProcessingService.indexSubmissionInnerFiles(accNo)
+    }
+
     @PostMapping("{accNo}/post-process/fallback-pagetab")
     suspend fun generateFallbackSubmissionPageTab(
         @PathVariable accNo: String,

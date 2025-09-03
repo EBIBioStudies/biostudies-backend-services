@@ -33,7 +33,7 @@ class ToDocLinkListMapper(
     ): List<LinkListDocLink> =
         serializationService
             .deserializeLinkListAsSequence(stream)
-            .mapIndexed { idx, link -> LinkListDocLink(ObjectId(), subId, asDocLink(link), path, idx, version, accNo) }
+            .mapIndexed { idx, link -> LinkListDocLink(ObjectId(), subId, asDocLink(link), path, idx, accNo, version) }
             .toList()
 
     private fun asDocLink(link: ExtLink) = DocLink(link.url, link.attributes.map { it.toDocAttribute() })
