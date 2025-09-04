@@ -3,6 +3,7 @@ import TestVersions.FtpServerVersion
 import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
+import TestVersions.Junit5PioneerVersion
 import TestVersions.JunitExtensionsVersion
 import TestVersions.MockKVersion
 import TestVersions.TestContainerS3mockVersion
@@ -41,7 +42,8 @@ import Versions.ZeroAllocationHashingVersion
 import Versions.ZipUtilVersion
 
 object TestVersions {
-    const val JunitExtensionsVersion = "2.3.0"
+    const val JunitExtensionsVersion = "2.6.0"
+    const val Junit5PioneerVersion = "2.3.0"
     const val MockKVersion = "1.13.11"
     const val XmlUnitVersion = "2.6.2"
     const val JaxbApiVersion = "2.3.1"
@@ -94,7 +96,7 @@ object TestDependencies {
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
     const val KotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KotlinCoroutinesVersion"
 
-    const val Junit5Pioneer = "org.junit-pioneer:junit-pioneer"
+    const val Junit5Pioneer = "org.junit-pioneer:junit-pioneer:$Junit5PioneerVersion"
     const val Junit5Console = "org.junit.platform:junit-platform-console"
     const val Junit = "org.junit.jupiter:junit-jupiter"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"

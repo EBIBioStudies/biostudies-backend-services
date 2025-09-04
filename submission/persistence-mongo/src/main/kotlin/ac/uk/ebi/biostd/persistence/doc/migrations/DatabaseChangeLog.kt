@@ -82,16 +82,16 @@ suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmission
  */
 private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
-        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMISSION_TIME", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_SUBMISSION_TIME", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
+        createIndex(
             backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC),
         ).awaitSingleOrNull()
         createIndex(
