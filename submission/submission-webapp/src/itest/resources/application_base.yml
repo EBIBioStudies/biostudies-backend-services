@@ -1,10 +1,6 @@
 logging:
   level:
     root: info
-    org.springframework.boot.context.properties.bind: trace
-    org.springframework.boot.context.properties.source: trace
-
-debug: true
 
 spring:
   datasource:
