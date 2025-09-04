@@ -1,11 +1,9 @@
 package uk.ac.ebi.scheduler.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import uk.ac.ebi.biostd.client.cluster.model.Cluster
 
 @ConfigurationProperties(prefix = "app")
-@ConstructorBinding
 data class AppProperties(
     val appsFolder: String,
     val javaHome: String,

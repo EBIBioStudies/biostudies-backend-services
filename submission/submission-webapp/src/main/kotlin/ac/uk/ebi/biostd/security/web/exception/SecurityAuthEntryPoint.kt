@@ -3,11 +3,11 @@ package ac.uk.ebi.biostd.security.web.exception
 import ac.uk.ebi.biostd.security.web.dto.SecurityError
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.commons.http.servlet.write
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 private const val AUTHORIZATION_ERROR = "Problems authorizing user."
 
@@ -16,7 +16,9 @@ private const val AUTHORIZATION_ERROR = "Problems authorizing user."
  * credentials.
  *
  */
-class SecurityAuthEntryPoint(private val mapper: ObjectMapper) : AuthenticationEntryPoint {
+class SecurityAuthEntryPoint(
+    private val mapper: ObjectMapper,
+) : AuthenticationEntryPoint {
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,

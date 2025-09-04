@@ -1,8 +1,8 @@
 package ebi.ac.uk.commons.http.servlet
 
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import java.io.OutputStream
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Set response status execute OutputStream consumer before closed it.

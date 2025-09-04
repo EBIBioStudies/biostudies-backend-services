@@ -1,5 +1,5 @@
 package ebi.ac.uk.security.integration.components
 
-import javax.servlet.Filter
+import jakarta.servlet.Filter
 
 interface SecurityFilter : Filter

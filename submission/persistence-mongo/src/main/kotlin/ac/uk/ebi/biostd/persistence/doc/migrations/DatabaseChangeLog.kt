@@ -80,24 +80,24 @@ suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmission
  */
 private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
-        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
+        createIndex(
             backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC),
         ).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(
             Index()
                 .on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC)
                 .on("$prefix$SUB_VERSION", ASC)
                 .on("$prefix$STORAGE_MODE", ASC),
         ).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(
             TextIndex()
                 .onField("$prefix$SUB_TITLE")
                 .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME")
@@ -117,10 +117,10 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
 suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
     ensureSubmissionIndexes<DocSubmissionRequest>("$RQT_PROCESS.$SUB.")
     indexOps(DocSubmissionRequest::class.java).apply {
-        ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(RQT_STATUS, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(RQT_STATUS, ASC).on(RQT_MODIFICATION_TIME, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(RQT_STATUS, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(RQT_STATUS, ASC).on(RQT_MODIFICATION_TIME, ASC)).awaitSingleOrNull()
     }
 }
 
@@ -139,14 +139,14 @@ fun backgroundIndex() = Index().background()
 suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
     ensureExists(FileListDocFile::class.java)
     indexOps(FileListDocFile::class.java).apply {
-        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_INDEX, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(FILE_DOC_FILEPATH, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_INDEX, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(FILE_DOC_FILEPATH, ASC)).awaitSingleOrNull()
 
-        ensureIndex(
+        createIndex(
             Index()
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
@@ -167,23 +167,23 @@ suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
 suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
     ensureExists(DocSubmissionRequestFile::class.java)
     indexOps(DocSubmissionRequestFile::class.java).apply {
-        ensureIndex(backgroundIndex().on(RQT_FILE_SUB_ACC_NO, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(RQT_FILE_SUB_VERSION, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(RQT_FILE_PATH, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(RQT_FILE_INDEX, ASC)).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(backgroundIndex().on(RQT_FILE_SUB_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(RQT_FILE_SUB_VERSION, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(RQT_FILE_PATH, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(RQT_FILE_INDEX, ASC)).awaitSingleOrNull()
+        createIndex(
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
                 .on(RQT_FILE_PATH, ASC),
         ).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
                 .on(RQT_FILE_INDEX, ASC),
         ).awaitSingleOrNull()
-        ensureIndex(
+        createIndex(
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
@@ -199,9 +199,9 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
 suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
     indexOps(DocSubmissionStats::class.java).apply {
-        ensureIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
     }
 }

@@ -13,7 +13,7 @@ fun SerializationService.deserializeResponse(
 ): Mono<SubmissionResponse> {
     fun asSubmission(response: ResponseEntity<String>): SubmissionResponse {
         val submission = deserializeSubmission(response.body!!, format)
-        return SubmissionResponse(submission, response.statusCodeValue)
+        return SubmissionResponse(submission, response.statusCode.value())
     }
     return response.toEntity(String::class.java).map { asSubmission(it) }
 }

@@ -82,7 +82,7 @@ class UserGroupsApiTest(
                     regularWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER)
                 }
 
-            assertThat(exception).hasMessageContaining("Access is denied")
+            assertThat(exception).hasMessageContaining("Access Denied")
         }
 
     companion object {

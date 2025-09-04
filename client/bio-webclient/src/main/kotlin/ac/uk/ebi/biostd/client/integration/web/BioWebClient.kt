@@ -44,7 +44,7 @@ class BioWebClient internal constructor(
             token: String,
             onBehalf: String? = null,
         ): WebClient {
-            val uriBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+            val uriBuilder = UriComponentsBuilder.fromUriString(baseUrl)
             onBehalf?.let { uriBuilder.queryParam(ON_BEHALF_PARAM, onBehalf) }
 
             return webClientBuilder(baseUrl)

@@ -1,10 +1,11 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.ManyToMany
-import javax.persistence.Table
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = "UserGroup")
@@ -14,7 +15,7 @@ class DbUserGroup(
     var secret: String,
 ) {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
 
     @ManyToMany(mappedBy = "groups")

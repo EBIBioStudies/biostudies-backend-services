@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.files.web
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import jakarta.servlet.http.HttpServletRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,7 +12,6 @@ import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
-import javax.servlet.http.HttpServletRequest
 
 private const val API_PATH = "http://localhost:8080/biostd/files"
 
@@ -61,7 +61,8 @@ class PathDescriptorResolverTest(
     ) {
         every { mockHttpServletRequest.requestURL } returns StringBuffer(request)
 
-        val descriptor = testInstance.resolveArgument(mockParameter, mockMavContainer, mockWebRequest, mockBinderFactory)
+        val descriptor =
+            testInstance.resolveArgument(mockParameter, mockMavContainer, mockWebRequest, mockBinderFactory)
 
         assertThat(descriptor).isInstanceOf(PathDescriptor::class.java)
         assertThat((descriptor as PathDescriptor).path).isEqualTo(expectedPath)

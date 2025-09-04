@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.format.FormatterRegistry
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
@@ -28,7 +28,7 @@ import java.time.Clock
 
 @Configuration
 @Suppress("MagicNumber")
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 internal class WebConfig(
     private val serializationService: SerializationService,
     private val extSerializationService: ExtSerializationService,

@@ -118,7 +118,7 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: Set<RequestStatus>,
     ): DocSubmissionRequest?
 
-    @Query(value = "{ 'status': { \$in: ?0 } }", fields = "{ 'accNo' : 1, 'version' : 1 }")
+    @Query(value = "{ 'status': { \$in: ?0 } }", fields = "{ 'accNo' : 1, 'version' : 1}")
     fun findByStatusIn(status: Set<RequestStatus>): Flow<SubIdentifier>
 
     @Query(
