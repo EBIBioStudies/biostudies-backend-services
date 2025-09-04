@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPageTabCopyPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -550,8 +550,8 @@ class SpecialSubmissionAttributesTest(
                 checkReviewInfoIsHidden(pageTabFiles.second)
 
                 // Verify page tab copy contains the full pagetab with all the authors/organizations info
-                val jsonCopyFile = submissionPageTabCopyPath.resolve("${savedSubmission.relPath}/S-STBL129.json")
-                assertThat(jsonCopyFile).hasContent(
+                val jsonFallback = pageTabFallbackPath.resolve("${savedSubmission.relPath}/S-STBL129.json")
+                assertThat(jsonFallback).hasContent(
                     """
                     {
                       "accno" : "S-STBL129",
@@ -600,8 +600,8 @@ class SpecialSubmissionAttributesTest(
                     """.trimIndent(),
                 )
 
-                val tsvCopyFile = submissionPageTabCopyPath.resolve("${savedSubmission.relPath}/S-STBL129.tsv")
-                assertThat(tsvCopyFile).hasContent(
+                val tsvFallback = pageTabFallbackPath.resolve("${savedSubmission.relPath}/S-STBL129.tsv")
+                assertThat(tsvFallback).hasContent(
                     """
                     Submission	S-STBL129
                     ReviewType	DoubleBlind

@@ -58,6 +58,13 @@ object DocLinkListFields {
     const val LINK_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
 }
 
+object DocSubmissionFileFields {
+    const val DOC_SUB_FILE_ID = "_id"
+    const val DOC_SUB_FILE_SUBMISSION_ACC_NO = "submissionAccNo"
+    const val DOC_SUB_FILE_SUBMISSION_VERSION = "submissionVersion"
+    const val DOC_SUB_FILE_FILE = "file"
+}
+
 object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_ID = "_id"
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
@@ -143,6 +150,7 @@ object DocSubmissionFields {
     const val SUB_RELEASED = "released"
     const val SUB_SECRET_KEY = "secretKey"
     const val SUB_RELEASE_TIME = "releaseTime"
+    const val SUB_SUBMISSION_TIME = "submissionTime"
     const val SUB_MODIFICATION_TIME = "modificationTime"
     const val SUB_CREATION_TIME = "creationTime"
     const val SUB_SECTION = "section"
@@ -157,6 +165,7 @@ object DocSubmissionFields {
 }
 
 object DocRequestFields {
+    const val RQT_ID = "_id"
     const val RQT_ACC_NO = "accNo"
     const val RQT_VERSION = "version"
     const val RQT_OWNER = "owner"
@@ -173,7 +182,7 @@ object DocRequestFields {
     const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"
     const val RQT_STATUS_CHANGE_END_TIME = "endTime"
     const val RQT_STATUS_CHANGE_RESULT = "result"
-    const val RQT_PREFERED_SOURCES = "preferredSources"
+    const val RQT_PREFERRED_SOURCES = "preferredSources"
     const val RQT_FILES = "files"
     const val RQT_ON_BEHALF = "onBehalfUser"
 }

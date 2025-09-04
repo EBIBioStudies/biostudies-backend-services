@@ -251,6 +251,8 @@ interface PostProcessOperations {
     suspend fun recalculateStats(accNo: String)
 
     suspend fun copyPageTab(accNo: String)
+
+    suspend fun indexInnerFiles(accNo: String)
 }
 
 interface PermissionOperations {

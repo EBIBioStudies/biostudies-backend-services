@@ -24,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMISSION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
@@ -99,18 +100,19 @@ internal class DatabaseChangeLogTest(
                 assertThat(indexes[5]).containsEntry("key", Document("$prefix$SUB_SECTION.$SEC_TYPE", 1))
                 assertThat(indexes[6]).containsEntry("key", Document("$prefix$SUB_RELEASE_TIME", 1))
                 assertThat(indexes[7]).containsEntry("key", Document("$prefix$SUB_RELEASED", 1))
-                assertThat(indexes[8]).containsEntry("key", Document("$prefix$SUB_MODIFICATION_TIME", 1))
-                assertThat(indexes[9]).containsEntry(
+                assertThat(indexes[8]).containsEntry("key", Document("$prefix$SUB_SUBMISSION_TIME", 1))
+                assertThat(indexes[9]).containsEntry("key", Document("$prefix$SUB_MODIFICATION_TIME", 1))
+                assertThat(indexes[10]).containsEntry(
                     "key",
                     Document("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", 1).append(SUB_VERSION, 1),
                 )
-                assertThat(indexes[10]).containsEntry(
+                assertThat(indexes[11]).containsEntry(
                     "key",
                     Document("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", 1)
                         .append("$prefix$SUB_VERSION", 1)
                         .append("$prefix$STORAGE_MODE", 1),
                 )
-                assertThat(indexes[11]).contains(
+                assertThat(indexes[12]).contains(
                     SimpleEntry(
                         "weights",
                         Document("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME", 1)
@@ -129,7 +131,7 @@ internal class DatabaseChangeLogTest(
                         .toList()
 
                 assertThat(mongoTemplate.collectionExists<DocSubmission>().awaitSingle()).isTrue()
-                assertThat(submissionIndexes).hasSize(12)
+                assertThat(submissionIndexes).hasSize(13)
 
                 assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertSubmissionCoreIndexes(indexes = submissionIndexes)
@@ -143,14 +145,14 @@ internal class DatabaseChangeLogTest(
                         .asFlow()
                         .toList()
                 assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>().awaitSingle()).isTrue()
-                assertThat(requestIndexes).hasSize(16)
+                assertThat(requestIndexes).hasSize(17)
 
                 assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertSubmissionCoreIndexes("$RQT_PROCESS.$SUB.", indexes = requestIndexes)
-                assertThat(requestIndexes[12]).containsEntry("key", Document(SUB_ACC_NO, 1))
-                assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-                assertThat(requestIndexes[14]).containsEntry("key", Document(RQT_STATUS, 1))
-                assertThat(requestIndexes[15]).containsEntry(
+                assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1))
+                assertThat(requestIndexes[14]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+                assertThat(requestIndexes[15]).containsEntry("key", Document(RQT_STATUS, 1))
+                assertThat(requestIndexes[16]).containsEntry(
                     "key",
                     Document(RQT_STATUS, 1).append(RQT_MODIFICATION_TIME, 1),
                 )

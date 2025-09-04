@@ -30,7 +30,7 @@ data class DocSubmissionRequest(
 ) {
     fun asUpsert(): Update =
         Update()
-            .setOnInsert("_id", id)
+            .setOnInsert(DocRequestFields.RQT_ID, id)
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_OWNER, owner)
             .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
@@ -39,7 +39,7 @@ data class DocSubmissionRequest(
             .set(DocRequestFields.RQT_ERRORS, errors)
             .set(DocRequestFields.RQT_PROCESS, process)
             .set(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
-            .set(DocRequestFields.RQT_PREFERED_SOURCES, preferredSources)
+            .set(DocRequestFields.RQT_PREFERRED_SOURCES, preferredSources)
             .set(DocRequestFields.RQT_FILES, files)
             .set(DocRequestFields.RQT_ON_BEHALF, onBehalfUser)
 }

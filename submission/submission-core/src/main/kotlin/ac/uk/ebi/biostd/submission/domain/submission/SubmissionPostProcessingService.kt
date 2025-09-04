@@ -6,12 +6,16 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PersistedExtFile
+import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -19,6 +23,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
+import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.time.Instant
@@ -27,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 class SubmissionPostProcessingService(
     private val pageTabService: PageTabService,
     private val statsDataService: StatsDataService,
@@ -34,6 +40,7 @@ class SubmissionPostProcessingService(
     private val subFolderResolver: SubmissionFolderResolver,
     private val serializationService: ExtSerializationService,
     private val extSubQueryService: SubmissionPersistenceQueryService,
+    private val submissionFileRepository: SubmissionFilesDocDataRepository,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
@@ -41,18 +48,31 @@ class SubmissionPostProcessingService(
         return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
     }
 
-    suspend fun copyPageTabFiles(accNo: String): List<ExtFile> {
+    suspend fun generateFallbackPageTabFiles(accNo: String): List<ExtFile> {
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
-        return copyPageTabFiles(sub)
+        return generateFallbackPageTabFiles(sub)
+    }
+
+    suspend fun indexSubmissionInnerFiles(accNo: String) {
+        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+        indexSubmissionInnerFiles(sub)
     }
 
     suspend fun postProcess(accNo: String) {
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
-        copyPageTabFiles(sub)
+        generateFallbackPageTabFiles(sub)
+        indexSubmissionInnerFiles(sub)
         calculateStats(sub)
     }
 
-    private suspend fun copyPageTabFiles(sub: ExtSubmission): List<ExtFile> {
+    private suspend fun indexSubmissionInnerFiles(submission: ExtSubmission) {
+        submission
+            .allSectionsFiles
+            .map { DocSubmissionFile(ObjectId(), it.toDocFile(), submission.accNo, submission.version) }
+            .forEach { submissionFileRepository.save(it) }
+    }
+
+    private suspend fun generateFallbackPageTabFiles(sub: ExtSubmission): List<ExtFile> {
         logger.info { "Started copying pagetab files for submission ${sub.accNo}, version ${sub.version}" }
         val copiedFiles =
             with(Dispatchers.IO) {

@@ -89,6 +89,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_RELEASED] = RELEASED
         subDocument[DocSubmissionFields.SUB_SECRET_KEY] = SECRET_KEY
         subDocument[DocSubmissionFields.SUB_RELEASE_TIME] = subReleaseTime
+        subDocument[DocSubmissionFields.SUB_SUBMISSION_TIME] = submissionTime
         subDocument[DocSubmissionFields.SUB_MODIFICATION_TIME] = subModificationTime
         subDocument[DocSubmissionFields.SUB_CREATION_TIME] = subCreationTime
         subDocument[DocSubmissionFields.SUB_SECTION] = sectionDocument
@@ -116,6 +117,7 @@ internal class DocSubmissionConverterTest(
     companion object {
         private val subId = ObjectId(1, 1)
         private val subReleaseTime: Date = Date(110)
+        private val submissionTime: Date = Date(120)
         private val subModificationTime: Date = Date(220)
         private val subCreationTime: Date = Date(330)
 

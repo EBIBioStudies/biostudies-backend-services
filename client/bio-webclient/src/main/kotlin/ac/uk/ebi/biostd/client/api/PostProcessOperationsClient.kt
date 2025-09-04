@@ -26,7 +26,15 @@ class PostProcessOperationsClient(
     override suspend fun copyPageTab(accNo: String) {
         client
             .post()
-            .uri("$EXT_SUBMISSIONS_URL/$accNo/post-process/copy-pagetab")
+            .uri("$EXT_SUBMISSIONS_URL/$accNo/post-process/fallback-pagetab")
+            .retrieve()
+            .awaitBodilessEntity()
+    }
+
+    override suspend fun indexInnerFiles(accNo: String) {
+        client
+            .post()
+            .uri("$EXT_SUBMISSIONS_URL/$accNo/post-process/inner-files")
             .retrieve()
             .awaitBodilessEntity()
     }

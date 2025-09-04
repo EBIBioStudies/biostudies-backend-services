@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMISSION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
@@ -73,22 +74,24 @@ suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmission
  * 5. Root Section Type
  * 6. Release Time
  * 7. Released
- * 8. Modification Time
- * 9. Collection AccNo , Submission version
- * 10. Collection AccNo , Submission Version, Submission Storage Mode
- * 11. (Text Index) Submission Title, Submission Attributes, Section Attributes
+ * 8. Submission Time
+ * 9. Modification Time
+ * 10. Collection AccNo, Submission version
+ * 11. Collection AccNo, Submission Version, Submission Storage Mode
+ * 12. (Text Index) Submission Title, Submission Attributes, Section Attributes
  */
 private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
-        createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
-        createIndex(
+        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMISSION_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(
             backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC),
         ).awaitSingleOrNull()
         createIndex(
@@ -112,7 +115,7 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
  * submission_requests collection Indexes
  * 1. AccNo
  * 2. AccNo - Version
- * 3. All submission index over internal submission.
+ * 3. All submission indexes over internal submission.
  */
 suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
     ensureSubmissionIndexes<DocSubmissionRequest>("$RQT_PROCESS.$SUB.")

@@ -149,7 +149,7 @@ app:
     includeSecretKey: # Boolean flag to indicate whether the secret key should be added to the private submission path
     nfsReleaseMode: # Method used to release files for NFS submissions. Valid values are: MOVE, HARD_LINKS
 
-    pageTabSubmissionPath: # Path where NFS copy of submission pagetab files are stored.
+    pageTabFallbackPath: # NFS path where the submission pagetab fallback files are generated.
     privateSubmissionsPath: # Absolute path to the folder to be used as storage for private submissions
     privateSubmissionFtpOutPath: # Relative ftp path to the folder to be used as storage for private submissions
     publicSubmissionsPath: # Absolute path to the folder to be used as storage for public submissions
