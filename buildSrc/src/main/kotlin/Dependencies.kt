@@ -1,15 +1,10 @@
-import TestVersions.AssertJVersion
 import TestVersions.AwaitilityVersion
 import TestVersions.FtpServerVersion
 import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
-import TestVersions.Junit5PioneerVersion
-import TestVersions.JunitEngineVersion
 import TestVersions.JunitExtensionsVersion
-import TestVersions.JunitVersion
 import TestVersions.MockKVersion
-import TestVersions.Slf4jVersion
 import TestVersions.TestContainerS3mockVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
@@ -46,10 +41,6 @@ import Versions.ZeroAllocationHashingVersion
 import Versions.ZipUtilVersion
 
 object TestVersions {
-    const val AssertJVersion = "3.25.3"
-    const val JunitVersion = "5.10.2"
-    const val JunitEngineVersion = "1.10.2"
-    const val Junit5PioneerVersion = "2.2.0"
     const val JunitExtensionsVersion = "2.3.0"
     const val MockKVersion = "1.13.11"
     const val XmlUnitVersion = "2.6.2"
@@ -60,7 +51,6 @@ object TestVersions {
     const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
-    const val Slf4jVersion = "2.0.7"
 }
 
 object Versions {
@@ -99,14 +89,14 @@ object Versions {
 }
 
 object TestDependencies {
-    const val AssertJ = "org.assertj:assertj-core:$AssertJVersion"
+    const val AssertJ = "org.assertj:assertj-core"
     const val MockK = "io.mockk:mockk:$MockKVersion"
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
     const val KotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KotlinCoroutinesVersion"
 
-    const val Junit5Pioneer = "org.junit-pioneer:junit-pioneer:$Junit5PioneerVersion"
-    const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
-    const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
+    const val Junit5Pioneer = "org.junit-pioneer:junit-pioneer"
+    const val Junit5Console = "org.junit.platform:junit-platform-console"
+    const val Junit = "org.junit.jupiter:junit-jupiter"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
 
     val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
@@ -123,7 +113,7 @@ object TestDependencies {
 
     const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
     const val FtpServer = "org.apache.ftpserver:ftpserver:$FtpServerVersion"
-    const val slf4jApi = "org.slf4j:slf4j-api:$Slf4jVersion"
+    const val slf4jApi = "org.slf4j:slf4j-api"
 
     // Json/Http
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
