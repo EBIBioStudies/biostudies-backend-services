@@ -2,6 +2,10 @@ logging:
   level:
     root: info
 
+server:
+  tomcat:
+    max-part-count: 2000
+
 spring:
   datasource:
   jpa:
