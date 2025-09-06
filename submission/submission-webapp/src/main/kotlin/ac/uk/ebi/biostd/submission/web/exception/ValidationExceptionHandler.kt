@@ -48,6 +48,6 @@ class ValidationExceptionHandler {
     @ExceptionHandler(InvalidFileListException::class)
     fun handleRuntime(exception: InvalidFileListException): ValidationTree {
         logger.error(exception) {}
-        return ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
+        return ValidationTree(FAIL, ValidationNode(ERROR, exception.message))
     }
 }

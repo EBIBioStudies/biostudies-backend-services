@@ -55,7 +55,6 @@ import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.slf4jApi
-import TestDependencies.slf4jImp
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -76,9 +75,13 @@ dependencyManagement {
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.Embeddable")
-    annotation("javax.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
+}
+
+configurations.all {
+    exclude(group = "org.slf4j", module = "slf4j-reload4j")
 }
 
 dependencies {
@@ -131,7 +134,6 @@ dependencies {
     testImplementation(Wiremock)
 
     testImplementation(slf4jApi)
-    testImplementation(slf4jImp)
     testImplementation(FtpServer)
 
     testImplementation(KotlinXmlBuilder)

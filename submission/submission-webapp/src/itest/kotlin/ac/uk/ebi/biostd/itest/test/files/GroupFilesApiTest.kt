@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig
@@ -37,11 +38,11 @@ class GroupFilesApiTest(
     @BeforeAll
     fun init() =
         runTest {
-            securityTestService.ensureUserRegistration(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+            securityTestService.ensureUserRegistration(SuperUserGroup)
+            webClient = getWebClient(serverPort, SuperUserGroup)
 
             val group = webClient.createGroup(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION)
-            webClient.addUserInGroup(group.name, SuperUser.email)
+            webClient.addUserInGroup(group.name, SuperUserGroup.email)
         }
 
     @Test
@@ -96,5 +97,16 @@ class GroupFilesApiTest(
         )
         assertThat(resultFile.size).isEqualTo(file.length())
         assertThat(file).hasContent(downloadFile.readText())
+    }
+
+    /**
+     * Used to prevent group affecting other test as for example it is included as file source.
+     */
+    object SuperUserGroup : TestUser {
+        override val username = "Super User"
+        override val email = "biostudies-mgmt-group@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
+        override val storageMode = StorageMode.NFS
     }
 }

@@ -2,6 +2,10 @@ logging:
   level:
     root: info
 
+server:
+  tomcat:
+    max-part-count: 2000
+
 spring:
   datasource:
   jpa:
@@ -9,7 +13,6 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      use-new-id-generator-mappings: false
 
   servlet:
     multipart:
@@ -28,12 +31,8 @@ spring:
 
 app:
   processId: Biostudies-Itest
-  asyncMode: false
   retrySubmission: false
-  submissionPath:
-  ftpPath:
-  tempDirPath:
-  requestFilesPath:
+  asyncMode: false
   instanceBaseUrl: http://localhost:8080
   consumers: 1
   maxConsumers: 2

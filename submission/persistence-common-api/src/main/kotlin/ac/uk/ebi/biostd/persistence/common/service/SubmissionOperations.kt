@@ -113,14 +113,10 @@ interface SubmissionLinksPersistenceService {
     ): Flow<ExtLink>
 }
 
-interface SubIdentifier {
-    val accNo: String
-    val version: Int
-
-    operator fun component1() = accNo
-
-    operator fun component2() = version
-}
+data class SubIdentifier(
+    val accNo: String,
+    val version: Int,
+)
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.client.exception
 
 import org.json.JSONObject
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.bodyToMono
@@ -10,7 +11,7 @@ import reactor.core.publisher.Mono
 fun bioWebClientErrorHandler(): ExchangeFilterFunction {
     fun errorMessage(
         responseBody: String,
-        status: HttpStatus,
+        status: HttpStatusCode,
     ) = when (status) {
         HttpStatus.NOT_FOUND -> "Connection Error: The provided server is invalid"
         HttpStatus.UNAUTHORIZED -> "Authentication Error: Invalid email address or password"

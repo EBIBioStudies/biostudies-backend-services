@@ -1,10 +1,8 @@
 package ac.uk.ebi.biostd.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "app")
-@ConstructorBinding
 data class ApplicationProperties(
     val processId: String,
     val retrySubmission: Boolean,

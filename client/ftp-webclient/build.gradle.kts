@@ -9,14 +9,16 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.FtpServer
 import TestDependencies.Junit5Pioneer
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1" apply false
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
     `java-test-fixtures`
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsUtil))
     implementation(KotlinStdLib)
     implementation(KotlinLogging)

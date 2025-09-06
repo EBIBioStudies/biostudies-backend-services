@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.files.web
 
 import ebi.ac.uk.base.remove
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -8,7 +9,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
-import javax.servlet.http.HttpServletRequest
 
 internal val userPath = ".*/user".toRegex()
 internal val groupPath = ".*/groups/[\\w'-]+/?".toRegex()
@@ -36,4 +36,6 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
     private fun getPath(webRequest: HttpServletRequest) = URLDecoder.decode(webRequest.requestURL.toString(), UTF_8.name())
 }
 
-class PathDescriptor(val path: String)
+class PathDescriptor(
+    val path: String,
+)

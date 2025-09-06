@@ -32,9 +32,10 @@ allprojects {
                     freeCompilerArgs +
                     arrayOf(
                         // "-Xdebug", // uncoment to avoid variables to be optimized out
+                        // "-Xextended-compiler-checks", // uncomend to get extra compilation check on classpath errros
+                        "-java-parameters",
                         "-Xjvm-default=all",
                         "-opt-in=kotlin.RequiresOptIn",
-                        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                     )
             }
         }

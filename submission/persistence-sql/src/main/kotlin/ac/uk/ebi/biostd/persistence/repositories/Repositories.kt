@@ -10,11 +10,11 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
-import javax.persistence.LockModeType
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
     fun findByName(name: String): DbAccessTag?

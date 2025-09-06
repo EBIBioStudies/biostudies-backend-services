@@ -1,17 +1,12 @@
-import TestVersions.AssertJVersion
 import TestVersions.AwaitilityVersion
 import TestVersions.FtpServerVersion
 import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
 import TestVersions.Junit5PioneerVersion
-import TestVersions.JunitEngineVersion
 import TestVersions.JunitExtensionsVersion
-import TestVersions.JunitVersion
 import TestVersions.MockKVersion
-import TestVersions.Slf4jVersion
 import TestVersions.TestContainerS3mockVersion
-import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
@@ -35,7 +30,6 @@ import Versions.Log4JVersion
 import Versions.MySqlVersion
 import Versions.OkHttpVersion
 import Versions.PoiVersion
-import Versions.ReactorNettyVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3KVersion
@@ -48,22 +42,17 @@ import Versions.ZeroAllocationHashingVersion
 import Versions.ZipUtilVersion
 
 object TestVersions {
-    const val AssertJVersion = "3.25.3"
-    const val JunitVersion = "5.10.2"
-    const val JunitEngineVersion = "1.10.2"
-    const val Junit5PioneerVersion = "2.2.0"
-    const val JunitExtensionsVersion = "2.3.0"
+    const val JunitExtensionsVersion = "2.6.0"
+    const val Junit5PioneerVersion = "2.3.0"
     const val MockKVersion = "1.13.11"
     const val XmlUnitVersion = "2.6.2"
     const val JaxbApiVersion = "2.3.1"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
-    const val WiremockVersion = "2.27.2"
-    const val TestContainerVersion = "1.16.2"
+    const val WiremockVersion = "3.13.1"
     const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
-    const val Slf4jVersion = "2.0.7"
 }
 
 object Versions {
@@ -99,18 +88,17 @@ object Versions {
     const val Log4JVersion = "1.7.29"
     const val ZipUtilVersion = "1.15"
     const val ZeroAllocationHashingVersion = "0.16"
-    const val ReactorNettyVersion = "1.1.8"
 }
 
 object TestDependencies {
-    const val AssertJ = "org.assertj:assertj-core:$AssertJVersion"
+    const val AssertJ = "org.assertj:assertj-core"
     const val MockK = "io.mockk:mockk:$MockKVersion"
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
     const val KotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KotlinCoroutinesVersion"
 
     const val Junit5Pioneer = "org.junit-pioneer:junit-pioneer:$Junit5PioneerVersion"
-    const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
-    const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
+    const val Junit5Console = "org.junit.platform:junit-platform-console"
+    const val Junit = "org.junit.jupiter:junit-jupiter"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
 
     val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
@@ -127,21 +115,20 @@ object TestDependencies {
 
     const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
     const val FtpServer = "org.apache.ftpserver:ftpserver:$FtpServerVersion"
-    const val slf4jApi = "org.slf4j:slf4j-api:$Slf4jVersion"
-    const val slf4jImp = "org.slf4j:slf4j-reload4j:$Slf4jVersion"
+    const val slf4jApi = "org.slf4j:slf4j-api"
 
     // Json/Http
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
     const val JsonAssert = "org.skyscreamer:jsonassert:$JsonAssertVersion"
-    const val Wiremock = "com.github.tomakehurst:wiremock-jre8:$WiremockVersion"
+    const val Wiremock = "org.wiremock:wiremock-standalone:$WiremockVersion"
 
     // Test Containers
-    const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
-    const val TestContainerRabbitMq = "org.testcontainers:rabbitmq:$TestContainerVersion"
+    const val TestContainerMysql = "org.testcontainers:mysql"
+    const val TestContainerRabbitMq = "org.testcontainers:rabbitmq"
     const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerS3mockVersion"
-    const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
-    const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
-    const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"
+    const val TestContainerMongoDb = "org.testcontainers:mongodb"
+    const val TestContainer = "org.testcontainers:testcontainers"
+    const val TestContainerJUnit = "org.testcontainers:junit-jupiter"
 }
 
 object Dependencies {
@@ -157,7 +144,7 @@ object Dependencies {
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
     const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpVersion"
-    const val ReactorNetty = "io.projectreactor.netty:reactor-netty:$ReactorNettyVersion"
+    const val ReactorNetty = "io.projectreactor.netty:reactor-netty"
 
     // Persistence
     const val MySql = "com.mysql:mysql-connector-j:$MySqlVersion"
@@ -167,7 +154,7 @@ object Dependencies {
     const val HttpClientCrt = "aws.smithy.kotlin:http-client-engine-crt-jvm:$HttpCrtVersion"
     const val OkHttp3 = "com.squareup.okhttp3:okhttp:$OkHttpVersion"
     const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
-    const val ServletApi = "javax.servlet:javax.servlet-api"
+    const val ServletApi = "jakarta.servlet:jakarta.servlet-api"
     const val Logback = "ch.qos.logback:logback-classic"
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"
     const val Guava = "com.google.guava:guava:$GuavaVersion"
@@ -178,7 +165,7 @@ object Dependencies {
     const val SpringfoxSwagger = "io.springfox:springfox-swagger2:$SpringfoxSwaggerVersion"
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
-    const val JavaValidationApi = "javax.validation:validation-api"
+    const val JavaValidationApi = "jakarta.validation:jakarta.validation-api"
     const val ZipUtil = "org.zeroturnaround:zt-zip:$ZipUtilVersion"
     const val ZeroAllocationHashing = "net.openhft:zero-allocation-hashing:$ZeroAllocationHashingVersion"
 
