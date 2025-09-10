@@ -98,13 +98,13 @@ class FilesSourceListBuilder(
         fun submissionSource(): FilesSource =
             when (folderType) {
                 FolderType.NFS -> {
-                    val nfsSubPath = folderResolver.getSubmisisonFolder(submission, FolderType.NFS).resolve(FILES_PATH)
+                    val nfsSubPath = folderResolver.getSubmissionFolder(submission, FolderType.NFS).resolve(FILES_PATH)
                     PathSource("Previous version files [File System]", nfsSubPath)
                 }
 
                 FolderType.FTP -> {
-                    val ftpUrl = folderResolver.getSubmisisonFolder(submission, FolderType.FTP).resolve(FILES_PATH)
-                    val nfsPath = folderResolver.getSubmisisonFolder(submission, FolderType.NFS).resolve(FILES_PATH)
+                    val ftpUrl = folderResolver.getSubmissionFolder(submission, FolderType.FTP).resolve(FILES_PATH)
+                    val nfsPath = folderResolver.getSubmissionFolder(submission, FolderType.NFS).resolve(FILES_PATH)
 
                     logger.info {
                         "Adding submission ftp files source in " +

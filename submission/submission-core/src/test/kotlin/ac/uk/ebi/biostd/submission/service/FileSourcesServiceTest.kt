@@ -47,7 +47,7 @@ class FileSourcesServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { folderResolver.getSubmisisonFolder(extSubmission, FolderType.NFS) } returns subFolder.toPath()
+        every { folderResolver.getSubmissionFolder(extSubmission, FolderType.NFS) } returns subFolder.toPath()
     }
 
     @Test

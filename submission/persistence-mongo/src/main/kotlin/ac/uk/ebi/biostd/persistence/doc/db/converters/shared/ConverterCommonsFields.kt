@@ -190,6 +190,7 @@ object DocRequestFields {
 object DocStatsFields {
     const val STATS_ACC_NO = "accNo"
     const val STATS_STATS_MAP = "stats"
+    const val STATS_COLLECTIONS = "collections"
     const val STATS_LAST_UPDATED = "lastUpdated"
     const val STATS_FILE_SIZE = "FILES_SIZE"
     const val STATS_DIRECTORIES = "DIRECTORIES"

@@ -36,10 +36,6 @@ class TestConfig {
             accessTagDataRepo,
         )
 
-    @Bean
-    fun submissionTestService(submissionRepository: SubmissionPersistenceQueryService): SubmissionTestService =
-        SubmissionTestService(submissionRepository)
-
     @Bean(name = ["TestCollectionValidator"])
     fun testCollectionValidator(): TestCollectionValidator = TestCollectionValidator()
 

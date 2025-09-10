@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStats
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_LAST_UPDATED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STATS_MAP
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
@@ -121,6 +122,7 @@ class StatsMongoDataService(
 
     override suspend fun saveAll(
         accNo: String,
+        collections: List<String>,
         stats: List<SubmissionStat>,
     ): BulkWriteResult {
         val upserts =
@@ -129,6 +131,7 @@ class StatsMongoDataService(
                     UpdateOneModel<Document>(
                         Filters.eq("accNo", it.accNo),
                         listOf(
+                            Updates.set(STATS_COLLECTIONS, collections),
                             Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
                             Updates.set(STATS_LAST_UPDATED, Instant.now()),
                         ),
@@ -140,9 +143,8 @@ class StatsMongoDataService(
 
     override suspend fun lastUpdated(accNo: String): Instant? = statsDataRepository.findByAccNo(accNo)?.lastUpdated
 
-    override suspend fun cleanStatsByAccNo(accNo: String) {
-        val stats = statsDataRepository.getByAccNo(accNo)
-        statsDataRepository.save(stats.copy(stats = emptyMap(), lastUpdated = null))
+    override suspend fun deleteStatsByAccNo(accNo: String) {
+        statsDataRepository.deleteAllByAccNo(accNo)
     }
 
     override suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult {

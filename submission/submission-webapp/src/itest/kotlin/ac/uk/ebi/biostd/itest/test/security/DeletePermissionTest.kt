@@ -5,19 +5,25 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.common.SubmissionTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.itest.test.security.SubmitPermissionTest.ExistingUser
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.isEmpty
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -31,16 +37,18 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Duration.ofMillis
+import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeletePermissionTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val submissionTestService: SubmissionTestService,
-    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val statsDataService: StatsDataService,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired private val submissionRepository: SubmissionPersistenceQueryService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superUserWebClient: BioWebClient
     private lateinit var regularUserWebClient: BioWebClient
@@ -57,6 +65,20 @@ class DeletePermissionTest(
             regularUserWebClient = getWebClient(serverPort, RegularUser)
             existingUserWebClient = getWebClient(serverPort, ExistingUser)
         }
+
+    private suspend fun verifyDeleted(accNo: String) {
+        waitUntil(
+            timeout = ofSeconds(60),
+            checkInterval = ofMillis(200),
+        ) {
+            submissionRepository.existActiveByAccNo(accNo).not()
+            statsDataService.findStatsByAccNo(accNo).isEmpty()
+
+            val deleted = submissionRepository.getExtByAccNoAndVersion(accNo, -1)
+            submissionPath.resolve(deleted.relPath).isEmpty()
+            pageTabFallbackPath.resolve(deleted.relPath).isEmpty()
+        }
+    }
 
     @Nested
     inner class SuperuserCases {
@@ -114,21 +136,27 @@ class DeletePermissionTest(
                         line("Submission", "S-DLT121")
                         line("Title", "Delete Submission 121")
                         line()
+                        line("File", "test-file1.txt")
+                        line()
                     }.toString()
                 val submission2 =
                     tsv {
                         line("Submission", "S-DLT122")
                         line("Title", "Delete Submission 122")
                         line()
+                        line("File", "test-file2.txt")
+                        line()
                     }.toString()
 
+                superUserWebClient.uploadFile(tempFolder.createFile("test-file1.txt"))
+                superUserWebClient.uploadFile(tempFolder.createFile("test-file2.txt"))
                 assertThat(superUserWebClient.submit(submission1, TSV)).isSuccessful()
                 assertThat(superUserWebClient.submit(submission2, TSV)).isSuccessful()
 
                 superUserWebClient.deleteSubmissions(listOf("S-DLT121", "S-DLT122"))
 
-                submissionTestService.verifyDeleted("S-DLT121")
-                submissionTestService.verifyDeleted("S-DLT122")
+                verifyDeleted("S-DLT121")
+                verifyDeleted("S-DLT122")
             }
 
         @Test
@@ -228,7 +256,7 @@ class DeletePermissionTest(
 
                 assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
                 regularUserWebClient.deleteSubmission("S-DLT10")
-                submissionTestService.verifyDeleted("S-DLT10")
+                verifyDeleted("S-DLT10")
             }
     }
 
@@ -263,7 +291,7 @@ class DeletePermissionTest(
                 superUserWebClient.grantPermission(RegularUser.email, "ACollection", DELETE.name)
 
                 regularUserWebClient.deleteSubmission("S-DLT5")
-                submissionTestService.verifyDeleted("S-DLT5")
+                verifyDeleted("S-DLT5")
             }
 
         @Test
@@ -281,7 +309,7 @@ class DeletePermissionTest(
                 assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(RegularUser.email, "ACollection", DELETE.name)
                 regularUserWebClient.deleteSubmission("S-DLT6")
-                submissionTestService.verifyDeleted("S-DLT6")
+                verifyDeleted("S-DLT6")
             }
 
         @Test

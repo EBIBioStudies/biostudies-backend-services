@@ -51,11 +51,11 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionPostProcessingTest(
-    @Autowired val statsDataService: StatsDataService,
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val submissionFilesDocDataRepository: SubmissionFilesDocDataRepository,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val statsDataService: StatsDataService,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val submissionFilesDocDataRepository: SubmissionFilesDocDataRepository,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -222,8 +222,8 @@ class SubmissionPostProcessingTest(
             val original1 = statsDataService.findByAccNo(accNo)
             val original2 = statsDataService.findByAccNo(accNo2)
 
-            statsDataService.cleanStatsByAccNo(accNo)
-            statsDataService.cleanStatsByAccNo(accNo2)
+            statsDataService.deleteStatsByAccNo(accNo)
+            statsDataService.deleteStatsByAccNo(accNo2)
 
             webClient.recalculateStats(accNo)
             webClient.recalculateStats(accNo2)
