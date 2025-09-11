@@ -23,7 +23,8 @@ import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.io.ext.isEmpty
+import ebi.ac.uk.io.ext.notExistOrEmpty
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -75,8 +76,10 @@ class DeletePermissionTest(
             statsDataService.findStatsByAccNo(accNo).isEmpty()
 
             val deleted = submissionRepository.getExtByAccNoAndVersion(accNo, -1)
-            submissionPath.resolve(deleted.relPath).isEmpty()
-            pageTabFallbackPath.resolve(deleted.relPath).isEmpty()
+            val subPath = submissionPath.resolve(deleted.relPath)
+            subPath.notExistOrEmpty()
+            subPath.resolve(FILES_PATH).notExistOrEmpty()
+            pageTabFallbackPath.resolve(deleted.relPath).notExistOrEmpty()
         }
     }
 
