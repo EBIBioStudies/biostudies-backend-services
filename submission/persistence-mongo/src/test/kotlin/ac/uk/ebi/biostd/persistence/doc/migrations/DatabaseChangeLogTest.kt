@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
@@ -188,12 +189,13 @@ internal class DatabaseChangeLogTest(
                         .listIndexes()
                         .asFlow()
                         .toList()
-                assertThat(statsIndexes).hasSize(5)
+                assertThat(statsIndexes).hasSize(6)
                 assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(statsIndexes[1]).containsEntry("key", Document(STATS_ACC_NO, 1))
-                assertThat(statsIndexes[2]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
-                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
-                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
+                assertThat(statsIndexes[2]).containsEntry("key", Document(STATS_COLLECTIONS, 1))
+                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
+                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
+                assertThat(statsIndexes[5]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
             }
 
             suspend fun assertRequestFileIndexes() {

@@ -76,7 +76,7 @@ class SubmissionPostProcessingService(
         logger.info { "Started copying pagetab files for submission ${sub.accNo}, version ${sub.version}" }
         val copiedFiles =
             with(Dispatchers.IO) {
-                val expectedPath = subFolderResolver.getCopyPageTabPath(sub)
+                val expectedPath = subFolderResolver.getFallbackPageTabPath(sub)
                 val tabFiles = pageTabService.generatePageTab(sub, false)
                 tabFiles.onEach { fileStorageService.copyFile(it, expectedPath) }
             }
@@ -98,6 +98,7 @@ class SubmissionPostProcessingService(
                 if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
             }
 
+        val collections = sub.collections.map { it.accNo }
         val emptyDirectories = directories.count { hasFiles(it, sub) }
         val stats =
             listOf(
@@ -106,7 +107,7 @@ class SubmissionPostProcessingService(
                 SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
             )
 
-        statsDataService.saveAll(sub.accNo, stats)
+        statsDataService.saveAll(sub.accNo, collections, stats)
         logger.info { "Finished calculating stats for submission ${sub.accNo}, version ${sub.version}" }
     }
 

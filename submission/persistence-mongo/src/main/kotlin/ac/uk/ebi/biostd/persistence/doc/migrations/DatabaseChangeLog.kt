@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
@@ -202,9 +203,10 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
 suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
     indexOps(DocSubmissionStats::class.java).apply {
-        createIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
-        createIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(STATS_COLLECTIONS, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
     }
 }

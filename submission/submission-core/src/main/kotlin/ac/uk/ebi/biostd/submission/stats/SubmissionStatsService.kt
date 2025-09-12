@@ -49,4 +49,6 @@ class SubmissionStatsService(
             modifiedRecords = result.modifiedCount,
         )
     }
+
+    suspend fun deleteByAccNo(accNo: String) = statsDataService.deleteStatsByAccNo(accNo)
 }

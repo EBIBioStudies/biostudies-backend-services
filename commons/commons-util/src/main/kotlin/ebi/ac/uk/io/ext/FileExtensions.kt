@@ -13,6 +13,8 @@ import kotlin.text.Charsets.UTF_8
 
 fun File.notExist() = Files.exists(toPath()).not()
 
+fun File.notExistOrEmpty() = notExist() || isEmpty()
+
 fun File.listFilesOrEmpty(): List<File> = FileUtils.listFiles(this)
 
 fun File.isEmpty(): Boolean = Files.newDirectoryStream(this.toPath()).use { return it.iterator().hasNext().not() }
@@ -67,9 +69,7 @@ fun File.createFile(
 /**
  * Creates a file with the given content in the temporary folder.
  */
-fun File.createFile(fileName: String): File {
-    return newFile(fileName)
-}
+fun File.createFile(fileName: String): File = newFile(fileName)
 
 /**
  * Creates a file with the given name or replaces it if already exists.
