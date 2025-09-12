@@ -19,6 +19,4 @@ interface ExtSubmissionSubmitter {
     )
 
     suspend fun handleManyAsync(submissions: List<SubmissionId>)
-
-    suspend fun refreshAllStats()
 }

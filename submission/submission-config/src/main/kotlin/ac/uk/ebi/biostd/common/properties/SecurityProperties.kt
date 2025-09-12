@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.properties
 
 import ebi.ac.uk.coroutines.RetryConfig
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 
 data class SecurityProperties(
@@ -21,7 +20,6 @@ enum class StorageMode {
     NFS,
 }
 
-@ConstructorBinding
 data class FilesProperties(
     val defaultMode: StorageMode,
     val filesDirPath: String,
@@ -34,7 +32,6 @@ data class FilesProperties(
     val ftpOut: FtpProperties,
 )
 
-@ConstructorBinding
 data class FtpProperties(
     val ftpUser: String,
     val ftpPassword: String,

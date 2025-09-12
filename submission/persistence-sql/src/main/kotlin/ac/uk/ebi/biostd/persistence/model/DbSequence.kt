@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.OneToOne
-import javax.persistence.Table
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
+import jakarta.persistence.Table
 
 const val DEFAULT_SUFFIX = "000null"
 
@@ -18,7 +19,7 @@ class DbSequence(
     val prefix: String,
 ) {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
 
     @OneToOne(cascade = [CascadeType.ALL])

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.files.web.fileListPath
 import ac.uk.ebi.biostd.files.web.groupPath
 import ac.uk.ebi.biostd.files.web.userPath
 import ebi.ac.uk.base.removeFirstOccurrence
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -11,7 +12,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
-import javax.servlet.http.HttpServletRequest
 
 class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == UserPath::class.java

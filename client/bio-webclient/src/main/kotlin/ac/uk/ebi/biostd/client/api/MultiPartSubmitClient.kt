@@ -80,7 +80,7 @@ internal class MultiPartSubmitClient(
                 .awaitSingle()
         return SubmissionResponse(
             body = serializationService.deserializeSubmission(response.body!!, JsonPretty),
-            statusCode = response.statusCodeValue,
+            statusCode = response.statusCode.value(),
         )
     }
 

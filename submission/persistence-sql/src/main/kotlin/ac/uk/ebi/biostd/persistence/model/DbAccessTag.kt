@@ -1,18 +1,19 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessTag
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.util.Objects
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
 
 @Entity
 @Table(name = "AccessTag")
 class DbAccessTag(
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L,
     @Column
     override var name: String,
@@ -23,7 +24,5 @@ class DbAccessTag(
         return Objects.equals(this.name, other.name)
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(this.name)
-    }
+    override fun hashCode(): Int = Objects.hash(this.name)
 }

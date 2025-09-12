@@ -13,8 +13,10 @@ import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
@@ -50,6 +52,8 @@ class SubmissionConfig {
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
         fileStorageService: FileStorageService,
+        submissionStatsService: SubmissionStatsService,
+        folderResolver: SubmissionFolderResolver,
     ): SubmissionService =
         SubmissionService(
             submissionPersistenceQueryService,
@@ -58,6 +62,8 @@ class SubmissionConfig {
             eventsPublisherService,
             submissionPersistenceService,
             fileStorageService,
+            submissionStatsService,
+            folderResolver,
         )
 
     @Bean

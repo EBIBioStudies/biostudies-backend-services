@@ -35,11 +35,6 @@ class ExtSubmissionService(
         version: Int,
     ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
 
-    suspend fun reTriggerSubmissionAsync(
-        accNo: String,
-        version: Int,
-    ): Unit = submissionSubmitter.handleRequestAsync(accNo, version)
-
     suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit = submissionSubmitter.handleManyAsync(submissions)
 
     suspend fun refreshSubmission(
@@ -153,10 +148,6 @@ class ExtSubmissionService(
                 if (queryService.existByAccNo(it.accNo).not()) throw CollectionNotFoundException(it.accNo)
             }
         }
-    }
-
-    suspend fun refreshAllStats() {
-        submissionSubmitter.refreshAllStats()
     }
 }
 

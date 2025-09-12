@@ -6,7 +6,7 @@ import java.nio.file.Path
 const val FILES_PATH = "Files"
 
 interface SubmissionFolderResolver {
-    fun getSubmisisonFolder(
+    fun getSubmissionFolder(
         sub: ExtSubmissionInfo,
         folderType: FolderType,
     ): Path
@@ -22,7 +22,7 @@ interface SubmissionFolderResolver {
         folderType: FolderType = FolderType.NFS,
     ): Path
 
-    fun getCopyPageTabPath(sub: ExtSubmissionInfo): Path
+    fun getFallbackPageTabPath(sub: ExtSubmissionInfo): Path
 }
 
 enum class FolderType {

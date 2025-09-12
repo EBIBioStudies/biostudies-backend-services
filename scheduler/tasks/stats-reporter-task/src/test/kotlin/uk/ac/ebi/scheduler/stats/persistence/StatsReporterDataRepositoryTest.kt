@@ -29,7 +29,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.scheduler.stats.config.PersistenceConfig
 import uk.ac.ebi.scheduler.stats.persistence.StatsReporterDataRepository.Companion.IMAGING_COLLECTION
-import uk.ac.ebi.scheduler.stats.persistence.StatsReporterDataRepository.Companion.STATS_COLLECTION_KEY
 import java.time.Duration.ofSeconds
 import java.time.Instant
 
@@ -37,8 +36,8 @@ import java.time.Instant
 @Testcontainers
 @SpringBootTest(classes = [PersistenceConfig::class])
 class StatsReporterDataRepositoryTest(
-    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
-    @Autowired private val testInstance: StatsReporterDataRepository,
+    @param:Autowired private val mongoTemplate: ReactiveMongoTemplate,
+    @param:Autowired private val testInstance: StatsReporterDataRepository,
 ) {
     @BeforeEach
     fun beforeEach() {
@@ -74,17 +73,20 @@ class StatsReporterDataRepositoryTest(
     }
 
     private fun setUpStats() {
-        fun save(stat: DocSubmissionStats) = mongoTemplate.save(stat, STATS_COLLECTION_KEY).block()
+        val arrayExpress = listOf(AE_COLLECTION)
+        val bioImages = listOf(IMAGING_COLLECTION)
 
-        save(DocSubmissionStats(ObjectId(), accNo = "S-BSST1", mapOf(FILES_SIZE.value to 1, VIEWS.value to 10)))
-        save(DocSubmissionStats(ObjectId(), accNo = "S-BSST2", mapOf(FILES_SIZE.value to 2, VIEWS.value to 12)))
-        save(DocSubmissionStats(ObjectId(), accNo = "S-BSST3", mapOf(FILES_SIZE.value to 3)))
-        save(DocSubmissionStats(ObjectId(), accNo = "S-BIAD1", mapOf(FILES_SIZE.value to 4, VIEWS.value to 11)))
-        save(DocSubmissionStats(ObjectId(), accNo = "S-BIAD2", mapOf(FILES_SIZE.value to 5)))
-        save(DocSubmissionStats(ObjectId(), accNo = "S-BIAD3", mapOf(FILES_SIZE.value to 6)))
-        save(DocSubmissionStats(ObjectId(), accNo = "E-MTAB1", mapOf(FILES_SIZE.value to 7, VIEWS.value to 14)))
-        save(DocSubmissionStats(ObjectId(), accNo = "E-MTAB2", mapOf(FILES_SIZE.value to 8, VIEWS.value to 16)))
-        save(DocSubmissionStats(ObjectId(), accNo = "E-MTAB3", mapOf(FILES_SIZE.value to 9, VIEWS.value to 16)))
+        fun save(
+            accNo: String,
+            stats: Map<String, Long>,
+            collections: List<String> = emptyList(),
+        ) = mongoTemplate.save(DocSubmissionStats(ObjectId(), accNo, stats, collections)).block()
+
+        save(accNo = "S-BSST3", stats = mapOf(FILES_SIZE.value to 3))
+        save(accNo = "S-BIAD1", stats = mapOf(FILES_SIZE.value to 4, VIEWS.value to 11), collections = bioImages)
+        save(accNo = "S-BIAD3", stats = mapOf(FILES_SIZE.value to 6), collections = bioImages)
+        save(accNo = "E-MTAB1", stats = mapOf(FILES_SIZE.value to 7, VIEWS.value to 14), collections = arrayExpress)
+        save(accNo = "E-MTAB2", stats = mapOf(FILES_SIZE.value to 9, VIEWS.value to 16), collections = arrayExpress)
     }
 
     companion object {

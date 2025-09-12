@@ -31,7 +31,7 @@ interface StatsDataService {
     suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult
 
     /**
-     * Save all the given stats that may bellow to a diferent submission.
+     * Save all the given stats that may bellow to a different submission.
      */
     suspend fun saveAll(stats: List<SubmissionStat>): BulkWriteResult
 
@@ -40,10 +40,11 @@ interface StatsDataService {
      */
     suspend fun saveAll(
         accNo: String,
+        collections: List<String>,
         stats: List<SubmissionStat>,
     ): BulkWriteResult
 
     suspend fun lastUpdated(accNo: String): Instant?
 
-    suspend fun cleanStatsByAccNo(accNo: String)
+    suspend fun deleteStatsByAccNo(accNo: String)
 }

@@ -29,6 +29,7 @@ class ConfigurationPropertiesHolder {
         val result = File(this::class.java.getResource("/application.yml")!!.toURI())
         result.createNewFile()
         result.writeText(yaml.dump(finalProperties))
+        println(result.readText())
     }
 
     private fun mergeWith(result: MutableMap<String, Any>): MutableMap<String, Any> {

@@ -25,8 +25,8 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class StatsReporterServiceTest(
     tempFolder: TemporaryFolder,
-    @MockK private val appProperties: ApplicationProperties,
-    @MockK private val statsRepository: StatsReporterDataRepository,
+    @param:MockK private val appProperties: ApplicationProperties,
+    @param:MockK private val statsRepository: StatsReporterDataRepository,
 ) {
     private val publishFolder = tempFolder.createDirectory("publish")
     private val testInstance = StatsReporterService(appProperties, statsRepository)

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.service.SubIdentifier
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -37,6 +38,8 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
         statType: SubmissionStatType,
         pageable: Pageable,
     ): Flow<DocSubmissionStats>
+
+    fun deleteAllByAccNo(accNo: String)
 }
 
 interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
@@ -118,7 +121,7 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: Set<RequestStatus>,
     ): DocSubmissionRequest?
 
-    @Query(value = "{ 'status': { \$in: ?0 } }", fields = "{ 'accNo' : 1, 'version' : 1 }")
+    @Query(value = "{ 'status': { \$in: ?0 } }", fields = "{ 'accNo' : 1, 'version' : 1}")
     fun findByStatusIn(status: Set<RequestStatus>): Flow<SubIdentifier>
 
     @Query(
@@ -188,6 +191,13 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         accNo: String,
         version: Int,
     )
+}
+
+interface SubmissionDocFileRepository : CoroutineCrudRepository<DocSubmissionFile, ObjectId> {
+    suspend fun findAllBySubmissionAccNoAndSubmissionVersion(
+        accNo: String,
+        version: Int,
+    ): Flow<DocSubmissionFile>
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {

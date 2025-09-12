@@ -6,8 +6,11 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.FileUtils.cleanDirectory
 import ebi.ac.uk.model.SubmissionId
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
@@ -24,6 +27,8 @@ class SubmissionService(
     private val eventsPublisher: EventsPublisherService,
     private val submissionPersistenceService: SubmissionPersistenceService,
     private val fileStorageService: FileStorageService,
+    private val submissionStatsService: SubmissionStatsService,
+    private val subFolderResolver: SubmissionFolderResolver,
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.accNo}'" }
@@ -69,8 +74,13 @@ class SubmissionService(
         accNo: String,
         user: String,
     ) {
-        fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
+        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
+        val fallbackPageTab = subFolderResolver.getFallbackPageTabPath(sub).toFile()
+
         submissionPersistenceService.expireSubmission(accNo)
+        cleanDirectory(fallbackPageTab)
+        fileStorageService.deleteSubmissionFiles(sub)
+        submissionStatsService.deleteByAccNo(accNo)
         eventsPublisher.submissionsRefresh(accNo, user)
     }
 

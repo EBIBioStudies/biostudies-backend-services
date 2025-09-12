@@ -29,23 +29,23 @@ suspend fun ReactiveMongoTemplate.executeMigrations() {
     ensureExists(INPUT_FILES_COL)
 
     indexOps(ERRORS_COL).apply {
-        ensureIndex(Index().on(ERROR_SOURCE_FILE, ASC)).awaitFirst()
-        ensureIndex(Index().on(ERROR_MODE, ASC)).awaitFirst()
-        ensureIndex(Index().on(ERROR_ACCNO, ASC)).awaitFirst()
-        ensureIndex(Index().on(ERROR_UPLOADED, ASC)).awaitFirst()
+        createIndex(Index().on(ERROR_SOURCE_FILE, ASC)).awaitFirst()
+        createIndex(Index().on(ERROR_MODE, ASC)).awaitFirst()
+        createIndex(Index().on(ERROR_ACCNO, ASC)).awaitFirst()
+        createIndex(Index().on(ERROR_UPLOADED, ASC)).awaitFirst()
     }
     indexOps(SUBMISSION_COL).apply {
-        ensureIndex(Index().on(SUB_ACC_NO, ASC)).awaitFirst()
-        ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC)).awaitFirst()
-        ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC)).awaitFirst()
-        ensureIndex(Index().on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC)).awaitFirst()
-        ensureIndex(Index().on(SUB_STATUS, ASC)).awaitFirst()
-        ensureIndex(Index().on(SUB_SOURCE_FILE, ASC)).awaitFirst()
-        ensureIndex(Index().on(SUB_SOURCE_TIME, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_ACC_NO, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_STATUS, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_SOURCE_FILE, ASC)).awaitFirst()
+        createIndex(Index().on(SUB_SOURCE_TIME, ASC)).awaitFirst()
 
         indexOps(INPUT_FILES_COL).apply {
-            ensureIndex(Index().on(FILE_DOC_ACC_NO, ASC)).awaitFirst()
-            ensureIndex(Index().on(FILE_DOC_PATH, ASC)).awaitFirst()
+            createIndex(Index().on(FILE_DOC_ACC_NO, ASC)).awaitFirst()
+            createIndex(Index().on(FILE_DOC_PATH, ASC)).awaitFirst()
         }
     }
 }

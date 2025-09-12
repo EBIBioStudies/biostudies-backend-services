@@ -4,16 +4,16 @@ import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
-import javax.servlet.FilterChain
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
-import javax.servlet.http.HttpServletRequest
 
 const val HEADER_NAME = "X-Session-Token"
 const val COOKIE_NAME = "BIOSTDSESS"

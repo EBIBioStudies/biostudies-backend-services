@@ -145,8 +145,6 @@ Contains test related to resubmission
 | SubmissionStatsTest | 26-3    | find stats by type and AccNo                    |
 | SubmissionStatsTest | 26-4    | register stats by file                          |
 | SubmissionStatsTest | 26-5    | increment stats by file                         |
-| SubmissionStatsTest | 26-6    | refresh submission stats                        |
-| SubmissionStatsTest | 26-7    | refresh all submissions stats                   |
 
 ### Async submission Test suite
 
@@ -274,8 +272,10 @@ Contains test related to resubmission
 | SubmissionDatesTest             | 28-11   | Collection Admin make a Regular user public submission private                   |                                                                                               |
 | SubmissionRequestApiTest        | 29-1    | Get submission request status                                                    |                                                                                               |
 | SubmissionRequestApiTest        | 29-2    | Archive submission request                                                       |                                                                                               |
-| SubmissionPostProcessingTest    | 31-1    | submission post processing on FIRE                                               | Verifies: stats calculation, backup pagetab generation on FIRE                                |
-| SubmissionPostProcessingTest    | 31-2    | submission post processing on NFS                                                | Verifies: stats calculation, backup pagetab generation on NFS                                 |
+| SubmissionPostProcessingTest    | 31-1    | submission post processing.                                                      | Verifies: stats calculation, and pagetab copy generation.                                     |
+| SubmissionPostProcessingTest    | 31-2    | refresh submissions stats                                                        |                                                                                               |
+| SubmissionPostProcessingTest    | 31-3    | refresh pagetab fallback files                                                   |                                                                                               |
+| SubmissionPostProcessingTest    | 31-4    | refresh inner submission files                                                   |                                                                                               |
 
 ### Admin Operations Test suite
 

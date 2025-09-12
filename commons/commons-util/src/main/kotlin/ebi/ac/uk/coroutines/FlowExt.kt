@@ -1,5 +1,6 @@
 package ebi.ac.uk.coroutines
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
@@ -20,6 +21,7 @@ fun <T> Flow<T>.every(
             emit(it.value)
         }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <T, R> Flow<T>.concurrently(
     concurrency: Int,
     function: suspend (value: T) -> R,

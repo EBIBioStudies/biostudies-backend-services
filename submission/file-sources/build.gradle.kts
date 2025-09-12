@@ -11,6 +11,7 @@ import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionSecurity
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
@@ -18,6 +19,7 @@ plugins {
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsBio))
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))

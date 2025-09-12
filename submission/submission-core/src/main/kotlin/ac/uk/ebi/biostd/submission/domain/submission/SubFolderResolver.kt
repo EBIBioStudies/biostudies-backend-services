@@ -12,7 +12,7 @@ import java.nio.file.Paths
 internal class SubFolderResolver(
     private val properties: ApplicationProperties,
 ) : SubmissionFolderResolver {
-    override fun getSubmisisonFolder(
+    override fun getSubmissionFolder(
         sub: ExtSubmissionInfo,
         folderType: FolderType,
     ): Path =
@@ -46,8 +46,8 @@ internal class SubFolderResolver(
         }
     }
 
-    override fun getCopyPageTabPath(sub: ExtSubmissionInfo): Path {
-        val basePath = Paths.get(properties.persistence.pageTabSubmissionPath)
+    override fun getFallbackPageTabPath(sub: ExtSubmissionInfo): Path {
+        val basePath = Paths.get(properties.persistence.pageTabFallbackPath)
         return basePath.resolve(sub.relPath)
     }
 

@@ -4,11 +4,13 @@ import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.LinkListDocLinkRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
@@ -50,6 +52,11 @@ class MongoDbReposConfig {
     internal fun submissionRequestFilesDocDataRepository(
         submissionRequestFilesRepository: SubmissionRequestFilesRepository,
     ): SubmissionRequestFilesDocDataRepository = SubmissionRequestFilesDocDataRepository(submissionRequestFilesRepository)
+
+    @Bean
+    internal fun submissionFilesDocDataRepository(
+        submissionDocFileRepository: SubmissionDocFileRepository,
+    ): SubmissionFilesDocDataRepository = SubmissionFilesDocDataRepository(submissionDocFileRepository)
 
     @Bean
     internal fun fileListDocFileDocDataRepository(fileListDocFileRepository: FileListDocFileRepository): FileListDocFileDocDataRepository =

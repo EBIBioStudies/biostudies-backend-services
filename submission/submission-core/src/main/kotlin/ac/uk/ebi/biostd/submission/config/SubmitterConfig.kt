@@ -3,11 +3,13 @@ package ac.uk.ebi.biostd.submission.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -35,7 +37,6 @@ import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
@@ -222,7 +223,6 @@ class SubmitterConfig(
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         eventsPublisherService: EventsPublisherService,
-        submissionStatsService: SubmissionStatsService,
         submissionPostProcessingService: SubmissionPostProcessingService,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
@@ -240,7 +240,6 @@ class SubmitterConfig(
             submissionSaver,
             submissionQueryService,
             eventsPublisherService,
-            submissionStatsService,
             submissionPostProcessingService,
         )
 
@@ -259,9 +258,23 @@ class SubmitterConfig(
         )
 
     @Bean
-    fun submissionPostProcessingService(statsService: SubmissionStatsService): SubmissionPostProcessingService =
+    fun submissionPostProcessingService(
+        pageTabService: PageTabService,
+        statsDataService: StatsDataService,
+        fileStorageService: FileStorageService,
+        subFolderResolver: SubmissionFolderResolver,
+        extSerializationService: ExtSerializationService,
+        extSubQueryService: SubmissionPersistenceQueryService,
+        submissionFileRepository: SubmissionFilesDocDataRepository,
+    ): SubmissionPostProcessingService =
         SubmissionPostProcessingService(
-            statsService,
+            pageTabService,
+            statsDataService,
+            fileStorageService,
+            subFolderResolver,
+            extSerializationService,
+            extSubQueryService,
+            submissionFileRepository,
         )
 
     @Bean

@@ -1,10 +1,8 @@
 package ac.uk.ebi.biostd.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "app")
-@ConstructorBinding
 data class ApplicationProperties(
     val processId: String,
     val retrySubmission: Boolean,
@@ -57,7 +55,7 @@ data class PersistenceProperties(
     val enableFire: Boolean = false,
     val includeSecretKey: Boolean = false,
     val nfsReleaseMode: String,
-    val pageTabSubmissionPath: String,
+    val pageTabFallbackPath: String,
     val privateSubmissionsPath: String,
     val publicSubmissionsPath: String,
     val privateSubmissionFtpOutPath: String,

@@ -1,15 +1,19 @@
 import Dependencies.PoiOxml
 import Projects.TsvLibrary
-import TestDependencies.AssertJ
-import TestDependencies.Junit
-import TestDependencies.JunitExtensions
+import TestDependencies.BaseTestCompileDependencies
+import TestDependencies.BaseTestRuntimeDependencies
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+}
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(TsvLibrary))
-
     implementation(PoiOxml)
 
-    testImplementation(Junit)
-    testImplementation(JunitExtensions)
-    testImplementation(AssertJ)
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

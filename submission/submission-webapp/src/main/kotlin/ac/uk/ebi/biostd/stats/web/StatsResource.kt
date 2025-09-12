@@ -73,10 +73,4 @@ class StatsResource(
         val statFile = tmpFileGenerator.asFile(stats)
         return submissionStatsService.increment(type, statFile)
     }
-
-    @PostMapping("/refresh/{accNo}")
-    @ResponseBody
-    suspend fun refreshStats(
-        @PathVariable accNo: String,
-    ): List<SubmissionStat> = submissionStatsService.calculateStats(accNo).map { it.toStatDto() }
 }

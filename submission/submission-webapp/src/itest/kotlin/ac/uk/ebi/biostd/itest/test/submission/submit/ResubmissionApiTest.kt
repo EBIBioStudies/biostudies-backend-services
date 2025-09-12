@@ -227,7 +227,7 @@ class ResubmissionApiTest(
                 title: String,
                 sectionType: String,
                 fileType: String,
-                filelistFileType: String,
+                fileListFileType: String,
             ) {
                 val submission = submissionRepository.getExtByAccNo("S-RSTST4", includeFileListFiles = true)
                 assertThat(submission.title).isEqualTo(title)
@@ -253,7 +253,7 @@ class ResubmissionApiTest(
                 val attributes = files[0].attributes
                 assertThat(attributes).hasSize(1)
                 assertThat(attributes[0].name).isEqualTo("Type")
-                assertThat(attributes[0].value).isEqualTo(filelistFileType)
+                assertThat(attributes[0].value).isEqualTo(fileListFileType)
             }
 
             val version1 =
@@ -288,7 +288,7 @@ class ResubmissionApiTest(
                 title = "Public Submission",
                 sectionType = "Experiment",
                 fileType = "File type",
-                filelistFileType = "Filelist file type",
+                fileListFileType = "Filelist file type",
             )
 
             val version2 =
@@ -321,7 +321,7 @@ class ResubmissionApiTest(
                 title = "Public Submission Updated",
                 sectionType = "Experiment Updated",
                 fileType = "File type Updated",
-                filelistFileType = "Filelist file type Updated",
+                fileListFileType = "Filelist file type Updated",
             )
         }
 

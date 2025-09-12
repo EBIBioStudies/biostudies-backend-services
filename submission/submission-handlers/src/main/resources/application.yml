@@ -16,13 +16,11 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      use-new-id-generator-mappings: false
 
   rabbitmq:
     host: # RabbitMQ host
     username: # RabbitMQ user
     password: # RabbitMQ password
-
 
 logging:
   file:

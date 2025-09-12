@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.itest.common
 
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -35,10 +34,6 @@ class TestConfig {
             accessPermissionRepository,
             accessTagDataRepo,
         )
-
-    @Bean
-    fun submissionTestService(submissionRepository: SubmissionPersistenceQueryService): SubmissionTestService =
-        SubmissionTestService(submissionRepository)
 
     @Bean(name = ["TestCollectionValidator"])
     fun testCollectionValidator(): TestCollectionValidator = TestCollectionValidator()

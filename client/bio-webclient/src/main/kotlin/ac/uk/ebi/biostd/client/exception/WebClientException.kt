@@ -1,5 +1,8 @@
 package ac.uk.ebi.biostd.client.exception
 
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 
-class WebClientException(val statusCode: HttpStatus, message: String) : RuntimeException(message)
+class WebClientException(
+    val statusCode: HttpStatusCode,
+    message: String,
+) : RuntimeException(message)
