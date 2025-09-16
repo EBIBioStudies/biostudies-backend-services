@@ -152,7 +152,7 @@ class SubmissionListApiTest(
         }
 
     @Test
-    fun `13-7-1 get submissions with submission or section title - superUser`() {
+    fun `13-7 get submissions with submission or section title - superUser`() {
         suspend fun assertFound(keywords: String) {
             val submissionList =
                 superUserClient.getSubmissions(
@@ -193,7 +193,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `13-7-2 get submissions with submission or section title - normalUser`() {
+    fun `13-8 get submissions with submission or section title - normalUser`() {
         runTest {
             suspend fun assertFound(keywords: String) {
                 val submissionList =
@@ -232,29 +232,6 @@ class SubmissionListApiTest(
             assertFound(keywords = "gama")
         }
     }
-
-    @Test
-    fun `13-8 get submissions with section title`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "SECT-124")
-                    line()
-
-                    line("Study")
-                    line("Title", "Section secTitle")
-                    line()
-                }.toString()
-
-            assertThat(superUserClient.submit(submission, TSV)).isSuccessful()
-
-            val submissionTitleList = superUserClient.getSubmissions(mapOf("keywords" to "secTitle"))
-            assertThat(submissionTitleList).satisfiesOnlyOnce {
-                assertThat(it.accno).isEqualTo("SECT-124")
-                assertThat(it.title).isEqualTo("Section secTitle")
-                assertThat(it.status).isEqualTo("PROCESSED")
-            }
-        }
 
     @Test
     fun `13-9 search submission with spaces`() =
