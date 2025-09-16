@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -19,9 +21,11 @@ internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
     ): Link {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
+        val url = node.getNode<TextNode>(LinkFields.URL.value).textValue()
+        require(url.isNotBlank()) { throw InvalidElementException(REQUIRED_LINK_URL) }
 
         return Link(
-            url = node.getNode<TextNode>(LinkFields.URL.value).textValue(),
+            url = url,
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
     }

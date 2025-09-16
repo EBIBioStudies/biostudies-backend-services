@@ -186,6 +186,12 @@ fun submissionWithLinks() =
         line()
     }
 
+fun submissionWithEmptyLinks() =
+    submissionWithRootSection().apply {
+        line("Link", "")
+        line()
+    }
+
 fun submissionWithLinksTable() =
     submissionWithRootSection().apply {
         line("Links", "Type", "(TermId)", "[Ontology]")

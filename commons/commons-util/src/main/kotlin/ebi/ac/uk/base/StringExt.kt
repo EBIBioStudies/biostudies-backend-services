@@ -25,12 +25,12 @@ fun String?.isNotBlank() = !isNullOrEmpty()
 inline fun String?.applyIfNotBlank(func: (String) -> Unit) = takeIf { it.isNotBlank() }?.let { func(it) }
 
 /**
- * Compare if string representation of objects are equivalent, ignoring case.
+ * Compare if string representations of the given objects are equivalent, ignoring its case.
  */
 infix fun String.like(other: Any) = other.toString().equals(this, ignoreCase = true)
 
 /**
- * Split the string by the given regex ignoring empty results.
+ * Split the string by the given regex, ignoring empty results.
  */
 fun String.splitIgnoringEmpty(regex: Regex) = this.split(regex).filter { it.isNotBlank() }
 
