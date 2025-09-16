@@ -138,13 +138,13 @@ Contains test related to resubmission
 
 ### Stats Test suite
 
-| Class               | Test No | Test name                                       |
-|---------------------|---------|-------------------------------------------------|
-| SubmissionStatsTest | 26-1    | find stats by accNo                             |
-| SubmissionStatsTest | 26-2    | find stats by type                              |
-| SubmissionStatsTest | 26-3    | find stats by type and AccNo                    |
-| SubmissionStatsTest | 26-4    | register stats by file                          |
-| SubmissionStatsTest | 26-5    | increment stats by file                         |
+| Class               | Test No | Test name                    |
+|---------------------|---------|------------------------------|
+| SubmissionStatsTest | 26-1    | find stats by accNo          |
+| SubmissionStatsTest | 26-2    | find stats by type           |
+| SubmissionStatsTest | 26-3    | find stats by type and AccNo |
+| SubmissionStatsTest | 26-4    | register stats by file       |
+| SubmissionStatsTest | 26-5    | increment stats by file      |
 
 ### Async submission Test suite
 
@@ -154,6 +154,22 @@ Contains test related to resubmission
 | SubmissionAsyncTest | 19-2    | Check submission stages                     |
 | SubmissionAsyncTest | 19-3    | Multiple async submissions with files       |
 | SubmissionAsyncTest | 19-4    | Multiple async submissions when one invalid |
+
+### Submission Query Test suite
+
+| Cass                        | Test No | Test name                                         |
+|-----------------------------|---------|---------------------------------------------------|
+| SubmissionListApiTest       | 13-1    | get submission list                               |
+| SubmissionListApiTest       | 13-2    | get submission list by accession                  |
+| SubmissionListApiTest       | 13-3    | get direct submission list by accession           |
+| SubmissionListApiTest       | 13-4    | get submission list by keywords                   |
+| SubmissionListApiTest       | 13-5    | get submission list by release date               |
+| SubmissionListApiTest       | 13-6    | get submission list pagination                    |
+| SubmissionListApiTest       | 13-7    | get submissions with submission title superuser   |
+| SubmissionListApiTest       | 13-8    | get submissions with submission title normal user |
+| SubmissionListApiTest       | 13-9    | submission with spaces                            |
+| SubmissionListApiTest       | 13-10   | latest updated submission should appear first     |
+| SubmissionListSubmittedTest | 13-11   | list submission request in SUBMITTED stage        |
 
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
@@ -203,17 +219,6 @@ Contains test related to resubmission
 | SubmissionDraftApiTest          | 12-8    | update a submission already submitted draft                                      |                                                                                               |
 | SubmissionDraftApiTest          | 12-9    | submit json when a draft already exists                                          |                                                                                               |
 | SubmissionDraftApiTest          | 12-10   | update a draft with an processing request                                        |                                                                                               |
-| SubmissionListApiTest           | 13-1    | get submission list                                                              | Get all submissions that satisfies filters                                                    |
-| SubmissionListApiTest           | 13-2    | get submission list by accession                                                 |                                                                                               |
-| SubmissionListApiTest           | 13-3    | get direct submission list by accession                                          |                                                                                               |
-| SubmissionListApiTest           | 13-4    | get submission list by keywords                                                  |                                                                                               |
-| SubmissionListApiTest           | 13-5    | get submission list by release date                                              |                                                                                               |
-| SubmissionListApiTest           | 13-6    | get submission list pagination                                                   |                                                                                               |
-| SubmissionListApiTest           | 13-7    | get submissions with submission title                                            |                                                                                               |
-| SubmissionListApiTest           | 13-8    | get submissions with section title                                               |                                                                                               |
-| SubmissionListApiTest           | 13-9    | submission with spaces                                                           |                                                                                               |
-| SubmissionListApiTest           | 13-10   | latest updated submission should appear first                                    |                                                                                               |
-| SubmissionListSubmittedTest     | 13-11   | list submission request in SUBMITTED stage                                       |                                                                                               |
 | SubmissionOnBehalfTest          | 14-1    | submission on behalf another user                                                | Performs differents submissions on behalf other user                                          |
 | SubmissionOnBehalfTest          | 14-2    | submission on behalf new user                                                    |                                                                                               |
 | SubmissionOnBehalfTest          | 14-3    | submission on behalf created user with files in his folder                       |                                                                                               |

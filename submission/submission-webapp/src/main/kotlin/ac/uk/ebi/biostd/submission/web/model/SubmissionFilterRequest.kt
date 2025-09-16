@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.model
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
+import java.net.URLDecoder
 import java.time.OffsetDateTime
 
 @Suppress("LongParameterList")
@@ -28,7 +29,7 @@ fun SubmissionFilterRequest.asFilter(
         type = type,
         rTimeFrom = rTimeFrom?.let { OffsetDateTime.parse(it) },
         rTimeTo = rTimeTo?.let { OffsetDateTime.parse(it) },
-        keywords = keywords,
+        keywords = URLDecoder.decode(keywords, Charsets.UTF_8.name()),
         released = released,
         limit = limit,
         offset = offset,
