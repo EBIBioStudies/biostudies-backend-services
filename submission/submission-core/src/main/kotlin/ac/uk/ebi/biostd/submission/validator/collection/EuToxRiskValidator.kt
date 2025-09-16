@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.postForObject
@@ -49,7 +50,7 @@ class EuToxRiskValidator(
         val subFile =
             submission
                 .allSectionsFiles
-                .find { it.fileName.endsWith("xlsx") }
+                .find { it.fileName.endsWith(XLSX_EXTENSION) }
                 ?: throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED))
         return FileSystemResource(asFile(subFile))
     }

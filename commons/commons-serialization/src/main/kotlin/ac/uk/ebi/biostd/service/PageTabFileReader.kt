@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
 import ac.uk.ebi.biostd.exception.InvalidFileListException
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.checkFileListExtension
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.FileSourcesList
@@ -11,20 +13,22 @@ import java.io.File
 object PageTabFileReader {
     fun readAsPageTab(file: File): File {
         require(file.size() > 0) { throw EmptyPageTabFileException(file.name) }
-        return if (file.extension == "xlsx") asTsv(file) else file
+        return if (file.extension == XLSX_EXTENSION) asTsv(file) else file
     }
 
     suspend fun getFileListFile(
         fileListName: String,
         filesSource: FileSourcesList,
-    ): File =
-        when (val file = filesSource.getFileList(fileListName)) {
+    ): File {
+        checkFileListExtension(fileListName)
+        return when (val file = filesSource.getFileList(fileListName)) {
             null -> throw FilesProcessingException(fileListName, filesSource)
             else ->
                 when {
                     file.isFile.not() -> throw InvalidFileListException.directoryCantBeFileList(fileListName)
-                    file.extension == "xlsx" -> asTsv(file)
+                    file.extension == XLSX_EXTENSION -> asTsv(file)
                     else -> file
                 }
         }
+    }
 }

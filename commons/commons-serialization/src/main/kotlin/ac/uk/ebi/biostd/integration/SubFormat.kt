@@ -9,12 +9,23 @@ sealed class SubFormat(
     private val description: String,
 ) {
     companion object {
+        const val JSON_EXTENSION = "json"
+        const val TSV_EXTENSION = "tsv"
+        const val XLSX_EXTENSION = "xlsx"
+
+        fun checkFileListExtension(fileName: String) {
+            val extension = fileName.substringAfterLast(".")
+            require(extension == JSON_EXTENSION || extension == TSV_EXTENSION || extension == XLSX_EXTENSION) {
+                throw InvalidFormatException(extension)
+            }
+        }
+
         fun fromFile(file: File): SubFormat = fromString(file.extension)
 
         fun fromString(format: String): SubFormat =
             when (format.lowercase()) {
-                "tsv" -> TsvFormat.Tsv
-                "json" -> PlainJson
+                TSV_EXTENSION -> TsvFormat.Tsv
+                JSON_EXTENSION -> PlainJson
                 else -> throw InvalidFormatException(format)
             }
 

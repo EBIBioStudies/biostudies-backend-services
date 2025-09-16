@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV_EXTENSION
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
@@ -56,12 +57,12 @@ import java.time.Duration.ofMillis
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionAsyncTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val requestRepository: SubmissionRequestPersistenceService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @Autowired val extSubmissionSubmitter: ExtSubmissionSubmitter,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:Autowired val extSubmissionSubmitter: ExtSubmissionSubmitter,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -182,7 +183,7 @@ class SubmissionAsyncTest(
 
             val result =
                 webClient.submitMultipartAsync(
-                    format = "tsv",
+                    format = TSV_EXTENSION,
                     submissions = mapOf("SMulti-001" to submission, "SMulti-002" to submission2),
                     files = mapOf("SMulti-001" to listOf(file), "SMulti-002" to listOf(file2, file3)),
                     parameters = SubmitParameters(storageMode = storageMode),
@@ -238,7 +239,7 @@ class SubmissionAsyncTest(
             val exception =
                 assertThrows<WebClientException> {
                     webClient.submitMultipartAsync(
-                        format = "tsv",
+                        format = TSV_EXTENSION,
                         submissions = mapOf("SMulti-004" to submission1, "SMulti-005" to submission2),
                         files = emptyMap(),
                         parameters = SubmitParameters(storageMode = storageMode),
