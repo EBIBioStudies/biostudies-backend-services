@@ -29,7 +29,7 @@ fun SubmissionFilterRequest.asFilter(
         type = type,
         rTimeFrom = rTimeFrom?.let { OffsetDateTime.parse(it) },
         rTimeTo = rTimeTo?.let { OffsetDateTime.parse(it) },
-        keywords = URLDecoder.decode(keywords, Charsets.UTF_8.name()),
+        keywords = keywords?.let { URLDecoder.decode(keywords, Charsets.UTF_8.name()) },
         released = released,
         limit = limit,
         offset = offset,
