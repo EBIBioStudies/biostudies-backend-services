@@ -3,7 +3,6 @@ import Dependencies.CommonsLang3
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.Log4J
 import Projects.BioWebClient
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsModelExtendedTest
@@ -30,7 +29,6 @@ dependencies {
     implementation(KotlinCoroutines)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
-    implementation(Log4J)
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
 
