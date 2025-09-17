@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV_EXTENSION
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
@@ -31,9 +32,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MultipartAsyncTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -79,7 +80,7 @@ class MultipartAsyncTest(
 
             val result =
                 webClient.submitMultipartAsync(
-                    format = "tsv",
+                    format = TSV_EXTENSION,
                     submissions = mapOf("SMulti-001" to submission, "SMulti-002" to submission2),
                     files = mapOf("SMulti-001" to listOf(file), "SMulti-002" to listOf(file2, file3)),
                     parameters = SubmitParameters(storageMode = storageMode),
