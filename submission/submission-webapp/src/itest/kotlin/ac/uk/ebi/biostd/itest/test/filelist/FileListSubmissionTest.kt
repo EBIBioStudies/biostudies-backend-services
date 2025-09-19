@@ -57,9 +57,9 @@ import java.nio.file.Paths
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class FileListSubmissionTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val subRepository: SubmissionPersistenceQueryService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired private val subRepository: SubmissionPersistenceQueryService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 

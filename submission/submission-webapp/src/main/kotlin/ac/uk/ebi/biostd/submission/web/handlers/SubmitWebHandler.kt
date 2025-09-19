@@ -141,7 +141,7 @@ class SubmitWebHandler(
         }
 
         /**
-         * Deserialize the submission and check file presence in the list of sources.
+         * Deserialize the submission and check the files are present in the list of sources.
          */
         suspend fun deserializeSubmission(source: FileSourcesList): Submission =
             when (rqt) {

@@ -71,6 +71,7 @@ deploy-prod:
     - build-test
   script:
     - gradle deployBioCommandLine -Penv=prod -PdeployPath=$APPS_PATH/cli/prod
+    - gradle deployBioCommandLine -Penv=codon -PdeployPath=$CODON_APPS_PATH/cli
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod

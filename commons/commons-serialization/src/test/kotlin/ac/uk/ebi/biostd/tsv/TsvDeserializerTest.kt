@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.test.sectionWithEmptyAccParentSection
 import ac.uk.ebi.biostd.test.submissionWithBlankAttribute
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
+import ac.uk.ebi.biostd.test.submissionWithEmptyLinks
 import ac.uk.ebi.biostd.test.submissionWithFiles
 import ac.uk.ebi.biostd.test.submissionWithFilesTable
 import ac.uk.ebi.biostd.test.submissionWithGenericRootSection
@@ -452,6 +453,15 @@ class TsvDeserializerTest {
                 }
             },
         )
+    }
+
+    @Test
+    fun `link with empty url`() {
+        val submission = submissionWithEmptyLinks()
+        val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
+        val errors = exception.errors.entries().map { it.value.cause }
+        assertThat(errors).hasSize(1)
+        assertThat(errors.first()).hasMessage("Link Url is required. Element was not created.")
     }
 
     @Test

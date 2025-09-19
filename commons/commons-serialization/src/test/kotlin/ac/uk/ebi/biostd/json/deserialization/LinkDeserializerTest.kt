@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import ac.uk.ebi.biostd.validation.InvalidElementException
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -32,6 +33,37 @@ class LinkDeserializerTest {
         assertThat(exception.message).isEqualTo(
             "Expecting node: '$node', property: 'url' to be of type 'TextNode' but 'ArrayNode' was found instead",
         )
+    }
+
+    @Test
+    fun `deserialize without url`() {
+        val invalidJson =
+            jsonObj {
+                "attributes" to
+                    jsonArray({
+                        "name" to "attr name"
+                        "value" to "attr value"
+                    })
+            }.toString()
+
+        val exception = assertThrows<IllegalStateException> { testInstance.readValue<Link>(invalidJson) }
+        assertThat(exception).hasMessageContaining("Expecting to find property with 'url' in node")
+    }
+
+    @Test
+    fun `deserialize with empty url`() {
+        val invalidJson =
+            jsonObj {
+                "url" to ""
+                "attributes" to
+                    jsonArray({
+                        "name" to "attr name"
+                        "value" to "attr value"
+                    })
+            }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue<Link>(invalidJson) }
+        assertThat(exception.message).isEqualTo("Link Url is required. Element was not created.")
     }
 
     @Test
