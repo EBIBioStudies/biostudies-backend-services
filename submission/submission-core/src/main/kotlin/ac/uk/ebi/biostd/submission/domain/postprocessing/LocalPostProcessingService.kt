@@ -1,9 +1,7 @@
-package ac.uk.ebi.biostd.submission.domain.submission
+package ac.uk.ebi.biostd.submission.domain.postprocessing
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
@@ -33,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger
 private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
-class SubmissionPostProcessingService(
+class LocalPostProcessingService(
     private val pageTabService: PageTabService,
     private val statsDataService: StatsDataService,
     private val fileStorageService: FileStorageService,
@@ -43,22 +41,27 @@ class SubmissionPostProcessingService(
     private val submissionFileRepository: SubmissionFilesDocDataRepository,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
+        logger.info { "Calculating stats for submission $accNo" }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         calculateStats(sub)
         return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
     }
 
     suspend fun generateFallbackPageTabFiles(accNo: String): List<ExtFile> {
+        logger.info { "Generating fallback page tab files for submission '$accNo'." }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
         return generateFallbackPageTabFiles(sub)
     }
 
     suspend fun indexSubmissionInnerFiles(accNo: String) {
+        logger.info { "Indexing submission '$accNo' files" }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
         indexSubmissionInnerFiles(sub)
     }
 
     suspend fun postProcess(accNo: String) {
+        logger.info { "Post processing submission '$accNo'" }
+
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         generateFallbackPageTabFiles(sub)
         indexSubmissionInnerFiles(sub)
@@ -102,9 +105,9 @@ class SubmissionPostProcessingService(
         val emptyDirectories = directories.count { hasFiles(it, sub) }
         val stats =
             listOf(
-                SubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
-                SubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
-                SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
+                SubmissionStat(sub.accNo, subFilesSize, SubmissionStatType.FILES_SIZE),
+                SubmissionStat(sub.accNo, directories.size.toLong(), SubmissionStatType.DIRECTORIES),
+                SubmissionStat(sub.accNo, emptyDirectories.toLong(), SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES),
             )
 
         statsDataService.saveAll(sub.accNo, collections, stats)

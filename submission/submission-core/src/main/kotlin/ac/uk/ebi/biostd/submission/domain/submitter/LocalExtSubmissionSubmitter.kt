@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
@@ -15,7 +16,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -57,7 +57,7 @@ class LocalExtSubmissionSubmitter(
     private val requestSaver: SubmissionRequestSaver,
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
-    private val submissionPostProcessingService: SubmissionPostProcessingService,
+    private val submissionPostProcessingService: LocalPostProcessingService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val sub = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
