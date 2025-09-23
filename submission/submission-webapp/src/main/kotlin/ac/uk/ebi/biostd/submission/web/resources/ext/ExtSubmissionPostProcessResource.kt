@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostprocesMode
-import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
-import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,9 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions/extended")
 class ExtSubmissionPostProcessResource(
-    private val remoteSubmitterExecutor: RemoteSubmitterExecutor,
     private val extPostProcessingService: ExtPostProcessingService,
-    private val submissionPostProcessingService: LocalPostProcessingService,
 ) {
     @PostMapping("/post-process")
     suspend fun postProcessAll() {

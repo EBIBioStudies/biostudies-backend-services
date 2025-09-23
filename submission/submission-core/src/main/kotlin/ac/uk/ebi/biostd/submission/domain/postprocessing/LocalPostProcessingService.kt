@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.*
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
@@ -105,9 +105,9 @@ class LocalPostProcessingService(
         val emptyDirectories = directories.count { hasFiles(it, sub) }
         val stats =
             listOf(
-                SubmissionStat(sub.accNo, subFilesSize, SubmissionStatType.FILES_SIZE),
-                SubmissionStat(sub.accNo, directories.size.toLong(), SubmissionStatType.DIRECTORIES),
-                SubmissionStat(sub.accNo, emptyDirectories.toLong(), SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES),
+                SubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
+                SubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
+                SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
             )
 
         statsDataService.saveAll(sub.accNo, collections, stats)
