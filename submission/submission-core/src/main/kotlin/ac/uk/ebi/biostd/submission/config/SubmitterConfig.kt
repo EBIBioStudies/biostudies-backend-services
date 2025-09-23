@@ -17,6 +17,8 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService
+import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
@@ -27,11 +29,11 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubFolderResolver
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
@@ -223,7 +225,7 @@ class SubmitterConfig(
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         eventsPublisherService: EventsPublisherService,
-        submissionPostProcessingService: SubmissionPostProcessingService,
+        submissionPostProcessingService: LocalPostProcessingService,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
@@ -258,7 +260,7 @@ class SubmitterConfig(
         )
 
     @Bean
-    fun submissionPostProcessingService(
+    fun localPostProcessingService(
         pageTabService: PageTabService,
         statsDataService: StatsDataService,
         fileStorageService: FileStorageService,
@@ -266,8 +268,8 @@ class SubmitterConfig(
         extSerializationService: ExtSerializationService,
         extSubQueryService: SubmissionPersistenceQueryService,
         submissionFileRepository: SubmissionFilesDocDataRepository,
-    ): SubmissionPostProcessingService =
-        SubmissionPostProcessingService(
+    ): LocalPostProcessingService =
+        LocalPostProcessingService(
             pageTabService,
             statsDataService,
             fileStorageService,
@@ -276,6 +278,12 @@ class SubmitterConfig(
             extSubQueryService,
             submissionFileRepository,
         )
+
+    @Bean
+    fun extPostProcessingService(
+        localPostProcessingService: LocalPostProcessingService,
+        remoteSubmitterExecutor: RemoteSubmitterExecutor,
+    ): ExtPostProcessingService = ExtPostProcessingService(localPostProcessingService, remoteSubmitterExecutor)
 
     @Bean
     fun submissionProcessor(

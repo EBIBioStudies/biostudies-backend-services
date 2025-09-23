@@ -15,4 +15,8 @@ data class TaskProperties(
 enum class Mode {
     HANDLE_REQUEST,
     POST_PROCESS_ALL,
+    POST_PROCESS_SINGLE,
+    POST_PROCESS_STATS,
+    POST_PROCESS_INNER_FILES,
+    POST_PROCESS_PAGETAB_FILES,
 }

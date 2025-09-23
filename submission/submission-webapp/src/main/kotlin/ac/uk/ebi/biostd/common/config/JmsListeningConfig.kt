@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionMessageListener
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
@@ -49,7 +49,7 @@ class JmsConfig(
     fun submissionMessageListener(
         submissionSubmitter: ExtSubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        submissionPostProcessingService: SubmissionPostProcessingService,
+        submissionPostProcessingService: LocalPostProcessingService,
     ): SubmissionMessageListener =
         SubmissionMessageListener(
             submissionSubmitter,

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
+import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
@@ -30,7 +30,7 @@ class SubmissionMessageListener(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val properties: SubmissionNotificationsProperties,
     private val eventsPublisherService: EventsPublisherService,
-    private val submissionPostProcessingService: SubmissionPostProcessingService,
+    private val submissionPostProcessingService: LocalPostProcessingService,
 ) {
     @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {

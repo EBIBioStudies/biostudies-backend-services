@@ -13,23 +13,23 @@ class RetryFtpClient(
     override suspend fun uploadFiles(
         folder: Path,
         files: List<Pair<Path, () -> InputStream>>,
-    ) = retryTemplate.execute("uploadFiles") { ftpClient.uploadFiles(folder, files) }
+    ) = retryTemplate.execute("uploadFiles '$folder'") { ftpClient.uploadFiles(folder, files) }
 
     override suspend fun uploadFile(
         path: Path,
         source: () -> InputStream,
-    ) = retryTemplate.execute("uploadFile") { ftpClient.uploadFile(path, source) }
+    ) = retryTemplate.execute("uploadFile '$path'") { ftpClient.uploadFile(path, source) }
 
     override suspend fun downloadFile(
         path: Path,
         source: OutputStream,
-    ) = retryTemplate.execute("downloadFile") { ftpClient.downloadFile(path, source) }
+    ) = retryTemplate.execute("downloadFile '$path'") { ftpClient.downloadFile(path, source) }
 
-    override suspend fun createFolder(path: Path) = retryTemplate.execute("createFolder") { ftpClient.createFolder(path) }
+    override suspend fun createFolder(path: Path) = retryTemplate.execute("createFolder $'$path'") { ftpClient.createFolder(path) }
 
-    override suspend fun listFiles(path: Path): List<FTPFile> = retryTemplate.execute("listFiles") { ftpClient.listFiles(path) }
+    override suspend fun listFiles(path: Path): List<FTPFile> = retryTemplate.execute("listFiles '$path'") { ftpClient.listFiles(path) }
 
-    override suspend fun deleteFile(path: Path) = retryTemplate.execute("deleteFile") { ftpClient.deleteFile(path) }
+    override suspend fun deleteFile(path: Path) = retryTemplate.execute("deleteFile '$path'") { ftpClient.deleteFile(path) }
 
-    override suspend fun findFile(path: Path): FTPFile? = retryTemplate.execute("getFile") { ftpClient.findFile(path) }
+    override suspend fun findFile(path: Path): FTPFile? = retryTemplate.execute("getFile '$path'") { ftpClient.findFile(path) }
 }
