@@ -179,7 +179,7 @@ class LocalExtSubmissionSubmitter(
             FILES_COPIED -> fromFilesCopied()
             CHECK_RELEASED -> fromCheckReleased()
             PERSISTED -> fromSavedSubmission()
-            PROCESSED -> logger.info { "Submission, $accNo, $version has been already processed." }
+            PROCESSED -> fromProcessed()
             INVALID -> logger.info { "Submission, $accNo, $version is in INVALID. Errors need to be fixed." }
             POST_PROCESSED -> logger.info { "Submission, $accNo, $version has been already processed." }
         }
