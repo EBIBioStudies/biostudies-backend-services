@@ -112,7 +112,7 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.setRequestDraftStatus(accNo, owner, status, modificationTime)
     }
 
-    override suspend fun findAllProcessed(): Flow<SubIdentifier> =
+    override suspend fun findAllCompleted(): Flow<SubIdentifier> =
         requestRepository
             .findByStatusIn(PROCESSED_STATUS)
 
