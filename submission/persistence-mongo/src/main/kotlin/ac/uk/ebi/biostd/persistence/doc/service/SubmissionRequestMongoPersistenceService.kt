@@ -26,7 +26,6 @@ import ebi.ac.uk.model.RequestStatus.Companion.EDITABLE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
-import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
@@ -137,7 +136,7 @@ class SubmissionRequestMongoPersistenceService(
         version: Int,
     ) {
         require(
-            requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED),
+            requestRepository.existsByAccNoAndVersionAndStatusIn(accNo, version, PROCESSED_STATUS),
         ) { "Request $accNo, $version can not be archived as not processed" }
 
         val archivedFiles = requestRepository.archiveRequest(accNo, version)
@@ -210,7 +209,7 @@ class SubmissionRequestMongoPersistenceService(
     override suspend fun isRequestCompleted(
         accNo: String,
         version: Int,
-    ): Boolean = requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED)
+    ): Boolean = requestRepository.existsByAccNoAndVersionAndStatusIn(accNo, version, PROCESSED_STATUS)
 
     private suspend fun saveRequest(
         rqt: SubmissionRequest,

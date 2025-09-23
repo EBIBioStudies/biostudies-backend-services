@@ -24,6 +24,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPostProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -209,6 +210,12 @@ class SubmitterConfig(
         )
 
     @Bean
+    fun submissionPostProcessor(
+        requestService: SubmissionRequestPersistenceService,
+        localPostProcessingService: LocalPostProcessingService,
+    ): SubmissionRequestPostProcessor = SubmissionRequestPostProcessor(requestService, localPostProcessingService)
+
+    @Bean
     @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
     fun localExtSubmissionSubmitter(
         appProperties: ApplicationProperties,
@@ -224,8 +231,8 @@ class SubmitterConfig(
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
+        submissionRequestProcessor: SubmissionRequestPostProcessor,
         eventsPublisherService: EventsPublisherService,
-        submissionPostProcessingService: LocalPostProcessingService,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
@@ -240,9 +247,9 @@ class SubmitterConfig(
             submissionReleaser,
             submissionCleaner,
             submissionSaver,
+            submissionRequestProcessor,
             submissionQueryService,
             eventsPublisherService,
-            submissionPostProcessingService,
         )
 
     @Bean
