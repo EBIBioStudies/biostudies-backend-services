@@ -2,8 +2,10 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -37,30 +39,36 @@ class SubmissionListApiTest(
     @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @LocalServerPort val serverPort: Int,
 ) {
-    private lateinit var webClient: BioWebClient
+    private lateinit var superUserClient: BioWebClient
+    private lateinit var regularUserClient: BioWebClient
 
     @BeforeAll
     fun init() =
         runBlocking {
+            securityTestService.ensureSequence("S-BSST")
             mongoTemplate.ensureSubmissionIndexes()
+
             securityTestService.ensureUserRegistration(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+            superUserClient = getWebClient(serverPort, SuperUser)
+
+            securityTestService.ensureUserRegistration(RegularUser)
+            regularUserClient = getWebClient(serverPort, RegularUser)
 
             for (idx in 11..20) {
-                assertThat(webClient.submit(getSimpleSubmission(idx), TSV)).isSuccessful()
+                assertThat(superUserClient.submit(getSimpleSubmission(idx), TSV)).isSuccessful()
             }
 
             val params = SubmitParameters(storageMode = storageMode)
             for (idx in 21..30) {
                 val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
-                assertThat(webClient.submitMultipart(submission, params)).isSuccessful()
+                assertThat(superUserClient.submitMultipart(submission, params)).isSuccessful()
             }
         }
 
     @Test
     fun `13-1 get submission list`() =
         runTest {
-            val submissionList = webClient.getSubmissions()
+            val submissionList = superUserClient.getSubmissions()
 
             assertThat(submissionList).isNotNull
             assertThat(submissionList).hasSize(15)
@@ -70,7 +78,7 @@ class SubmissionListApiTest(
     fun `13-2 get submission list by accession`() =
         runTest {
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
                         "accNo" to "LIST-API-17",
                     ),
@@ -87,7 +95,7 @@ class SubmissionListApiTest(
     fun `13-3 get direct submission list by accession`() =
         runTest {
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
                         "accNo" to "LIST-API-27",
                     ),
@@ -104,7 +112,7 @@ class SubmissionListApiTest(
     fun `13-4 get submission list by keywords`() =
         runTest {
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
                         "keywords" to "list-api-keyword-20",
                     ),
@@ -119,7 +127,7 @@ class SubmissionListApiTest(
     fun `13-5 get submission list by release date`() =
         runTest {
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
                         "rTimeFrom" to "2119-09-24T09:41:44.000Z",
                         "rTimeTo" to "2119-09-28T09:41:44.000Z",
@@ -133,7 +141,7 @@ class SubmissionListApiTest(
     fun `13-6 get submission list pagination`() =
         runTest {
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
                         "offset" to 15,
                         "keywords" to "list-api-keyword",
@@ -144,57 +152,86 @@ class SubmissionListApiTest(
         }
 
     @Test
-    fun `13-7 get submissions with submission title`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "SECT-123")
-                    line("Title", "Submission subTitle")
-                    line()
-
-                    line("Study")
-                    line("Title", "Submission With Section")
-                    line()
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-
+    fun `13-7 get submissions with submission or section title - superUser`() {
+        suspend fun assertFound(keywords: String) {
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
-                        "keywords" to "subTitle",
+                        "keywords" to keywords,
                     ),
                 )
 
-            assertThat(submissionList).satisfiesOnlyOnce {
-                assertThat(it.accno).isEqualTo("SECT-123")
-                assertThat(it.title).isEqualTo("Submission With Section")
-                assertThat(it.status).isEqualTo("PROCESSED")
-            }
+            assertThat(submissionList)
+                .withFailMessage { "Could not find submission using keywords='$keywords'" }
+                .satisfiesOnlyOnce {
+                    assertThat(it.accno).isEqualTo("SPACE-123")
+                    assertThat(it.title).isEqualTo("Submission the title")
+                    assertThat(it.status).isEqualTo("PROCESSED")
+                }
         }
 
-    @Test
-    fun `13-8 get submissions with section title`() =
         runTest {
             val submission =
                 tsv {
-                    line("Submission", "SECT-124")
+                    line("Submission", "SPACE-123")
+                    line("Title", "Submission hello world")
                     line()
 
                     line("Study")
-                    line("Title", "Section secTitle")
+                    line("Title", "Submission the title")
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserClient.submit(submission, TSV)).isSuccessful()
 
-            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
-            assertThat(submissionTitleList).satisfiesOnlyOnce {
-                assertThat(it.accno).isEqualTo("SECT-124")
-                assertThat(it.title).isEqualTo("Section secTitle")
-                assertThat(it.status).isEqualTo("PROCESSED")
-            }
+            assertFound(keywords = "hello world")
+            assertFound(keywords = "world")
+            assertFound(keywords = "hello")
+            assertFound(keywords = "the title")
+            assertFound(keywords = "title")
         }
+    }
+
+    @Test
+    fun `13-8 get submissions with submission or section title - normalUser`() {
+        runTest {
+            suspend fun assertFound(keywords: String) {
+                val submissionList =
+                    regularUserClient.getSubmissions(
+                        mapOf(
+                            "keywords" to keywords,
+                        ),
+                    )
+
+                assertThat(submissionList)
+                    .withFailMessage { "Could not find submission using keywords='$keywords'" }
+                    .satisfiesOnlyOnce {
+                        assertThat(it.title).isEqualTo("Submission beta gama")
+                        assertThat(it.status).isEqualTo("PROCESSED")
+                    }
+            }
+
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Submission alpha omega")
+                    line()
+
+                    line("Study")
+                    line("Title", "Submission beta gama")
+                    line()
+                }.toString()
+
+            assertThat(regularUserClient.submit(submission, TSV)).isSuccessful()
+
+            assertFound(keywords = "alpha omega")
+            assertFound(keywords = "alpha")
+            assertFound(keywords = "omega")
+            assertFound(keywords = "beta gama")
+            assertFound(keywords = "beta")
+            assertFound(keywords = "gama")
+        }
+    }
 
     @Test
     fun `13-9 search submission with spaces`() =
@@ -210,10 +247,10 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserClient.submit(submission, TSV)).isSuccessful()
 
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf(
                         "keywords" to encode("spaces title", "UTF-8"),
                     ),
@@ -229,10 +266,10 @@ class SubmissionListApiTest(
     @Test
     fun `13-10 latest updated submission should appear first`() =
         runTest {
-            webClient.submit(getSimpleSubmission(19), TSV)
+            superUserClient.submit(getSimpleSubmission(19), TSV)
 
             val submissionList =
-                webClient.getSubmissions(
+                superUserClient.getSubmissions(
                     mapOf("keywords" to "list-api-keyword"),
                 )
 
@@ -246,4 +283,12 @@ class SubmissionListApiTest(
             line("ReleaseDate", "2119-09-$idx")
             line()
         }.toString()
+
+    object RegularUser : TestUser {
+        override val username = "Regular Collection User"
+        override val email = "regular-for-listing@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = false
+        override val storageMode = StorageMode.NFS
+    }
 }

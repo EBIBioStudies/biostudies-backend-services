@@ -183,42 +183,46 @@ class SubmissionDocDataRepository(
 
         @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
-            fun sectionTitleContains(keywords: String) =
+            fun sectionTitleContains(terms: List<String>): Criteria =
                 where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
                     Criteria().andOperator(
                         where(ATTRIBUTE_DOC_NAME).`is`("Title"),
-                        where(ATTRIBUTE_DOC_VALUE).regex(".*$keywords.*", "i"),
+                        Criteria().orOperator(
+                            *terms
+                                .map { Criteria.where(ATTRIBUTE_DOC_VALUE).regex(".*$it.*", "i") }
+                                .toTypedArray(),
+                        ),
                     ),
                 )
 
-            fun subTitleContains(keywords: String): Criteria = where(SUB_TITLE).regex(".*$keywords.*", "i")
+            fun subTitleContains(terms: List<String>): Criteria {
+                val regexCriterias = terms.map { Criteria.where(SUB_TITLE).regex(".*$it.*", "i") }
+                return Criteria().orOperator(*regexCriterias.toTypedArray())
+            }
 
-            fun keywordsFilter(keywords: String): Criteria =
-                Criteria().orOperator(subTitleContains(keywords), sectionTitleContains(keywords))
+            fun regexKeywordsFilter(keywords: String): Criteria {
+                val terms = keywords.trim().split("\\s+".toRegex())
+                return Criteria().orOperator(subTitleContains(terms), sectionTitleContains(terms))
+            }
+
+            fun textIndexkeywordsFilter(keywords: String): TextCriteria {
+                val terms = keywords.split("\\s".toRegex()).map { "\"$it\"" }.toTypedArray()
+                return TextCriteria
+                    .forDefaultLanguage()
+                    .matchingAny(*terms)
+                    .caseSensitive(false)
+            }
 
             return buildList {
                 when (filter) {
                     is SimpleFilter -> {}
                     is SubmissionListFilter -> {
-                        when {
-                            filter.findAnyAccNo -> {
-                                if (filter.accNo != null) {
-                                    add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
-                                } else {
-                                    // use Text based index.
-                                    filter.keywords?.let { add(match(keywordsCriteria(it))) }
-                                }
-                            }
-
-                            else -> {
-                                add(match(where(SUB_OWNER).`is`(filter.filterUser)))
-                                // Use filter based on section and submission title.
-                                filter.keywords?.let { add(match(keywordsFilter(it))) }
-                            }
-                        }
-
+                        filter.keywords?.let { add(match(textIndexkeywordsFilter(it))) }
+                        filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it))) }
                         add(match(where(SUB_VERSION).gt(0)))
                         filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
+
+                        if (filter.findAnyAccNo.not()) add(match(where(SUB_OWNER).`is`(filter.filterUser)))
                     }
                 }
                 filter.notIncludeAccNo?.let { add(match(where(SUB_ACC_NO).nin(it))) }
@@ -227,14 +231,6 @@ class SubmissionDocDataRepository(
                 filter.collection?.let { add(match(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it))) }
                 filter.released?.let { add(match(where(SUB_RELEASED).`is`(it))) }
             }
-        }
-
-        private fun keywordsCriteria(keywords: String): TextCriteria {
-            val terms = keywords.split("\\s".toRegex()).map { "\"$it\"" }.toTypedArray()
-            return TextCriteria
-                .forDefaultLanguage()
-                .matchingAny(*terms)
-                .caseSensitive(false)
         }
     }
 }
