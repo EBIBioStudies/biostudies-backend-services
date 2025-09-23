@@ -6,12 +6,12 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPostProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -30,6 +30,7 @@ import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
@@ -55,9 +56,9 @@ class LocalExtSubmissionSubmitter(
     private val requestReleaser: SubmissionRequestReleaser,
     private val requestCleaner: SubmissionRequestCleaner,
     private val requestSaver: SubmissionRequestSaver,
+    private val requestPostProcessor: SubmissionRequestPostProcessor,
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
-    private val submissionPostProcessingService: LocalPostProcessingService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
         val sub = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
@@ -109,9 +110,13 @@ class LocalExtSubmissionSubmitter(
         version: Int,
         status: RequestStatus,
     ) {
+        suspend fun fromProcessed() {
+            requestPostProcessor.postProcess(accNo, version, properties.processId)
+        }
+
         suspend fun fromSavedSubmission() {
             requestCleaner.cleanPreviousVersion(accNo, version, properties.processId)
-            submissionPostProcessingService.postProcess(accNo)
+            fromProcessed()
         }
 
         suspend fun fromCheckReleased() {
@@ -176,6 +181,7 @@ class LocalExtSubmissionSubmitter(
             PERSISTED -> fromSavedSubmission()
             PROCESSED -> logger.info { "Submission, $accNo, $version has been already processed." }
             INVALID -> logger.info { "Submission, $accNo, $version is in INVALID. Errors need to be fixed." }
+            POST_PROCESSED -> logger.info { "Submission, $accNo, $version has been already processed." }
         }
     }
 
@@ -197,8 +203,9 @@ class LocalExtSubmissionSubmitter(
             FILES_COPIED -> checkReleased(accNo, version)
             CHECK_RELEASED -> saveRequest(accNo, version)
             PERSISTED -> finalizeRequest(accNo, version)
+            PROCESSED -> postProcessing(accNo, version)
             INVALID -> logger.info { "Submission $accNo, $version is in an invalid state" }
-            PROCESSED -> logger.info { "Submission $accNo, $version has been already processed." }
+            POST_PROCESSED -> logger.info { "Submission $accNo, $version has been already processed." }
         }
     }
 
@@ -282,5 +289,13 @@ class LocalExtSubmissionSubmitter(
     ) {
         requestCleaner.cleanPreviousVersion(accNo, version, properties.processId)
         eventsPublisherService.submissionFinalized(accNo, version)
+    }
+
+    private suspend fun postProcessing(
+        accNo: String,
+        version: Int,
+    ) {
+        requestPostProcessor.postProcess(accNo, version, properties.processId)
+        eventsPublisherService.submissionPostProcessed(accNo, version)
     }
 }

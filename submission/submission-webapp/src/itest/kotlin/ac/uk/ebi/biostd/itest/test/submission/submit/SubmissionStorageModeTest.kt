@@ -30,7 +30,7 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -143,7 +143,7 @@ class SubmissionStorageModeTest(
 
             webClient.transferSubmission("S-STR-MODE-3", FIRE)
             waitUntil(timeout = ofSeconds(10)) {
-                submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == PROCESSED
+                submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == POST_PROCESSED
             }
 
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
@@ -173,7 +173,7 @@ class SubmissionStorageModeTest(
             webClient.transferSubmission("S-STR-MODE-4", NFS)
 
             waitUntil(timeout = ofSeconds(10)) {
-                submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == PROCESSED
+                submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == POST_PROCESSED
             }
 
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
