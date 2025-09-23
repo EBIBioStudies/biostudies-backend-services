@@ -229,6 +229,7 @@ class SubmissionDocDataRepository(
 
                             else -> {
                                 add(match(where(SUB_OWNER).`is`(filter.filterUser)))
+                                filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it))) }
                                 // Use filter based on section and submission title.
                                 filter.keywords?.let { add(match(regexKeywordsFilter(it))) }
                             }
