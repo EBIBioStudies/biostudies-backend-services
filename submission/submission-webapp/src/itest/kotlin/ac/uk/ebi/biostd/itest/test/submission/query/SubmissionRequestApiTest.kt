@@ -11,7 +11,7 @@ import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -55,7 +55,7 @@ class SubmissionRequestApiTest(
                 }.toString()
 
             assertSubmit(webClient.submit(sub, TSV)).isSuccessful()
-            assertThat(webClient.getSubmissionRequestStatus("S-RQT1", 1)).isEqualTo(PROCESSED)
+            assertThat(webClient.getSubmissionRequestStatus("S-RQT1", 1)).isEqualTo(POST_PROCESSED)
         }
 
     @Test
@@ -75,7 +75,7 @@ class SubmissionRequestApiTest(
 
             webClient.uploadFile(tempFolder.createFile("file_29-2.txt", "29-2 file content"))
             assertSubmit(webClient.submit(sub, TSV)).isSuccessful()
-            assertThat(webClient.getSubmissionRequestStatus("S-RQT2", 1)).isEqualTo(PROCESSED)
+            assertThat(webClient.getSubmissionRequestStatus("S-RQT2", 1)).isEqualTo(POST_PROCESSED)
 
             webClient.archiveSubmissionRequest("S-RQT2", 1)
             assertThatThrows<WebClientException> { webClient.getSubmissionRequestStatus("S-RQT2", 1) }

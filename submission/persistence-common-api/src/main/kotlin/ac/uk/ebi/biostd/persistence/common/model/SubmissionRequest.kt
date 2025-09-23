@@ -152,7 +152,8 @@ val RequestStatus.action: String
             RequestStatus.CLEANED -> "Copying Files"
             RequestStatus.FILES_COPIED -> "Releasing Files"
             RequestStatus.CHECK_RELEASED -> "Saving Submission"
-            RequestStatus.PERSISTED -> "Submission Post Processing"
+            RequestStatus.PERSISTED -> "Cleaning Previous Version Files"
+            RequestStatus.PROCESSED -> "Submission Post Processing"
             else -> error("Invalid state $this")
         }
     }

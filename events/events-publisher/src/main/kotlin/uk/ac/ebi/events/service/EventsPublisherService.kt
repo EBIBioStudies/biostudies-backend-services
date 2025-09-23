@@ -16,6 +16,7 @@ import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
+import ebi.ac.uk.extended.events.RequestPostProcessed
 import ebi.ac.uk.extended.events.RequestToCleanIndexed
 import ebi.ac.uk.extended.events.RequestValidated
 import ebi.ac.uk.extended.events.SecurityNotification
@@ -131,6 +132,15 @@ class EventsPublisherService(
         BIOSTUDIES_EXCHANGE,
         notificationsProperties.requestRoutingKey,
         RequestFinalized(accNo, version),
+    )
+
+    fun submissionPostProcessed(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
+        RequestPostProcessed(accNo, version),
     )
 
     fun submissionSubmitted(

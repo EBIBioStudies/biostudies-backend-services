@@ -17,12 +17,12 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFilesValidator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPostProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -69,9 +69,9 @@ class SubmissionWebConfig {
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
+        submissionPostProcessor: SubmissionRequestPostProcessor,
         submissionQueryService: ExtSubmissionQueryService,
         eventsPublisherService: EventsPublisherService,
-        submissionPostProcessingService: SubmissionPostProcessingService,
     ): ExtSubmissionSubmitter {
         val local =
             LocalExtSubmissionSubmitter(
@@ -87,9 +87,9 @@ class SubmissionWebConfig {
                 submissionReleaser,
                 submissionCleaner,
                 submissionSaver,
+                submissionPostProcessor,
                 submissionQueryService,
                 eventsPublisherService,
-                submissionPostProcessingService,
             )
         val remote =
             RemoteExtSubmissionSubmitter(
