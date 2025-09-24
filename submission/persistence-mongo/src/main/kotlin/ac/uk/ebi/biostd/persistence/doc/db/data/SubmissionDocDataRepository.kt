@@ -4,18 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_VERSION
@@ -49,7 +45,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
 import org.springframework.data.mongodb.core.aggregation.MatchOperation
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.TextCriteria
@@ -183,28 +178,6 @@ class SubmissionDocDataRepository(
 
         @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
-            fun sectionTitleContains(terms: List<String>): Criteria =
-                where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
-                    Criteria().andOperator(
-                        where(ATTRIBUTE_DOC_NAME).`is`("Title"),
-                        Criteria().orOperator(
-                            *terms
-                                .map { Criteria.where(ATTRIBUTE_DOC_VALUE).regex(".*$it.*", "i") }
-                                .toTypedArray(),
-                        ),
-                    ),
-                )
-
-            fun subTitleContains(terms: List<String>): Criteria {
-                val regexCriterias = terms.map { Criteria.where(SUB_TITLE).regex(".*$it.*", "i") }
-                return Criteria().orOperator(*regexCriterias.toTypedArray())
-            }
-
-            fun regexKeywordsFilter(keywords: String): Criteria {
-                val terms = keywords.trim().split("\\s+".toRegex())
-                return Criteria().orOperator(subTitleContains(terms), sectionTitleContains(terms))
-            }
-
             fun textIndexkeywordsFilter(keywords: String): TextCriteria {
                 val terms = keywords.split("\\s".toRegex()).map { "\"$it\"" }.toTypedArray()
                 return TextCriteria
