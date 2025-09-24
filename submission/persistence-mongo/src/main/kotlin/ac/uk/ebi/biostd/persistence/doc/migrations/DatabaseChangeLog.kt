@@ -46,11 +46,12 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.base.EMPTY
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.bson.Document
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.index.CompoundIndexDefinition
 import org.springframework.data.mongodb.core.index.Index
-import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 suspend fun ReactiveMongoTemplate.executeMigrations() {
     ensureExists(DocSubmission::class.java)
@@ -102,12 +103,13 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
                 .on("$prefix$STORAGE_MODE", ASC),
         ).awaitSingleOrNull()
         createIndex(
-            TextIndex()
-                .onField("$prefix$SUB_TITLE")
-                .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME")
-                .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE")
-                .named("title_text_section.attributes.name_text_section.attributes.value_text")
-                .build(),
+            CompoundIndexDefinition(
+                Document()
+                    .append("$prefix$SUB_OWNER", 1)
+                    .append("$prefix$SUB_TITLE", "text")
+                    .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME", "text")
+                    .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE", "text"),
+            ).named("owner_sub_title_section_attributes_index"),
         ).awaitSingleOrNull()
     }
 }
