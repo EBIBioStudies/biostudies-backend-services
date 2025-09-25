@@ -10,6 +10,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.coroutines.RetryConfig
 import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
@@ -68,7 +69,10 @@ class ApplicationConfig {
     fun toSubmissionMapper(toSectionMapper: ToSectionMapper): ToSubmissionMapper = ToSubmissionMapper(toSectionMapper)
 
     @Bean
-    fun toSectionMapper(toFileListMapper: ToFileListMapper) = ToSectionMapper(toFileListMapper)
+    fun toSectionMapper(
+        toFileListMapper: ToFileListMapper,
+        toLinkListMapper: ToLinkListMapper,
+    ) = ToSectionMapper(toFileListMapper, toLinkListMapper)
 
     @Bean
     fun folderResolver(applicationProperties: ApplicationProperties): FilesResolver =
@@ -80,6 +84,13 @@ class ApplicationConfig {
         extSerializationService: ExtSerializationService,
         resolver: FilesResolver,
     ) = ToFileListMapper(serializationService, extSerializationService, resolver)
+
+    @Bean
+    fun toLinkListMapper(
+        serializationService: SerializationService,
+        extSerializationService: ExtSerializationService,
+        resolver: FilesResolver,
+    ) = ToLinkListMapper(serializationService, extSerializationService, resolver)
 
     @Bean
     fun exporterService(
