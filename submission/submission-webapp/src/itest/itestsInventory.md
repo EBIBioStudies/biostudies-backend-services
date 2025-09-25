@@ -94,6 +94,17 @@ Contains test related to file list.
 | FileListValidationTest | 11-6    | Filelist validation when valid filelist with root path            |
 | FileListValidationTest | 11-7    | Filelist validation when valid filelist on behalf another user    |
 
+## Link List Test Suite
+
+Contains test related to link list.
+
+| Class                  | Test No | Test name                                                         |
+|------------------------|---------|-------------------------------------------------------------------|
+| LinkListSubmissionTest | 32-1    | TSV submission with link list.                                    |
+| LinkListSubmissionTest | 32-2    | JSON submission with link list                                    |
+| LinkListSubmissionTest | 32-3    | resubmission modifying links                                      |
+| LinkListSubmissionTest | 32-4    | resubmission reusing link list                                    |
+
 ## Submission/Resubmission Test Suite
 
 ### Submission Test suite
