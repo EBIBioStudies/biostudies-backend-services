@@ -41,7 +41,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -89,8 +88,8 @@ internal class SubmissionMongoQueryServiceTest(
             requestRepository,
         )
 
-    @AfterEach
-    fun afterEach() =
+    @BeforeEach
+    fun beforeEach() =
         runBlocking {
             submissionRepo.deleteAll()
             mongoTemplate.ensureSubmissionIndexes()
@@ -191,11 +190,11 @@ internal class SubmissionMongoQueryServiceTest(
             runTest {
                 val extSectionMatch = section.copy(attributes = listOf(attribute.copy(name = "Title", value = "match")))
                 val extSectionMismatch =
-                    section.copy(attributes = listOf(attribute.copy(name = "Title", value = "m_atch")))
+                    section.copy(attributes = listOf(attribute.copy(name = "Title", value = "hello")))
                 val docSectionMatch =
                     docSection.copy(attributes = listOf(DocAttribute(name = "Title", value = "match")))
                 val docSectionNoMatch =
-                    docSection.copy(attributes = listOf(DocAttribute(name = "Tit_le", value = "match")))
+                    docSection.copy(attributes = listOf(DocAttribute(name = "Title", value = "world")))
 
                 saveAsRequest(sub.copy(accNo = "acc1", section = extSectionMatch), REQUESTED)
                 saveAsRequest(sub.copy(accNo = "acc2", section = extSectionMismatch), REQUESTED)
