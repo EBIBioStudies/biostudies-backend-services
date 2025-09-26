@@ -186,7 +186,7 @@ class SubmissionDocDataRepository(
                 // Wrap each word in quotes for logical AND
                 val terms = keywords.split("\\s".toRegex()).joinToString(" ") { "\"$it\"" }
                 return Criteria().andOperator(
-                    Criteria.where("\$text").`is`(Document("\$search", keywords)),
+                    Criteria.where("\$text").`is`(Document("\$search", terms)),
                     Criteria.where(SUB_OWNER).`is`(user),
                 )
             }
