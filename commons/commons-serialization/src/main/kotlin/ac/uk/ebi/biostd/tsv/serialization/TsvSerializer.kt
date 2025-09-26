@@ -65,14 +65,13 @@ class TsvSerializer {
         }
     }
 
-    private fun sectionAttributes(section: Section): List<Attribute> {
-        val attributes = section.attributes.toMutableList()
-
-        section.fileList?.let { fileList -> attributes.add(Attribute(FILE_LIST.value, "${fileList.name}.tsv")) }
-        section.linkList?.let { linksList -> attributes.add(Attribute(LINK_LIST.value, "${linksList.name}.tsv")) }
-
-        return attributes.toList()
-    }
+    private fun sectionAttributes(section: Section) =
+        section.attributes.plus(
+            listOfNotNull(
+                section.fileList?.let { Attribute(FILE_LIST.value, "${it.name}.tsv") },
+                section.linkList?.let { Attribute(LINK_LIST.value, "${it.name}.tsv") },
+            ),
+        )
 
     private fun getHeader(
         table: SectionsTable,
