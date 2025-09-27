@@ -56,7 +56,11 @@ class SubmissionQueryResource(
     suspend fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute request: SubmissionFilterRequest,
-    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
+    ): List<SubmissionDto> {
+        val filter = request.asFilter(user.email, user.superuser)
+        require(filter.accNo == null || filter.keywords == null) { "Filter by both accNo and keywords is not supported" }
+        return submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
+    }
 
     @GetMapping("/{accNo}")
     suspend fun getSubmission(
