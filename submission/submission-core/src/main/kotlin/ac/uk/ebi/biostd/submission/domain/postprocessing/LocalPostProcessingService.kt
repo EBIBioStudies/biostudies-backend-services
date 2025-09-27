@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.submission
+package ac.uk.ebi.biostd.submission.domain.postprocessing
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger
 private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
-class SubmissionPostProcessingService(
+class LocalPostProcessingService(
     private val pageTabService: PageTabService,
     private val statsDataService: StatsDataService,
     private val fileStorageService: FileStorageService,
@@ -43,22 +43,27 @@ class SubmissionPostProcessingService(
     private val submissionFileRepository: SubmissionFilesDocDataRepository,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
+        logger.info { "Calculating stats for submission $accNo" }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         calculateStats(sub)
         return statsDataService.findByAccNo(accNo)?.stats.orEmpty()
     }
 
     suspend fun generateFallbackPageTabFiles(accNo: String): List<ExtFile> {
+        logger.info { "Generating fallback page tab files for submission '$accNo'." }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
         return generateFallbackPageTabFiles(sub)
     }
 
     suspend fun indexSubmissionInnerFiles(accNo: String) {
+        logger.info { "Indexing submission '$accNo' files" }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
         indexSubmissionInnerFiles(sub)
     }
 
     suspend fun postProcess(accNo: String) {
+        logger.info { "Post processing submission '$accNo'" }
+
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         generateFallbackPageTabFiles(sub)
         indexSubmissionInnerFiles(sub)

@@ -33,6 +33,7 @@ import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
@@ -127,7 +128,7 @@ class SubmissionAsyncTest(
 
             extSubmissionSubmitter.handleRequestAsync("SimpleAsync2", 2)
             waitUntil(timeout = Duration.ofMinutes(1), checkInterval = ofMillis(100)) {
-                requestRepository.getRequest("SimpleAsync2", 2).status == PROCESSED
+                requestRepository.getRequest("SimpleAsync2", 2).status == POST_PROCESSED
             }
             val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).process!!.statusChanges
             assertThat(requestStatus.map { it.status }).containsExactly(
@@ -141,6 +142,7 @@ class SubmissionAsyncTest(
                 FILES_COPIED.action,
                 CHECK_RELEASED.action,
                 PERSISTED.action,
+                PROCESSED.action,
             )
 
             assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()

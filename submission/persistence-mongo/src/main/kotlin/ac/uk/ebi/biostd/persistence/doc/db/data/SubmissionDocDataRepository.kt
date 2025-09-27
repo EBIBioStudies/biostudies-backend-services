@@ -4,18 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_VERSION
@@ -34,6 +30,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.bson.Document
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -52,7 +49,6 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.TextCriteria
 import org.springframework.data.mongodb.core.query.Update.update
 
 @Suppress("SpreadOperator", "TooManyFunctions")
@@ -183,41 +179,32 @@ class SubmissionDocDataRepository(
 
         @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
-            fun sectionTitleContains(keywords: String) =
-                where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
-                    Criteria().andOperator(
-                        where(ATTRIBUTE_DOC_NAME).`is`("Title"),
-                        where(ATTRIBUTE_DOC_VALUE).regex(".*$keywords.*", "i"),
-                    ),
+            fun ownerTextFilter(
+                keywords: String,
+                user: String,
+            ): Criteria {
+                // Wrap each word in quotes for logical AND
+                val terms = keywords.split("\\s".toRegex()).joinToString(" ") { "\"$it\"" }
+                return Criteria().andOperator(
+                    Criteria.where("\$text").`is`(Document("\$search", terms)),
+                    Criteria.where(SUB_OWNER).`is`(user),
                 )
-
-            fun subTitleContains(keywords: String): Criteria = where(SUB_TITLE).regex(".*$keywords.*", "i")
-
-            fun keywordsFilter(keywords: String): Criteria =
-                Criteria().orOperator(subTitleContains(keywords), sectionTitleContains(keywords))
+            }
 
             return buildList {
                 when (filter) {
                     is SimpleFilter -> {}
                     is SubmissionListFilter -> {
-                        when {
-                            filter.findAnyAccNo -> {
-                                if (filter.accNo != null) {
-                                    add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
-                                } else {
-                                    // use Text based index.
-                                    filter.keywords?.let { add(match(keywordsCriteria(it))) }
-                                }
+                        val keywords = filter.keywords
+                        val mainFilter =
+                            when {
+                                keywords != null -> ownerTextFilter(keywords, filter.filterUser)
+                                filter.findAnyAccNo.not() -> where(SUB_OWNER).`is`(filter.filterUser)
+                                else -> null
                             }
 
-                            else -> {
-                                add(match(where(SUB_OWNER).`is`(filter.filterUser)))
-                                // Use filter based on section and submission title.
-                                filter.keywords?.let { add(match(keywordsFilter(it))) }
-                            }
-                        }
-
-                        add(match(where(SUB_VERSION).gt(0)))
+                        mainFilter?.let { add(match(it)) }
+                        filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it).and(SUB_VERSION).gt(0))) }
                         filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
                     }
                 }
@@ -227,14 +214,6 @@ class SubmissionDocDataRepository(
                 filter.collection?.let { add(match(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it))) }
                 filter.released?.let { add(match(where(SUB_RELEASED).`is`(it))) }
             }
-        }
-
-        private fun keywordsCriteria(keywords: String): TextCriteria {
-            val terms = keywords.split("\\s".toRegex()).map { "\"$it\"" }.toTypedArray()
-            return TextCriteria
-                .forDefaultLanguage()
-                .matchingAny(*terms)
-                .caseSensitive(false)
         }
     }
 }

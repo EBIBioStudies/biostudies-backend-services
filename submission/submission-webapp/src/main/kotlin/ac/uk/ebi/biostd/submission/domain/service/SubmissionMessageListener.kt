@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
@@ -30,7 +29,6 @@ class SubmissionMessageListener(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val properties: SubmissionNotificationsProperties,
     private val eventsPublisherService: EventsPublisherService,
-    private val submissionPostProcessingService: SubmissionPostProcessingService,
 ) {
     @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {
@@ -127,7 +125,7 @@ class SubmissionMessageListener(
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received post process message for submission $accNo, version: $version" }
-            submissionPostProcessingService.postProcess(accNo)
+            submissionSubmitter.handleRequestAsync(accNo, version)
         }
     }
 

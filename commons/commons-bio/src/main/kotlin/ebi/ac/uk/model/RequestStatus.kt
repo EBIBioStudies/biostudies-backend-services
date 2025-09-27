@@ -14,12 +14,13 @@ enum class RequestStatus {
     CHECK_RELEASED,
     PERSISTED,
     PROCESSED,
+    POST_PROCESSED,
     INVALID,
     ;
 
     companion object {
         val DRAFT_STATUS: Set<RequestStatus> = setOf(DRAFT)
-        val PROCESSED_STATUS: Set<RequestStatus> = setOf(PROCESSED)
+        val PROCESSED_STATUS: Set<RequestStatus> = setOf(POST_PROCESSED)
 
         val EDITABLE_STATUS: Set<RequestStatus> = setOf(DRAFT, INVALID)
 
@@ -38,6 +39,7 @@ enum class RequestStatus {
                 FILES_COPIED,
                 CHECK_RELEASED,
                 PERSISTED,
+                PROCESSED,
             )
 
         /**

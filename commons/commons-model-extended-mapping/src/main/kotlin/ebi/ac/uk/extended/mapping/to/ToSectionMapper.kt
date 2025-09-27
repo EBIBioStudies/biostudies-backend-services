@@ -11,6 +11,7 @@ import ebi.ac.uk.util.collections.mapRigh
 
 class ToSectionMapper(
     private val toFileListMapper: ToFileListMapper,
+    private val toLinkListMapper: ToLinkListMapper,
 ) {
     suspend fun convert(
         sec: ExtSection,
@@ -38,6 +39,7 @@ class ToSectionMapper(
             type = sec.type,
             accNo = sec.accNo,
             fileList = sec.fileList?.let { toFileListMapper.convert(it) },
+            linkList = sec.linkList?.let { toLinkListMapper.convert(it) },
             attributes = sec.attributes.mapTo(mutableListOf()) { it.toAttribute() },
             files = sec.files.mapTo(mutableListOf()) { either -> either.bimap({ it.toFile() }, { it.toTable() }) },
             links = sec.links.mapTo(mutableListOf()) { either -> either.bimap({ it.toLink() }, { it.toTable() }) },

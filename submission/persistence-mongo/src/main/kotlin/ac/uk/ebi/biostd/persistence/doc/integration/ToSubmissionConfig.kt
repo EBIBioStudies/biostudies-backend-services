@@ -29,7 +29,10 @@ class ToSubmissionConfig {
     ) = ToLinkListMapper(serializationService, extSerializationService, resolver)
 
     @Bean
-    fun toSectionMapper(toFileListMapper: ToFileListMapper): ToSectionMapper = ToSectionMapper(toFileListMapper)
+    fun toSectionMapper(
+        toFileListMapper: ToFileListMapper,
+        toLinkListMapper: ToLinkListMapper,
+    ): ToSectionMapper = ToSectionMapper(toFileListMapper, toLinkListMapper)
 
     @Bean
     fun toSubmissionMapper(toSectionMapper: ToSectionMapper): ToSubmissionMapper = ToSubmissionMapper(toSectionMapper)

@@ -24,7 +24,7 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
-import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -179,7 +179,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     version = 2,
                     owner = "owner@mail.org",
                     draft = "draft-content",
-                    status = PROCESSED,
+                    status = POST_PROCESSED,
                     modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                     onBehalfUser = null,
                     files = emptyList(),

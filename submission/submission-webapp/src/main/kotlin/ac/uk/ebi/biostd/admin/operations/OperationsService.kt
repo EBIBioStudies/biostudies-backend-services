@@ -23,7 +23,7 @@ class OperationsService(
 ) {
     suspend fun deleteRequestFiles() {
         persistenceService
-            .findAllProcessed()
+            .findAllCompleted()
             .onEach { (accNo, version) -> logger.info { "Deleting request files $accNo, $version" } }
             .collect { (accNo, version) ->
                 runSafely("Deleting temp Files accNo='$accNo', version:'$version'") {
@@ -48,7 +48,7 @@ class OperationsService(
 
     suspend fun archiveRequests() =
         persistenceService
-            .findAllProcessed()
+            .findAllCompleted()
             .onEach { (accNo, version) -> logger.info { "Archiving request $accNo, $version" } }
             .concurrently(ARCHIVE_CONCURRENCY) { (accNo, version) ->
                 runSafely("Archive accNo='$accNo', version:'$version'") {

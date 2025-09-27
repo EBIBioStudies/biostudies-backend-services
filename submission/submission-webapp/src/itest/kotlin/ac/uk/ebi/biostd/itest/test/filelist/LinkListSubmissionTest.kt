@@ -27,6 +27,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -46,10 +47,10 @@ import java.nio.file.Paths
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class LinkListSubmissionTest(
-    @LocalServerPort val serverPort: Int,
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val extSubQueryService: ExtSubmissionQueryService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val extSubQueryService: ExtSubmissionQueryService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -61,7 +62,7 @@ class LinkListSubmissionTest(
         }
 
     @Test
-    fun `31-1 TSV submission with link list`() =
+    fun `32-1 TSV submission with link list`() =
         runTest {
             val submission =
                 tsv {
@@ -89,10 +90,59 @@ class LinkListSubmissionTest(
             assertThat(webClient.submitMultipart(submission, TSV, parameters, files)).isSuccessful()
             assertPageTabFiles(accNo = "S-LLT311", linkListName = "LinkList")
             assertReferencedLinks(accNo = "S-LLT311", linkListName = "LinkList")
+
+            val savedSubmission = submissionRepository.getExtByAccNo("S-LLT311")
+            val jsonPageTab = submissionPath.resolve("${savedSubmission.relPath}/S-LLT311.json")
+            assertThat(jsonPageTab).hasContent(
+                """
+                {
+                  "accno" : "S-LLT311",
+                  "attributes" : [ {
+                    "name" : "Title",
+                    "value" : "TSV Submission With Link List"
+                  } ],
+                  "section" : {
+                    "accno" : "SECT-001",
+                    "type" : "Study",
+                    "attributes" : [ {
+                      "name" : "Link List",
+                      "value" : "LinkList.json"
+                    } ]
+                  },
+                  "type" : "submission"
+                }
+                """.trimIndent(),
+            )
+
+            val tsvPageTab = submissionPath.resolve("${savedSubmission.relPath}/S-LLT311.tsv")
+            assertThat(tsvPageTab).hasContent(
+                """
+                Submission	S-LLT311
+                Title	TSV Submission With Link List
+
+                Study	SECT-001
+                Link List	LinkList.tsv
+                """.trimIndent(),
+            )
+
+            val jsonLinkListPageTab = submissionPath.resolve("${savedSubmission.relPath}/$FILES_PATH/LinkList.json")
+            assertThat(jsonLinkListPageTab).hasContent(
+                """
+                [{"url":"IHECRE00000919.1","attributes":[{"name":"Type","value":"EpiRR"}]}]
+                """.trimIndent(),
+            )
+
+            val tsvLinkListPageTab = submissionPath.resolve("${savedSubmission.relPath}/$FILES_PATH/LinkList.tsv")
+            assertThat(tsvLinkListPageTab).hasContent(
+                """
+                Links	Type
+                IHECRE00000919.1	EpiRR
+                """.trimIndent(),
+            )
         }
 
     @Test
-    fun `31-2 JSON submission with link list`() =
+    fun `32-2 JSON submission with link list`() =
         runTest {
             val submission =
                 jsonObj {
@@ -142,7 +192,7 @@ class LinkListSubmissionTest(
         }
 
     @Test
-    fun `31-3 resubmission modifying links`() =
+    fun `32-3 resubmission modifying links`() =
         runTest {
             val subV1 =
                 tsv {
@@ -206,7 +256,7 @@ class LinkListSubmissionTest(
         }
 
     @Test
-    fun `31-4 resubmission reusing link list`() =
+    fun `32-4 resubmission reusing link list`() =
         runTest {
             val subV1 =
                 tsv {

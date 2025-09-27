@@ -10,4 +10,4 @@ logs/*
 /.run/
 
 # System specific
-submission/submission-webapp/logs/application_logs.txt
+submission/submission-webapp/logs/*

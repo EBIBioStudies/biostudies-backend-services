@@ -165,7 +165,7 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
-    suspend fun findAllProcessed(): Flow<SubIdentifier>
+    suspend fun findAllCompleted(): Flow<SubIdentifier>
 
     suspend fun hasProcesingRequest(accNo: String): Boolean
 
