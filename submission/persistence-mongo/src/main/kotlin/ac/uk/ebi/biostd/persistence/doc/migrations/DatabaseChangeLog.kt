@@ -105,10 +105,11 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
         createIndex(
             CompoundIndexDefinition(
                 Document()
-                    .append("$prefix$SUB_OWNER", 1)
                     .append("$prefix$SUB_TITLE", "text")
                     .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME", "text")
-                    .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE", "text"),
+                    .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE", "text")
+                    .append("$prefix$SUB_OWNER", 1)
+                    .append("$prefix$SUB_VERSION", 1),
             ).named("owner_sub_title_section_attributes_index"),
         ).awaitSingleOrNull()
     }
