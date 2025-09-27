@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.common.properties.FireProperties
 import ac.uk.ebi.biostd.common.properties.FtpProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
+import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.coroutines.RetryConfig
 import ebi.ac.uk.coroutines.SuspendRetryTemplate
@@ -91,6 +92,12 @@ class GeneralConfig {
             LSF -> lsfCluster(properties)
             SLURM -> slurmCluster(properties)
         }
+
+    @Bean
+    fun remoteSubmitterExecutor(
+        appProperties: ApplicationProperties,
+        clusterClient: ClusterClient,
+    ): RemoteSubmitterExecutor = RemoteSubmitterExecutor(appProperties.submissionTask, clusterClient)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "false")
