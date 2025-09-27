@@ -186,8 +186,9 @@ class SubmissionDocDataRepository(
                 // Wrap each word in quotes for logical AND
                 val terms = keywords.split("\\s".toRegex()).joinToString(" ") { "\"$it\"" }
                 return Criteria().andOperator(
-                    Criteria.where("\$text").`is`(Document("\$search", terms)),
-                    Criteria.where(SUB_OWNER).`is`(user),
+                    where("\$text").`is`(Document("\$search", terms)),
+                    where(SUB_OWNER).`is`(user),
+                    where(SUB_VERSION).gt(0),
                 )
             }
 
@@ -196,15 +197,26 @@ class SubmissionDocDataRepository(
                     is SimpleFilter -> {}
                     is SubmissionListFilter -> {
                         val keywords = filter.keywords
+                        val accNo = filter.accNo
+                        val user = filter.filterUser
                         val mainFilter =
                             when {
-                                keywords != null -> ownerTextFilter(keywords, filter.filterUser)
-                                filter.findAnyAccNo.not() -> where(SUB_OWNER).`is`(filter.filterUser)
-                                else -> null
+                                keywords != null -> ownerTextFilter(keywords, user)
+                                filter.findAnyAccNo ->
+                                    when (accNo) {
+                                        null -> where(SUB_VERSION).gt(0)
+                                        else -> where(SUB_VERSION).gt(0).andOperator(where(SUB_ACC_NO).`is`(accNo))
+                                    }
+
+                                else -> {
+                                    when (accNo) {
+                                        null -> where(SUB_OWNER).`is`(user).andOperator(where(SUB_VERSION).gt(0))
+                                        else -> where(SUB_VERSION).gt(0).andOperator(where(SUB_ACC_NO).`is`(accNo))
+                                    }
+                                }
                             }
 
-                        mainFilter?.let { add(match(it)) }
-                        filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it).and(SUB_VERSION).gt(0))) }
+                        add(match(mainFilter))
                         filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
                     }
                 }
