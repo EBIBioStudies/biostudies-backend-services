@@ -202,20 +202,15 @@ class SubmissionDocDataRepository(
                         val mainFilter =
                             when {
                                 keywords != null -> ownerTextFilter(keywords, user)
-                                filter.findAnyAccNo ->
-                                    when (accNo) {
-                                        null -> where(SUB_VERSION).gt(0)
-                                        else -> where(SUB_VERSION).gt(0).andOperator(where(SUB_ACC_NO).`is`(accNo))
-                                    }
-
+                                accNo == null -> where(SUB_OWNER).`is`(user).andOperator(where(SUB_VERSION).gt(0))
                                 else -> {
-                                    when (accNo) {
-                                        null -> where(SUB_OWNER).`is`(user).andOperator(where(SUB_VERSION).gt(0))
-                                        else ->
-                                            where(SUB_OWNER).`is`(user).andOperator(
-                                                where(SUB_VERSION).gt(0).andOperator(
-                                                    where(SUB_ACC_NO).`is`(accNo),
-                                                ),
+                                    when (filter.findAnyAccNo) {
+                                        true -> where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0))
+                                        false ->
+                                            Criteria().andOperator(
+                                                where(SUB_ACC_NO).`is`(accNo),
+                                                where(SUB_OWNER).`is`(user),
+                                                where(SUB_VERSION).gt(0),
                                             )
                                     }
                                 }
