@@ -211,7 +211,12 @@ class SubmissionDocDataRepository(
                                 else -> {
                                     when (accNo) {
                                         null -> where(SUB_OWNER).`is`(user).andOperator(where(SUB_VERSION).gt(0))
-                                        else -> where(SUB_VERSION).gt(0).andOperator(where(SUB_ACC_NO).`is`(accNo))
+                                        else ->
+                                            where(SUB_OWNER).`is`(user).andOperator(
+                                                where(SUB_VERSION).gt(0).andOperator(
+                                                    where(SUB_ACC_NO).`is`(accNo),
+                                                ),
+                                            )
                                     }
                                 }
                             }
