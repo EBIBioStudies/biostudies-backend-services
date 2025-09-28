@@ -78,6 +78,31 @@ class FileListTsvStreamDeserializerTest(
             )
         }
 
+    @Test
+    fun deserilizeWithEmptyNullValues() =
+        runTest {
+            val tsvFile =
+                createTsvFile(
+                    tsv {
+                        line("Files", "Attr1", "Attr2")
+                        line("file1.txt", "A", "B")
+                        line("file2.txt", "C")
+                        line()
+                    },
+                )
+
+            val files = tsvFile.inputStream().use { testInstance.deserializeFileList(it).toList() }
+
+            assertThat(files).hasSize(2)
+
+            assertThat(files.first()).isEqualTo(
+                BioFile("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))),
+            )
+            assertThat(files.second()).isEqualTo(
+                BioFile("file2.txt", attributes = listOf(Attribute("Attr1", "C"))),
+            )
+        }
+
     private fun createTsvFile(content: Tsv): File {
         val file = tempFolder.root.createTempFile()
         file.writeText(content.toString())
