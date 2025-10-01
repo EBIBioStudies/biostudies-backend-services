@@ -40,6 +40,7 @@ interface StatsDataService {
      */
     suspend fun saveAll(
         accNo: String,
+        subCreationTime: Instant,
         collections: List<String>,
         stats: List<SubmissionStat>,
     ): BulkWriteResult

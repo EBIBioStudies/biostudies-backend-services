@@ -112,7 +112,7 @@ class LocalPostProcessingService(
                 SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
             )
 
-        statsDataService.saveAll(sub.accNo, collections, stats)
+        statsDataService.saveAll(sub.accNo, sub.creationTime.toInstant(), collections, stats)
         logger.info { "Finished calculating stats for submission ${sub.accNo}, version ${sub.version}" }
     }
 

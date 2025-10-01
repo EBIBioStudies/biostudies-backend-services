@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_LAST_UPDATED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STATS_MAP
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -122,6 +123,7 @@ class StatsMongoDataService(
 
     override suspend fun saveAll(
         accNo: String,
+        subCreationTime: Instant,
         collections: List<String>,
         stats: List<SubmissionStat>,
     ): BulkWriteResult {
@@ -132,6 +134,7 @@ class StatsMongoDataService(
                         Filters.eq("accNo", it.accNo),
                         listOf(
                             Updates.set(STATS_COLLECTIONS, collections),
+                            Updates.set(STATS_SUB_CREATION_TIME, subCreationTime),
                             Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
                             Updates.set(STATS_LAST_UPDATED, Instant.now()),
                         ),
