@@ -36,6 +36,6 @@ internal fun createFile(
         file = file,
         fullPath = file.absolutePath,
         md5 = NOT_CALCULATED_MD5,
-        size = file.size(calculateDirectories = false),
+        size = file.size(),
         attributes = attributes,
     )

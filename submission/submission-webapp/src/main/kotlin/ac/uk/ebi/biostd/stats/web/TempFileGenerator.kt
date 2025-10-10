@@ -24,8 +24,8 @@ class TempFileGenerator(
     }
 
     /**
-     * Delete temporally folder folder from previous months to the current month. note that day is ignored so calling
-     * method in any day of July (07) wtih 3 months will delete files from april and before.
+     * Delete temporary folder from previous months to the current month. Note that the day is ignored, so for instance,
+     * calling this method in any day of July (07) with 3 months will delete files from April and before.
      */
     fun deleteOldFiles(monthsOld: Long) {
         fun listSubDirectories() =

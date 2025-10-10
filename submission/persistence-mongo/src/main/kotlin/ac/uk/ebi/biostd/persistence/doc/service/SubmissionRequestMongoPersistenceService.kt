@@ -116,7 +116,7 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository
             .findByStatusIn(PROCESSED_STATUS)
 
-    override suspend fun hasProcesingRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
+    override suspend fun hasProcessingRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 
     override fun getActiveRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request =

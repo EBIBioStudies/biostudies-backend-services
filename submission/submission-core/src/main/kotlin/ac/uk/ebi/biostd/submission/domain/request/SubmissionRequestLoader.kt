@@ -39,7 +39,7 @@ class SubmissionRequestLoader(
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     /**
-     * Calculate md5 and size for every file in submission request.
+     * Calculate md5 and size for every file in the submission request.
      */
     suspend fun loadRequest(
         accNo: String,

@@ -57,7 +57,7 @@ class SubmissionSubmitterTest(
         runTest {
             val extRequestSlot = slot<ExtSubmitRequest>()
 
-            coEvery { requestService.hasProcesingRequest(ACC_NO) } returns false
+            coEvery { requestService.hasProcessingRequest(ACC_NO) } returns false
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
             coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)

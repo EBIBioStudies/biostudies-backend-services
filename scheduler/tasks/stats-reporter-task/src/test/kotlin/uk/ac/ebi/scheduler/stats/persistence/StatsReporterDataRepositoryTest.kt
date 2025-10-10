@@ -80,7 +80,7 @@ class StatsReporterDataRepositoryTest(
             accNo: String,
             stats: Map<String, Long>,
             collections: List<String> = emptyList(),
-        ) = mongoTemplate.save(DocSubmissionStats(ObjectId(), accNo, stats, collections)).block()
+        ) = mongoTemplate.save(DocSubmissionStats(ObjectId(), accNo, stats, testSub.creationTime, collections)).block()
 
         save(accNo = "S-BSST3", stats = mapOf(FILES_SIZE.value to 3))
         save(accNo = "S-BIAD1", stats = mapOf(FILES_SIZE.value to 4, VIEWS.value to 11), collections = bioImages)

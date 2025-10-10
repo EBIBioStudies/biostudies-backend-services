@@ -51,7 +51,7 @@ class LocalPostProcessingService(
 
     suspend fun generateFallbackPageTabFiles(accNo: String): List<ExtFile> {
         logger.info { "Generating fallback page tab files for submission '$accNo'." }
-        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         return generateFallbackPageTabFiles(sub)
     }
 
@@ -71,10 +71,12 @@ class LocalPostProcessingService(
     }
 
     private suspend fun indexSubmissionInnerFiles(submission: ExtSubmission) {
+        logger.info { "Started indexing inner files for submission ${submission.accNo}, version ${submission.version}" }
         submission
             .allSectionsFiles
             .map { DocSubmissionFile(ObjectId(), it.toDocFile(), submission.accNo, submission.version) }
             .forEach { submissionFileRepository.save(it) }
+        logger.info { "Finished indexing inner files for submission ${submission.accNo}, version ${submission.version}" }
     }
 
     private suspend fun generateFallbackPageTabFiles(sub: ExtSubmission): List<ExtFile> {
@@ -130,7 +132,7 @@ class LocalPostProcessingService(
         val idx = AtomicInteger(0)
         statsDataService
             .findAll(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
-            .onEach { accNo -> "Post processing submission ${idx.incrementAndGet()} accNo '$accNo'" }
+            .onEach { accNo -> logger.info { "Post processing submission ${idx.incrementAndGet()} accNo '$accNo'" } }
             .collect { accNo -> postProcessSafely(accNo) }
     }
 

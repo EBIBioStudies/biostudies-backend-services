@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
@@ -47,22 +46,6 @@ class StatsResource(
         @PathVariable type: String,
         @PathVariable accNo: String,
     ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
-
-    @PostMapping
-    @ResponseBody
-    suspend fun register(
-        @RequestBody stat: SubmissionStat,
-    ): SubmissionStat = submissionStatsService.register(stat.toStat()).toStatDto()
-
-    @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
-    @ResponseBody
-    suspend fun register(
-        @PathVariable type: String,
-        @RequestParam("stats") stats: MultipartFile,
-    ): UpdateResult {
-        val statFile = tmpFileGenerator.asFile(stats)
-        return submissionStatsService.register(type, statFile)
-    }
 
     @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
