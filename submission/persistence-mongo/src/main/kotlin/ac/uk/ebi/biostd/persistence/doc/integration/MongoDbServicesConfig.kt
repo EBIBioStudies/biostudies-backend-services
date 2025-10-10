@@ -97,10 +97,9 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun statsDataService(
-        submissionsRepository: SubmissionDocDataRepository,
         statsDataRepository: SubmissionStatsDataRepository,
         reactiveMongoTemplate: ReactiveMongoTemplate,
-    ): StatsDataService = StatsMongoDataService(submissionsRepository, statsDataRepository, reactiveMongoTemplate)
+    ): StatsDataService = StatsMongoDataService(statsDataRepository, reactiveMongoTemplate)
 
     @Bean
     fun fileProcessingService(

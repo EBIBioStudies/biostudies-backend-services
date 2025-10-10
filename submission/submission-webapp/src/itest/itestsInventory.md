@@ -149,13 +149,11 @@ Contains test related to resubmission
 
 ### Stats Test suite
 
-| Class               | Test No | Test name                    |
-|---------------------|---------|------------------------------|
-| SubmissionStatsTest | 26-1    | find stats by accNo          |
-| SubmissionStatsTest | 26-2    | find stats by type           |
-| SubmissionStatsTest | 26-3    | find stats by type and AccNo |
-| SubmissionStatsTest | 26-4    | register stats by file       |
-| SubmissionStatsTest | 26-5    | increment stats by file      |
+| Class               | Test No | Test name                                           |
+|---------------------|---------|-----------------------------------------------------|
+| SubmissionStatsTest | 26-1    | find stats                                          |
+| SubmissionStatsTest | 26-2    | increment stats by file                             |
+| SubmissionStatsTest | 26-3    | stats for non existing submissions are ignored      |
 
 ### Async submission Test suite
 

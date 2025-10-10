@@ -30,6 +30,7 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -44,7 +45,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.nio.file.Path
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
@@ -126,7 +126,7 @@ class SubmissionPostProcessingTest(
             val subFile1 = tempFolder.createFile("stats file 1.doc", "doc content")
             val subFile2 = tempFolder.createFile("statsFile2.txt", "content")
             val subFile3 = tempFolder.createFile("statsFile3.pdf", "pdf content")
-            val params = if (enableFire) SubmitParameters(storageMode = NFS) else SubmitParameters(storageMode = FIRE)
+            val params = if (enableFire) SubmitParameters(storageMode = FIRE) else SubmitParameters(storageMode = NFS)
             webClient.uploadFiles(listOf(subFile1, subFile2, fileList))
             webClient.uploadFiles(listOf(subFile3), "a")
 
@@ -184,20 +184,48 @@ class SubmissionPostProcessingTest(
             assertThat(innerFilesV1).satisfiesOnlyOnce { assertThat(it.file.filePath).isEqualTo("stats file 1.doc") }
 
             // Verify fallback page tab files are generated
-            val sub = submissionRepository.getExtByAccNo("S-STTS1")
-            val pageTabFallbackPath = pageTabFallbackPath.resolve(sub.relPath)
+            val pageTabPath = submissionPath.resolve(subV2.relPath)
+            val pageTabFallbackPath = pageTabFallbackPath.resolve(subV2.relPath)
+            val jsonPageTab = pageTabFallbackPath.resolve("S-STTS1.json")
+            val tsvPageTab = pageTabFallbackPath.resolve("S-STTS1.tsv")
+            val jsonFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.json")
+            val tsvFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.tsv")
+
             waitForCompletion(TEN_SECONDS) {
-                val jsonPageTab = pageTabFallbackPath.resolve("S-STTS1.json")
-                assertThat(jsonPageTab).exists()
+                assertThat(jsonPageTab).hasSameTextualContentAs(pageTabPath.resolve("S-STTS1.json"))
+                assertThat(tsvPageTab).hasSameTextualContentAs(pageTabPath.resolve("S-STTS1.tsv"))
 
-                val tsvPageTab = pageTabFallbackPath.resolve("S-STTS1.tsv")
-                assertThat(tsvPageTab).exists()
-
-                val jsonFileListTab = pageTabFallbackPath.resolve("Files").resolve("file-list.json")
-                assertThat(jsonFileListTab).exists()
-
-                val tsvFileListTab = pageTabFallbackPath.resolve("Files").resolve("file-list.tsv")
-                assertThat(tsvFileListTab).exists()
+                /*
+                 * TODO: this assertion is required due to a known bug causing inconsistencies on page tab generation
+                 * for FIRE submissions with directories. @see https://embl.atlassian.net/browse/BIOSTD-300
+                 */
+                if (enableFire) {
+                    assertThat(tsvFileList).hasContent(
+                        """
+                        Files	Type
+                        a/statsFile3.pdf	inner
+                        a.zip	folder
+                        """.trimIndent(),
+                    )
+                    assertThat(jsonFileList).hasContent(
+                        """
+                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"a.zip","size":173,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
+                        """.trimIndent(),
+                    )
+                } else {
+                    assertThat(tsvFileList).hasContent(
+                        """
+                        Files	Type
+                        a/statsFile3.pdf	inner
+                        a	folder
+                        """.trimIndent(),
+                    )
+                    assertThat(jsonFileList).hasContent(
+                        """
+                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"a","size":11,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
+                        """.trimIndent(),
+                    )
+                }
             }
         }
 
@@ -243,35 +271,50 @@ class SubmissionPostProcessingTest(
                     line()
 
                     line("Study")
+                    line("File List", "file-list.tsv")
                     line()
 
                     line("Files")
                     line("a-Dir/a_file.txt")
                 }.toString()
 
-            val storageMode = if (enableFire) FIRE else NFS
+            val fileListContent =
+                tsv {
+                    line("Files", "Type")
+                    line("a/statsFile3.pdf", "inner")
+                }.toString()
+
+            val params = if (enableFire) SubmitParameters(storageMode = FIRE) else SubmitParameters(storageMode = NFS)
+            webClient.uploadFile(tempFolder.createFile("file-list.tsv", fileListContent))
             webClient.uploadFile(tempFolder.createFile("a_file.txt", "file content"), "a-Dir")
-            webClient.submit(submission, TSV, SubmitParameters(storageMode = storageMode))
+            webClient.uploadFile(tempFolder.createFile("statsFile3.pdf", "pdf content"), "a")
+            webClient.submit(submission, TSV, params)
 
             val sub = submissionRepository.getExtByAccNo(accNo)
             val pageTabPath = submissionPath.resolve(sub.relPath)
-            val tsv = Path.of("$pageTabPath/$accNo.tsv").toFile()
-            val json = Path.of("$pageTabPath/$accNo.json").toFile()
-
+            val subFiles = pageTabPath.resolve(FILES_PATH)
             val pageTabFallbackPath = pageTabFallbackPath.resolve(sub.relPath)
             val tsvPageTabFallback = pageTabFallbackPath.resolve("$accNo.tsv")
             val jsonPageTabFallback = pageTabFallbackPath.resolve("$accNo.json")
+            val tsvFileListTab = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.tsv")
+            val jsonFileListTab = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.json")
 
             waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
             tsvPageTabFallback.delete()
             jsonPageTabFallback.delete()
+            tsvFileListTab.delete()
+            jsonFileListTab.delete()
             assertThat(tsvPageTabFallback).doesNotExist()
             assertThat(jsonPageTabFallback).doesNotExist()
+            assertThat(tsvFileListTab).doesNotExist()
+            assertThat(jsonFileListTab).doesNotExist()
 
             webClient.copyPageTab(accNo)
             waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
-            assertThat(tsvPageTabFallback).hasSameTextualContentAs(tsv)
-            assertThat(jsonPageTabFallback).hasSameTextualContentAs(json)
+            assertThat(tsvPageTabFallback).hasSameTextualContentAs(pageTabPath.resolve("$accNo.tsv"))
+            assertThat(jsonPageTabFallback).hasSameTextualContentAs(pageTabPath.resolve("$accNo.json"))
+            assertThat(tsvFileListTab).hasSameTextualContentAs(subFiles.resolve("file-list.tsv"))
+            assertThat(jsonFileListTab).hasSameTextualContentAs(subFiles.resolve("file-list.json"))
         }
 
     @Test
@@ -291,9 +334,9 @@ class SubmissionPostProcessingTest(
                     line("a-Dir/inner_file.txt")
                 }.toString()
 
-            val storageMode = if (enableFire) FIRE else NFS
+            val params = if (enableFire) SubmitParameters(storageMode = FIRE) else SubmitParameters(storageMode = NFS)
             webClient.uploadFile(tempFolder.createFile("inner_file.txt", "file content"), "a-Dir")
-            webClient.submit(submission, TSV, SubmitParameters(storageMode = storageMode))
+            webClient.submit(submission, TSV, params)
 
             waitForCompletion(TEN_SECONDS) {
                 submissionFilesDocDataRepository.findByAccNoAndVersion(accNo, 1).toList().isNotEmpty()

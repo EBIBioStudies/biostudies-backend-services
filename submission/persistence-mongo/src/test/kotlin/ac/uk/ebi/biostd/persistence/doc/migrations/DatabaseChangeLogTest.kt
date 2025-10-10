@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -29,6 +30,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
@@ -41,6 +45,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -77,7 +82,7 @@ import java.util.AbstractMap.SimpleEntry
 @SpringBootTest(classes = [MongoDbReactiveConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
-    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
+    @param:Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach
     fun init() {
@@ -189,13 +194,28 @@ internal class DatabaseChangeLogTest(
                         .listIndexes()
                         .asFlow()
                         .toList()
-                assertThat(statsIndexes).hasSize(6)
+                assertThat(statsIndexes).hasSize(7)
                 assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(statsIndexes[1]).containsEntry("key", Document(STATS_ACC_NO, 1))
                 assertThat(statsIndexes[2]).containsEntry("key", Document(STATS_COLLECTIONS, 1))
-                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
-                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
-                assertThat(statsIndexes[5]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
+                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_SUB_CREATION_TIME, 1))
+                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
+                assertThat(statsIndexes[5]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
+                assertThat(statsIndexes[6]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
+            }
+
+            suspend fun assertSubmissionFilesIndexes() {
+                val subFilesIndexes =
+                    mongoTemplate
+                        .collection<DocSubmissionFile>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
+                assertThat(subFilesIndexes).hasSize(4)
+                assertThat(subFilesIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertThat(subFilesIndexes[1]).containsEntry("key", Document(DOC_SUB_FILE_SUBMISSION_ACC_NO, 1))
+                assertThat(subFilesIndexes[2]).containsEntry("key", Document(DOC_SUB_FILE_SUBMISSION_VERSION, 1))
+                assertThat(subFilesIndexes[3]).containsEntry("key", Document("$DOC_SUB_FILE_FILE.$FILE_DOC_FILEPATH", 1))
             }
 
             suspend fun assertRequestFileIndexes() {
@@ -240,6 +260,7 @@ internal class DatabaseChangeLogTest(
             assertRequestFileIndexes()
             assertFileListIndexes()
             assertStatsIndexes()
+            assertSubmissionFilesIndexes()
         }
 
     companion object {

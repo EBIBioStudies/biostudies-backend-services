@@ -33,9 +33,9 @@ import java.time.Instant
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Transactional
 class SubmissionDraftApiTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val requestRepository: SubmissionRequestPersistenceService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 

@@ -14,7 +14,7 @@ class ExtPostProcessingService(
 ) {
     suspend fun postProcess(
         accNo: String,
-        mode: PostprocesMode,
+        mode: PostProcessMode,
         remote: Boolean,
     ) {
         suspend fun postProcess() {
@@ -50,10 +50,10 @@ class ExtPostProcessingService(
         }
 
         when (mode) {
-            PostprocesMode.ALL -> postProcess()
-            PostprocesMode.STATS -> stats()
-            PostprocesMode.INNER_FILES -> innerFiles()
-            PostprocesMode.PAGETAB -> pagetabFiles()
+            PostProcessMode.ALL -> postProcess()
+            PostProcessMode.STATS -> stats()
+            PostProcessMode.INNER_FILES -> innerFiles()
+            PostProcessMode.PAGETAB -> pagetabFiles()
         }
     }
 
@@ -62,16 +62,16 @@ class ExtPostProcessingService(
     }
 
     /**
-     * Returns the accno as command line args note that version is harcode as 0L. as postprogrssing operations are
-     * perform over latest version always.
+     * Returns the accNo as command line args note that version is hardcoded as 0L since post-processing operations are
+     * always performed over the latest version.
      */
     private fun asArgs(accNo: String): List<ExecutionArg> =
-        buildList<ExecutionArg> {
+        buildList {
             add(ExecutionArg("submissions[0].accNo", accNo))
             add(ExecutionArg("submissions[0].version", 0L))
         }
 
-    enum class PostprocesMode {
+    enum class PostProcessMode {
         ALL,
         STATS,
         INNER_FILES,
