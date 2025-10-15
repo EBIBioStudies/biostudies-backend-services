@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.tsv.deserialization.stream
 import ac.uk.ebi.biostd.tsv.TAB
 import ac.uk.ebi.biostd.validation.INVALID_FILES_TABLE
 import ac.uk.ebi.biostd.validation.INVALID_LINKS_TABLE
-import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
@@ -92,7 +91,7 @@ internal class FileListTsvStreamDeserializer {
             throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_FILE_PATH")
         }
 
-        return BioFile(fileName, attributes = buildAttributes(attributes, headers, index))
+        return BioFile(fileName, attributes = buildAttributes(attributes, headers))
     }
 
     private fun deserializeLinkListRow(
@@ -105,18 +104,14 @@ internal class FileListTsvStreamDeserializer {
             throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_LINK_URL")
         }
 
-        return Link(url, attributes = buildAttributes(attributes, headers, index))
+        return Link(url, attributes = buildAttributes(attributes, headers))
     }
 
     private fun buildAttributes(
         fields: List<String>,
         headers: List<String>,
-        idx: Int,
-    ): List<Attribute> {
-        require(fields.size == headers.size) {
-            throw InvalidElementException("Error at row ${idx + 1}: $INVALID_TABLE_ROW")
-        }
-
-        return headers.mapIndexed { headerIndex, name -> Attribute(name, fields[headerIndex]) }
-    }
+    ): List<Attribute> =
+        fields
+            .take(headers.size)
+            .mapIndexed { index, value -> Attribute(headers[index], value) }
 }

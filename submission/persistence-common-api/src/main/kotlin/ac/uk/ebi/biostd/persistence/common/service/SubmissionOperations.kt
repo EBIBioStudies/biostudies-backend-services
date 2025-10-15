@@ -167,7 +167,7 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun findAllCompleted(): Flow<SubIdentifier>
 
-    suspend fun hasProcesingRequest(accNo: String): Boolean
+    suspend fun hasProcessingRequest(accNo: String): Boolean
 
     suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
 

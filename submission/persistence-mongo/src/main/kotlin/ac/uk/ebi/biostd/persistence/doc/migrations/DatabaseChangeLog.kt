@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -28,6 +29,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
@@ -40,6 +44,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -54,15 +59,14 @@ import org.springframework.data.mongodb.core.index.CompoundIndexDefinition
 import org.springframework.data.mongodb.core.index.Index
 
 suspend fun ReactiveMongoTemplate.executeMigrations() {
-    ensureExists(DocSubmission::class.java)
     ensureSubmissionIndexes()
 
-    ensureExists(DocSubmissionRequest::class.java)
     ensureSubmissionRequestIndexes()
     ensureRequestFileIndexes()
 
-    ensureFileListIndexes()
     ensureStatsIndexes()
+    ensureFileListIndexes()
+    ensureSubmissionFilesIndexes()
 }
 
 suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
@@ -83,6 +87,7 @@ suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmission
  * 12. (Text Index) Submission Title, Submission Attributes, Section Attributes
  */
 private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
+    ensureExists(DocSubmission::class.java)
     indexOps(T::class.java).apply {
         createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
@@ -122,6 +127,7 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
  * 3. All submission indexes over internal submission.
  */
 suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
+    ensureExists(DocSubmissionRequest::class.java)
     ensureSubmissionIndexes<DocSubmissionRequest>("$RQT_PROCESS.$SUB.")
     indexOps(DocSubmissionRequest::class.java).apply {
         createIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
@@ -131,7 +137,7 @@ suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
     }
 }
 
-fun backgroundIndex() = Index().background()
+fun backgroundIndex(): Index = Index().background()
 
 /**
  * file_list_files collection indexes
@@ -201,15 +207,36 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
 
 /**
  * submission_stats collection indexes
- * 1. Submission AccNo
+ * 1. AccNo
+ * 2. Collections
+ * 3. Creation time
+ * 4. Files Size
+ * 5. Directories
+ * 6. Non-declared Files Directories
  */
 suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
     indexOps(DocSubmissionStats::class.java).apply {
-        ensureIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_COLLECTIONS, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
-        ensureIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_COLLECTIONS, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_SUB_CREATION_TIME, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
+    }
+}
+
+/**
+ * submission_files collection indexes
+ * 1. AccNo
+ * 2. Version
+ * 3. File Path
+ */
+suspend fun ReactiveMongoOperations.ensureSubmissionFilesIndexes() {
+    ensureExists(DocSubmissionFile::class.java)
+    indexOps(DocSubmissionFile::class.java).apply {
+        createIndex(backgroundIndex().on(DOC_SUB_FILE_SUBMISSION_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(DOC_SUB_FILE_SUBMISSION_VERSION, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on("$DOC_SUB_FILE_FILE.$FILE_DOC_FILEPATH", ASC)).awaitSingleOrNull()
     }
 }

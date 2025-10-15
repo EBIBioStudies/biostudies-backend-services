@@ -12,8 +12,8 @@ private val logger = KotlinLogging.logger {}
 
 class StatsFileHandler {
     /**
-     * Read the list of stats in the file. Invalid entries are removed. Note that is likely that file contains
-     * duplicated entries for the same accNo. Which represent consecutive stats updates.
+     * Read the list of stats in the file. Invalid entries are removed. Note that it is likely that the file contains
+     * duplicated entries for the same accNo which represent consecutive stats updates.
      */
     suspend fun readStatsForIncrement(
         stats: File,
@@ -22,29 +22,11 @@ class StatsFileHandler {
         withContext(Dispatchers.IO) {
             stats
                 .readLines()
-                .map { asStat(it, type) }
-                .filterNotNull()
-        }
-
-    /**
-     * Read the list of stats in the file. Invalid entries are removed. Note that as stats values are for register
-     * latest value reported is the only keep by accNo.
-     */
-    suspend fun readRegisterStats(
-        stats: File,
-        type: SubmissionStatType,
-    ): List<SubmissionStat> =
-        withContext(Dispatchers.IO) {
-            stats
-                .readLines()
-                .map { asStat(it, type) }
-                .filterNotNull()
-                .associateBy({ it.accNo }, { it })
-                .map { it.value }
+                .mapNotNull { asStat(it, type) }
         }
 
     @Suppress("ReturnCount")
-    private suspend fun asStat(
+    private fun asStat(
         entry: String,
         type: SubmissionStatType,
     ): SubmissionStat? {
