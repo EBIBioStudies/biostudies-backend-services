@@ -352,7 +352,7 @@ class SubmitterConfig(
         fun doiService(webClient: WebClient) = DoiService(webClient, properties.doi)
 
         @Bean
-        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, properties.subBasePath)
+        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, queryService, properties.subBasePath)
 
         @Bean
         fun parentInfoService(beanFactory: BeanFactory) = CollectionValidationService(beanFactory, queryService)

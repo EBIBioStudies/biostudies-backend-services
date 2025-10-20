@@ -313,15 +313,14 @@ class SubmissionRequestDocDataRepository(
     }
 
     suspend fun setSubRequestAccNo(
-        tempAccNo: String,
         accNo: String,
         owner: String,
         modificationTime: Instant,
     ) {
-        val update = update(RQT_ACC_NO, accNo).set(RQT_MODIFICATION_TIME, modificationTime)
+        val update = update(RQT_MODIFICATION_TIME, modificationTime)
         val where =
             where(RQT_ACC_NO)
-                .`is`(tempAccNo)
+                .`is`(accNo)
                 .andOperator(where(RQT_OWNER).`is`(owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
 
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()

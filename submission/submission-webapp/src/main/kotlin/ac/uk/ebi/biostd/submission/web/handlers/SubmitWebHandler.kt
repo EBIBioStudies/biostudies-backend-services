@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
@@ -20,6 +19,7 @@ import ac.uk.ebi.biostd.submission.model.method
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
+import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.ByPassSourceList
@@ -43,7 +43,6 @@ class SubmitWebHandler(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val queryService: SubmissionMetaQueryService,
     private val fileServiceFactory: FileServiceFactory,
-    private val persistenceService: SubmissionPersistenceService,
     private val requestDraftService: SubmissionRequestDraftService,
     private val appProperties: ApplicationProperties,
 ) {
@@ -102,31 +101,35 @@ class SubmitWebHandler(
         val (requestFiles, preferredSources) = rqt.filesConfig
 
         suspend fun getOrCreateRequestDraft(
-            accNo: String,
-            version: Int,
+            accNo: String?,
+            owner: String,
             submission: Submission,
         ): SubmissionRequest {
-            require(requestDraftService.hasProcessingRequest(accNo).not()) {
-                throw ConcurrentSubException(
-                    accNo,
-                    version,
-                )
+            suspend fun createDraftFromAccNo(
+                accNo: String,
+                attachTo: String?,
+            ): SubmissionRequest {
+                val pageTab = serializationService.serializeSubmission(submission, JSON)
+                if (requestDraftService.hasProcessingRequest(accNo)) throw ConcurrentSubException(accNo)
+                return requestDraftService.createActiveRequestByAccNo(pageTab, owner, accNo, attachTo)
             }
 
-            val pageTab = serializationService.serializeSubmission(submission, JSON)
-            return when (rqt) {
-                is ContentSubmitWebRequest,
-                is FileSubmitWebRequest,
-                -> requestDraftService.getOrCreateRequestDraft(submission.accNo, submitter.email, pageTab)
+            suspend fun createNewDraft(): SubmissionRequest {
+                val pageTab = serializationService.serializeSubmission(submission, JSON)
+                return requestDraftService.createRequestDraft(draft = pageTab, user = owner, submission.attachTo)
+            }
 
-                is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.accNo, rqt.owner)
+            return when {
+                rqt is DraftSubmitWebRequest -> requestDraftService.getRequestDraft(rqt.accNo, owner)
+                accNo != null -> createDraftFromAccNo(accNo, submission.attachTo)
+                else -> createNewDraft()
             }
         }
 
         /**
          * Deserialize the submission without considering files and retrieve accNo and rootPath.
          */
-        suspend fun deserializeSubmission(): Pair<String, String?> {
+        suspend fun deserializeSubmission(): Pair<String?, String?> {
             val submission =
                 when (rqt) {
                     is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
@@ -137,7 +140,7 @@ class SubmitWebHandler(
                     }
                 }
 
-            return submission.accNo to submission.rootPath
+            return submission.accNo.nullIfBlank() to submission.rootPath
         }
 
         /**
@@ -191,24 +194,20 @@ class SubmitWebHandler(
          * 7. Proper submission accNo is set to the draft.
          */
         suspend fun processSubmission(): SubmitRequest {
-            val (tempAccNo, rootPath) = deserializeSubmission()
-            val previous = extSubService.findExtendedSubmission(tempAccNo)
+            val (accNo, rootPath) = deserializeSubmission()
+            val previous = accNo?.let { extSubService.findExtendedSubmission(it) }
             val sources = getSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
-            val owner = onBehalfUser?.email ?: submitter.email
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
-            val (accNo, relPath) = accNoService.calculateAccNo(submitter.email, submission, collection, previous)
-            val version = persistenceService.getNextVersion(accNo)
-            val draft = getOrCreateRequestDraft(accNo, version, submission)
+            val draft = getOrCreateRequestDraft(accNo, submitter.email, submission)
 
             return SubmitRequest(
-                accNo = accNo,
-                draftAccNo = draft.accNo,
-                version = version,
-                relPath = relPath,
+                accNo = draft.accNo,
+                version = draft.version,
+                relPath = accNoService.getRelPath(draft.accNo),
                 submission = submission,
                 submitter = submitter,
-                owner = owner,
+                owner = onBehalfUser?.email ?: submitter.email,
                 sources = sources,
                 preferredSources = preferredSources,
                 requestFiles = requestFiles.orEmpty(),

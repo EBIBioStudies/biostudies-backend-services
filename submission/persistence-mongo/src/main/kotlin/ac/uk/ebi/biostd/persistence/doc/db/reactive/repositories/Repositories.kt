@@ -153,6 +153,12 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         owner: String,
         editableStatus: Set<RequestStatus>,
     ): DocSubmissionRequest?
+
+    suspend fun getByAccNoAndOwnerAndStatusIn(
+        accNo: String,
+        owner: String,
+        editableStatus: Set<RequestStatus>,
+    ): DocSubmissionRequest
 }
 
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
