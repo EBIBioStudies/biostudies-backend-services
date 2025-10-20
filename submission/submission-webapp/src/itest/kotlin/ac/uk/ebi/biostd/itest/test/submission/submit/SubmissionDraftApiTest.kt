@@ -42,6 +42,7 @@ class SubmissionDraftApiTest(
     @BeforeAll
     fun init() =
         runBlocking {
+            securityTestService.ensureSequence("S-BSST")
             securityTestService.ensureUserRegistration(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }

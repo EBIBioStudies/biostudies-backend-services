@@ -6,10 +6,13 @@ import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentRequestDraftExcep
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
+import ac.uk.ebi.biostd.submission.service.AccNoService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.model.RequestStatus.DRAFT
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
@@ -24,7 +27,9 @@ class SubmissionRequestDraftService(
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val submissionQueryService: SubmissionPersistenceQueryService,
+    private val submissionPersistenceService: SubmissionPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
+    private val accNoService: AccNoService,
 ) {
     suspend fun findActiveRequestDrafts(
         owner: String,
@@ -40,18 +45,10 @@ class SubmissionRequestDraftService(
         requestService.findEditableRequest(accNo, owner)
             ?: createRequestDraftFromSubmission(accNo, owner)
 
-    suspend fun getOrCreateRequestDraft(
-        accNo: String,
-        owner: String,
-        draft: String,
-    ): SubmissionRequest =
-        requestService.findEditableRequest(accNo, owner)
-            ?: createActiveRequestDraft(draft, owner, accNo.ifBlank { null })
-
     suspend fun getRequestDraft(
         accNo: String,
         owner: String,
-    ): SubmissionRequest = getOrCreateRequestDraftFromSubmission(accNo, owner)
+    ): SubmissionRequest = requestService.getEditableRequest(accNo, owner)
 
     suspend fun deleteRequestDraft(
         accNo: String,
@@ -79,8 +76,41 @@ class SubmissionRequestDraftService(
 
     suspend fun createRequestDraft(
         draft: String,
+        user: String,
+        attachTo: String?,
+    ): SubmissionRequest {
+        val accNo = accNoService.calculateAccNo(attachTo, user)
+        return saveRequest(draft, user, accNo.toString())
+    }
+
+    public suspend fun createActiveRequestByAccNo(
+        draft: String,
         owner: String,
-    ): SubmissionRequest = createActiveRequestDraft(draft, owner)
+        accNo: String,
+        attachTo: String?,
+    ): SubmissionRequest {
+        accNoService.checkAccess(accNo, owner, attachTo)
+        return saveRequest(draft, owner, accNo)
+    }
+
+    private suspend fun saveRequest(
+        draft: String,
+        owner: String,
+        accNo: String,
+    ): SubmissionRequest {
+        val creationTime = Instant.now()
+        val request =
+            SubmissionRequest(
+                accNo = accNo,
+                version = submissionPersistenceService.getNextVersion(accNo),
+                owner = owner,
+                draft = draft,
+                status = DRAFT,
+                modificationTime = creationTime.atOffset(UTC),
+            )
+        requestService.saveRequest(request)
+        return request
+    }
 
     private suspend fun createRequestDraftFromSubmission(
         accNo: String,
@@ -89,30 +119,9 @@ class SubmissionRequestDraftService(
         require(userPrivilegesService.canResubmit(owner, accNo)) { throw UserCanNotUpdateSubmit(accNo, owner) }
         require(requestService.hasProcessingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
 
-        val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
+        val current = submissionQueryService.getExtByAccNo(accNo)
+        val submission = toSubmissionMapper.toSimpleSubmission(current)
         val draft = serializationService.serializeSubmission(submission, JsonPretty)
-
-        return createActiveRequestDraft(draft, owner, accNo)
-    }
-
-    private suspend fun createActiveRequestDraft(
-        draft: String,
-        owner: String,
-        accNo: String? = null,
-    ): SubmissionRequest {
-        val creationTime = Instant.now()
-        val request =
-            SubmissionRequest(
-                accNo = accNo ?: "TMP_$creationTime",
-                version = 0,
-                owner = owner,
-                draft = draft,
-                status = DRAFT,
-                modificationTime = creationTime.atOffset(UTC),
-            )
-
-        requestService.saveRequest(request)
-
-        return request
+        return createActiveRequestByAccNo(draft, owner, accNo, submission.attachTo)
     }
 }

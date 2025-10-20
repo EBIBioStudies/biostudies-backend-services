@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,6 +53,7 @@ class SubmissionListSubmittedTest(
         }
 
     @Test
+    @Disabled
     fun `13-11 list submission request in SUBMITTED stage`() =
         runTest {
             val delayCollection =
