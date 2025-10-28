@@ -11,6 +11,8 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.submission.service.DoiService
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -41,6 +43,8 @@ class LocalPostProcessingService(
     private val serializationService: ExtSerializationService,
     private val extSubQueryService: SubmissionPersistenceQueryService,
     private val submissionFileRepository: SubmissionFilesDocDataRepository,
+    private val toSimpleSubmissionMapper: ToSubmissionMapper,
+    private val doiService: DoiService,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
         logger.info { "Calculating stats for submission $accNo" }
@@ -61,13 +65,23 @@ class LocalPostProcessingService(
         indexSubmissionInnerFiles(sub)
     }
 
-    suspend fun postProcess(accNo: String) {
-        logger.info { "Post processing submission '$accNo'" }
-
+    suspend fun postProcess(
+        accNo: String,
+        registerDoi: Boolean = false,
+    ) {
+        logger.info { "Started post-processing submission '$accNo'" }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         generateFallbackPageTabFiles(sub)
+        if (registerDoi) registerDoi(sub)
         indexSubmissionInnerFiles(sub)
         calculateStats(sub)
+        logger.info { "Finished post-processing submission '$accNo'" }
+    }
+
+    private suspend fun registerDoi(sub: ExtSubmission) {
+        if (sub.doi != null && extSubQueryService.findLatestInactiveByAccNo(sub.accNo)?.doi == null) {
+            doiService.registerDoi(sub.accNo, sub.owner, toSimpleSubmissionMapper.toSimpleSubmission(sub))
+        }
     }
 
     private suspend fun indexSubmissionInnerFiles(submission: ExtSubmission) {

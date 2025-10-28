@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.DoiProperties
+import ac.uk.ebi.biostd.common.properties.RetryProperties
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
@@ -10,12 +11,13 @@ import ac.uk.ebi.biostd.submission.exceptions.MissingDoiFieldException
 import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
 import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
-import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.FILE_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM_VALUE
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.PASSWORD_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.USER_PARAM
+import ebi.ac.uk.coroutines.RetryConfig
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -29,6 +31,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -41,6 +44,8 @@ import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -48,11 +53,12 @@ import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class)
 class DoiServiceTest(
-    @MockK private val webClient: WebClient,
-    @MockK private val submitRequest: SubmitRequest,
-    @MockK private val previousVersion: ExtSubmission,
+    @param:MockK private val webClient: WebClient,
+    @param:MockK private val requestSpec: RequestBodySpec,
+    @param:MockK private val previousVersion: ExtSubmission,
 ) {
-    private val testInstance = DoiService(webClient, properties)
+    private val retryTemplate = SuspendRetryTemplate(RetryConfig(1, 1, 1.0, 1))
+    private val testInstance = DoiService(webClient, properties, retryTemplate)
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 10, 11, 0, 0, UTC).toInstant()
 
     @AfterEach
@@ -62,204 +68,199 @@ class DoiServiceTest(
     fun beforeEach() {
         mockkStatic(Instant::class)
         every { Instant.now() } returns mockNow
-        every { submitRequest.previousVersion } returns null
     }
 
     @Test
-    fun `doi registration`(
-        @MockK requestSpec: RequestBodySpec,
-    ) {
-        val headersSlot = slot<Consumer<HttpHeaders>>()
-        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
-        val submission =
-            submission {
-                title = "Test Submission"
-                attribute("DOI", "")
+    fun `doi registration`() =
+        runTest {
+            val headersSlot = slot<Consumer<HttpHeaders>>()
+            val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
+            val submission =
+                submission {
+                    title = "Test Submission"
+                    attribute("DOI", "")
 
-                section("Study") {
-                    section("Organization") {
-                        accNo = "o1"
-                        attribute("Name", "EMBL")
-                    }
+                    section("Study") {
+                        section("Organization") {
+                            accNo = "o1"
+                            attribute("Name", "EMBL")
+                        }
 
-                    section("Author") {
-                        attribute("Name", "John Doe")
-                        attribute("ORCID", "12-32-45-82")
-                        attribute("Affiliation", "o1", ref = true)
+                        section("Author") {
+                            attribute("Name", "John Doe")
+                            attribute("ORCID", "12-32-45-82")
+                            attribute("Affiliation", "o1", ref = true)
+                        }
                     }
                 }
+
+            every { webClient.post().uri(properties.endpoint) } returns requestSpec
+            every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+            every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+            every { requestSpec.retrieve().bodyToMono<String>() } returns Mono.just("OK")
+
+            val doi = testInstance.calculateDoi(TEST_ACC_NO, submission, null)
+            testInstance.registerDoi(TEST_ACC_NO, TEST_USER, submission)
+            val body = bodySlot.captured
+            val headers = headersSlot.captured
+            val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
+
+            assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
+            assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST)
+            assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
+            assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
+            assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+            headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
+            verify(exactly = 1) {
+                webClient.post().uri(properties.endpoint)
+                requestSpec.bodyValue(body)
+                requestSpec.retrieve().bodyToMono<String>()
             }
-
-        every { submitRequest.submission } returns submission
-        every { webClient.post().uri(properties.endpoint) } returns requestSpec
-        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
-
-        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        val body = bodySlot.captured
-        val headers = headersSlot.captured
-        val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
-
-        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
-        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST)
-        assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
-        assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
-        assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
-        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
-        verify(exactly = 1) {
-            webClient.post().uri(properties.endpoint)
-            requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
         }
-    }
 
     @Test
-    fun `doi registration with single author name`(
-        @MockK requestSpec: RequestBodySpec,
-    ) {
-        val headersSlot = slot<Consumer<HttpHeaders>>()
-        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
-        val submission =
-            submission {
-                title = "Test Submission"
-                attribute("DOI", "")
+    fun `doi registration with single author name`() =
+        runTest {
+            val headersSlot = slot<Consumer<HttpHeaders>>()
+            val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
+            val submission =
+                submission {
+                    title = "Test Submission"
+                    attribute("DOI", "")
 
-                section("Study") {
-                    section("Organization") {
-                        accNo = "o1"
-                        attribute("Name", "EMBL")
-                    }
+                    section("Study") {
+                        section("Organization") {
+                            accNo = "o1"
+                            attribute("Name", "EMBL")
+                        }
 
-                    section("Author") {
-                        attribute("Name", "Doe")
-                        attribute("ORCID", "12-32-45-82")
-                        attribute("Affiliation", "o1", ref = true)
+                        section("Author") {
+                            attribute("Name", "Doe")
+                            attribute("ORCID", "12-32-45-82")
+                            attribute("Affiliation", "o1", ref = true)
+                        }
                     }
                 }
+
+            every { webClient.post().uri(properties.endpoint) } returns requestSpec
+            every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+            every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+            every { requestSpec.retrieve().bodyToMono<String>() } returns Mono.just("OK")
+
+            val doi = testInstance.calculateDoi(TEST_ACC_NO, submission, null)
+            testInstance.registerDoi(TEST_ACC_NO, TEST_USER, submission)
+            val body = bodySlot.captured
+            val headers = headersSlot.captured
+            val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
+
+            assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
+            assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITH_SINGLE_NAME)
+            assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
+            assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
+            assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+            headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
+            verify(exactly = 1) {
+                webClient.post().uri(properties.endpoint)
+                requestSpec.bodyValue(body)
+                requestSpec.retrieve().bodyToMono<String>()
             }
-
-        every { submitRequest.submission } returns submission
-        every { webClient.post().uri(properties.endpoint) } returns requestSpec
-        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
-
-        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        val body = bodySlot.captured
-        val headers = headersSlot.captured
-        val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
-
-        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
-        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITH_SINGLE_NAME)
-        assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
-        assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
-        assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
-        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
-        verify(exactly = 1) {
-            webClient.post().uri(properties.endpoint)
-            requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
         }
-    }
 
     @Test
-    fun `doi registration with single author name and blank space`(
-        @MockK requestSpec: RequestBodySpec,
-    ) {
-        val headersSlot = slot<Consumer<HttpHeaders>>()
-        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
-        val submission =
-            submission {
-                title = "Test Submission"
-                attribute("DOI", "")
+    fun `doi registration with single author name and blank space`() =
+        runTest {
+            val headersSlot = slot<Consumer<HttpHeaders>>()
+            val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
+            val submission =
+                submission {
+                    title = "Test Submission"
+                    attribute("DOI", "")
 
-                section("Study") {
-                    section("Organization") {
-                        accNo = "o1"
-                        attribute("Name", "EMBL")
-                    }
+                    section("Study") {
+                        section("Organization") {
+                            accNo = "o1"
+                            attribute("Name", "EMBL")
+                        }
 
-                    section("Author") {
-                        attribute("Name", "Doe ")
-                        attribute("ORCID", "12-32-45-82")
-                        attribute("Affiliation", "o1", ref = true)
+                        section("Author") {
+                            attribute("Name", "Doe ")
+                            attribute("ORCID", "12-32-45-82")
+                            attribute("Affiliation", "o1", ref = true)
+                        }
                     }
                 }
+
+            every { webClient.post().uri(properties.endpoint) } returns requestSpec
+            every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+            every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+            every { requestSpec.retrieve().bodyToMono<String>() } returns Mono.just("OK")
+
+            val doi = testInstance.calculateDoi(TEST_ACC_NO, submission, null)
+            testInstance.registerDoi(TEST_ACC_NO, TEST_USER, submission)
+            val body = bodySlot.captured
+            val headers = headersSlot.captured
+            val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
+
+            assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
+            assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITH_SINGLE_NAME)
+            assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
+            assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
+            assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+            headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
+            verify(exactly = 1) {
+                webClient.post().uri(properties.endpoint)
+                requestSpec.bodyValue(body)
+                requestSpec.retrieve().bodyToMono<String>()
             }
-
-        every { submitRequest.submission } returns submission
-        every { webClient.post().uri(properties.endpoint) } returns requestSpec
-        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
-
-        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        val body = bodySlot.captured
-        val headers = headersSlot.captured
-        val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
-
-        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
-        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITH_SINGLE_NAME)
-        assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
-        assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
-        assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
-        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
-        verify(exactly = 1) {
-            webClient.post().uri(properties.endpoint)
-            requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
         }
-    }
 
     @Test
-    fun `doi registration missing author name`(
-        @MockK requestSpec: RequestBodySpec,
-    ) {
-        val headersSlot = slot<Consumer<HttpHeaders>>()
-        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
-        val submission =
-            submission {
-                title = "Test Submission"
-                attribute("DOI", "")
+    fun `doi registration missing author name`() =
+        runTest {
+            val headersSlot = slot<Consumer<HttpHeaders>>()
+            val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
+            val submission =
+                submission {
+                    title = "Test Submission"
+                    attribute("DOI", "")
 
-                section("Study") {
-                    section("organization") {
-                        accNo = "o1"
-                        attribute("Name", "EMBL")
-                    }
+                    section("Study") {
+                        section("organization") {
+                            accNo = "o1"
+                            attribute("Name", "EMBL")
+                        }
 
-                    section("author") {
-                        attribute("P.I.", "John Doe")
-                        attribute("ORCID", "12-32-45-82")
-                        attribute("Affiliation", "o1", ref = true)
+                        section("author") {
+                            attribute("P.I.", "John Doe")
+                            attribute("ORCID", "12-32-45-82")
+                            attribute("Affiliation", "o1", ref = true)
+                        }
                     }
                 }
+
+            every { webClient.post().uri(properties.endpoint) } returns requestSpec
+            every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+            every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+            every { requestSpec.retrieve().bodyToMono<String>() } returns Mono.just("OK")
+
+            val doi = testInstance.calculateDoi(TEST_ACC_NO, submission, null)
+            testInstance.registerDoi(TEST_ACC_NO, TEST_USER, submission)
+            val body = bodySlot.captured
+            val headers = headersSlot.captured
+            val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
+
+            assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
+            assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITHOUT_CONTRIBUTORS)
+            assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
+            assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
+            assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+            headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
+            verify(exactly = 1) {
+                webClient.post().uri(properties.endpoint)
+                requestSpec.bodyValue(body)
+                requestSpec.retrieve().bodyToMono<String>()
             }
-
-        every { submitRequest.submission } returns submission
-        every { webClient.post().uri(properties.endpoint) } returns requestSpec
-        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
-
-        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        val body = bodySlot.captured
-        val headers = headersSlot.captured
-        val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
-
-        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
-        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITHOUT_CONTRIBUTORS)
-        assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
-        assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
-        assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
-        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
-        verify(exactly = 1) {
-            webClient.post().uri(properties.endpoint)
-            requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
         }
-    }
 
     @Test
     fun `doi not requested`() {
@@ -272,10 +273,7 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
-
-        assertThat(testInstance.calculateDoi(TEST_ACC_NO, submitRequest)).isNull()
-        verify(exactly = 0) { webClient.post() }
+        assertThat(testInstance.calculateDoi(TEST_ACC_NO, submission, null)).isNull()
     }
 
     @Test
@@ -291,14 +289,10 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
         every { previousVersion.doi } returns previousVersionDoi
-        every { submitRequest.previousVersion } returns previousVersion
 
-        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-
+        val doi = testInstance.calculateDoi(TEST_ACC_NO, submission, previousVersion)
         assertThat(doi).isEqualTo(previousVersionDoi)
-        verify(exactly = 0) { webClient.post() }
     }
 
     @Test
@@ -315,14 +309,13 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
         every { previousVersion.doi } returns previousDoi
-        every { submitRequest.previousVersion } returns previousVersion
 
-        val exception = assertThrows<InvalidDoiException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
-
+        val exception =
+            assertThrows<InvalidDoiException> {
+                testInstance.calculateDoi(TEST_ACC_NO, submission, previousVersion)
+            }
         assertThat(exception.message).isEqualTo("The given DOI '$doi' should match the previous DOI '$previousDoi'")
-        verify(exactly = 0) { webClient.post() }
     }
 
     @Test
@@ -338,14 +331,13 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
         every { previousVersion.doi } returns previousDoi
-        every { submitRequest.previousVersion } returns previousVersion
 
-        val exception = assertThrows<RemovedDoiException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
-
+        val exception =
+            assertThrows<RemovedDoiException> {
+                testInstance.calculateDoi(TEST_ACC_NO, submission, previousVersion)
+            }
         assertThat(exception.message).isEqualTo("The previous DOI: '$previousDoi' cannot be removed")
-        verify(exactly = 0) { webClient.post() }
     }
 
     @Test
@@ -355,17 +347,13 @@ class DoiServiceTest(
                 attribute("DOI", "")
             }
 
-        every { submitRequest.submission } returns submission
-
-        val exception = assertThrows<MissingTitleException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
-
-        verify(exactly = 0) { webClient.post() }
+        val exception = assertThrows<MissingTitleException> { testInstance.calculateDoi(TEST_ACC_NO, submission, null) }
         assertThat(exception.message).isEqualTo("A title is required for DOI registration")
     }
 
     @Test
     fun `missing organization`() {
-        val submission =
+        val sub =
             submission {
                 title = "Test Submission"
                 attribute("DOI", "")
@@ -377,17 +365,13 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
-
-        val exception = assertThrows<MissingDoiFieldException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
-
-        verify(exactly = 0) { webClient.post() }
+        val exception = assertThrows<MissingDoiFieldException> { testInstance.calculateDoi(TEST_ACC_NO, sub, null) }
         assertThat(exception.message).isEqualTo("The required DOI field 'Organization' could not be found")
     }
 
     @Test
     fun `missing organization accNo`() {
-        val submission =
+        val sub =
             submission {
                 title = "Test Submission"
                 attribute("DOI", "")
@@ -399,17 +383,13 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
-
-        val exception = assertThrows<InvalidOrgException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
-
-        verify(exactly = 0) { webClient.post() }
+        val exception = assertThrows<InvalidOrgException> { testInstance.calculateDoi(TEST_ACC_NO, sub, null) }
         assertThat(exception.message).isEqualTo("Organizations are required to have an accession")
     }
 
     @Test
     fun `missing organization name`() {
-        val submission =
+        val sub =
             submission {
                 title = "Test Submission"
                 attribute("DOI", "")
@@ -432,17 +412,13 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
-
-        val exception = assertThrows<InvalidOrgNameException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
-
-        verify(exactly = 0) { webClient.post() }
+        val exception = assertThrows<InvalidOrgNameException> { testInstance.calculateDoi(TEST_ACC_NO, sub, null) }
         assertThat(exception.message).isEqualTo("The following organization name is empty: 'o3'")
     }
 
     @Test
     fun `missing affiliation`() {
-        val submission =
+        val sub =
             submission {
                 title = "Test Submission"
                 attribute("DOI", "")
@@ -460,20 +436,16 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
-
         val exception =
             assertThrows<MissingAuthorAffiliationException> {
-                testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+                testInstance.calculateDoi(TEST_ACC_NO, sub, null)
             }
-
-        verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("Authors are required to have an affiliation")
     }
 
     @Test
     fun `invalid affiliation`() {
-        val submission =
+        val sub =
             submission {
                 title = "Test Submission"
                 attribute("DOI", null)
@@ -492,20 +464,17 @@ class DoiServiceTest(
                 }
             }
 
-        every { submitRequest.submission } returns submission
-
         val exception =
             assertThrows<InvalidAuthorAffiliationException> {
-                testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+                testInstance.calculateDoi(TEST_ACC_NO, sub, null)
             }
-
-        verify(exactly = 0) { webClient.post() }
         assertThat(exception.message)
             .isEqualTo("The organization 'o2' affiliated to the author 'John Doe' could not be found")
     }
 
     companion object {
         private const val TEST_ACC_NO = "S-TEST123"
+        private const val TEST_USER = "user@ebi.ac.uk"
 
         private val properties =
             DoiProperties(
@@ -514,6 +483,7 @@ class DoiServiceTest(
                 email = "biostudies@ebi.ac.uk",
                 user = "a-user",
                 password = "a-password",
+                retry = RetryProperties(1, 1, 1.0, 1),
             )
 
         private const val EXPECTED_DOI_REQUEST = """

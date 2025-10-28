@@ -76,4 +76,5 @@ data class DoiProperties(
     val email: String,
     val user: String,
     val password: String,
+    val retry: RetryProperties,
 )

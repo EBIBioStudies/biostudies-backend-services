@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.coroutines.waitForCompletion
@@ -95,6 +96,7 @@ class SubmissionPostProcessingTest(
                     line("Submission", "S-STTS1")
                     line("Title", "Stats Registration Test Over FIRE")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line("DOI")
                     line()
 
                     line("Study")
@@ -104,6 +106,16 @@ class SubmissionPostProcessingTest(
 
                     line("File", "stats file 1.doc")
                     line("Type", "test")
+                    line()
+
+                    line("Author")
+                    line("Name", "Jane Doe")
+                    line("ORCID", "1234-5678-9101-1121")
+                    line("Affiliation", "o1")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "EMBL")
                     line()
 
                     line("Experiment", "Exp1")
@@ -154,6 +166,9 @@ class SubmissionPostProcessingTest(
 
             val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
             val subFilesSize = subFile1.size() + subFile2.size() + subFile3.size()
+
+            // Verify doi is registered
+            assertThat(subV2.doi).isEqualTo("$BS_DOI_ID/S-STTS1")
 
             // Verify submission stats are calculated
             val statsV2 = statsDataService.findStatsByAccNo("S-STTS1")
