@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -75,6 +76,8 @@ class SubmissionConfig {
 
     @Bean
     fun extSubmissionService(
+        doiService: DoiService,
+        toSubmissionMapper: ToSubmissionMapper,
         submissionSubmitter: ExtSubmissionSubmitter,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
@@ -82,6 +85,8 @@ class SubmissionConfig {
         eventsPublisherService: EventsPublisherService,
     ): ExtSubmissionService =
         ExtSubmissionService(
+            doiService,
+            toSubmissionMapper,
             submissionSubmitter,
             submissionPersistenceQueryService,
             userPrivilegeService,

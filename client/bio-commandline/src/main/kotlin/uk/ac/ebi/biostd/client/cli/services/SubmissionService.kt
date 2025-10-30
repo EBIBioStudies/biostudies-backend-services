@@ -6,6 +6,7 @@ import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
+import uk.ac.ebi.biostd.client.cli.dto.GenerateDoiRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
@@ -53,6 +54,13 @@ internal class SubmissionService {
             val (fileListPath, accNo, rootPath) = request
             val client = bioWebClient(request.securityConfig)
             client.validateFileList(fileListPath, rootPath, accNo)
+        }
+
+    suspend fun generateDoi(request: GenerateDoiRequest) =
+        performRequest {
+            val (server, user, password) = request.securityConfig
+            val client = bioWebClient(server, user, password)
+            client.generateDoi(request.accNo)
         }
 
     companion object {

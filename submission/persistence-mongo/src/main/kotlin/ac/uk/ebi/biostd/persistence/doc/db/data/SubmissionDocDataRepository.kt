@@ -49,18 +49,12 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.Update.update
 
 @Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
-    suspend fun setAsReleased(accNo: String) {
-        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
-        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java).awaitSingleOrNull()
-    }
-
     suspend fun getCurrentMaxVersion(accNo: String): Int? {
         val aggregation =
             newAggregation(

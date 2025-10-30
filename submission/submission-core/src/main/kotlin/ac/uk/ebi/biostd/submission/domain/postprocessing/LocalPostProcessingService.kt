@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class LocalPostProcessingService(
     private val pageTabService: PageTabService,
     private val statsDataService: StatsDataService,

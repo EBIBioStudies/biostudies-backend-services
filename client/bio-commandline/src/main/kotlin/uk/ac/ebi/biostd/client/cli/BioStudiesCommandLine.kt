@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.client.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import uk.ac.ebi.biostd.client.cli.commands.DeleteCommand
+import uk.ac.ebi.biostd.client.cli.commands.GenerateDoiCommand
 import uk.ac.ebi.biostd.client.cli.commands.GrantPermissionCommand
 import uk.ac.ebi.biostd.client.cli.commands.MigrateCommand
 import uk.ac.ebi.biostd.client.cli.commands.RevokePermissionCommand
@@ -21,19 +22,20 @@ internal class BioStudiesCommandLine : CliktCommand() {
 }
 
 fun main(args: Array<String>) {
-    val service = SubmissionService()
+    val submissionService = SubmissionService()
     val securityService = SecurityService()
     val subRequestService = SubmissionRequestService()
 
     BioStudiesCommandLine()
         .subcommands(
-            SubmitCommand(service),
-            DeleteCommand(service),
-            MigrateCommand(service),
-            TransferCommand(service),
+            SubmitCommand(submissionService),
+            DeleteCommand(submissionService),
+            MigrateCommand(submissionService),
+            TransferCommand(submissionService),
+            GenerateDoiCommand(submissionService),
             GrantPermissionCommand(securityService),
             RevokePermissionCommand(securityService),
-            ValidateFileListCommand(service),
+            ValidateFileListCommand(submissionService),
             SubmissionRequestStatusCommand(subRequestService),
         ).main(args)
 }

@@ -51,8 +51,8 @@ class SubmissionRequestCleaner(
 
     /**
      * Executes the clean previous version stage where deprecated files from the previous version (files that are no
-     * longer used) are deleted. Note that submission is query wth negative version as new version has been already
-     * persisted at this point.
+     * longer used) are deleted. Note that submission is queried wth negative version as the new version has been
+     * already persisted at this point.
      */
     suspend fun cleanPreviousVersion(
         accNo: String,

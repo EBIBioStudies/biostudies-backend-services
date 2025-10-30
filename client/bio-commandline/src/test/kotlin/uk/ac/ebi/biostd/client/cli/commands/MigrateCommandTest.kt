@@ -13,7 +13,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
 internal class MigrateCommandTest(
-    @MockK private val submissionService: SubmissionService,
+    @param:MockK private val submissionService: SubmissionService,
 ) {
     private val testInstance = MigrateCommand(submissionService)
 

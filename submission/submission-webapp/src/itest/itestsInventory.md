@@ -287,6 +287,8 @@ Contains test related to resubmission
 | SubmissionPostProcessingTest    | 31-2    | refresh submissions stats                                                        |                                                                                               |
 | SubmissionPostProcessingTest    | 31-3    | refresh pagetab fallback files                                                   |                                                                                               |
 | SubmissionPostProcessingTest    | 31-4    | refresh inner submission files                                                   |                                                                                               |
+| SubmissionPostProcessingTest    | 31-5    | generate DOI                                                                     | Generate a DOI for an already existing submission                                             |
+| SubmissionPostProcessingTest    | 31-6    | generate already existing DOI                                                    | System should fail when trying to generate an already existing DOI                            |
 
 ### Admin Operations Test suite
 

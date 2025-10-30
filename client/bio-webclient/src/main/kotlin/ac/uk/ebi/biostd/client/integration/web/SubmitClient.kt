@@ -236,6 +236,8 @@ interface ExtSubmissionOperations {
         accNo: String,
         releaseDate: Instant,
     ): Pair<String, Int>
+
+    suspend fun generateDoi(accNo: String): SubmissionId
 }
 
 interface PostProcessOperations {
