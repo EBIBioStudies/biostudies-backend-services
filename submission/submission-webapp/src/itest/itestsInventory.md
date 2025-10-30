@@ -237,9 +237,6 @@ Contains test related to resubmission
 | SpecialSubmissionAttributesTest | 15-3    | new submission with sections table without elements                              |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-4    | new submission with empty-null attributes                                        |                                                                                               |
 | SpecialSubmissionAttributesTest | 15-5    | new submission with empty-null table attributes                                  |                                                                                               |
-| SpecialSubmissionAttributesTest | 15-6    | submission with DOI                                                              |                                                                                               |
-| SpecialSubmissionAttributesTest | 15-7    | submission with DOI and incomplete name                                          | The DOI is registered without contributors when the author name is incomplete                 |
-| SpecialSubmissionAttributesTest | 15-8    | submission with DOI and no name                                                  | The DOI is registered without contributors when the author name is not present                |
 | SpecialSubmissionAttributesTest | 15-9    | private submission with double blind review                                      | Any author or organizations are hidden in the generated pagetab                               |
 | SpecialSubmissionAttributesTest | 15-10   | private submission with different review type                                    | All the fields are included in the generated pagetab                                          |
 | SpecialSubmissionAttributesTest | 15-11   | public submission with double blind review                                       | All the fields are included in the generated pagetab                                          |
@@ -290,6 +287,8 @@ Contains test related to resubmission
 | SubmissionPostProcessingTest    | 31-2    | refresh submissions stats                                                        |                                                                                               |
 | SubmissionPostProcessingTest    | 31-3    | refresh pagetab fallback files                                                   |                                                                                               |
 | SubmissionPostProcessingTest    | 31-4    | refresh inner submission files                                                   |                                                                                               |
+| SubmissionPostProcessingTest    | 31-5    | generate DOI                                                                     | Generate a DOI for an already existing submission                                             |
+| SubmissionPostProcessingTest    | 31-6    | generate already existing DOI                                                    | System should fail when trying to generate an already existing DOI                            |
 
 ### Admin Operations Test suite
 

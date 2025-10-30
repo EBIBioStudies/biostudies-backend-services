@@ -29,8 +29,6 @@ interface SubmissionPersistenceService {
 
     suspend fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
 
-    suspend fun setAsReleased(accNo: String)
-
     suspend fun getNextVersion(accNo: String): Int
 }
 

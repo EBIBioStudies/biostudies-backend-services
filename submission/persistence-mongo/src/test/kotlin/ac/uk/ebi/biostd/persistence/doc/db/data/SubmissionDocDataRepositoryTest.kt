@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
@@ -45,9 +44,9 @@ import java.time.ZoneOffset
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionDocDataRepositoryTest(
     private val tempFolder: TemporaryFolder,
-    @Autowired private val testInstance: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
-    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
+    @param:Autowired private val testInstance: SubmissionDocDataRepository,
+    @param:Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
+    @param:Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach
     fun beforeEach() =
@@ -56,18 +55,6 @@ internal class SubmissionDocDataRepositoryTest(
             fileListDocFileRepo.deleteAll()
             mongoTemplate.ensureSubmissionIndexes()
         }
-
-    @Nested
-    inner class ReleaseSubmission {
-        @Test
-        fun `release submission`() =
-            runTest {
-                testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
-                testInstance.setAsReleased("S-BIAD1")
-
-                assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
-            }
-    }
 
     @Nested
     inner class ExpireSubmissions {
@@ -189,13 +176,14 @@ internal class SubmissionDocDataRepositoryTest(
                     )
 
                 val result =
-                    testInstance.getSubmissions(
-                        SubmissionListFilter(
-                            OWNER,
-                            rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
-                            rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC),
-                        ),
-                    ).toList()
+                    testInstance
+                        .getSubmissions(
+                            SubmissionListFilter(
+                                OWNER,
+                                rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
+                                rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC),
+                            ),
+                        ).toList()
 
                 assertThat(result).containsOnly(d2)
             }

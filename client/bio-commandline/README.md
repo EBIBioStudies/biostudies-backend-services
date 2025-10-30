@@ -1,11 +1,11 @@
 # BioStudies CLI
 
-BioStudies CLI is a tool that allows interacting with the BioStudies web application in order to perform operations over
+BioStudies CLI is a tool that allows interacting with the BioStudies web application to perform operations over 
 submissions.
 
 ## Build
-In order to build the CLI, execute the command `gradle :client:bio-commandline:shadowJar`. This will generate the
-command line jar under `build/libs` folder.
+To build the CLI, execute the command `gradle :client:bio-commandline:shadowJar`. This will generate the command line 
+jar under `build/libs` folder.
 
 ## Usage
 
@@ -18,12 +18,12 @@ Make a submission to BioStudies
 * **s or --server:** BioStudies instance URL.
 * **u or --user:** User that will perform the submission.
 * **p or --password:** The user password.
-* **b or --onBehalf:** Allows to perform a submission on behalf of the user with the given e-mail.
+* **b or --onBehalf:** Allows performing a submission on behalf of the user with the given e-mail.
 * **i or --input:** Path to the file containing the submission page tab.
 * **a or --attach:** Comma separated list of paths to the files referenced in the submission.
 * **ps or --preferredSource:** Comma separated list of file sources. Valid values are FIRE, SUBMISSION and USER_SPACE.
   The order of the list indicates the priority in which the sources will be used
-* **sm or --storageMode:** Submission storage mode. Determines where submission need to be saved FIRE/NFS
+* **sm or --storageMode:** Submission storage mode. Determines where the submission needs to be saved FIRE/NFS
 * **aw or --await:** Indicates whether to wait for the submission processing
 * **sj or --splitJobs:** Indicates whether the submission should be processed in individual jobs per each stage
 
@@ -64,7 +64,7 @@ Delete a submission
 * **u or --user:** BioStudies user with privileges to delete the submission.
 * **p or --password:** The user password.
 * **ac or --accNo:** Accession number of the submission to delete.
-* **b or --onBehalf:** Allows to delete a submission on behalf of the user with the given e-mail.
+* **b or --onBehalf:** Allows deleting a submission on behalf of the user with the given e-mail.
 
 ### Migrate
 Migrate a submission from one environment to another
@@ -103,10 +103,27 @@ Transfers a submission to the given target storage mode
 * **u or --user:** BioStudies user with privileges to delete the submission.
 * **p or --password:** The user password.
 * **ac or --accNo:** Accession number of the submission to be transferred.
-* **t or --target:** Determines where submission need to be transferred to. Valid values are: FIRE/NFS
+* **t or --target:** Determines where the submission needs to be transferred to. Valid values are: FIRE/NFS
+
+### Generate DOI
+Allows generating a DOI for the given submission.
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** BioStudies user with privileges to generate a DOI for the submission.
+* **p or --password:** The user password.
+* **ac or --accNo:** Accession number of the submission to generate DOI.
+
+```
+java -jar build/libs/BioStudiesCLI-2.0.jar generateDoi \
+-s <server> \
+-u <user> \
+-p <password> \
+-ac <accNo>
+```
 
 ### Validate File List
-Validates the given file list contains valid pagetab and the referenced files exist either in the user folder or in the
+Validates the given file list contains valid pagetab, and the referenced files exist either in the user folder or in the
 submission files of the given accession.
 
 ```
@@ -124,7 +141,7 @@ java -jar build/libs/BioStudiesCLI-2.0.jar validateFileList \
 * **s or --server:** BioStudies instance URL.
 * **u or --user:** BioStudies user with privileges to delete the submission.
 * **p or --password:** The user password.
-* **b or --onBehalf:** Allows to delete a submission on behalf of the user with the given e-mail.
+* **b or --onBehalf:** Allows deleting a submission on behalf of the user with the given e-mail.
 * **f or --fileListPath:** Path to the file list to be validated. The path is relative to the user folder.
 * **ac or --accNo:** The accNo for the submission which files will be included in the search.
 * **rp or --rootPath:** Base path to search for the files in the user folder.

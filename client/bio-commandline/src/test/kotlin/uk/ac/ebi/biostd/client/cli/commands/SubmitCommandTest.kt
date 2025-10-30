@@ -25,7 +25,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SubmitCommandTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val submissionService: SubmissionService,
+    @param:MockK private val submissionService: SubmissionService,
 ) {
     private var testInstance = SubmitCommand(submissionService)
     private val rootFolder: String = temporaryFolder.root.absolutePath

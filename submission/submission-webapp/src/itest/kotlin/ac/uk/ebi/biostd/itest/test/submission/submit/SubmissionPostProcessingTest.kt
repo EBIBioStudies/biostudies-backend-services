@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -17,8 +18,10 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
@@ -95,6 +98,7 @@ class SubmissionPostProcessingTest(
                     line("Submission", "S-STTS1")
                     line("Title", "Stats Registration Test Over FIRE")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line("DOI")
                     line()
 
                     line("Study")
@@ -104,6 +108,16 @@ class SubmissionPostProcessingTest(
 
                     line("File", "stats file 1.doc")
                     line("Type", "test")
+                    line()
+
+                    line("Author")
+                    line("Name", "Jane Doe")
+                    line("ORCID", "1234-5678-9101-1121")
+                    line("Affiliation", "o1")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "EMBL")
                     line()
 
                     line("Experiment", "Exp1")
@@ -154,6 +168,9 @@ class SubmissionPostProcessingTest(
 
             val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
             val subFilesSize = subFile1.size() + subFile2.size() + subFile3.size()
+
+            // Verify doi is registered
+            assertThat(subV2.doi).isEqualTo("$BS_DOI_ID/S-STTS1")
 
             // Verify submission stats are calculated
             val statsV2 = statsDataService.findStatsByAccNo("S-STTS1")
@@ -348,5 +365,75 @@ class SubmissionPostProcessingTest(
             val innerFiles = submissionFilesDocDataRepository.findByAccNoAndVersion(accNo, 1).toList()
             assertThat(innerFiles).hasSize(1)
             assertThat(innerFiles).satisfiesOnlyOnce { assertThat(it.file.filePath).isEqualTo("a-Dir/inner_file.txt") }
+        }
+
+    @Test
+    fun `31-5 generate doi`() =
+        runTest {
+            val accNo = "DOI-GEN-0001"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "DOI Generation")
+                    line("ReleaseDate", "2099-09-21")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("Author")
+                    line("Name", "Jane Doe")
+                    line("ORCID", "1234-5678-9101-1121")
+                    line("Affiliation", "o1")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "EMBL")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(submissionRepository.getExtByAccNo(accNo).doi).isNull()
+
+            webClient.generateDoi(accNo)
+
+            waitForCompletion(TEN_SECONDS) {
+                submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
+            }
+        }
+
+    @Test
+    fun `31-6 generate already existing doi`() =
+        runTest {
+            val accNo = "DOI-GEN-0002"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "DOI Generation")
+                    line("ReleaseDate", "2099-09-21")
+                    line("DOI")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("Author")
+                    line("Name", "Jane Doe")
+                    line("ORCID", "1234-5678-9101-1121")
+                    line("Affiliation", "o1")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "EMBL")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            waitForCompletion(TEN_SECONDS) {
+                submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
+            }
+
+            val error = assertThrows<WebClientException> { webClient.generateDoi(accNo) }
+            assertThat(error.message).contains("DOI already exists for submission '$accNo'")
         }
 }

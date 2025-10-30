@@ -12,7 +12,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
 internal class DeleteCommandTest(
-    @MockK private val submissionService: SubmissionService,
+    @param:MockK private val submissionService: SubmissionService,
 ) {
     private val testInstance = DeleteCommand(submissionService)
 
