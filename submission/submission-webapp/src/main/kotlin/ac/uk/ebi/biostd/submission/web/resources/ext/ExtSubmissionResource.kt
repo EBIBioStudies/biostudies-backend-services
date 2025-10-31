@@ -63,6 +63,12 @@ class ExtSubmissionResource(
         @PathVariable releaseDate: String,
     ): Pair<String, Int> = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
 
+    @PostMapping("/{accNo}/generate-doi")
+    suspend fun generateDoi(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String,
+    ): SubmissionId = extSubmissionService.generateDoi(user.email, accNo)
+
     @PostMapping("/{accNo}/transfer/{target}")
     suspend fun transferSubmission(
         @BioUser user: SecurityUser,

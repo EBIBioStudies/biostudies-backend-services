@@ -5,11 +5,14 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.model.SubmissionId
+import ebi.ac.uk.model.extensions.doi
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -22,8 +25,10 @@ import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ExtSubmissionService(
+    private val doiService: DoiService,
+    private val toSubmissionMapper: ToSubmissionMapper,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val queryService: SubmissionPersistenceQueryService,
     private val privilegesService: IUserPrivilegesService,
@@ -75,6 +80,21 @@ class ExtSubmissionService(
         val releasedSub = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(releasedSub.first, releasedSub.second)
         return releasedSub
+    }
+
+    suspend fun generateDoi(
+        user: String,
+        accNo: String,
+    ): SubmissionId {
+        logger.info { "$accNo $user Received request to generate DOI" }
+        val extSub = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
+        require(extSub.doi == null) { "DOI already exists for submission '$accNo'" }
+
+        val sub = toSubmissionMapper.toSimpleSubmission(extSub).apply { doi = "true" }
+        val doi = doiService.calculateDoi(extSub.accNo, sub, extSub)
+
+        requireNotNull(doi) { "Failed to generate DOI for submission '$accNo'" }
+        return submitExtAsync(user, extSub.copy(doi = doi))
     }
 
     suspend fun submitExt(

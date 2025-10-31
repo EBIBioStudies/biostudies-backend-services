@@ -62,8 +62,8 @@ class ExtPostProcessingService(
     }
 
     /**
-     * Returns the accNo as command line args note that version is hardcoded as 0L since post-processing operations are
-     * always performed over the latest version.
+     * Returns the accNo as command line args note that a version is hardcoded as 0L since post-processing operations
+     * are always performed over the latest version.
      */
     private fun asArgs(accNo: String): List<ExecutionArg> =
         buildList {

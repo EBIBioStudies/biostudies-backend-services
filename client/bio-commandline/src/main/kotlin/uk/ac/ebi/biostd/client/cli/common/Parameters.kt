@@ -61,3 +61,7 @@ internal object SubmissionRequestParameters {
     const val ACC_NO = "Accession number of the submission request to check the status"
     const val VERSION = "Version of the submission request to check the status"
 }
+
+internal object DoiParameters {
+    const val ACC_NO = "Accession number of the submission to generate DOI"
+}

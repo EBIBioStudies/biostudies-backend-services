@@ -16,7 +16,7 @@ class SubmissionRequestPostProcessor(
         processId: String,
     ): SubmissionRequest =
         requestService.onRequest(accNo, version, PROCESSED, processId) {
-            postProcessorService.postProcess(it.accNo)
+            postProcessorService.postProcess(it.accNo, registerDoi = true)
             it.withNewStatus(POST_PROCESSED)
         }
 }
