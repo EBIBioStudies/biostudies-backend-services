@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.errors.InvalidPathException
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
@@ -39,14 +38,14 @@ class SubmissionRequestFilesValidator(
         requestService.onRequest(accNo, version, REQUESTED, processId) {
             when {
                 appProperties.asyncMode -> processSafely(it)
-                else -> it.withNewStatus(FILES_VALIDATED, pageTabService.generatePageTab(it.process!!.submission))
+                else -> processRequest(it)
             }
         }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun processSafely(request: SubmissionRequest): SubmissionRequest {
         try {
-            return request.withNewStatus(FILES_VALIDATED, processSubmission(request))
+            return processRequest(request)
         } catch (exception: Exception) {
             logger.error(exception) { "Error processing request accNo='${request.accNo}', version=${request.version}" }
             return when (exception) {
@@ -58,13 +57,14 @@ class SubmissionRequestFilesValidator(
         }
     }
 
-    private suspend fun processSubmission(subRequest: SubmissionRequest): ExtSubmission {
-        val sources = sources(subRequest)
-        val sub = subRequest.process!!.submission
-
+    private suspend fun processRequest(request: SubmissionRequest): SubmissionRequest {
+        val sources = sources(request)
+        val sub = request.process!!.submission
         val newSection = toExtSectionMapper.convert(sub.accNo, sub.version, sub.section, sources)
         val withFiles = sub.copy(section = newSection)
-        return pageTabService.generatePageTab(withFiles)
+        val withPageTab = pageTabService.generatePageTab(withFiles)
+
+        return request.withNewStatus(FILES_VALIDATED, withPageTab)
     }
 
     private suspend fun sources(submissionRequest: SubmissionRequest): FileSourcesList {

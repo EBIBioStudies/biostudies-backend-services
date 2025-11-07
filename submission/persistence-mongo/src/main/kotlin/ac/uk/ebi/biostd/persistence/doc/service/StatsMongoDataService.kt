@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.StatsNotFoundException
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStats
@@ -11,8 +10,8 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_LAST_UPDATED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STATS_MAP
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.Filters
@@ -35,7 +34,6 @@ import org.springframework.data.domain.PageRequest as DataPageRequest
 
 @Suppress("TooManyFunctions")
 class StatsMongoDataService(
-    private val submissionsRepository: SubmissionMongoRepository,
     private val statsDataRepository: SubmissionStatsDataRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : StatsDataService {
@@ -100,28 +98,9 @@ class StatsMongoDataService(
             ?.let { SubmissionStat(it.accNo, it.stats[submissionStatType.name]!!, submissionStatType) }
             ?: throw StatNotFoundException(accNo, submissionStatType)
 
-    override suspend fun saveStat(stat: SubmissionStat): SubmissionStat {
-        require(submissionsRepository.existsByAccNo(stat.accNo)) { throw SubmissionNotFoundException(stat.accNo) }
-        statsDataRepository.updateOrRegisterStat(stat)
-        val updated = statsDataRepository.getByAccNo(stat.accNo)
-        return SubmissionStat(updated.accNo, updated.stats[stat.type.name]!!, stat.type)
-    }
-
-    override suspend fun saveAll(stats: List<SubmissionStat>): BulkWriteResult {
-        val upserts =
-            stats
-                .map {
-                    UpdateOneModel<Document>(
-                        Filters.eq("accNo", it.accNo),
-                        Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
-                        UpdateOptions().upsert(true),
-                    )
-                }
-        return statsDataRepository.bulkWrite(upserts)
-    }
-
     override suspend fun saveAll(
         accNo: String,
+        subCreationTime: Instant,
         collections: List<String>,
         stats: List<SubmissionStat>,
     ): BulkWriteResult {
@@ -132,12 +111,14 @@ class StatsMongoDataService(
                         Filters.eq("accNo", it.accNo),
                         listOf(
                             Updates.set(STATS_COLLECTIONS, collections),
+                            Updates.set(STATS_SUB_CREATION_TIME, subCreationTime),
                             Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
                             Updates.set(STATS_LAST_UPDATED, Instant.now()),
                         ),
                         UpdateOptions().upsert(true),
                     )
                 }
+
         return statsDataRepository.bulkWrite(upserts)
     }
 
@@ -153,9 +134,10 @@ class StatsMongoDataService(
                 UpdateOneModel<Document>(
                     Filters.eq("accNo", it.accNo),
                     Updates.inc("$STATS_STATS_MAP.${it.type}", it.value),
-                    UpdateOptions().upsert(true),
+                    UpdateOptions().upsert(false),
                 )
             }
+
         return statsDataRepository.bulkWrite(upserts)
     }
 }

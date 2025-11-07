@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToFlow
 import java.io.File
@@ -44,34 +43,6 @@ class StatsClient(
             .uri("$STATS_URL/$type/$accNo")
             .retrieve()
             .awaitBody()
-
-    override suspend fun register(stat: SubmissionStat) {
-        client
-            .post()
-            .uri(STATS_URL)
-            .body(BodyInserters.fromValue(stat))
-            .retrieve()
-            .awaitBodilessEntity()
-    }
-
-    override suspend fun register(
-        type: String,
-        statsFile: File,
-    ): UpdateResult {
-        val headers =
-            httpHeadersOf(
-                HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
-                HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE,
-            )
-        val multiPartBody = linkedMultiValueMapOf("stats" to FileSystemResource(statsFile))
-        return client
-            .post()
-            .uri("$STATS_URL/$type")
-            .body(BodyInserters.fromMultipartData(multiPartBody))
-            .headers { it.addAll(headers) }
-            .retrieve()
-            .awaitBody()
-    }
 
     override suspend fun incrementStats(
         type: String,

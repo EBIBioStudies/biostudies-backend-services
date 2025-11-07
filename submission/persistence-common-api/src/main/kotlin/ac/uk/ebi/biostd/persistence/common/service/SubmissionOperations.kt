@@ -29,8 +29,6 @@ interface SubmissionPersistenceService {
 
     suspend fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
 
-    suspend fun setAsReleased(accNo: String)
-
     suspend fun getNextVersion(accNo: String): Int
 }
 
@@ -167,7 +165,7 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun findAllCompleted(): Flow<SubIdentifier>
 
-    suspend fun hasProcesingRequest(accNo: String): Boolean
+    suspend fun hasProcessingRequest(accNo: String): Boolean
 
     suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
 

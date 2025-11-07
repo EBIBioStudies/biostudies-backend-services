@@ -31,7 +31,7 @@ class SubmissionRequestDraftService(
         pageRequest: PageRequest = PageRequest(),
     ): Flow<SubmissionRequest> = requestService.findRequestDrafts(owner, pageRequest)
 
-    suspend fun hasProcessingRequest(accNo: String): Boolean = requestService.hasProcesingRequest(accNo)
+    suspend fun hasProcessingRequest(accNo: String): Boolean = requestService.hasProcessingRequest(accNo)
 
     suspend fun getOrCreateRequestDraftFromSubmission(
         accNo: String,
@@ -66,7 +66,7 @@ class SubmissionRequestDraftService(
         owner: String,
         draft: String,
     ): SubmissionRequest {
-        require(requestService.hasProcesingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
+        require(requestService.hasProcessingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
 
         val requestDraft = getOrCreateRequestDraftFromSubmission(accNo, owner)
         val modificationTime = Instant.now()
@@ -87,7 +87,7 @@ class SubmissionRequestDraftService(
         owner: String,
     ): SubmissionRequest {
         require(userPrivilegesService.canResubmit(owner, accNo)) { throw UserCanNotUpdateSubmit(accNo, owner) }
-        require(requestService.hasProcesingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
+        require(requestService.hasProcessingRequest(accNo).not()) { throw ConcurrentRequestDraftException(accNo) }
 
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val draft = serializationService.serializeSubmission(submission, JsonPretty)

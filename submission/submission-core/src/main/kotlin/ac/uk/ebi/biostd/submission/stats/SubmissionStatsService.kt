@@ -24,20 +24,6 @@ class SubmissionStatsService(
         type: String,
     ): SubmissionStat = statsDataService.findStatByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
 
-    suspend fun register(stat: SubmissionStat): SubmissionStat = statsDataService.saveStat(stat)
-
-    suspend fun register(
-        type: String,
-        statsFile: File,
-    ): UpdateResult {
-        val stats = statsFileHandler.readRegisterStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
-        val result = statsDataService.saveAll(stats)
-        return UpdateResult(
-            insertedRecords = result.insertedCount + result.upserts.size,
-            modifiedRecords = result.modifiedCount,
-        )
-    }
-
     suspend fun increment(
         type: String,
         statsFile: File,

@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.DoiService
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -34,15 +36,19 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
-    @MockK private val submissionRepository: SubmissionPersistenceQueryService,
-    @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val securityQueryService: SecurityQueryService,
-    @MockK private val eventsPublisher: EventsPublisherService,
+    @param:MockK private val doiService: DoiService,
+    @param:MockK private val toSubmissionMapper: ToSubmissionMapper,
+    @param:MockK private val submissionSubmitter: ExtSubmissionSubmitter,
+    @param:MockK private val submissionRepository: SubmissionPersistenceQueryService,
+    @param:MockK private val userPrivilegesService: IUserPrivilegesService,
+    @param:MockK private val securityQueryService: SecurityQueryService,
+    @param:MockK private val eventsPublisher: EventsPublisherService,
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
+            doiService,
+            toSubmissionMapper,
             submissionSubmitter,
             submissionRepository,
             userPrivilegesService,

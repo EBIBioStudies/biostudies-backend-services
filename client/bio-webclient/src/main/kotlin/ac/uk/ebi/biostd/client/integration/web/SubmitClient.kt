@@ -185,13 +185,6 @@ interface StatsOperations {
         accNo: String,
     ): SubmissionStat
 
-    suspend fun register(stat: SubmissionStat): Unit
-
-    suspend fun register(
-        type: String,
-        statsFile: File,
-    ): UpdateResult
-
     suspend fun incrementStats(
         type: String,
         statsFile: File,
@@ -243,6 +236,8 @@ interface ExtSubmissionOperations {
         accNo: String,
         releaseDate: Instant,
     ): Pair<String, Int>
+
+    suspend fun generateDoi(accNo: String): SubmissionId
 }
 
 interface PostProcessOperations {

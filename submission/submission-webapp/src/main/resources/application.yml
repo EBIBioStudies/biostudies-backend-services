@@ -172,3 +172,8 @@ app:
     email: # E-Mail to get the DOI processing notifications
     user: # User for the DOI service
     password: # Password for the DOI service
+    retry:
+      maxAttempts: # Maximum retry attempts
+      initialInterval: # Initial waiting interval time in ms
+      multiplier: # Multiplier for the waiting interval
+      maxInterval: # Maximum interval duration

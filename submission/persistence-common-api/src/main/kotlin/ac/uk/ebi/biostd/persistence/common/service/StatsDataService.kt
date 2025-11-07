@@ -26,20 +26,14 @@ interface StatsDataService {
         submissionStatType: SubmissionStatType,
     ): SubmissionStat
 
-    suspend fun saveStat(stat: SubmissionStat): SubmissionStat
-
     suspend fun incrementAll(stats: List<SubmissionStat>): BulkWriteResult
-
-    /**
-     * Save all the given stats that may bellow to a different submission.
-     */
-    suspend fun saveAll(stats: List<SubmissionStat>): BulkWriteResult
 
     /**
      * Save all the given stats and update submission latest updated date.
      */
     suspend fun saveAll(
         accNo: String,
+        subCreationTime: Instant,
         collections: List<String>,
         stats: List<SubmissionStat>,
     ): BulkWriteResult

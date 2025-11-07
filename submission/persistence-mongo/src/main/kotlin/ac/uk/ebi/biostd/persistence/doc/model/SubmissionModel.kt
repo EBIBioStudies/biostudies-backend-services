@@ -206,6 +206,7 @@ data class DocSubmissionStats(
     val id: ObjectId,
     val accNo: String,
     val stats: Map<String, Long>,
+    val subCreationTime: Instant,
     val collections: List<String> = emptyList(),
     val lastUpdated: Instant? = null,
 )

@@ -24,8 +24,8 @@ class SubmissionRequestIndexer(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     /**
-     * Index submission request file by creating records for each one. Note that pagetab files are processed first,
-     * guarantee by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
+     * Index the submission request files by creating records for each one. Note that pagetab files are processed first,
+     * guaranteed by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
      * submission main/core data is not available.
      */
     suspend fun indexRequest(

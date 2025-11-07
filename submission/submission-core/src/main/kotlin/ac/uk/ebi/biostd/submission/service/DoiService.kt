@@ -12,13 +12,15 @@ import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
 import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
-import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.post
+import ebi.ac.uk.commons.http.ext.postForObjectAsync
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
@@ -41,13 +43,15 @@ private val logger = KotlinLogging.logger {}
 class DoiService(
     private val webClient: WebClient,
     private val properties: DoiProperties,
+    private val retryTemplate: SuspendRetryTemplate,
 ) {
     fun calculateDoi(
         accNo: String,
-        rqt: SubmitRequest,
+        submission: Submission,
+        currentVersion: ExtSubmission?,
     ): String? {
-        val doi = rqt.submission.attributes.find { it.name == DOI.name } ?: return null
-        val previousDoi = rqt.previousVersion?.doi
+        val doi = submission.attributes.find { it.name == DOI.name } ?: return null
+        val previousDoi = currentVersion?.doi
 
         if (previousDoi != null) {
             val value = doi.value
@@ -56,17 +60,18 @@ class DoiService(
             return previousDoi
         }
 
-        return registerDoi(accNo, rqt)
+        checkDoiRequiredFields(submission)
+        return "$BS_DOI_ID/$accNo"
     }
 
-    private fun registerDoi(
+    suspend fun registerDoi(
         accNo: String,
-        rqt: SubmitRequest,
+        owner: String,
+        sub: Submission,
     ): String {
-        val sub = rqt.submission
         val timestamp = Instant.now().epochSecond.toString()
-        val title = rqt.submission.find(TITLE) ?: rqt.submission.section.find(TITLE) ?: throw MissingTitleException()
-        val request = DoiRequest(accNo, title, properties.email, timestamp, properties.uiUrl, getContributors(sub))
+        val (title, contributors) = checkDoiRequiredFields(sub)
+        val request = DoiRequest(accNo, title, properties.email, timestamp, properties.uiUrl, contributors)
         val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_$accNo", ".xml").toFile()
         val xmlRequest = request.asXmlRequest()
         FileUtils.writeContent(requestFile, xmlRequest)
@@ -80,15 +85,19 @@ class DoiService(
                 FILE_PARAM to FileSystemResource(requestFile),
             )
 
-        webClient.post(properties.endpoint, RequestParams(headers, body))
-        logger.info { "$accNo ${rqt.owner} Registered DOI: '${request.doi}' with request:\n $xmlRequest" }
+        retryTemplate.execute("Register DOI for submission $accNo") {
+            webClient.postForObjectAsync<String>(properties.endpoint, RequestParams(headers, body))
+        }
+
+        logger.info { "$accNo $owner Registered DOI: '${request.doi}' with request:\n $xmlRequest" }
 
         return request.doi
     }
 
-    private fun getContributors(submission: Submission): List<Contributor> {
+    private fun checkDoiRequiredFields(submission: Submission): Pair<String, List<Contributor>> {
         fun isNameValid(author: Section): Boolean = author.findAttr(NAME_ATTR).isNotBlank()
 
+        val title = submission.find(TITLE) ?: submission.section.find(TITLE) ?: throw MissingTitleException()
         val organizations = getOrganizations(submission)
         val contributors =
             submission
@@ -96,7 +105,7 @@ class DoiService(
                 .filter { it.isAuthor() }
                 .filter { isNameValid(it) }
 
-        return contributors.map { it.asContributor(organizations) }
+        return title to contributors.map { it.asContributor(organizations) }
     }
 
     private fun Section.asContributor(organizations: Map<String, String>): Contributor {
@@ -134,7 +143,7 @@ class DoiService(
             .forEach(::validate)
     }
 
-    private fun Section.findAttr(attribute: String): String? = attributes.find { it.name.lowercase() == attribute.lowercase() }?.value
+    private fun Section.findAttr(attribute: String): String? = attributes.find { it.name.equals(attribute, ignoreCase = true) }?.value
 
     companion object {
         internal const val AFFILIATION_ATTR = "Affiliation"

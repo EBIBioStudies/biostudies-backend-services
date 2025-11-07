@@ -63,7 +63,7 @@ class StatsReporterService(
 
         logger.info { "Started publishing report file '$reportName' for month '$currentMonth'" }
         Files.copy(previousReportPath, currentReportPath, REPLACE_EXISTING)
-        currentReportPath.outputStream(APPEND).use { it.write("\n${currentMonth}\t$value".toByteArray()) }
+        currentReportPath.outputStream(APPEND).use { it.write("${currentMonth}\t$value\n".toByteArray()) }
         logger.info { "Finished publishing report file '$reportName' for month '$currentMonth'" }
 
         return currentReportPath

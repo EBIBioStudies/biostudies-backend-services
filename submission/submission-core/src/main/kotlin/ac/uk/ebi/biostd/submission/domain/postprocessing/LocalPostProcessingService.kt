@@ -11,6 +11,8 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.submission.service.DoiService
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -32,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class LocalPostProcessingService(
     private val pageTabService: PageTabService,
     private val statsDataService: StatsDataService,
@@ -41,6 +43,8 @@ class LocalPostProcessingService(
     private val serializationService: ExtSerializationService,
     private val extSubQueryService: SubmissionPersistenceQueryService,
     private val submissionFileRepository: SubmissionFilesDocDataRepository,
+    private val toSimpleSubmissionMapper: ToSubmissionMapper,
+    private val doiService: DoiService,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
         logger.info { "Calculating stats for submission $accNo" }
@@ -51,7 +55,7 @@ class LocalPostProcessingService(
 
     suspend fun generateFallbackPageTabFiles(accNo: String): List<ExtFile> {
         logger.info { "Generating fallback page tab files for submission '$accNo'." }
-        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         return generateFallbackPageTabFiles(sub)
     }
 
@@ -61,20 +65,32 @@ class LocalPostProcessingService(
         indexSubmissionInnerFiles(sub)
     }
 
-    suspend fun postProcess(accNo: String) {
-        logger.info { "Post processing submission '$accNo'" }
-
+    suspend fun postProcess(
+        accNo: String,
+        registerDoi: Boolean = false,
+    ) {
+        logger.info { "Started post-processing submission '$accNo'" }
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         generateFallbackPageTabFiles(sub)
+        if (registerDoi) registerDoi(sub)
         indexSubmissionInnerFiles(sub)
         calculateStats(sub)
+        logger.info { "Finished post-processing submission '$accNo'" }
+    }
+
+    private suspend fun registerDoi(sub: ExtSubmission) {
+        if (sub.doi != null && extSubQueryService.findLatestInactiveByAccNo(sub.accNo)?.doi == null) {
+            doiService.registerDoi(sub.accNo, sub.owner, toSimpleSubmissionMapper.toSimpleSubmission(sub))
+        }
     }
 
     private suspend fun indexSubmissionInnerFiles(submission: ExtSubmission) {
+        logger.info { "Started indexing inner files for submission ${submission.accNo}, version ${submission.version}" }
         submission
             .allSectionsFiles
             .map { DocSubmissionFile(ObjectId(), it.toDocFile(), submission.accNo, submission.version) }
             .forEach { submissionFileRepository.save(it) }
+        logger.info { "Finished indexing inner files for submission ${submission.accNo}, version ${submission.version}" }
     }
 
     private suspend fun generateFallbackPageTabFiles(sub: ExtSubmission): List<ExtFile> {
@@ -112,7 +128,7 @@ class LocalPostProcessingService(
                 SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
             )
 
-        statsDataService.saveAll(sub.accNo, collections, stats)
+        statsDataService.saveAll(sub.accNo, sub.creationTime.toInstant(), collections, stats)
         logger.info { "Finished calculating stats for submission ${sub.accNo}, version ${sub.version}" }
     }
 
@@ -130,7 +146,7 @@ class LocalPostProcessingService(
         val idx = AtomicInteger(0)
         statsDataService
             .findAll(Instant.now().minus(REFRESH_DAYS, ChronoUnit.DAYS))
-            .onEach { accNo -> "Post processing submission ${idx.incrementAndGet()} accNo '$accNo'" }
+            .onEach { accNo -> logger.info { "Post processing submission ${idx.incrementAndGet()} accNo '$accNo'" } }
             .collect { accNo -> postProcessSafely(accNo) }
     }
 
