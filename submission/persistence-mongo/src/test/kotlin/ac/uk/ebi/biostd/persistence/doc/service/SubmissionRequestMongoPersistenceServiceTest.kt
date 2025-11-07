@@ -95,6 +95,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         singleJobMode = false,
                         files = emptyList(),
                         preferredSources = listOf(SUBMISSION),
+                        newSubmission = true,
                         onBehalfUser = null,
                         previousVersion = null,
                     )
@@ -142,6 +143,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         singleJobMode = false,
                         files = emptyList(),
                         preferredSources = listOf(SUBMISSION),
+                        newSubmission = true,
                         onBehalfUser = null,
                         previousVersion = null,
                     )
@@ -184,6 +186,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf(SUBMISSION.name),
+                    newSubmission = true,
                     errors = emptyList(),
                     process =
                         DocRequestProcessing(
@@ -237,6 +240,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 onBehalfUser = null,
                 files = emptyList(),
                 preferredSources = listOf(SUBMISSION.name),
+                newSubmission = true,
                 errors = emptyList(),
                 process =
                     DocRequestProcessing(
@@ -304,6 +308,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             onBehalfUser = null,
             files = emptyList(),
             preferredSources = listOf(SUBMISSION.name),
+            newSubmission = true,
             errors = emptyList(),
             process =
                 DocRequestProcessing(

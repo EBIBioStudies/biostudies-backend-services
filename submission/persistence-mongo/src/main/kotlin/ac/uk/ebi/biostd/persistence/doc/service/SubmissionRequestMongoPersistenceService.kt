@@ -257,6 +257,7 @@ class SubmissionRequestMongoPersistenceService(
             preferredSources = rqt.preferredSources.map { it.name },
             onBehalfUser = rqt.onBehalfUser,
             modificationTime = rqt.modificationTime.toInstant(),
+            newSubmission = rqt.newSubmission,
         )
     }
 
@@ -299,6 +300,7 @@ class SubmissionRequestMongoPersistenceService(
             process = rqt.process?.let { requestProcessing(it) },
             status = rqt.status,
             modificationTime = rqt.modificationTime.atOffset(UTC),
+            newSubmission = rqt.newSubmission,
         )
     }
 }

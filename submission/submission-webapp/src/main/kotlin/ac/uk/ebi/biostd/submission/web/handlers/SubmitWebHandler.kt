@@ -218,6 +218,7 @@ class SubmitWebHandler(
                 storageMode = storageMode,
                 silentMode = silentMode,
                 singleJobMode = singleJobMode,
+                newSubmission = draft.newSubmission,
             )
         }
 

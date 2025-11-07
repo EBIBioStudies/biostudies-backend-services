@@ -49,6 +49,7 @@ class ExtSubmissionService(
         val request =
             ExtSubmitRequest(
                 notifyTo = user,
+                newSubmission = false,
                 submission = toRefresh,
             )
         val refreshed = submissionSubmitter.createRqt(request)
@@ -70,6 +71,7 @@ class ExtSubmissionService(
         val request =
             ExtSubmitRequest(
                 notifyTo = user,
+                newSubmission = false,
                 submission = toRelease,
             )
         val releasedSub = submissionSubmitter.createRqt(request)
@@ -86,6 +88,7 @@ class ExtSubmissionService(
         val request =
             ExtSubmitRequest(
                 notifyTo = user,
+                newSubmission = queryService.existByAccNo(sub.accNo),
                 submission = submission,
             )
         val (accNo, version) = submissionSubmitter.createRqt(request)
@@ -101,6 +104,7 @@ class ExtSubmissionService(
         val request =
             ExtSubmitRequest(
                 notifyTo = user,
+                newSubmission = queryService.existByAccNo(sub.accNo),
                 submission = submission,
             )
         val (accNo, version) = submissionSubmitter.createRqt(request)
@@ -121,6 +125,7 @@ class ExtSubmissionService(
         val request =
             ExtSubmitRequest(
                 notifyTo = user,
+                newSubmission = false,
                 submission = transfer,
             )
         val (rqtAccNo, rqtVersion) = submissionSubmitter.createRqt(request)

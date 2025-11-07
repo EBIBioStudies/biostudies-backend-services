@@ -34,6 +34,7 @@ class SubmissionSubmitter(
                 requestFiles = rqt.requestFiles,
                 silentMode = rqt.silentMode,
                 singleJobMode = rqt.singleJobMode,
+                newSubmission = rqt.newSubmission,
             ),
         )
         return sub

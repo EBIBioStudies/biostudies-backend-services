@@ -27,4 +27,5 @@ data class SubmitRequest(
     val storageMode: StorageMode?,
     val silentMode: Boolean,
     val singleJobMode: Boolean,
+    val newSubmission: Boolean,
 )

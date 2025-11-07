@@ -80,7 +80,7 @@ class SubmissionRequestDraftService(
         attachTo: String?,
     ): SubmissionRequest {
         val accNo = accNoService.calculateAccNo(attachTo, user)
-        return saveRequest(draft, user, accNo.toString())
+        return saveRequest(draft, user, accNo.toString(), true)
     }
 
     public suspend fun createActiveRequestByAccNo(
@@ -90,13 +90,14 @@ class SubmissionRequestDraftService(
         attachTo: String?,
     ): SubmissionRequest {
         accNoService.checkAccess(accNo, owner, attachTo)
-        return saveRequest(draft, owner, accNo)
+        return saveRequest(draft, owner, accNo, false)
     }
 
     private suspend fun saveRequest(
         draft: String,
         owner: String,
         accNo: String,
+        newSubmission: Boolean,
     ): SubmissionRequest {
         val creationTime = Instant.now()
         val request =
@@ -104,6 +105,7 @@ class SubmissionRequestDraftService(
                 accNo = accNo,
                 version = submissionPersistenceService.getNextVersion(accNo),
                 owner = owner,
+                newSubmission = newSubmission,
                 draft = draft,
                 status = DRAFT,
                 modificationTime = creationTime.atOffset(UTC),

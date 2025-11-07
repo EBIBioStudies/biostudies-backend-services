@@ -53,7 +53,13 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
+        return findByAccNo?.let {
+            toExtSubmissionMapper.toExtSubmission(
+                it,
+                includeFileListFiles,
+                includeLinkListLinks,
+            )
+        }
     }
 
     override suspend fun findLatestInactiveByAccNo(
@@ -62,7 +68,13 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
+        return findByAccNo?.let {
+            toExtSubmissionMapper.toExtSubmission(
+                it,
+                includeFileListFiles,
+                includeLinkListLinks,
+            )
+        }
     }
 
     override suspend fun getExtByAccNo(
@@ -141,13 +153,13 @@ internal class SubmissionMongoPersistenceQueryService(
     private fun asBasicSubmission(rqt: DocSubmissionRequest): BasicSubmission {
         if (rqt.status == SUBMITTED) {
             val submission = serializationService.deserializeSubmission(rqt.draft.toString(), JSON)
-            return submission.asSubmittedRequest(rqt.owner)
+            return submission.asSubmittedRequest(rqt.owner, rqt.newSubmission)
         }
 
         val submission = extSerializationService.deserialize(rqt.process?.submission.toString())
         return when (rqt.status) {
-            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, rqt.errors)
-            else -> submission.asBasicSubmission(PROCESSING)
+            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, rqt.newSubmission, rqt.errors)
+            else -> submission.asBasicSubmission(PROCESSING, rqt.newSubmission)
         }
     }
 

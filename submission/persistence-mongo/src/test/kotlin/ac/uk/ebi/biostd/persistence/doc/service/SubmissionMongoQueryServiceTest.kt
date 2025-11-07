@@ -430,6 +430,7 @@ internal class SubmissionMongoQueryServiceTest(
             draft = null,
             status = status,
             modificationTime = Instant.now(),
+            newSubmission = true,
             onBehalfUser = null,
             files = emptyList(),
             preferredSources = listOf("SUBMISSION"),
