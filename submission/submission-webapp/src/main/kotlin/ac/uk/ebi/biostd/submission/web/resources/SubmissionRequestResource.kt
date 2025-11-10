@@ -31,6 +31,13 @@ class SubmissionRequestResource(
         @PathVariable version: Int,
     ): RequestStatus = submissionRequestService.getRequest(accNo, version).status
 
+    @GetMapping("/{accNo}/{version}/errors")
+    @ResponseBody
+    suspend fun getSubmissionRequestErrors(
+        @PathVariable accNo: String,
+        @PathVariable version: Int,
+    ): List<String> = submissionRequestService.getRequest(accNo, version).errors
+
     @PostMapping("/{accNo}/{version}/archive")
     @ResponseBody
     suspend fun archiveSubmissionRequest(

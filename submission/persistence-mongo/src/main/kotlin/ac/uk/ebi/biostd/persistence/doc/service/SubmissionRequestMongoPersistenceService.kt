@@ -293,6 +293,7 @@ class SubmissionRequestMongoPersistenceService(
             accNo = rqt.accNo,
             version = rqt.version,
             owner = rqt.owner,
+            errors = rqt.errors,
             files = rqt.files.map { File(it) },
             preferredSources = rqt.preferredSources.map { PreferredSource.valueOf(it) },
             onBehalfUser = rqt.onBehalfUser,
