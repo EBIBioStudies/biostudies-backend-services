@@ -350,6 +350,11 @@ interface SubmissionRequestOperations {
         version: Int,
     ): RequestStatus
 
+    suspend fun getSubmissionRequestErrors(
+        accNo: String,
+        version: Int,
+    ): List<String>
+
     suspend fun archiveSubmissionRequest(
         accNo: String,
         version: Int,
