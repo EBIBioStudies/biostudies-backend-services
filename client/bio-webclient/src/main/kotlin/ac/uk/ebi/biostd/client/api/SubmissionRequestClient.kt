@@ -21,6 +21,16 @@ class SubmissionRequestClient(
             .retrieve()
             .awaitBody<RequestStatus>()
 
+    override suspend fun getSubmissionRequestErrors(
+        accNo: String,
+        version: Int,
+    ): List<String> =
+        client
+            .get()
+            .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/errors")
+            .retrieve()
+            .awaitBody<List<String>>()
+
     override suspend fun archiveSubmissionRequest(
         accNo: String,
         version: Int,
