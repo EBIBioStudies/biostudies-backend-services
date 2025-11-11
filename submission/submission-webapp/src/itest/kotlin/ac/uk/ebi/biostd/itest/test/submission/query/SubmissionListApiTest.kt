@@ -124,27 +124,12 @@ class SubmissionListApiTest(
         }
 
     @Test
-    fun `13-5 get submission list by release date`() =
-        runTest {
-            val submissionList =
-                superUserClient.getSubmissions(
-                    mapOf(
-                        "rTimeFrom" to "2119-09-24T09:41:44.000Z",
-                        "rTimeTo" to "2119-09-28T09:41:44.000Z",
-                    ),
-                )
-
-            assertThat(submissionList).hasSize(4)
-        }
-
-    @Test
     fun `13-6 get submission list pagination`() =
         runTest {
             val submissionList =
                 superUserClient.getSubmissions(
                     mapOf(
                         "offset" to 15,
-                        "keywords" to "list-api-keyword",
                     ),
                 )
 

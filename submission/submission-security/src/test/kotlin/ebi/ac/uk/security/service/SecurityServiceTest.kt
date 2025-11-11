@@ -3,6 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.common.properties.StorageMode
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -13,6 +14,7 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
@@ -80,6 +82,7 @@ internal class SecurityServiceTest(
     @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val securityQueryService: SecurityQueryService,
     @MockK private val clusterClient: ClusterClient,
+    @MockK private val userPrivilegesService: IUserPrivilegesService,
 ) {
     private val testInstance: SecurityService =
         SecurityService(
@@ -90,6 +93,7 @@ internal class SecurityServiceTest(
                 userFtpRootPath = FTP_ROOT_PATH,
                 nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
                 userFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
+                privilegesService = userPrivilegesService,
             ),
             captchaVerifier,
             eventsPublisherService,
@@ -118,11 +122,11 @@ internal class SecurityServiceTest(
         @Test
         fun login() {
             val userToken = "token"
-            val dbUser = simpleUser
 
-            every { userRepository.findByLoginOrEmailAndActive(EMAIL, EMAIL, true) } returns dbUser
+            every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
+            every { userRepository.findByLoginOrEmailAndActive(EMAIL, EMAIL, true) } returns simpleUser
             every { securityUtil.checkPassword(passwordDigest, PASSWORD) } returns true
-            every { securityUtil.createToken(dbUser) } returns userToken
+            every { securityUtil.createToken(simpleUser) } returns userToken
 
             val (user, token) = testInstance.login(LoginRequest(EMAIL, PASSWORD))
 
@@ -155,6 +159,7 @@ internal class SecurityServiceTest(
             every { filesProperties.defaultMode } returns StorageMode.NFS
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
+            every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
 
             val securityUser = testInstance.registerUser(registrationRequest)
             val dbUser = savedUserSlot.captured
@@ -191,6 +196,7 @@ internal class SecurityServiceTest(
             every { filesProperties.defaultMode } returns StorageMode.FTP
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
+            every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
 
             val securityUser = testInstance.registerUser(registrationRequest)
             val dbUser = savedUserSlot.captured
@@ -250,6 +256,7 @@ internal class SecurityServiceTest(
             every { securityUtil.getActivationUrl(INSTANCE_KEY, PATH, ACTIVATION_KEY) } returns activationUrl
             every { eventsPublisherService.securityNotification(capture(activationSlot)) } answers { nothing }
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
+            every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
 
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
 
@@ -287,15 +294,15 @@ internal class SecurityServiceTest(
         @Test
         fun `activate when user is found`() =
             runTest {
-                val user = simpleUser
-                every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns user
+                every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
+                every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns simpleUser
                 every { userRepository.save(any<DbUser>()) } answers { firstArg() }
                 every { securityProps.filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
                 testInstance.activate(ACTIVATION_KEY)
 
-                assertThat(user.active).isTrue
-                assertThat(user.activationKey).isNull()
+                assertThat(simpleUser.active).isTrue
+                assertThat(simpleUser.activationKey).isNull()
             }
     }
 
@@ -320,6 +327,7 @@ internal class SecurityServiceTest(
             every { securityUtil.getActivationUrl(INSTANCE_KEY, PATH, ACTIVATION_KEY) } returns activationUrl
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
             every { eventsPublisherService.securityNotification(capture(activationSlot)) } answers { nothing }
+            every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
 
             testInstance.retryRegistration(retryActivation)
 
@@ -353,6 +361,8 @@ internal class SecurityServiceTest(
             runTest {
                 val user = simpleUser.apply { active = true }
                 val passwordDigest = ByteArray(0)
+
+                every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
                 every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns user
                 every { securityUtil.getPasswordDigest(password) } returns passwordDigest
                 every { userRepository.save(any<DbUser>()) } answers { firstArg() }
@@ -368,6 +378,7 @@ internal class SecurityServiceTest(
         fun `change password when inactive user`() =
             runTest {
                 val passwordDigest = ByteArray(0)
+                every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
                 every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
                 every { securityUtil.getPasswordDigest(password) } returns passwordDigest
                 every { userRepository.save(any<DbUser>()) } answers { firstArg() }
@@ -477,6 +488,7 @@ internal class SecurityServiceTest(
                 val user = simpleUser.apply { activationKey = "key" }
                 val request = ChangePasswordRequest("key", "password")
 
+                every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
                 every { userRepository.save(capture(userSlots)) } returns user
                 every { userRepository.findByActivationKeyAndActive("key", true) } returns user
                 every { userRepository.findByActivationKeyAndActive("key", false) } returns user

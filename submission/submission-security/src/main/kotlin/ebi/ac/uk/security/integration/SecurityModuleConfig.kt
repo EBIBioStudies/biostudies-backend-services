@@ -81,7 +81,7 @@ class SecurityModuleConfig(
     private val captchaVerifier by lazy { CaptchaVerifier(WebClient.builder().build(), props) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
-    private val profileService by lazy { profileService(props) }
+    private val profileService by lazy { profileService(props, userPrivilegesService) }
     private val securityUtil by lazy { securityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props) }
 
     companion object {
@@ -93,11 +93,15 @@ class SecurityModuleConfig(
             props: SecurityProperties,
         ): SecurityUtil = SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
-        fun profileService(props: SecurityProperties): ProfileService =
+        fun profileService(
+            props: SecurityProperties,
+            userPermissionsService: IUserPrivilegesService,
+        ): ProfileService =
             ProfileService(
                 userFtpRootPath = props.filesProperties.userFtpRootPath,
                 userFtpDirPath = Paths.get(props.filesProperties.userFtpDirPath),
                 nfsUserFilesDirPath = Paths.get(props.filesProperties.filesDirPath),
+                privilegesService = userPermissionsService,
             )
     }
 }

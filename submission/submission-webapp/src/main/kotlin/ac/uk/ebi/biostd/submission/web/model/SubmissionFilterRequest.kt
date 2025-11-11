@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.model
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
-import java.net.URLDecoder
-import java.time.OffsetDateTime
+import ac.uk.ebi.biostd.persistence.common.request.ListFilter
 
 @Suppress("LongParameterList")
 class SubmissionFilterRequest(
@@ -20,17 +18,13 @@ class SubmissionFilterRequest(
 fun SubmissionFilterRequest.asFilter(
     user: String,
     superuser: Boolean,
-): SubmissionListFilter =
-    SubmissionListFilter(
+    adminCollections: List<String>,
+): ListFilter =
+    ListFilter(
         filterUser = user,
         findAnyAccNo = superuser,
+        adminCollections = adminCollections,
         accNo = accNo,
-        version = version,
-        type = type,
-        rTimeFrom = rTimeFrom?.let { OffsetDateTime.parse(it) },
-        rTimeTo = rTimeTo?.let { OffsetDateTime.parse(it) },
-        keywords = keywords?.let { URLDecoder.decode(keywords, Charsets.UTF_8.name()) },
-        released = released,
         limit = limit,
         offset = offset,
     )

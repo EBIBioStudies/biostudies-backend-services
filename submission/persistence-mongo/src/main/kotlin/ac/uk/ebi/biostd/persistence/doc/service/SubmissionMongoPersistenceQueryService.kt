@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.request.ListFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -53,7 +53,13 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
+        return findByAccNo?.let {
+            toExtSubmissionMapper.toExtSubmission(
+                it,
+                includeFileListFiles,
+                includeLinkListLinks,
+            )
+        }
     }
 
     override suspend fun findLatestInactiveByAccNo(
@@ -62,7 +68,13 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
+        return findByAccNo?.let {
+            toExtSubmissionMapper.toExtSubmission(
+                it,
+                includeFileListFiles,
+                includeLinkListLinks,
+            )
+        }
     }
 
     override suspend fun getExtByAccNo(
@@ -124,7 +136,7 @@ internal class SubmissionMongoPersistenceQueryService(
         override val storageMode: StorageMode,
     ) : ExtSubmissionInfo
 
-    override suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {
+    override suspend fun getSubmissionsByUser(filter: ListFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequests(filter)
         val submissionFilter =
             filter.copy(
@@ -151,7 +163,7 @@ internal class SubmissionMongoPersistenceQueryService(
         }
     }
 
-    private suspend fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
+    private suspend fun findSubmissions(filter: ListFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
             else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }.toList()
