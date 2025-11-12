@@ -30,7 +30,7 @@ data class SimpleFilter(
     override val offset: Long = 0,
 ) : SubmissionFilter
 
-data class ListFilter(
+data class SubmissionListFilter(
     val filterUser: String,
     val findAnyAccNo: Boolean = false,
     val accNo: String? = null,

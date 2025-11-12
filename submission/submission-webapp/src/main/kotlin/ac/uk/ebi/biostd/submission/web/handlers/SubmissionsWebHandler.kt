@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -20,5 +20,5 @@ class SubmissionsWebHandler(
         user: SecurityUser,
     ): Unit = submissionService.deleteSubmissions(submissions, user)
 
-    suspend fun getSubmissions(filter: ListFilter): List<BasicSubmission> = submissionQueryService.getSubmissions(filter)
+    suspend fun getSubmissions(filter: SubmissionListFilter): List<BasicSubmission> = submissionQueryService.getSubmissions(filter)
 }

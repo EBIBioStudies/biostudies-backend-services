@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.submission
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
@@ -40,5 +40,6 @@ class SubmissionQueryService(
         return toFileListMapper.serialize(fileList, format, targetFile.toFile())
     }
 
-    suspend fun getSubmissions(filter: ListFilter): List<BasicSubmission> = submissionPersistenceQueryService.getSubmissionsByUser(filter)
+    suspend fun getSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
+        submissionPersistenceQueryService.getSubmissionsByUser(filter)
 }

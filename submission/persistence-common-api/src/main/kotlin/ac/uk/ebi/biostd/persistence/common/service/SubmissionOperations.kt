@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -83,7 +83,7 @@ interface SubmissionPersistenceQueryService {
      *
      * @param filter the submission filter
      **/
-    suspend fun getSubmissionsByUser(filter: ListFilter): List<BasicSubmission>
+    suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
 
     @Meta(flags = [CursorOption.NO_TIMEOUT])
     suspend fun findAllActive(

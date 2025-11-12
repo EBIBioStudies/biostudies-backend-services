@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
 import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
@@ -169,7 +169,7 @@ class SubmissionDocDataRepository(
 
         @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<Criteria> {
-            fun userFilter(filter: ListFilter): Criteria {
+            fun userFilter(filter: SubmissionListFilter): Criteria {
                 val user = filter.filterUser
                 val collections = filter.adminCollections
 
@@ -185,7 +185,7 @@ class SubmissionDocDataRepository(
 
             return buildList {
                 when (filter) {
-                    is ListFilter -> {
+                    is SubmissionListFilter -> {
                         if (filter.findAnyAccNo.not()) add(userFilter(filter))
                         filter.accNo?.let { add(where(SUB_ACC_NO).`is`(it)) }
                         add(where(SUB_ACC_NO).nin(filter.notIncludeAccNo))

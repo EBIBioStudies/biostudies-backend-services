@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
@@ -112,7 +112,7 @@ internal class SubmissionDocDataRepositoryTest(
                 testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
                 val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
-                val result = testInstance.getSubmissions(ListFilter(filterUser = "ownerEmail")).toList()
+                val result = testInstance.getSubmissions(SubmissionListFilter(filterUser = "ownerEmail")).toList()
 
                 assertThat(result).containsOnly(d2)
             }
@@ -125,7 +125,7 @@ internal class SubmissionDocDataRepositoryTest(
 
                 val result =
                     testInstance
-                        .getSubmissions(ListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
+                        .getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
                         .toList()
 
                 assertThat(result).containsOnly(d2)
@@ -149,7 +149,7 @@ internal class SubmissionDocDataRepositoryTest(
                 val result =
                     testInstance
                         .getSubmissions(
-                            ListFilter(
+                            SubmissionListFilter(
                                 filterUser = "anotherUser",
                                 adminCollections = listOf("project"),
                             ),
@@ -162,7 +162,7 @@ internal class SubmissionDocDataRepositoryTest(
             runTest {
                 val d1 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
 
-                val result = testInstance.getSubmissions(ListFilter(OWNER, accNo = "accNo1")).toList()
+                val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1")).toList()
 
                 assertThat(result).containsOnly(d1)
             }
@@ -172,7 +172,8 @@ internal class SubmissionDocDataRepositoryTest(
             runTest {
                 testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
 
-                val result = testInstance.getSubmissions(ListFilter(OWNER, notIncludeAccNo = setOf("accNo1"))).toList()
+                val result =
+                    testInstance.getSubmissions(SubmissionListFilter(OWNER, notIncludeAccNo = setOf("accNo1"))).toList()
 
                 assertThat(result).isEmpty()
             }

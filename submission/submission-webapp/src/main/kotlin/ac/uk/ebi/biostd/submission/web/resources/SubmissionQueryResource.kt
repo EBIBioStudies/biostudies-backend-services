@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -66,7 +66,7 @@ class SubmissionQueryResource(
         @PathVariable accNo: String,
         @BioUser user: SecurityUser,
     ): SubmissionDto? {
-        val filter = ListFilter(user.email, user.superuser, accNo, user.adminCollections, limit = 1)
+        val filter = SubmissionListFilter(user.email, user.superuser, accNo, user.adminCollections, limit = 1)
         return submissionsWebHandler.getSubmissions(filter).firstOrNull()?.let { it.asDto() }
     }
 

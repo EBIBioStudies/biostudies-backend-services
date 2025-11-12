@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionRequestNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.action
-import ac.uk.ebi.biostd.persistence.common.request.ListFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DRAFT
@@ -167,7 +167,7 @@ class SubmissionRequestDocDataRepository(
         return archivedFiles
     }
 
-    suspend fun findActiveRequests(filter: ListFilter): Pair<Int, List<DocSubmissionRequest>> {
+    suspend fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter))
         val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).awaitSingle()
         return when {
@@ -235,7 +235,7 @@ class SubmissionRequestDocDataRepository(
     }
 
     @Suppress("SpreadOperator")
-    private fun createQuery(filter: ListFilter): Criteria {
+    private fun createQuery(filter: SubmissionListFilter): Criteria {
         val criterias =
             buildList<Criteria> {
                 add(where(RQT_OWNER).`is`(filter.filterUser))
