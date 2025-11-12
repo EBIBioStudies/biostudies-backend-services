@@ -187,3 +187,22 @@ java -jar BioStudiesCLI-2.0.jar revokePermission \
 * **at or --accessType:** Access type to be revoked to the user. Valid values are: *ADMIN, ATTACH, UPDATE, READ, DELETE*
 * **tu or --targetUser:** User to whom the access permission will be revoked.
 * **ac or --accNo:** The accession to revoke the permission to. The accession must exist.
+
+### Upload User Files
+Upload files to the user folder.
+
+```
+java -jar BioStudiesCLI-2.0.jar uploadFiles \
+-s <server> \
+-u <user> \
+-p <password> \
+-f <files> \
+-rp <relative path>
+```
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** User that will upload the files.
+* **p or --password:** The user password.
+* **f or --files:** Comma separated list of paths to upload.
+* **rp or --relPath:** Relative user folder path where the files will be located.
