@@ -15,14 +15,17 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
+import uk.ac.ebi.biostd.client.cli.dto.UserFilesRequest
+import java.io.File
 
 @ExtendWith(MockKExtension::class)
-class SecurityServiceTest(
+class UserFilesServiceTest(
+    @param:MockK private val file: File,
     @param:MockK private val bioWebClient: BioWebClient,
 ) {
-    private val testInstance = SecurityService()
+    private val testInstance = UserFilesService()
+    private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -34,22 +37,19 @@ class SecurityServiceTest(
     }
 
     @Test
-    fun `grant permission`() =
+    fun `upload user files`() =
         runTest {
-            coEvery { bioWebClient.grantPermission(USER, ACC_NO, ACCESS_TYPE) } answers { nothing }
+            coEvery { bioWebClient.uploadFiles(listOf(file), REL_PATH) } answers { nothing }
 
-            testInstance.grantPermission(PermissionRequest(securityConfig, ACCESS_TYPE, USER, ACC_NO))
+            testInstance.uploadUserFiles(UserFilesRequest(listOf(file), REL_PATH, securityConfig))
 
-            coVerify(exactly = 1) { bioWebClient.grantPermission(USER, ACC_NO, ACCESS_TYPE) }
+            coVerify(exactly = 1) { bioWebClient.uploadFiles(listOf(file), REL_PATH) }
         }
 
     private companion object {
-        private const val ACC_NO = "BioImages"
-        private const val ACCESS_TYPE = "READ"
+        private const val REL_PATH = "relPath"
         private const val PASSWORD = "password"
         private const val SERVER = "server"
         private const val USER = "user"
-
-        private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
     }
 }

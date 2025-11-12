@@ -4,9 +4,9 @@ internal const val LIST_SEPARATOR = ','
 
 internal object CommonParameters {
     const val SERVER_HELP = "BioStudies host url"
-    const val USER_HELP = "User that will perform the submission"
+    const val USER_HELP = "User that will perform the action"
     const val PASSWORD_HELP = "The user password"
-    const val ON_BEHALF_HELP = "The user password"
+    const val ON_BEHALF_HELP = "User that will be impersonated"
 }
 
 internal object SubmissionParameters {
@@ -64,4 +64,9 @@ internal object SubmissionRequestParameters {
 
 internal object DoiParameters {
     const val ACC_NO = "Accession number of the submission to generate DOI"
+}
+
+internal object UploadUserFilesParameters {
+    const val FILES_HELP = "Comma separated list of paths to upload"
+    const val REL_PATH_HELP = "Relative user folder path where the files will be located"
 }
