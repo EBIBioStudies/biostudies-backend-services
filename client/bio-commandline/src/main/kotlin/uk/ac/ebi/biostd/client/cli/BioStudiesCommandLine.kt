@@ -10,10 +10,12 @@ import uk.ac.ebi.biostd.client.cli.commands.RevokePermissionCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmissionRequestStatusCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
 import uk.ac.ebi.biostd.client.cli.commands.TransferCommand
+import uk.ac.ebi.biostd.client.cli.commands.UploadUserFilesCommand
 import uk.ac.ebi.biostd.client.cli.commands.ValidateFileListCommand
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionRequestService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import uk.ac.ebi.biostd.client.cli.services.UserFilesService
 
 internal class BioStudiesCommandLine : CliktCommand() {
     override fun run() {
@@ -35,6 +37,7 @@ fun main(args: Array<String>) {
             GenerateDoiCommand(submissionService),
             GrantPermissionCommand(securityService),
             RevokePermissionCommand(securityService),
+            UploadUserFilesCommand(UserFilesService()),
             ValidateFileListCommand(submissionService),
             SubmissionRequestStatusCommand(subRequestService),
         ).main(args)
