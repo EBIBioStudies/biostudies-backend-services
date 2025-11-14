@@ -53,7 +53,13 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
+        return findByAccNo?.let {
+            toExtSubmissionMapper.toExtSubmission(
+                it,
+                includeFileListFiles,
+                includeLinkListLinks,
+            )
+        }
     }
 
     override suspend fun findLatestInactiveByAccNo(
@@ -62,7 +68,13 @@ internal class SubmissionMongoPersistenceQueryService(
         includeLinkListLinks: Boolean,
     ): ExtSubmission? {
         val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
-        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles, includeLinkListLinks) }
+        return findByAccNo?.let {
+            toExtSubmissionMapper.toExtSubmission(
+                it,
+                includeFileListFiles,
+                includeLinkListLinks,
+            )
+        }
     }
 
     override suspend fun getExtByAccNo(

@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DRAFT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ERRORS
@@ -23,14 +21,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_STATUS_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_TOTAL_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
@@ -46,7 +38,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCH
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
-import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOneModel
@@ -244,10 +235,17 @@ class SubmissionRequestDocDataRepository(
     }
 
     @Suppress("SpreadOperator")
-    private fun createQuery(filter: SubmissionListFilter): Criteria =
-        where(RQT_OWNER)
-            .`is`(filter.filterUser)
-            .andOperator(*criteriaArray(filter))
+    private fun createQuery(filter: SubmissionListFilter): Criteria {
+        val criterias =
+            buildList<Criteria> {
+                add(where(RQT_OWNER).`is`(filter.filterUser))
+                add(where(RQT_STATUS).`in`(ACTIVE_STATUS))
+                if (filter.accNo != null) {
+                    add(where(RQT_ACC_NO).`is`(filter.accNo))
+                }
+            }
+        return Criteria().andOperator(criterias)
+    }
 
     suspend fun increaseIndex(
         accNo: String,
@@ -389,28 +387,6 @@ class SubmissionRequestDocDataRepository(
                 .set("$RQT_PROCESS.$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processResult.toString())
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
-
-    private fun criteriaArray(filter: SubmissionListFilter): Array<Criteria> =
-        ImmutableList
-            .Builder<Criteria>()
-            .apply {
-                add(where(RQT_STATUS).`in`(ACTIVE_STATUS))
-                filter.accNo?.let { add(where(RQT_ACC_NO).`is`(it)) }
-                filter.type?.let { add(where("$RQT_PROCESS.$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-                filter.rTimeFrom?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
-                filter.rTimeTo?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }
-                filter.keywords?.let { add(keywordsCriteria(it)) }
-                filter.released?.let { add(where("$RQT_PROCESS.$SUB.$SUB_RELEASED").`is`(it)) }
-            }.build()
-            .toTypedArray()
-
-    private fun keywordsCriteria(keywords: String) =
-        Criteria().orOperator(
-            where("$RQT_PROCESS.$SUB.$SUB_TITLE").regex("(?i).*$keywords.*"),
-            where("$RQT_PROCESS.$SUB.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
-                where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*"),
-            ),
-        )
 }
 
 enum class ProcessResult {

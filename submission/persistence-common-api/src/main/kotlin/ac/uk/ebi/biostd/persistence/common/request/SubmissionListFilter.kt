@@ -10,17 +10,10 @@ data class PageRequest(
     val pageNumber: Int
         get() = (offset / limit).toInt()
 
-    fun asDataPageRequest(): PageRequest {
-        return PageRequest.of(pageNumber, limit)
-    }
+    fun asDataPageRequest(): PageRequest = PageRequest.of(pageNumber, limit)
 }
 
 sealed interface SubmissionFilter {
-    val rTimeFrom: OffsetDateTime?
-    val rTimeTo: OffsetDateTime?
-    val notIncludeAccNo: Set<String>?
-    val collection: String?
-    val released: Boolean?
     val limit: Int
     val offset: Long
 
@@ -29,11 +22,10 @@ sealed interface SubmissionFilter {
 }
 
 data class SimpleFilter(
-    override val rTimeFrom: OffsetDateTime? = null,
-    override val rTimeTo: OffsetDateTime? = null,
-    override val notIncludeAccNo: Set<String>? = null,
-    override val collection: String?,
-    override val released: Boolean?,
+    val rTimeFrom: OffsetDateTime?,
+    val rTimeTo: OffsetDateTime?,
+    val collection: String?,
+    val released: Boolean?,
     override val limit: Int = 15,
     override val offset: Long = 0,
 ) : SubmissionFilter
@@ -42,14 +34,8 @@ data class SubmissionListFilter(
     val filterUser: String,
     val findAnyAccNo: Boolean = false,
     val accNo: String? = null,
-    val keywords: String? = null,
-    val version: Long? = null,
-    val type: String? = null,
-    override val rTimeFrom: OffsetDateTime? = null,
-    override val rTimeTo: OffsetDateTime? = null,
-    override val released: Boolean? = null,
-    override val collection: String? = null,
-    override val notIncludeAccNo: Set<String>? = null,
+    val adminCollections: List<String>? = null,
+    val notIncludeAccNo: Set<String> = emptySet(),
     override val limit: Int = 15,
     override val offset: Long = 0,
 ) : SubmissionFilter

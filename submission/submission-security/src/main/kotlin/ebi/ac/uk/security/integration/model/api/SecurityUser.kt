@@ -15,12 +15,16 @@ data class SecurityUser(
     val userFolder: UserFolder,
     val groupsFolders: List<GroupFolder>,
     val permissions: Set<SecurityPermission>,
+    val adminCollections: List<String>,
     val notificationsEnabled: Boolean,
 ) {
     fun asUser() = User(id, email, secret, fullName, notificationsEnabled)
 }
 
-data class SecurityPermission(val accessType: AccessType, val accessTag: String)
+data class SecurityPermission(
+    val accessType: AccessType,
+    val accessTag: String,
+)
 
 sealed interface UserFolder {
     val relativePath: Path
@@ -41,10 +45,17 @@ data class FtpUserFolder(
     override val type = "ftp"
 }
 
-data class NfsUserFolder(override val relativePath: Path, override val path: Path) : UserFolder {
+data class NfsUserFolder(
+    override val relativePath: Path,
+    override val path: Path,
+) : UserFolder {
     override val type = "nfs"
 }
 
 fun NfsUserFolder.resolve(subPath: String): Path = path.resolve(subPath)
 
-data class GroupFolder(val groupName: String, val path: Path, val description: String? = null)
+data class GroupFolder(
+    val groupName: String,
+    val path: Path,
+    val description: String? = null,
+)

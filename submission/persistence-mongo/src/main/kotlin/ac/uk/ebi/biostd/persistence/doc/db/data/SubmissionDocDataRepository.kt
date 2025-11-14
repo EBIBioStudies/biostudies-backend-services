@@ -4,14 +4,12 @@ import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_VERSION
@@ -30,7 +28,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.bson.Document
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -45,7 +42,6 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
-import org.springframework.data.mongodb.core.aggregation.MatchOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -163,7 +159,7 @@ class SubmissionDocDataRepository(
             offsetLimit: Pair<Long, Long>? = null,
         ): List<AggregationOperation> =
             buildList {
-                addAll(createQuery(filter))
+                add(match(Criteria().andOperator(createQuery(filter))))
                 add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
                 offsetLimit?.let {
                     add(skip(it.first))
@@ -172,53 +168,36 @@ class SubmissionDocDataRepository(
             }
 
         @Suppress("ComplexMethod")
-        private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
-            fun ownerTextFilter(
-                keywords: String,
-                user: String,
-            ): Criteria {
-                // Wrap each word in quotes for logical AND
-                val terms = keywords.split("\\s".toRegex()).joinToString(" ") { "\"$it\"" }
-                return Criteria().andOperator(
-                    where("\$text").`is`(Document("\$search", terms)),
-                    where(SUB_OWNER).`is`(user),
-                    where(SUB_VERSION).gt(0),
-                )
+        private fun createQuery(filter: SubmissionFilter): List<Criteria> {
+            fun userFilter(filter: SubmissionListFilter): Criteria {
+                val user = filter.filterUser
+                val collections = filter.adminCollections
+
+                return when (collections) {
+                    null -> where(SUB_OWNER).`is`(user)
+                    else ->
+                        Criteria().orOperator(
+                            where(SUB_OWNER).`is`(user),
+                            where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(collections),
+                        )
+                }
             }
 
             return buildList {
                 when (filter) {
-                    is SimpleFilter -> {}
                     is SubmissionListFilter -> {
-                        val keywords = filter.keywords
-                        val accNo = filter.accNo
-                        val user = filter.filterUser
-                        val mainFilter =
-                            when {
-                                keywords != null -> ownerTextFilter(keywords, user)
-                                accNo == null -> where(SUB_OWNER).`is`(user).andOperator(where(SUB_VERSION).gt(0))
-                                else -> {
-                                    when (filter.findAnyAccNo) {
-                                        true -> where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0))
-                                        false ->
-                                            Criteria().andOperator(
-                                                where(SUB_ACC_NO).`is`(accNo),
-                                                where(SUB_OWNER).`is`(user),
-                                                where(SUB_VERSION).gt(0),
-                                            )
-                                    }
-                                }
-                            }
+                        if (filter.findAnyAccNo.not()) add(userFilter(filter))
+                        filter.accNo?.let { add(where(SUB_ACC_NO).`is`(it)) }
+                        add(where(SUB_ACC_NO).nin(filter.notIncludeAccNo))
+                    }
 
-                        add(match(mainFilter))
-                        filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
+                    is SimpleFilter -> {
+                        filter.rTimeFrom?.let { add(where(SUB_RELEASE_TIME).gte(it.toInstant())) }
+                        filter.rTimeTo?.let { add(where(SUB_RELEASE_TIME).lte(it.toInstant())) }
+                        filter.collection?.let { add(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it)) }
+                        filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
                     }
                 }
-                filter.notIncludeAccNo?.let { add(match(where(SUB_ACC_NO).nin(it))) }
-                filter.rTimeFrom?.let { add(match(where(SUB_RELEASE_TIME).gte(it.toInstant()))) }
-                filter.rTimeTo?.let { add(match(where(SUB_RELEASE_TIME).lte(it.toInstant()))) }
-                filter.collection?.let { add(match(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it))) }
-                filter.released?.let { add(match(where(SUB_RELEASED).`is`(it))) }
             }
         }
     }
