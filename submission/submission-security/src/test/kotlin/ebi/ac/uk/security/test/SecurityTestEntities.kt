@@ -20,59 +20,54 @@ internal class SecurityTestEntities {
         const val ADMIN_ID = 70L
         const val SECRET = "secret"
 
-        val registrationRequest: RegisterRequest
-            get() = RegisterRequest(NAME, EMAIL, PASSWORD, orcid = ORCID, captcha = CAPTCHA)
+        val registrationRequest: RegisterRequest =
+            RegisterRequest(NAME, EMAIL, PASSWORD, orcid = ORCID, captcha = CAPTCHA)
 
-        val preRegisterRequest: RegisterRequest
-            get() =
-                RegisterRequest(
-                    name = NAME,
-                    email = EMAIL,
-                    password = PASSWORD,
-                    instanceKey = INSTANCE_KEY,
-                    captcha = CAPTCHA,
-                    path = PATH,
-                )
+        val preRegisterRequest: RegisterRequest =
+            RegisterRequest(
+                name = NAME,
+                email = EMAIL,
+                password = PASSWORD,
+                instanceKey = INSTANCE_KEY,
+                captcha = CAPTCHA,
+                path = PATH,
+            )
 
-        val resetPasswordRequest: ResetPasswordRequest
-            get() =
-                ResetPasswordRequest(
-                    email = EMAIL,
-                    instanceKey = INSTANCE_KEY,
-                    path = PATH,
-                    captcha = CAPTCHA,
-                )
+        val resetPasswordRequest: ResetPasswordRequest =
+            ResetPasswordRequest(
+                email = EMAIL,
+                instanceKey = INSTANCE_KEY,
+                path = PATH,
+                captcha = CAPTCHA,
+            )
 
-        val activateByEmailRequest: ActivateByEmailRequest
-            get() =
-                ActivateByEmailRequest(
-                    email = EMAIL,
-                    instanceKey = INSTANCE_KEY,
-                    path = PATH,
-                )
+        val activateByEmailRequest: ActivateByEmailRequest =
+            ActivateByEmailRequest(
+                email = EMAIL,
+                instanceKey = INSTANCE_KEY,
+                path = PATH,
+            )
 
-        val retryActivation: RetryActivationRequest
-            get() =
-                RetryActivationRequest(
-                    email = EMAIL,
-                    instanceKey = INSTANCE_KEY,
-                    path = PATH,
-                )
+        val retryActivation: RetryActivationRequest =
+            RetryActivationRequest(
+                email = EMAIL,
+                instanceKey = INSTANCE_KEY,
+                path = PATH,
+            )
 
         val passwordDigest = ByteArray(0)
 
-        val simpleUser: DbUser
-            get() =
-                DbUser(
-                    id = USER_ID,
-                    email = EMAIL,
-                    fullName = NAME,
-                    secret = SECRET,
-                    storageMode = StorageMode.NFS,
-                    passwordDigest = passwordDigest,
-                )
+        val simpleUser: DbUser =
+            DbUser(
+                id = USER_ID,
+                email = EMAIL,
+                fullName = NAME,
+                secret = SECRET,
+                storageMode = StorageMode.NFS,
+                passwordDigest = passwordDigest,
+            )
 
-        val adminUser: DbUser by lazy {
+        val adminUser =
             DbUser(
                 id = ADMIN_ID,
                 email = EMAIL,
@@ -82,6 +77,5 @@ internal class SecurityTestEntities {
                 passwordDigest = passwordDigest,
                 superuser = true,
             )
-        }
     }
 }

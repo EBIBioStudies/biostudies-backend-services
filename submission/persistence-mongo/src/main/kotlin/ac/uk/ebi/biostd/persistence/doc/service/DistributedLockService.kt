@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.lock.DistributedLockExecutor
+import java.time.Duration
 
 class DistributedLockService internal constructor(
     private val distributedLockExecutor: DistributedLockExecutor,
@@ -13,7 +14,7 @@ class DistributedLockService internal constructor(
     ): T {
         val lockId = "REQUEST_${accNo}_$version"
         try {
-            val locked = distributedLockExecutor.acquireLock(lockId, lockOwner)
+            val locked = distributedLockExecutor.acquireLock(lockId, lockOwner, DEFAULT_LOCK_TIME)
             return when {
                 locked -> handler()
                 else -> error("Could not lock submission, accNo='$accNo', version='$version'")
@@ -21,5 +22,9 @@ class DistributedLockService internal constructor(
         } finally {
             distributedLockExecutor.releaseLock(lockId, lockOwner)
         }
+    }
+
+    private companion object {
+        val DEFAULT_LOCK_TIME = Duration.ofDays(7)
     }
 }
