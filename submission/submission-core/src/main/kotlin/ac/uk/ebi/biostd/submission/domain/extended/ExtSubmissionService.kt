@@ -45,7 +45,7 @@ class ExtSubmissionService(
     suspend fun refreshSubmission(
         user: String,
         accNo: String,
-    ): Pair<String, Int> {
+    ): SubmissionId {
         logger.info { "$accNo $user Received async refresh request, accNo='$accNo'" }
         val submission = queryService.getExtByAccNo(accNo, true)
         val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
@@ -57,7 +57,7 @@ class ExtSubmissionService(
                 submission = toRefresh,
             )
         val refreshed = submissionSubmitter.createRqt(request)
-        eventsPublisherService.submissionRequest(refreshed.first, refreshed.second)
+        eventsPublisherService.submissionRequest(refreshed.accNo, refreshed.version)
         return refreshed
     }
 
@@ -65,7 +65,7 @@ class ExtSubmissionService(
         user: String,
         accNo: String,
         releaseDate: Instant,
-    ): Pair<String, Int> {
+    ): SubmissionId {
         logger.info { "$accNo $user Received async release request, accNo='{$accNo}', releaseDate = $releaseDate" }
         val submission = queryService.getExtByAccNo(accNo, true)
         val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
@@ -78,7 +78,7 @@ class ExtSubmissionService(
                 submission = toRelease,
             )
         val releasedSub = submissionSubmitter.createRqt(request)
-        eventsPublisherService.submissionRequest(releasedSub.first, releasedSub.second)
+        eventsPublisherService.submissionRequest(releasedSub.accNo, releasedSub.version)
         return releasedSub
     }
 
@@ -132,7 +132,7 @@ class ExtSubmissionService(
         user: String,
         accNo: String,
         target: StorageMode,
-    ) {
+    ): SubmissionId {
         logger.info { "$accNo $user Received transfer request with target='$target'" }
         val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         require(source.storageMode != target) { throw InvalidTransferTargetException() }
@@ -143,8 +143,9 @@ class ExtSubmissionService(
                 notifyTo = user,
                 submission = transfer,
             )
-        val (rqtAccNo, rqtVersion) = submissionSubmitter.createRqt(request)
-        eventsPublisherService.submissionRequest(rqtAccNo, rqtVersion)
+        val submissionId = submissionSubmitter.createRqt(request)
+        eventsPublisherService.submissionRequest(submissionId.accNo, submissionId.version)
+        return submissionId
     }
 
     private suspend fun processSubmission(

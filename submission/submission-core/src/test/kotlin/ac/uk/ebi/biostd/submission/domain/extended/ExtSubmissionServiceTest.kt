@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -74,7 +75,11 @@ class ExtSubmissionServiceTest(
             val submitRequestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRqt(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(submitRequestSlot)) } returns
+                SubmissionId(
+                    extSubmission.accNo,
+                    1,
+                )
 
             testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
@@ -96,7 +101,7 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns SubmissionId(extSubmission.accNo, 1)
             every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
             testInstance.submitExtAsync("user@mail.com", extSubmission)
@@ -161,7 +166,7 @@ class ExtSubmissionServiceTest(
             coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
             coEvery {
                 submissionSubmitter.createRqt(capture(requestSlot))
-            } returns (collection.accNo to collection.version)
+            } returns SubmissionId(collection.accNo, collection.version)
 
             testInstance.submitExt("user@mail.com", collection)
 
@@ -180,7 +185,7 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
-            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns SubmissionId(extSubmission.accNo, 2)
             coEvery {
                 submissionRepository.getExtByAccNo(
                     extSubmission.accNo,

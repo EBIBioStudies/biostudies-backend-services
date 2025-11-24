@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestProcessing
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestStatusChange
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubIdentifier
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult.ERROR
@@ -26,6 +25,7 @@ import ebi.ac.uk.model.RequestStatus.Companion.EDITABLE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
@@ -112,24 +112,19 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.setRequestDraftStatus(accNo, owner, status, modificationTime)
     }
 
-    override suspend fun findAllCompleted(): Flow<SubIdentifier> =
-        requestRepository
-            .findByStatusIn(PROCESSED_STATUS)
+    override suspend fun findAllCompleted(): Flow<SubmissionId> = requestRepository.findByStatusIn(PROCESSED_STATUS)
 
     override suspend fun hasProcessingRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 
-    override fun getActiveRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
-        val request =
-            when (since) {
-                null -> requestRepository.findByStatusIn(ACTIVE_STATUS)
-                else ->
-                    requestRepository.findByStatusInAndModificationTimeLessThan(
-                        ACTIVE_STATUS,
-                        Instant.now().minus(since),
-                    )
-            }
-        return request.map { it.accNo to it.version }
-    }
+    override fun getActiveRequests(since: TemporalAmount?): Flow<SubmissionId> =
+        when (since) {
+            null -> requestRepository.findByStatusIn(ACTIVE_STATUS)
+            else ->
+                requestRepository.findByStatusInAndModificationTimeLessThan(
+                    ACTIVE_STATUS,
+                    Instant.now().minus(since),
+                )
+        }
 
     override suspend fun archiveRequest(
         accNo: String,
@@ -147,9 +142,9 @@ class SubmissionRequestMongoPersistenceService(
         requestFilesRepository.deleteByAccNoAndVersion(accNo, version)
     }
 
-    override suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int> {
+    override suspend fun saveRequest(rqt: SubmissionRequest): SubmissionId {
         val request = requestRepository.saveRequest(asDocRequest(rqt))
-        return request.accNo to request.version
+        return SubmissionId(request.accNo, request.version)
     }
 
     override suspend fun updateRqtFiles(rqtFiles: List<SubmissionRequestFile>) {

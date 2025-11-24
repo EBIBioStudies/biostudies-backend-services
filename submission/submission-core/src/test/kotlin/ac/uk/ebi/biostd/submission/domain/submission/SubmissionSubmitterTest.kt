@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationServ
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.model.RequestStatus.DRAFT
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
+import ebi.ac.uk.model.SubmissionId
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -60,7 +61,7 @@ class SubmissionSubmitterTest(
             coEvery { requestService.hasProcessingRequest(ACC_NO) } returns false
             coEvery { submissionProcessor.processSubmission(request) } returns sub
             coEvery { collectionValidationService.executeCollectionValidators(sub) } answers { nothing }
-            coEvery { submitter.createRqt(capture(extRequestSlot)) } returns (sub.accNo to sub.version)
+            coEvery { submitter.createRqt(capture(extRequestSlot)) } returns SubmissionId(sub.accNo, sub.version)
             coEvery {
                 requestService.setSubRequestAccNo(TEMP_ACC_NO, ACC_NO, sub.owner, MODIFICATION_TIME)
             } answers { nothing }

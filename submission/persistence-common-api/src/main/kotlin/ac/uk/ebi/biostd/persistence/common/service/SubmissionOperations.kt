@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
 import org.springframework.data.mongodb.core.query.Meta.CursorOption
@@ -111,11 +112,6 @@ interface SubmissionLinksPersistenceService {
     ): Flow<ExtLink>
 }
 
-data class SubIdentifier(
-    val accNo: String,
-    val version: Int,
-)
-
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun findRequestDrafts(
@@ -163,13 +159,13 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
-    suspend fun findAllCompleted(): Flow<SubIdentifier>
+    suspend fun findAllCompleted(): Flow<SubmissionId>
 
     suspend fun hasProcessingRequest(accNo: String): Boolean
 
-    suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun saveRequest(rqt: SubmissionRequest): SubmissionId
 
-    fun getActiveRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
+    fun getActiveRequests(since: TemporalAmount? = null): Flow<SubmissionId>
 
     /**
      * Updates the given request files. The submission request index is updated based on the given number of elements.

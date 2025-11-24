@@ -6,7 +6,7 @@ import ebi.ac.uk.model.SubmissionId
 
 @Suppress("TooManyFunctions")
 interface ExtSubmissionSubmitter {
-    suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int>
+    suspend fun createRqt(rqt: ExtSubmitRequest): SubmissionId
 
     suspend fun handleRequest(
         accNo: String,

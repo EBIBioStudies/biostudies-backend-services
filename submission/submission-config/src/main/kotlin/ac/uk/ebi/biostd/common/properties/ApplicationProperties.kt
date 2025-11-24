@@ -11,6 +11,7 @@ data class ApplicationProperties(
     val subBasePath: String?,
     val consumers: Int,
     val maxConsumers: Int,
+    val migrationProperties: MigrationProperties,
     val security: SecurityProperties,
     val fire: FireProperties,
     val validator: ValidatorProperties,
@@ -44,6 +45,12 @@ data class S3Properties(
     val region: String,
     val endpoint: String,
     val bucket: String,
+)
+
+data class MigrationProperties(
+    val user: String = "biostudies-dev@ebi.ac.uk",
+    val limit: Int = 10,
+    val modifiedBeforeDays: Int = 360,
 )
 
 data class ValidatorProperties(

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
-import ac.uk.ebi.biostd.persistence.common.service.SubIdentifier
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
@@ -77,6 +78,12 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
     suspend fun findSubmissionCollections(accNo: String): SubmissionCollections?
+
+    @Query(
+        value = "{ storageMode: 'NFS', modificationTime: {\$lte: ?0} , version: { \$gte: 0 }, released: true }",
+        fields = "{ accNo: 1 }",
+    )
+    suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>
 }
 
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
@@ -122,7 +129,7 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     ): DocSubmissionRequest?
 
     @Query(value = "{ 'status': { \$in: ?0 } }", fields = "{ 'accNo' : 1, 'version' : 1}")
-    fun findByStatusIn(status: Set<RequestStatus>): Flow<SubIdentifier>
+    fun findByStatusIn(status: Set<RequestStatus>): Flow<SubmissionId>
 
     @Query(
         value = "{ 'status': { \$in: ?0 }, 'modificationTime': { \$lt: ?1 } }",
@@ -131,7 +138,7 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     fun findByStatusInAndModificationTimeLessThan(
         status: Set<RequestStatus>,
         since: Instant,
-    ): Flow<SubIdentifier>
+    ): Flow<SubmissionId>
 
     suspend fun getById(id: ObjectId): DocSubmissionRequest
 

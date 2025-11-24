@@ -16,7 +16,7 @@ class RemoteExtSubmissionSubmitter(
     private val submissionQueryService: ExtSubmissionQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) : ExtSubmissionSubmitter {
-    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
+    override suspend fun createRqt(rqt: ExtSubmitRequest): SubmissionId {
         TODO("Not yet implemented")
     }
 
