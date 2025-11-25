@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRelea
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
 import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.toDate
 import io.mockk.clearAllMocks
@@ -81,7 +82,7 @@ class SubmissionReleaserServiceTest(
         val releasing = ReleaseData("S-BSST1", "owner0@mail.org", "S-BSST/000/S-BSST1")
 
         every { mockNow.asOffsetAtEndOfDay().toDate() } returns to
-        every { bioWebClient.refreshSubmission("S-BSST0") } answers { "S-BSST0" to 2 }
+        every { bioWebClient.refreshSubmission("S-BSST0") } answers { SubmissionId("S-BSST0", 2) }
         every { releaserRepository.findAllUntil(to) } returns flowOf(released, releasing)
 
         coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST0", RequestStatus.ACTIVE_STATUS) } returns false

@@ -72,12 +72,12 @@ class ExtSubmissionClient(
         client.post("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
-    override fun refreshSubmission(accNo: String): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+    override fun refreshSubmission(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
 
     override fun releaseSubmission(
         accNo: String,
         releaseDate: Instant,
-    ): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
+    ): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
 
     override suspend fun generateDoi(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/$accNo/generate-doi")
 
