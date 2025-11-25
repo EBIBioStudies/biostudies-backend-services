@@ -15,8 +15,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cli.dto.DeleteUserFilesRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import uk.ac.ebi.biostd.client.cli.dto.UserFilesRequest
+import uk.ac.ebi.biostd.client.cli.dto.UploadUserFilesRequest
 import java.io.File
 
 @ExtendWith(MockKExtension::class)
@@ -41,12 +42,23 @@ class UserFilesServiceTest(
         runTest {
             coEvery { bioWebClient.uploadFiles(listOf(file), REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(UserFilesRequest(listOf(file), REL_PATH, securityConfig))
+            testInstance.uploadUserFiles(UploadUserFilesRequest(listOf(file), REL_PATH, securityConfig))
 
             coVerify(exactly = 1) { bioWebClient.uploadFiles(listOf(file), REL_PATH) }
         }
 
+    @Test
+    fun `delete user files`() =
+        runTest {
+            coEvery { bioWebClient.deleteFile(FILE_NAME, REL_PATH) } answers { nothing }
+
+            testInstance.deleteUserFiles(DeleteUserFilesRequest(FILE_NAME, REL_PATH, securityConfig))
+
+            coVerify(exactly = 1) { bioWebClient.deleteFile(FILE_NAME, REL_PATH) }
+        }
+
     private companion object {
+        private const val FILE_NAME = "file.txt"
         private const val REL_PATH = "relPath"
         private const val PASSWORD = "password"
         private const val SERVER = "server"

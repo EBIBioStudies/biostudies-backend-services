@@ -70,3 +70,8 @@ internal object UploadUserFilesParameters {
     const val FILES_HELP = "Comma separated list of paths to upload"
     const val REL_PATH_HELP = "Relative user folder path where the files will be located"
 }
+
+internal object DeleteUserFilesParameters {
+    const val FILE_HELP = "Name of the file to be deleted"
+    const val REL_PATH_HELP = "Relative user folder path where the file to delete is located"
+}
