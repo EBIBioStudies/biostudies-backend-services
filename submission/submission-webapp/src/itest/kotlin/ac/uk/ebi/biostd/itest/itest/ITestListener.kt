@@ -122,6 +122,12 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$subFtpProperties.retry.initialInterval", 100)
         properties.addProperty("$subFtpProperties.retry.multiplier", 2)
         properties.addProperty("$subFtpProperties.retry.maxInterval", 500)
+
+        // Automatic migration
+        properties.addProperty("app.migration.enabled", false)
+        properties.addProperty("app.migration.user", "biostudies-dev@ebi.ac.uk")
+        properties.addProperty("app.migration.limit", 10)
+        properties.addProperty("app.migration.minModificationDays", 360)
     }
 
     private fun fireSetup() {

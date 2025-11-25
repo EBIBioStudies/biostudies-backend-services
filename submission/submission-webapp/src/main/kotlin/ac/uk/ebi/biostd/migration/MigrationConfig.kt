@@ -17,7 +17,7 @@ class MigrationConfig {
         extSubmissionService: ExtSubmissionService,
     ): MigrationService =
         MigrationService(
-            applicationProperties.migrationProperties,
+            applicationProperties.migration,
             submissionRepository,
             submissionRequestRepository,
             extSubmissionService,

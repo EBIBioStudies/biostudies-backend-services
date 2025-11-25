@@ -26,7 +26,7 @@ class MigrationService(
     @Scheduled(cron = "0 0 3 * * *")
     fun migrateSubmission() {
         runBlocking {
-            if (properties.enableMigration) {
+            if (properties.enabled) {
                 migrateSubmissions()
             } else {
                 logger.info { "Skip migration running. 'enableMigration' is not enabled." }
@@ -36,7 +36,7 @@ class MigrationService(
 
     suspend fun migrateSubmissions() {
         logger.info { "Running submission FIRE migration" }
-        val limit = Instant.now().minus(properties.modifiedBeforeDays.toLong(), ChronoUnit.DAYS)
+        val limit = Instant.now().minus(properties.minModificationDays.toLong(), ChronoUnit.DAYS)
         submissionRepository
             .findReadyToMigrate(limit)
             .filterNot { submissionRequestRepository.existsByAccNoAndStatusIn(it.accNo, PROCESSING_STATUS) }
