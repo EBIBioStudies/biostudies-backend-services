@@ -230,12 +230,12 @@ interface ExtSubmissionOperations {
         target: StorageMode,
     )
 
-    fun refreshSubmission(accNo: String): Pair<String, Int>
+    fun refreshSubmission(accNo: String): SubmissionId
 
     fun releaseSubmission(
         accNo: String,
         releaseDate: Instant,
-    ): Pair<String, Int>
+    ): SubmissionId
 
     suspend fun generateDoi(accNo: String): SubmissionId
 }
