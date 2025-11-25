@@ -48,6 +48,7 @@ data class S3Properties(
 )
 
 data class MigrationProperties(
+    val enableMigration: Boolean = false,
     val user: String = "biostudies-dev@ebi.ac.uk",
     val limit: Int = 10,
     val modifiedBeforeDays: Int = 360,

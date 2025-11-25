@@ -24,12 +24,18 @@ class MigrationService(
     private val extSubmissionService: ExtSubmissionService,
 ) {
     @Scheduled(cron = "0 0 3 * * *")
-    fun migrateSubmission() =
+    fun migrateSubmission() {
         runBlocking {
-            migrateSubmissions()
+            if (properties.enableMigration) {
+                migrateSubmissions()
+            } else {
+                logger.info { "Skip migration running. 'enableMigration' is not enabled." }
+            }
         }
+    }
 
     suspend fun migrateSubmissions() {
+        logger.info { "Running submission FIRE migration" }
         val limit = Instant.now().minus(properties.modifiedBeforeDays.toLong(), ChronoUnit.DAYS)
         submissionRepository
             .findReadyToMigrate(limit)
