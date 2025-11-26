@@ -184,6 +184,7 @@ class SubmissionDocDataRepository(
             }
 
             return buildList {
+                add(where(SUB_VERSION).gt(0))
                 when (filter) {
                     is SubmissionListFilter -> {
                         if (filter.findAnyAccNo.not()) add(userFilter(filter))

@@ -110,7 +110,8 @@ internal class SubmissionDocDataRepositoryTest(
         fun `By email when is owner`() =
             runTest {
                 testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
-                val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
+                testInstance.save(testDocSubmission.copy(accNo = "accNo2", version = -1, owner = "ownerEmail"))
+                val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", version = 2, owner = "ownerEmail"))
 
                 val result = testInstance.getSubmissions(SubmissionListFilter(filterUser = "ownerEmail")).toList()
 

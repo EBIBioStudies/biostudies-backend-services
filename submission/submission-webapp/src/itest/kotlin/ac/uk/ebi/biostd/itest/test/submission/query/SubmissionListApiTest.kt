@@ -35,9 +35,9 @@ import java.net.URLEncoder.encode
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class SubmissionListApiTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val mongoTemplate: ReactiveMongoTemplate,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val mongoTemplate: ReactiveMongoTemplate,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superUserClient: BioWebClient
     private lateinit var regularUserClient: BioWebClient
@@ -59,10 +59,12 @@ class SubmissionListApiTest(
             }
 
             val params = SubmitParameters(storageMode = storageMode)
-            for (idx in 21..30) {
+            for (idx in 21..31) {
                 val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
                 assertThat(superUserClient.submitMultipart(submission, params)).isSuccessful()
             }
+
+            superUserClient.deleteSubmission("LIST-API-31")
         }
 
     @Test
@@ -265,7 +267,7 @@ class SubmissionListApiTest(
         tsv {
             line("Submission", "LIST-API-$idx")
             line("Title", "Simple Submission $idx - list-api-keyword-$idx")
-            line("ReleaseDate", "2119-09-$idx")
+            line("ReleaseDate", "2119-01-$idx")
             line()
         }.toString()
 
