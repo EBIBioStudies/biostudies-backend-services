@@ -192,7 +192,7 @@ java -jar BioStudiesCLI-2.0.jar revokePermission \
 Upload files to the user folder.
 
 ```
-java -jar BioStudiesCLI-2.0.jar uploadFiles \
+java -jar BioStudiesCLI-2.0.jar uploadUserFiles \
 -s <server> \
 -u <user> \
 -p <password> \
@@ -204,5 +204,24 @@ java -jar BioStudiesCLI-2.0.jar uploadFiles \
 * **s or --server:** BioStudies instance URL.
 * **u or --user:** User that will upload the files.
 * **p or --password:** The user password.
-* **f or --files:** Comma separated list of paths to upload.
-* **rp or --relPath:** Relative user folder path where the files will be located.
+* **f or --file:** Path of the file to be uploaded.
+* **rp or --relPath:** Relative user folder path where the file will be located.
+
+### Delete User Files
+Delete files from the user folder.
+
+```
+java -jar BioStudiesCLI-2.0.jar deleteUserFiles \
+-s <server> \
+-u <user> \
+-p <password> \
+-f <file name> \
+-rp <relative path>
+```
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** User that will upload the files.
+* **p or --password:** The user password.
+* **f or --file:** Name of the file to be deleted.
+* **rp or --relPath:** Relative user folder path where the file to delete is located.

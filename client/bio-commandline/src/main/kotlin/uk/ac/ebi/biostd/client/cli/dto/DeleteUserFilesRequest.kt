@@ -1,9 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.dto
 
-import java.io.File
-
-internal data class UserFilesRequest(
-    val files: List<File>,
+internal data class DeleteUserFilesRequest(
+    val fileName: String,
     val relPath: String,
     val securityConfig: SecurityConfig,
 )
