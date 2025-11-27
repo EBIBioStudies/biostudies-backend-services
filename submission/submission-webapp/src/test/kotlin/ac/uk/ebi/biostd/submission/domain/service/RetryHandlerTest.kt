@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.SubmissionId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -25,7 +26,7 @@ class RetryHandlerTest(
     fun onStart(
         @MockK submission: ExtSubmission,
     ) {
-        every { requestService.getActiveRequests() } returns flowOf("a" to 1, "b" to 2)
+        every { requestService.getActiveRequests() } returns flowOf(SubmissionId("a", 1), SubmissionId("b", 2))
         coEvery { extSubmissionService.reTriggerSubmission("a", 1) } throws IllegalStateException("Error trigger")
         coEvery { extSubmissionService.reTriggerSubmission("b", 2) } answers { submission }
 
@@ -39,7 +40,11 @@ class RetryHandlerTest(
     fun onSchedule(
         @MockK submission: ExtSubmission,
     ) {
-        every { requestService.getActiveRequests(Duration.of(3, HOURS)) } returns flowOf("a" to 1, "b" to 2)
+        every { requestService.getActiveRequests(Duration.of(3, HOURS)) } returns
+            flowOf(
+                SubmissionId("a", 1),
+                SubmissionId("b", 2),
+            )
         coEvery { extSubmissionService.reTriggerSubmission("a", 1) } throws IllegalStateException("Error trigger")
         coEvery { extSubmissionService.reTriggerSubmission("b", 2) } answers { submission }
 

@@ -7,13 +7,14 @@ import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.ExistsQuery
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import java.time.Instant
 
 interface SubmissionMigratorRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query(
-        value = "{ accNo: { \$regex: ?0 }, storageMode: 'NFS', version: { \$gte: 0 } }",
+        value = "{ storageMode: 'NFS', modificationTime: {\$lte: ?0} , version: { \$gte: 0 }, released: true }",
         fields = "{ accNo: 1 }",
     )
-    suspend fun findReadyToMigrate(accNoPattern: String): Flow<MigrationData>
+    suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>
 
     @ExistsQuery(value = "{ accNo: ?0, storageMode: 'FIRE', version: { \$gte: 0 } }")
     suspend fun isMigrated(accNo: String): Boolean

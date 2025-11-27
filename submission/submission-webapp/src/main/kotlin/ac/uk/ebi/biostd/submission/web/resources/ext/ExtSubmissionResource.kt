@@ -54,14 +54,14 @@ class ExtSubmissionResource(
     suspend fun refreshSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
-    ): Pair<String, Int> = extSubmissionService.refreshSubmission(user.email, accNo)
+    ): SubmissionId = extSubmissionService.refreshSubmission(user.email, accNo)
 
     @PostMapping("/release/{accNo}/{releaseDate}")
     suspend fun releaseSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
         @PathVariable releaseDate: String,
-    ): Pair<String, Int> = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
+    ): SubmissionId = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
 
     @PostMapping("/{accNo}/generate-doi")
     suspend fun generateDoi(
