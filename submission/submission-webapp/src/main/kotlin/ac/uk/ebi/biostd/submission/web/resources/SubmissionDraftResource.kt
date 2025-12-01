@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import java.time.OffsetDateTime
@@ -83,7 +84,8 @@ internal class SubmissionDraftResource(
     suspend fun createSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
-    ): ResponseSubmissionDraft = requestDraftService.createRequestDraft(content, user.email).asResponseDraft()
+        @RequestParam attachTo: String?,
+    ): ResponseSubmissionDraft = requestDraftService.createRequestDraft(content, user.email, attachTo).asResponseDraft()
 
     @PostMapping("/{accNo}/submit")
     suspend fun submitDraft(
@@ -94,7 +96,6 @@ internal class SubmissionDraftResource(
     ) {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildDraftRequest(accNo, user.email, buildRequest)
-
         submitWebHandler.submitAsync(request)
     }
 
@@ -107,7 +108,6 @@ internal class SubmissionDraftResource(
     ): Submission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildDraftRequest(accNo, user.email, buildRequest)
-
         return submitWebHandler.submit(request)
     }
 

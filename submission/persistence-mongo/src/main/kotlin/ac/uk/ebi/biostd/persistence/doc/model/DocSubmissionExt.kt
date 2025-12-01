@@ -27,8 +27,12 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
         errors = emptyList(),
     )
 
-fun Submission.asSubmittedRequest(owner: String): BasicSubmission =
-    BasicSubmission(
+fun Submission.asSubmittedRequest(
+    owner: String,
+    newSubmission: Boolean,
+): BasicSubmission {
+    // Something here with the AccNo
+    return BasicSubmission(
         accNo = accNo,
         title = section.title ?: title,
         released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now(UTC)) ?: false,
@@ -38,12 +42,15 @@ fun Submission.asSubmittedRequest(owner: String): BasicSubmission =
         owner = owner,
         errors = emptyList(),
     )
+}
 
 fun ExtSubmission.asBasicSubmission(
     status: ProcessingStatus,
+    newSubmission: Boolean,
     errors: List<String> = emptyList(),
-): BasicSubmission =
-    BasicSubmission(
+): BasicSubmission {
+    // Something here with the AccNo
+    return BasicSubmission(
         accNo = accNo,
         title = section.title ?: title,
         released = released,
@@ -53,6 +60,7 @@ fun ExtSubmission.asBasicSubmission(
         owner = owner,
         errors = errors,
     )
+}
 
 val ExtSection.title: String?
     get() = attributes.find { it.name == SectionFields.TITLE.value }?.value

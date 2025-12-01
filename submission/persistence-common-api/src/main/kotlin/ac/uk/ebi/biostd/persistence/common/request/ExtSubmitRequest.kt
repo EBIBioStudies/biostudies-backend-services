@@ -9,6 +9,7 @@ data class ExtSubmitRequest(
     val submission: ExtSubmission,
     val previousVersion: Int? = null,
     val onBehalfUser: String? = null,
+    val newSubmission: Boolean,
     val preferredSources: List<PreferredSource> = listOf(PreferredSource.SUBMISSION),
     val requestFiles: List<File> = emptyList(),
     val silentMode: Boolean = false,

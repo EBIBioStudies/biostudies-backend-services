@@ -599,14 +599,14 @@ class SpecialSubmissionAttributesTest(
                 checkReviewInfoIsPresent(pageTabFiles.second)
             }
 
-        private fun checkReviewInfoIsHidden(pageTab: File) {
+        private suspend fun checkReviewInfoIsHidden(pageTab: File) {
             val sub = serializationService.deserializeSubmission(pageTab)
             val sections = sub.section.allSections()
             assertThat(sections).hasSize(1)
             assertThat(sections).noneMatch { it.isAuthor() || it.isOrganization() }
         }
 
-        private fun checkReviewInfoIsPresent(pageTab: File) {
+        private suspend fun checkReviewInfoIsPresent(pageTab: File) {
             val sub = serializationService.deserializeSubmission(pageTab)
             val sections = sub.section.allSections()
             assertThat(sections).hasSize(3)

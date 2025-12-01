@@ -72,6 +72,7 @@ class LocalExtSubmissionSubmitter(
                 silentMode = rqt.silentMode,
                 files = rqt.requestFiles,
                 previousVersion = rqt.previousVersion,
+                newSubmission = rqt.newSubmission,
                 onBehalfUser = rqt.onBehalfUser,
                 preferredSources = rqt.preferredSources,
                 singleJobMode = rqt.singleJobMode,

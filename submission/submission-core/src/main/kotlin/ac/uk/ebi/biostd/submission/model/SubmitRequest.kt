@@ -12,7 +12,6 @@ import java.io.File
 
 data class SubmitRequest(
     val accNo: String,
-    val draftAccNo: String,
     val version: Int,
     val relPath: String,
     val submission: Submission,
@@ -28,4 +27,5 @@ data class SubmitRequest(
     val storageMode: StorageMode?,
     val silentMode: Boolean,
     val singleJobMode: Boolean,
+    val newSubmission: Boolean,
 )

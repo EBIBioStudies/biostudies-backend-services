@@ -8,8 +8,10 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -34,10 +36,11 @@ internal class PageTabSerializationService(
         source: FileSourcesList,
     ): Submission = fileListSerializer.deserializeSubmission(serializer.deserializeSubmission(content, format), source)
 
-    override fun deserializeSubmission(file: File): Submission {
-        val pagetabFile = readAsPageTab(file)
-        return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
-    }
+    override suspend fun deserializeSubmission(file: File): Submission =
+        withContext(Dispatchers.IO) {
+            val pagetabFile = readAsPageTab(file)
+            deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
+        }
 
     override suspend fun deserializeSubmission(
         file: File,

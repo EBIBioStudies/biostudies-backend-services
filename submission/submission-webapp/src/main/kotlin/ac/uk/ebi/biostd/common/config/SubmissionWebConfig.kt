@@ -109,7 +109,6 @@ class SubmissionWebConfig {
         toSubmissionMapper: ToSubmissionMapper,
         queryService: SubmissionMetaQueryService,
         fileServiceFactory: FileServiceFactory,
-        persistenceService: SubmissionPersistenceService,
         requestDraftService: SubmissionRequestDraftService,
         appProperties: ApplicationProperties,
     ): SubmitWebHandler =
@@ -122,7 +121,6 @@ class SubmissionWebConfig {
             toSubmissionMapper,
             queryService,
             fileServiceFactory,
-            persistenceService,
             requestDraftService,
             appProperties,
         )
@@ -133,14 +131,18 @@ class SubmissionWebConfig {
         serializationService: SerializationService,
         userPrivilegesService: IUserPrivilegesService,
         submissionQueryService: SubmissionPersistenceQueryService,
+        submissionPersistenceService: SubmissionPersistenceService,
         requestPersistenceService: SubmissionRequestPersistenceService,
+        accNoService: AccNoService,
     ): SubmissionRequestDraftService =
         SubmissionRequestDraftService(
             toSubmissionMapper,
             serializationService,
             userPrivilegesService,
             submissionQueryService,
+            submissionPersistenceService,
             requestPersistenceService,
+            accNoService,
         )
 
     @Bean

@@ -120,6 +120,7 @@ class SubmissionAsyncTest(
                     notifyTo = SuperUser.email,
                     submission = extSubmission,
                     singleJobMode = false,
+                    newSubmission = false,
                 )
 
             extSubmissionSubmitter.createRqt(extSubmitRequest)

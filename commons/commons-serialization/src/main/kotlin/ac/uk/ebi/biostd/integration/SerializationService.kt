@@ -6,7 +6,6 @@ import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
-import org.jetbrains.annotations.Blocking
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -28,8 +27,7 @@ interface SerializationService {
         format: SubFormat,
     ): Submission
 
-    @Blocking
-    fun deserializeSubmission(file: File): Submission
+    suspend fun deserializeSubmission(file: File): Submission
 
     fun deserializeFileListAsFlow(
         inputStream: InputStream,
