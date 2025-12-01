@@ -5,12 +5,15 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.DoiService
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -34,15 +37,19 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
-    @MockK private val submissionRepository: SubmissionPersistenceQueryService,
-    @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val securityQueryService: SecurityQueryService,
-    @MockK private val eventsPublisher: EventsPublisherService,
+    @param:MockK private val doiService: DoiService,
+    @param:MockK private val toSubmissionMapper: ToSubmissionMapper,
+    @param:MockK private val submissionSubmitter: ExtSubmissionSubmitter,
+    @param:MockK private val submissionRepository: SubmissionPersistenceQueryService,
+    @param:MockK private val userPrivilegesService: IUserPrivilegesService,
+    @param:MockK private val securityQueryService: SecurityQueryService,
+    @param:MockK private val eventsPublisher: EventsPublisherService,
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
+            doiService,
+            toSubmissionMapper,
             submissionSubmitter,
             submissionRepository,
             userPrivilegesService,
@@ -68,7 +75,11 @@ class ExtSubmissionServiceTest(
             val submitRequestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRqt(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(submitRequestSlot)) } returns
+                SubmissionId(
+                    extSubmission.accNo,
+                    1,
+                )
 
             testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
@@ -90,7 +101,7 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns SubmissionId(extSubmission.accNo, 1)
             every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
             testInstance.submitExtAsync("user@mail.com", extSubmission)
@@ -155,7 +166,7 @@ class ExtSubmissionServiceTest(
             coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
             coEvery {
                 submissionSubmitter.createRqt(capture(requestSlot))
-            } returns (collection.accNo to collection.version)
+            } returns SubmissionId(collection.accNo, collection.version)
 
             testInstance.submitExt("user@mail.com", collection)
 
@@ -174,7 +185,7 @@ class ExtSubmissionServiceTest(
             val requestSlot = slot<ExtSubmitRequest>()
 
             every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
-            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+            coEvery { submissionSubmitter.createRqt(capture(requestSlot)) } returns SubmissionId(extSubmission.accNo, 2)
             coEvery {
                 submissionRepository.getExtByAccNo(
                     extSubmission.accNo,

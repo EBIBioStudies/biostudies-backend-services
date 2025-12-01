@@ -2,13 +2,10 @@ package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PROCESS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
@@ -28,7 +25,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMISSION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
@@ -76,7 +72,6 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration.ofSeconds
-import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [MongoDbReactiveConfig::class])
@@ -118,14 +113,6 @@ internal class DatabaseChangeLogTest(
                         .append("$prefix$SUB_VERSION", 1)
                         .append("$prefix$STORAGE_MODE", 1),
                 )
-                assertThat(indexes[12]).contains(
-                    SimpleEntry(
-                        "weights",
-                        Document("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME", 1)
-                            .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE", 1)
-                            .append("$prefix$SUB_TITLE", 1),
-                    ),
-                )
             }
 
             suspend fun assertSubmissionIndexes() {
@@ -137,7 +124,7 @@ internal class DatabaseChangeLogTest(
                         .toList()
 
                 assertThat(mongoTemplate.collectionExists<DocSubmission>().awaitSingle()).isTrue()
-                assertThat(submissionIndexes).hasSize(13)
+                assertThat(submissionIndexes).hasSize(12)
 
                 assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertSubmissionCoreIndexes(indexes = submissionIndexes)
@@ -151,14 +138,14 @@ internal class DatabaseChangeLogTest(
                         .asFlow()
                         .toList()
                 assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>().awaitSingle()).isTrue()
-                assertThat(requestIndexes).hasSize(17)
+                assertThat(requestIndexes).hasSize(16)
 
                 assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertSubmissionCoreIndexes("$RQT_PROCESS.$SUB.", indexes = requestIndexes)
-                assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1))
-                assertThat(requestIndexes[14]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-                assertThat(requestIndexes[15]).containsEntry("key", Document(RQT_STATUS, 1))
-                assertThat(requestIndexes[16]).containsEntry(
+                assertThat(requestIndexes[12]).containsEntry("key", Document(SUB_ACC_NO, 1))
+                assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+                assertThat(requestIndexes[14]).containsEntry("key", Document(RQT_STATUS, 1))
+                assertThat(requestIndexes[15]).containsEntry(
                     "key",
                     Document(RQT_STATUS, 1).append(RQT_MODIFICATION_TIME, 1),
                 )
@@ -215,7 +202,10 @@ internal class DatabaseChangeLogTest(
                 assertThat(subFilesIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(subFilesIndexes[1]).containsEntry("key", Document(DOC_SUB_FILE_SUBMISSION_ACC_NO, 1))
                 assertThat(subFilesIndexes[2]).containsEntry("key", Document(DOC_SUB_FILE_SUBMISSION_VERSION, 1))
-                assertThat(subFilesIndexes[3]).containsEntry("key", Document("$DOC_SUB_FILE_FILE.$FILE_DOC_FILEPATH", 1))
+                assertThat(subFilesIndexes[3]).containsEntry(
+                    "key",
+                    Document("$DOC_SUB_FILE_FILE.$FILE_DOC_FILEPATH", 1),
+                )
             }
 
             suspend fun assertRequestFileIndexes() {

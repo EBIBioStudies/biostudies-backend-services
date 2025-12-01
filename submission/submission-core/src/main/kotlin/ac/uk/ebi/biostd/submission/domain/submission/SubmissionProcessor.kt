@@ -40,7 +40,7 @@ class SubmissionProcessor(
         val tags = getTags(rqt)
         val ownerEmail = rqt.onBehalfUser?.email ?: previousVersion?.owner ?: rqt.submitter.email
         val rootSection = toExtSectionMapper.convert(accNoString, rqt.version, submission.section, rqt.sources)
-        val doi = doiService.calculateDoi(accNoString, rqt)
+        val doi = doiService.calculateDoi(accNoString, submission, previousVersion)
 
         return ExtSubmission(
             accNo = accNoString,

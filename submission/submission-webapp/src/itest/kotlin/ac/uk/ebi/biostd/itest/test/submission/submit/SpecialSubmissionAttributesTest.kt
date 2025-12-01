@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.base.Either
@@ -64,12 +63,12 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SpecialSubmissionAttributesTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val tagsRefRepository: TagDataRepository,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @Autowired val serializationService: SerializationService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val tagsRefRepository: TagDataRepository,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:Autowired val serializationService: SerializationService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -361,99 +360,6 @@ class SpecialSubmissionAttributesTest(
             assertLinks(section.links)
             assertFiles(section.files, fileName)
             assertSubSections(section.sections)
-        }
-
-    @Test
-    fun `15-6 submission with DOI`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "S-STBL125")
-                    line("Title", "Submission with DOI")
-                    line("DOI")
-
-                    line("Study", "SECT-001")
-                    line()
-
-                    line("Author")
-                    line("Name", "Jane Doe")
-                    line("ORCID", "1234-5678-9101-1121")
-                    line("Affiliation", "o1")
-                    line()
-
-                    line("Organization", "o1")
-                    line("Name", "EMBL")
-                    line()
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-
-            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL125")
-            assertThat(savedSubmission.accNo).isEqualTo("S-STBL125")
-            assertThat(savedSubmission.title).isEqualTo("Submission with DOI")
-            assertThat(savedSubmission.doi).isEqualTo("$BS_DOI_ID/S-STBL125")
-        }
-
-    @Test
-    fun `15-7 submission with DOI and incomplete name`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "S-STBL126")
-                    line("Title", "Submission with DOI and incomplete name")
-                    line("DOI")
-
-                    line("Study", "SECT-001")
-                    line()
-
-                    line("Author")
-                    line("Name", "Jane")
-                    line("ORCID", "1234-5678-9101-1121")
-                    line("Affiliation", "o1")
-                    line()
-
-                    line("Organization", "o1")
-                    line("Name", "EMBL")
-                    line()
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-
-            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL126")
-            assertThat(savedSubmission.accNo).isEqualTo("S-STBL126")
-            assertThat(savedSubmission.title).isEqualTo("Submission with DOI and incomplete name")
-            assertThat(savedSubmission.doi).isEqualTo("$BS_DOI_ID/S-STBL126")
-        }
-
-    @Test
-    fun `15-8 submission with DOI and no name`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "S-STBL127")
-                    line("Title", "Submission with DOI and no name")
-                    line("DOI")
-
-                    line("Study", "SECT-001")
-                    line()
-
-                    line("Author")
-                    line("P.I.", "Jane Doe")
-                    line("ORCID", "1234-5678-9101-1121")
-                    line("Affiliation", "o1")
-                    line()
-
-                    line("Organization", "o1")
-                    line("Name", "EMBL")
-                    line()
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-
-            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL127")
-            assertThat(savedSubmission.accNo).isEqualTo("S-STBL127")
-            assertThat(savedSubmission.title).isEqualTo("Submission with DOI and no name")
-            assertThat(savedSubmission.doi).isEqualTo("$BS_DOI_ID/S-STBL127")
         }
 
     @Test

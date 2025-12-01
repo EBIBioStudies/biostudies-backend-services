@@ -12,7 +12,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.okForJson
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.serverError
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_SCHEMA
@@ -119,6 +122,12 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$subFtpProperties.retry.initialInterval", 100)
         properties.addProperty("$subFtpProperties.retry.multiplier", 2)
         properties.addProperty("$subFtpProperties.retry.maxInterval", 500)
+
+        // Automatic migration
+        properties.addProperty("app.migration.enabled", false)
+        properties.addProperty("app.migration.user", "biostudies-dev@ebi.ac.uk")
+        properties.addProperty("app.migration.limit", 10)
+        properties.addProperty("app.migration.minModificationDays", 360)
     }
 
     private fun fireSetup() {
@@ -168,6 +177,10 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.doi.email", "biostudies@ebi.ac.uk")
         properties.addProperty("app.doi.user", "a-user")
         properties.addProperty("app.doi.password", "a-password")
+        properties.addProperty("app.doi.retry.maxAttempts", 2)
+        properties.addProperty("app.doi.retry.initialInterval", 100)
+        properties.addProperty("app.doi.retry.multiplier", 2)
+        properties.addProperty("app.doi.retry.maxInterval", 500)
     }
 
     private fun submissionTaskSetup() {
@@ -219,6 +232,10 @@ class ITestListener : TestExecutionListener {
         private const val AWS_REGION = "anyRegion"
         private const val FAIL_FACTOR_ENV = "ITEST_FAIL_FACTOR"
         private const val PERSISTENCE_CONCURRENCY = "10"
+
+        private const val DOI_REGISTRATION_ENDPOINT = "/deposit"
+        private const val DOI_SCENARIO = "Register DOI"
+        private const val DOI_SCENARIO_STATE = "Failed"
 
         private const val FTP_USER = "ftpUser"
         private const val FTP_PASSWORD = "ftpPassword"
@@ -278,21 +295,39 @@ class ITestListener : TestExecutionListener {
 
         private fun createFtpServer(
             user: String,
-            pasword: String,
+            password: String,
             ftpDirectory: File,
         ): FtpServer =
             FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks").toURI()), "123456"),
                     userName = user,
-                    password = pasword,
+                    password = password,
                     path = ftpDirectory.toPath(),
                 ),
             )
 
+        /**
+         * Creates a WireMock server that returns 500 on the first call and 200 on all later calls. This is required to
+         * test the DOI retry functionality
+         */
         private fun createDoiApiMock(): WireMockServer {
             val doiServer = WireMockServer(WireMockConfiguration().dynamicPort())
-            doiServer.stubFor(post("/deposit").willReturn(okForJson("ok")))
+
+            doiServer.stubFor(
+                post(urlEqualTo(DOI_REGISTRATION_ENDPOINT))
+                    .inScenario(DOI_SCENARIO)
+                    .whenScenarioStateIs(STARTED)
+                    .willReturn(serverError().withBody("Error"))
+                    .willSetStateTo(DOI_SCENARIO_STATE),
+            )
+
+            doiServer.stubFor(
+                post(urlEqualTo(DOI_REGISTRATION_ENDPOINT))
+                    .inScenario(DOI_SCENARIO)
+                    .whenScenarioStateIs(DOI_SCENARIO_STATE)
+                    .willReturn(okForJson("OK")),
+            )
 
             return doiServer
         }

@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.DOI_RETRY_TEMPLATE
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
@@ -45,13 +46,16 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationServ
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
+import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtLinkListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -275,6 +279,8 @@ class SubmitterConfig(
         extSerializationService: ExtSerializationService,
         extSubQueryService: SubmissionPersistenceQueryService,
         submissionFileRepository: SubmissionFilesDocDataRepository,
+        toSimpleSubmissionMapper: ToSubmissionMapper,
+        doiService: DoiService,
     ): LocalPostProcessingService =
         LocalPostProcessingService(
             pageTabService,
@@ -284,6 +290,8 @@ class SubmitterConfig(
             extSerializationService,
             extSubQueryService,
             submissionFileRepository,
+            toSimpleSubmissionMapper,
+            doiService,
         )
 
     @Bean
@@ -349,7 +357,10 @@ class SubmitterConfig(
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun doiService(webClient: WebClient) = DoiService(webClient, properties.doi)
+        fun doiService(
+            webClient: WebClient,
+            @Qualifier(DOI_RETRY_TEMPLATE) suspendRetryTemplate: SuspendRetryTemplate,
+        ): DoiService = DoiService(webClient, properties.doi, suspendRetryTemplate)
 
         @Bean
         fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, queryService, properties.subBasePath)

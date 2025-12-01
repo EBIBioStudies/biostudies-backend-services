@@ -132,6 +132,20 @@ class GeneralConfig {
     }
 
     @Bean
+    @Qualifier(DOI_RETRY_TEMPLATE)
+    fun doiRetry(properties: ApplicationProperties): SuspendRetryTemplate {
+        val retry = properties.doi.retry
+        val config =
+            RetryConfig(
+                maxAttempts = retry.maxAttempts,
+                initialInterval = retry.initialInterval,
+                multiplier = retry.multiplier,
+                maxInterval = retry.maxInterval.minutes.inWholeMilliseconds,
+            )
+        return SuspendRetryTemplate(config)
+    }
+
+    @Bean
     @Qualifier(FTP_IN_CLIENT)
     fun userFilesFtpClient(
         properties: ApplicationProperties,
@@ -162,6 +176,8 @@ class GeneralConfig {
     }
 
     companion object {
+        const val DOI_RETRY_TEMPLATE = "doiRetryTemplate"
+
         const val FTP_IN_CLIENT = "FtpInClient"
         const val FTP_IN_RETRY_TEMPLATE = "ftpInRetryTemplate"
 

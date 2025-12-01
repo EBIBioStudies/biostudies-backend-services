@@ -9,9 +9,7 @@ internal class SubmissionMongoPersistenceService(
     private val submissionRepository: ExtSubmissionRepository,
     private val subDataRepository: SubmissionDocDataRepository,
 ) : SubmissionPersistenceService {
-    override suspend fun saveSubmission(submission: ExtSubmission): ExtSubmission {
-        return submissionRepository.saveSubmission(submission)
-    }
+    override suspend fun saveSubmission(submission: ExtSubmission): ExtSubmission = submissionRepository.saveSubmission(submission)
 
     override suspend fun expirePreviousVersions(accNo: String) {
         submissionRepository.expirePreviousVersions(accNo)
@@ -19,10 +17,6 @@ internal class SubmissionMongoPersistenceService(
 
     override suspend fun expireSubmissions(accNumbers: List<String>) {
         subDataRepository.expireVersions(accNumbers)
-    }
-
-    override suspend fun setAsReleased(accNo: String) {
-        subDataRepository.setAsReleased(accNo)
     }
 
     override suspend fun getNextVersion(accNo: String): Int {

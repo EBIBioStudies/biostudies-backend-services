@@ -4,9 +4,9 @@ internal const val LIST_SEPARATOR = ','
 
 internal object CommonParameters {
     const val SERVER_HELP = "BioStudies host url"
-    const val USER_HELP = "User that will perform the submission"
+    const val USER_HELP = "User that will perform the action"
     const val PASSWORD_HELP = "The user password"
-    const val ON_BEHALF_HELP = "The user password"
+    const val ON_BEHALF_HELP = "User that will be impersonated"
 }
 
 internal object SubmissionParameters {
@@ -60,4 +60,18 @@ internal object TransferenceParameters {
 internal object SubmissionRequestParameters {
     const val ACC_NO = "Accession number of the submission request to check the status"
     const val VERSION = "Version of the submission request to check the status"
+}
+
+internal object DoiParameters {
+    const val ACC_NO = "Accession number of the submission to generate DOI"
+}
+
+internal object UploadUserFilesParameters {
+    const val FILE_HELP = "Path of the file to be uploaded"
+    const val REL_PATH_HELP = "Relative user folder path where the file will be located"
+}
+
+internal object DeleteUserFilesParameters {
+    const val FILE_HELP = "Name of the file to be deleted"
+    const val REL_PATH_HELP = "Relative user folder path where the file to delete is located"
 }

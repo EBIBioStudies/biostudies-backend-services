@@ -20,7 +20,7 @@ import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 
 @ExtendWith(MockKExtension::class)
 class SecurityServiceTest(
-    @MockK private val bioWebClient: BioWebClient,
+    @param:MockK private val bioWebClient: BioWebClient,
 ) {
     private val testInstance = SecurityService()
 

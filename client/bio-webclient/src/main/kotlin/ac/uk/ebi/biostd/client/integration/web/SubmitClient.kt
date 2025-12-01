@@ -230,12 +230,14 @@ interface ExtSubmissionOperations {
         target: StorageMode,
     )
 
-    fun refreshSubmission(accNo: String): Pair<String, Int>
+    fun refreshSubmission(accNo: String): SubmissionId
 
     fun releaseSubmission(
         accNo: String,
         releaseDate: Instant,
-    ): Pair<String, Int>
+    ): SubmissionId
+
+    suspend fun generateDoi(accNo: String): SubmissionId
 }
 
 interface PostProcessOperations {
@@ -347,6 +349,11 @@ interface SubmissionRequestOperations {
         accNo: String,
         version: Int,
     ): RequestStatus
+
+    suspend fun getSubmissionRequestErrors(
+        accNo: String,
+        version: Int,
+    ): List<String>
 
     suspend fun archiveSubmissionRequest(
         accNo: String,

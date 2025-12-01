@@ -123,17 +123,6 @@ task updateReleaserArtifact {
     finalizedBy "deployArtifact"
 }
 
-task updateMigratorArtifact {
-    dependsOn(":scheduler:tasks:submission-migrator-task:bootJar")
-
-    doFirst {
-        project.ext.artifactPath = "scheduler/tasks/submission-migrator-task/build/libs"
-        project.ext.artifactName = "submission-migrator-task-1.0.0.jar"
-    }
-
-    finalizedBy "deployArtifact"
-}
-
 task updateStatsReporterArtifact {
     dependsOn(":scheduler:tasks:stats-reporter-task:bootJar")
 

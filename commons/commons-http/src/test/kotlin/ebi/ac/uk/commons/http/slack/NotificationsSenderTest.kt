@@ -21,8 +21,8 @@ import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class)
 class NotificationsSenderTest(
-    @MockK private val client: WebClient,
-    @MockK private val requestSpec: RequestBodySpec,
+    @param:MockK private val client: WebClient,
+    @param:MockK private val requestSpec: RequestBodySpec,
 ) {
     private val testInstance = NotificationsSender(client, "http://notifications:8080")
 

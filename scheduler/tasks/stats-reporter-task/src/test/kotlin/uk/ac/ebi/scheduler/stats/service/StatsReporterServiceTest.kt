@@ -66,8 +66,8 @@ class StatsReporterServiceTest(
         coEvery { statsRepository.calculateImagingFilesSize() } returns IMAGING_FILES_SIZE
         coEvery { statsRepository.calculateNonImagingFilesSize() } returns NON_IMAGING_FILES_SIZE
 
-        publishFolder.createFile("202306_$IMAGING_REPORT_NAME.txt", "202306\t$PREVIOUS_IMAGING_FILES_SIZE")
-        publishFolder.createFile("202306_$NON_IMAGING_REPORT_NAME.txt", "202306\t$PREVIOUS_NON_IMAGING_FILES_SIZE")
+        publishFolder.createFile("202306_$IMAGING_REPORT_NAME.txt", "202306\t$PREVIOUS_IMAGING_FILES_SIZE\n")
+        publishFolder.createFile("202306_$NON_IMAGING_REPORT_NAME.txt", "202306\t$PREVIOUS_NON_IMAGING_FILES_SIZE\n")
     }
 
     private fun setUpPaths() {

@@ -22,5 +22,6 @@ interface TestSecurityUser {
             groupsFolders = listOf(mockk()),
             permissions = emptySet(),
             notificationsEnabled = notificationsEnabled,
+            adminCollections = emptyList(),
         )
 }

@@ -17,7 +17,7 @@ import uk.ac.ebi.biostd.client.cli.services.SecurityService
 
 @ExtendWith(MockKExtension::class)
 internal class GrantPermissionCommandTest(
-    @MockK private val securityService: SecurityService,
+    @param:MockK private val securityService: SecurityService,
 ) {
     private val testInstance = GrantPermissionCommand(securityService)
 

@@ -4,8 +4,13 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
 import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.coroutines.waitUntil
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.INVALID
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
+import uk.ac.ebi.biostd.client.cli.dto.GenerateDoiRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
@@ -55,6 +60,13 @@ internal class SubmissionService {
             client.validateFileList(fileListPath, rootPath, accNo)
         }
 
+    suspend fun generateDoi(request: GenerateDoiRequest) =
+        performRequest {
+            val (server, user, password) = request.securityConfig
+            val client = bioWebClient(server, user, password)
+            client.generateDoi(request.accNo)
+        }
+
     companion object {
         private const val CHECK_INTERVAL = 20L
     }
@@ -63,15 +75,24 @@ internal class SubmissionService {
         accNo: String,
         version: Int,
     ) {
+        var status: RequestStatus = REQUESTED
         waitUntil(
             checkInterval = ofSeconds(CHECK_INTERVAL),
             timeout = FOREVER,
         ) {
-            val status = getSubmissionRequestStatus(accNo, version)
-            echo("INFO: Waiting for submission to be PROCESSED. Current status: $status")
-            return@waitUntil status == PROCESSED
+            status = getSubmissionRequestStatus(accNo, version)
+
+            val completed = status == PROCESSED || status == POST_PROCESSED || status == INVALID
+            if (completed.not()) echo("INFO: Waiting for submission to be processed. Current status: $status")
+
+            return@waitUntil completed
         }
 
-        echo("SUCCESS: Submission $accNo, version: $version is processed")
+        if (status == PROCESSED || status == POST_PROCESSED) {
+            echo("SUCCESS: Submission $accNo, version: $version is processed")
+        } else {
+            val errors = getSubmissionRequestErrors(accNo, version)
+            echo("ERROR: Submission $accNo, version: $version failed with errors:\n ${errors.joinToString("\n")}")
+        }
     }
 }

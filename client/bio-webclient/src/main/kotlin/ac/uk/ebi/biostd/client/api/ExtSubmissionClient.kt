@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
@@ -23,6 +24,7 @@ import java.time.Instant
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 
+@Suppress("TooManyFunctions")
 class ExtSubmissionClient(
     private val client: WebClient,
     private val extSerializationService: ExtSerializationService,
@@ -70,12 +72,14 @@ class ExtSubmissionClient(
         client.post("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
-    override fun refreshSubmission(accNo: String): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+    override fun refreshSubmission(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
 
     override fun releaseSubmission(
         accNo: String,
         releaseDate: Instant,
-    ): Pair<String, Int> = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
+    ): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
+
+    override suspend fun generateDoi(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/$accNo/generate-doi")
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder

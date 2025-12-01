@@ -1,10 +1,12 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.StorageMode
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ebi.ac.uk.model.FolderStats
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
@@ -22,6 +24,7 @@ class ProfileService(
     private val userFtpDirPath: Path,
     private val nfsUserFilesDirPath: Path,
     private val userFtpRootPath: String,
+    private val privilegesService: IUserPrivilegesService,
 ) {
     fun getUserProfile(
         user: DbUser,
@@ -40,6 +43,7 @@ class ProfileService(
             userFolder = userMagicFolder(user.storageMode, userFtpRootPath, user.secret, user.id),
             groupsFolders = groupsMagicFolder(user.groups),
             permissions = getPermissions(user.permissions),
+            adminCollections = privilegesService.allowedCollections(user.email, AccessType.ADMIN),
             notificationsEnabled = user.notificationsEnabled,
         )
 

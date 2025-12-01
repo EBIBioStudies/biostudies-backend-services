@@ -60,7 +60,7 @@ class LocalExtSubmissionSubmitter(
     private val submissionQueryService: ExtSubmissionQueryService,
     private val eventsPublisherService: EventsPublisherService,
 ) : ExtSubmissionSubmitter {
-    override suspend fun createRqt(rqt: ExtSubmitRequest): Pair<String, Int> {
+    override suspend fun createRqt(rqt: ExtSubmitRequest): SubmissionId {
         val sub = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request =
             SubmissionRequest(

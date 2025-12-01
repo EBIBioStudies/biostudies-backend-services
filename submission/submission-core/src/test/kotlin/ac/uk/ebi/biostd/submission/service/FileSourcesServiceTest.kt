@@ -173,6 +173,7 @@ class FileSourcesServiceTest(
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true,
+            adminCollections = emptyList(),
         )
     }
 
@@ -202,6 +203,7 @@ class FileSourcesServiceTest(
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true,
+            adminCollections = emptyList(),
         )
     }
 }

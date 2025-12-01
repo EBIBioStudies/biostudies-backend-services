@@ -1,21 +1,28 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.StorageMode
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
 
-@ExtendWith(TemporaryFolderExtension::class)
+@ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ProfileServiceTest(
     temporaryFolder: TemporaryFolder,
+    @MockK
+    private val privilegesService: IUserPrivilegesService,
 ) {
     private val environment = "env-test"
     private val filesDir = temporaryFolder.createDirectory("userFiles")
@@ -41,10 +48,13 @@ class ProfileServiceTest(
             userFtpRootPath = environment,
             userFtpDirPath = ftpFilesDir.toPath(),
             nfsUserFilesDirPath = filesDir.toPath(),
+            privilegesService = privilegesService,
         )
 
     @Test
     fun getUserProfile() {
+        every { privilegesService.allowedCollections("admin_user@ebi.ac.uk", ADMIN) } returns listOf("BioCollection")
+
         val expectedUserFolder =
             NfsUserFolder(
                 relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
@@ -71,6 +81,7 @@ class ProfileServiceTest(
                 groupsFolders = listOf(expectedGroupFolder),
                 permissions = emptySet(),
                 notificationsEnabled = true,
+                adminCollections = listOf("BioCollection"),
             )
 
         val (user, token) = testInstance.getUserProfile(testUser, "a token")
