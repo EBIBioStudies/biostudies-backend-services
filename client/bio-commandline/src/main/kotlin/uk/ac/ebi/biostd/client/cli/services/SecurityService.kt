@@ -1,27 +1,47 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 
 internal class SecurityService {
-    suspend fun grantPermission(request: PermissionRequest) = performRequest { grant(request) }
+    suspend fun grantPermission(
+        securityConfig: SecurityConfig,
+        accessType: String,
+        targetUser: String,
+        accNo: String,
+    ) =
+        performRequest { grant(securityConfig, accessType, targetUser, accNo) }
 
-    suspend fun revokePermission(request: PermissionRequest) = performRequest { revoke(request) }
+    suspend fun revokePermission(
+        securityConfig: SecurityConfig,
+        accessType: String,
+        targetUser: String,
+        accNo: String,
+    ) =
+        performRequest { revoke(securityConfig, accessType, targetUser, accNo) }
 
-    private suspend fun grant(rqt: PermissionRequest) {
-        val config = rqt.securityConfig
+    private suspend fun grant(
+        config: SecurityConfig,
+        accessType: String,
+        targetUser: String,
+        accNo: String,
+    ) {
         bioWebClient(config.server, config.user, config.password).grantPermission(
-            rqt.targetUser,
-            rqt.accNo,
-            rqt.accessType,
+            targetUser,
+            accNo,
+            accessType,
         )
     }
 
-    private suspend fun revoke(rqt: PermissionRequest) {
-        val config = rqt.securityConfig
+    private suspend fun revoke(
+        config: SecurityConfig,
+        accessType: String,
+        targetUser: String,
+        accNo: String,
+    ) {
         bioWebClient(config.server, config.user, config.password).revokePermission(
-            rqt.targetUser,
-            rqt.accNo,
-            rqt.accessType,
+            targetUser,
+            accNo,
+            accessType,
         )
     }
 }

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
@@ -27,9 +26,7 @@ internal class TransferCommandTest(
     @Test
     fun `transfer request`() {
         val securityConfig = SecurityConfig("server", "user", "password")
-        val request = TransferRequest("S-BSST1", NFS, securityConfig)
-
-        coEvery { submissionService.transfer(request) } answers { nothing }
+        coEvery { submissionService.transfer(securityConfig, "S-BSST1", NFS) } answers { nothing }
 
         testInstance.parse(
             listOf(
@@ -46,7 +43,7 @@ internal class TransferCommandTest(
             ),
         )
 
-        coVerify(exactly = 1) { submissionService.transfer(request) }
+        coVerify(exactly = 1) { submissionService.transfer(securityConfig, "S-BSST1", NFS) }
     }
 
     @Test

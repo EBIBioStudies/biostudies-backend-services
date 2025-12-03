@@ -9,11 +9,10 @@ import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
-import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
-import uk.ac.ebi.biostd.client.cli.dto.GenerateDoiRequest
+import ebi.ac.uk.extended.model.StorageMode
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
-import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import java.time.Duration.ofSeconds
 
@@ -28,16 +27,23 @@ internal class SubmissionService {
             if (request.await) client.waitForSubmission(accNo, version)
         }
 
-    fun transfer(request: TransferRequest) =
+    fun transfer(
+        securityConfig: SecurityConfig,
+        accNo: String,
+        target: StorageMode,
+    ) =
         performRequest {
-            val client = bioWebClient(request.securityConfig)
-            client.transferSubmission(request.accNo, request.target)
+            val client = bioWebClient(securityConfig)
+            client.transferSubmission(accNo, target)
         }
 
-    suspend fun delete(request: DeletionRequest) =
+    suspend fun delete(
+        securityConfig: SecurityConfig,
+        accNoList: List<String>,
+    ) =
         performRequest {
-            val client = bioWebClient(request.securityConfig)
-            client.deleteSubmissions(request.accNoList)
+            val client = bioWebClient(securityConfig)
+            client.deleteSubmissions(accNoList)
         }
 
     fun migrate(request: MigrationRequest): Unit =
@@ -60,11 +66,14 @@ internal class SubmissionService {
             client.validateFileList(fileListPath, rootPath, accNo)
         }
 
-    suspend fun generateDoi(request: GenerateDoiRequest) =
+    suspend fun generateDoi(
+        securityConfig: SecurityConfig,
+        accNo: String,
+    ) =
         performRequest {
-            val (server, user, password) = request.securityConfig
+            val (server, user, password) = securityConfig
             val client = bioWebClient(server, user, password)
-            client.generateDoi(request.accNo)
+            client.generateDoi(accNo)
         }
 
     companion object {

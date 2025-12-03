@@ -18,9 +18,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.dto.DeleteUserFilesRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import uk.ac.ebi.biostd.client.cli.dto.UploadUserFilesRequest
+import java.io.File
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class UserFilesServiceTest(
@@ -46,7 +45,7 @@ class UserFilesServiceTest(
 
             coEvery { bioWebClient.uploadFile(file, REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(UploadUserFilesRequest(file, REL_PATH, securityConfig))
+            testInstance.uploadUserFiles(securityConfig, file, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.uploadFile(file, REL_PATH) }
         }
@@ -59,7 +58,7 @@ class UserFilesServiceTest(
 
             coEvery { bioWebClient.uploadFile(file, REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(UploadUserFilesRequest(dir, REL_PATH, securityConfig))
+            testInstance.uploadUserFiles(securityConfig, dir, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.uploadFile(file, REL_PATH) }
         }
@@ -69,7 +68,7 @@ class UserFilesServiceTest(
         runTest {
             coEvery { bioWebClient.deleteFile(FILE_NAME, REL_PATH) } answers { nothing }
 
-            testInstance.deleteUserFiles(DeleteUserFilesRequest(FILE_NAME, REL_PATH, securityConfig))
+            testInstance.deleteUserFiles(securityConfig, FILE_NAME, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.deleteFile(FILE_NAME, REL_PATH) }
         }

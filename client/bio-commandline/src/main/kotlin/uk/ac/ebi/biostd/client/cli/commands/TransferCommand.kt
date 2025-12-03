@@ -11,7 +11,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.ACC_NO
 import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.TARGET
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 internal class TransferCommand(
@@ -27,8 +26,7 @@ internal class TransferCommand(
         runBlocking {
             val targetStorage = StorageMode.fromString(target)
             val securityConfig = SecurityConfig(server, user, password)
-
-            subService.transfer(TransferRequest(accNo, targetStorage, securityConfig))
+            subService.transfer(securityConfig, accNo, targetStorage)
             echo("SUCCESS: Submission with AccNo $accNo is in queue to be transferred")
         }
 }

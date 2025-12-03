@@ -11,7 +11,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 
@@ -27,9 +26,7 @@ internal class GrantPermissionCommandTest(
     @Test
     fun `grant submission permission request`() {
         val securityConfig = SecurityConfig("server", "user", "password")
-        val request = PermissionRequest(securityConfig, "UPDATE", "user@mail.org", "S-BSST123")
-
-        coEvery { securityService.grantPermission(request) } answers { nothing }
+        coEvery { securityService.grantPermission(securityConfig, "UPDATE", "user@mail.org", "S-BSST123") } answers { nothing }
 
         testInstance.parse(
             listOf(
@@ -48,7 +45,7 @@ internal class GrantPermissionCommandTest(
             ),
         )
 
-        coVerify(exactly = 1) { securityService.grantPermission(request) }
+        coVerify(exactly = 1) { securityService.grantPermission(securityConfig, "UPDATE", "user@mail.org", "S-BSST123") }
     }
 
     @Test
