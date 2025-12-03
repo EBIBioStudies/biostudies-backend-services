@@ -8,16 +8,14 @@ internal class SecurityService {
         accessType: String,
         targetUser: String,
         accNo: String,
-    ) =
-        performRequest { grant(securityConfig, accessType, targetUser, accNo) }
+    ) = performRequest { grant(securityConfig, accessType, targetUser, accNo) }
 
     suspend fun revokePermission(
         securityConfig: SecurityConfig,
         accessType: String,
         targetUser: String,
         accNo: String,
-    ) =
-        performRequest { revoke(securityConfig, accessType, targetUser, accNo) }
+    ) = performRequest { revoke(securityConfig, accessType, targetUser, accNo) }
 
     private suspend fun grant(
         config: SecurityConfig,

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import java.io.File
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class UserFilesServiceTest(

@@ -6,7 +6,11 @@ import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import java.io.File
 
 internal class UserFilesService {
-    suspend fun uploadUserFiles(securityConfig: SecurityConfig, file: File, relPath: String) {
+    suspend fun uploadUserFiles(
+        securityConfig: SecurityConfig,
+        file: File,
+        relPath: String,
+    ) {
         val webClient = bioWebClient(securityConfig)
 
         suspend fun uploadFile(file: File) =
@@ -23,8 +27,11 @@ internal class UserFilesService {
         }
     }
 
-    suspend fun deleteUserFiles(securityConfig: SecurityConfig, fileName: String, relPath: String) =
-        performRequest {
-            bioWebClient(securityConfig).deleteFile(fileName, relPath)
-        }
+    suspend fun deleteUserFiles(
+        securityConfig: SecurityConfig,
+        fileName: String,
+        relPath: String,
+    ) = performRequest {
+        bioWebClient(securityConfig).deleteFile(fileName, relPath)
+    }
 }

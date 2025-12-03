@@ -4,15 +4,15 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
 import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.coroutines.waitUntil
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
-import ebi.ac.uk.extended.model.StorageMode
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
-import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
+import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import java.time.Duration.ofSeconds
 
@@ -31,20 +31,18 @@ internal class SubmissionService {
         securityConfig: SecurityConfig,
         accNo: String,
         target: StorageMode,
-    ) =
-        performRequest {
-            val client = bioWebClient(securityConfig)
-            client.transferSubmission(accNo, target)
-        }
+    ) = performRequest {
+        val client = bioWebClient(securityConfig)
+        client.transferSubmission(accNo, target)
+    }
 
     suspend fun delete(
         securityConfig: SecurityConfig,
         accNoList: List<String>,
-    ) =
-        performRequest {
-            val client = bioWebClient(securityConfig)
-            client.deleteSubmissions(accNoList)
-        }
+    ) = performRequest {
+        val client = bioWebClient(securityConfig)
+        client.deleteSubmissions(accNoList)
+    }
 
     fun migrate(request: MigrationRequest): Unit =
         performRequest {
@@ -69,12 +67,11 @@ internal class SubmissionService {
     suspend fun generateDoi(
         securityConfig: SecurityConfig,
         accNo: String,
-    ) =
-        performRequest {
-            val (server, user, password) = securityConfig
-            val client = bioWebClient(server, user, password)
-            client.generateDoi(accNo)
-        }
+    ) = performRequest {
+        val (server, user, password) = securityConfig
+        val client = bioWebClient(server, user, password)
+        client.generateDoi(accNo)
+    }
 
     companion object {
         private const val CHECK_INTERVAL = 20L
