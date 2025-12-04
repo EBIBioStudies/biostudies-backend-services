@@ -53,12 +53,12 @@ import kotlin.reflect.KClass
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionStorageModeTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRequestRepository: SubmissionRequestRepository,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val serializationService: ExtSerializationService,
-    @Autowired val sequenceRepository: SequenceDataRepository,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRequestRepository: SubmissionRequestRepository,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val serializationService: ExtSerializationService,
+    @param:Autowired val sequenceRepository: SequenceDataRepository,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -133,7 +133,7 @@ class SubmissionStorageModeTest(
         }
 
     @Test
-    fun `10-3 transfer from NFS to FIRE`() =
+    fun `10-3 migrate from NFS to FIRE`() =
         runTest {
             val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-3")
             webClient.uploadFiles(listOf(file, fileListFile, fileList))
@@ -141,7 +141,7 @@ class SubmissionStorageModeTest(
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
-            webClient.transferSubmission("S-STR-MODE-3", FIRE)
+            webClient.migrateSubmission("S-STR-MODE-3", FIRE)
             waitUntil(timeout = ofSeconds(10)) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == POST_PROCESSED
             }
@@ -163,14 +163,14 @@ class SubmissionStorageModeTest(
         }
 
     @Test
-    fun `10-4 transfer from FIRE to NFS`() =
+    fun `10-4 migrate from FIRE to NFS`() =
         runTest {
             val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-4")
             webClient.uploadFiles(listOf(file, fileListFile, fileList))
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
-            webClient.transferSubmission("S-STR-MODE-4", NFS)
+            webClient.migrateSubmission("S-STR-MODE-4", NFS)
 
             waitUntil(timeout = ofSeconds(10)) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == POST_PROCESSED

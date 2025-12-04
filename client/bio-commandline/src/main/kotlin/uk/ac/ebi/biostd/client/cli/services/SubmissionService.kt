@@ -32,7 +32,7 @@ internal class SubmissionService {
         target: StorageMode,
     ) = performRequest {
         val client = bioWebClient(securityConfig)
-        client.transferSubmission(accNo, target)
+        client.migrateSubmission(accNo, target)
     }
 
     suspend fun delete(

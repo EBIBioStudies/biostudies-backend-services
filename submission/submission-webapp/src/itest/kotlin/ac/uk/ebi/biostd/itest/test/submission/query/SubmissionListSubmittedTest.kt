@@ -38,9 +38,9 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.asyncMode=true"])
 class SubmissionListSubmittedTest(
-    @Autowired val requestRepository: SubmissionRequestPersistenceService,
-    @Autowired val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 

@@ -47,7 +47,7 @@ class MigrationService(
     private suspend fun migrateSafely(migrationData: MigrationData) {
         suspend fun migrate() {
             logger.info { "Started migrating submission ${migrationData.accNo} to FIRE" }
-            val submissionId = extSubmissionService.transferSubmission(properties.user, migrationData.accNo, FIRE)
+            val submissionId = extSubmissionService.migrateSubmission(properties.user, migrationData.accNo, FIRE)
             logger.info { "Trigger transfer of submission $submissionId" }
         }
 

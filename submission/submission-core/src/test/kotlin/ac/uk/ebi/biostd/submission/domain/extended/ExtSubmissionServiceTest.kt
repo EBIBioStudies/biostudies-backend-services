@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtCollection
@@ -194,7 +195,7 @@ class ExtSubmissionServiceTest(
                 )
             } returns extSubmission
 
-            testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
+            testInstance.migrateSubmission("user@mail.com", extSubmission.accNo, FIRE)
 
             val submissionRequest = requestSlot.captured
             assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
@@ -217,8 +218,8 @@ class ExtSubmissionServiceTest(
         } returns source
 
         val exception =
-            assertThrows<InvalidTransferTargetException> {
-                testInstance.transferSubmission("user@mail.com", "S-BSST1", FIRE)
+            assertThrows<InvalidMigrationTargetException> {
+                testInstance.migrateSubmission("user@mail.com", "S-BSST1", FIRE)
             }
         assertThat(exception.message).isEqualTo("The target and current storage mode must be different")
     }

@@ -65,11 +65,11 @@ class ExtSubmissionClient(
         )
     }
 
-    override fun transferSubmission(
+    override fun migrateSubmission(
         accNo: String,
         target: StorageMode,
     ) {
-        client.post("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
+        client.post("$EXT_SUBMISSIONS_URL/$accNo/migrate/$target")
     }
 
     override fun refreshSubmission(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
