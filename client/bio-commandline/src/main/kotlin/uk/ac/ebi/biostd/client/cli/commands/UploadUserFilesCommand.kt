@@ -11,7 +11,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.UploadUserFilesParameters.FILE_HELP
 import uk.ac.ebi.biostd.client.cli.common.UploadUserFilesParameters.REL_PATH_HELP
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import uk.ac.ebi.biostd.client.cli.dto.UploadUserFilesRequest
 import uk.ac.ebi.biostd.client.cli.services.UserFilesService
 import java.io.File
 
@@ -26,13 +25,8 @@ internal class UploadUserFilesCommand(
 
     override fun run() =
         runBlocking {
-            val request =
-                UploadUserFilesRequest(
-                    relPath = relPath,
-                    file = File(file),
-                    securityConfig = SecurityConfig(server, user, password),
-                )
-            userFilesService.uploadUserFiles(request)
+            val securityConfig = SecurityConfig(server, user, password)
+            userFilesService.uploadUserFiles(securityConfig, File(file), relPath)
             echo("SUCCESS: User files uploaded")
         }
 }

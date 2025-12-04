@@ -12,7 +12,6 @@ import uk.ac.ebi.biostd.client.cli.commands.SubmissionRequestStatusCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
 import uk.ac.ebi.biostd.client.cli.commands.TransferCommand
 import uk.ac.ebi.biostd.client.cli.commands.UploadUserFilesCommand
-import uk.ac.ebi.biostd.client.cli.commands.ValidateFileListCommand
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionRequestService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
@@ -41,7 +40,6 @@ fun main(args: Array<String>) {
             RevokePermissionCommand(securityService),
             DeleteUserFilesCommand(userFilesService),
             UploadUserFilesCommand(userFilesService),
-            ValidateFileListCommand(submissionService),
             SubmissionRequestStatusCommand(subRequestService),
         ).main(args)
 }

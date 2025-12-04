@@ -11,7 +11,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionRequestParameters.ACC_NO
 import uk.ac.ebi.biostd.client.cli.common.SubmissionRequestParameters.VERSION
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
-import uk.ac.ebi.biostd.client.cli.dto.SubmissionStatusRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionRequestService
 
 internal class SubmissionRequestStatusCommand(
@@ -26,8 +25,7 @@ internal class SubmissionRequestStatusCommand(
     override fun run(): Unit =
         runBlocking {
             val securityConfig = SecurityConfig(server, user, password)
-            val request = SubmissionStatusRequest(accNo, version, securityConfig)
-            val status = submissionRequestService.getRequestStatus(request)
+            val status = submissionRequestService.getRequestStatus(securityConfig, accNo, version)
 
             echo("The submission request '$accNo', version: $version is in status: '$status'")
         }

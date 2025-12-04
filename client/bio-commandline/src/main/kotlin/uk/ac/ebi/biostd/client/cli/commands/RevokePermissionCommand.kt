@@ -10,7 +10,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.RevokePermissionParameters.ACCESS_TYPE
 import uk.ac.ebi.biostd.client.cli.common.RevokePermissionParameters.ACC_NO
 import uk.ac.ebi.biostd.client.cli.common.RevokePermissionParameters.TARGET_USER
-import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 
@@ -27,9 +26,7 @@ internal class RevokePermissionCommand(
     override fun run() =
         runBlocking {
             val securityConfig = SecurityConfig(server, user, password)
-            val request = PermissionRequest(securityConfig, accessType, targetUser, accNo)
-
-            securityService.revokePermission(request)
+            securityService.revokePermission(securityConfig, accessType, targetUser, accNo)
             echo("The user $targetUser has been revoked $accessType permission for accession $accNo")
         }
 }

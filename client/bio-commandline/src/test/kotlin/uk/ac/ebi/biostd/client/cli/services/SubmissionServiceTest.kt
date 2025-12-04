@@ -26,11 +26,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
-import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
-import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionServiceTest {
@@ -85,12 +82,11 @@ internal class SubmissionServiceTest {
     fun `transfer submission`() =
         runTest {
             val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
-            val request = TransferRequest(ACC_NO, NFS, securityConfig)
 
             every { bioWebClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
 
-            testInstance.transfer(request)
+            testInstance.transfer(securityConfig, ACC_NO, NFS)
 
             verify(exactly = 1) {
                 bioWebClient.transferSubmission(ACC_NO, NFS)
@@ -102,13 +98,13 @@ internal class SubmissionServiceTest {
     fun `delete successful`() =
         runTest {
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-            coEvery { bioWebClient.deleteSubmissions(deletionRequest.accNoList) } answers { nothing }
+            coEvery { bioWebClient.deleteSubmissions(listOf(ACC_NO)) } answers { nothing }
 
-            testInstance.delete(deletionRequest)
+            testInstance.delete(securityConfig, listOf(ACC_NO))
 
             coVerify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-                bioWebClient.deleteSubmissions(deletionRequest.accNoList)
+                bioWebClient.deleteSubmissions(listOf(ACC_NO))
             }
         }
 
@@ -118,7 +114,7 @@ internal class SubmissionServiceTest {
             every { webClientException.message } returns null
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
             assertThat(exception).hasMessageStartingWith("WebClientException: ")
         }
 
@@ -128,7 +124,7 @@ internal class SubmissionServiceTest {
             every { webClientException.message } returns ERROR_MESSAGE
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
             assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
         }
 
@@ -138,7 +134,7 @@ internal class SubmissionServiceTest {
             every { webClientException.message } returns null
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
             assertThat(exception).hasMessageStartingWith("WebClientException: ")
         }
 
@@ -148,23 +144,8 @@ internal class SubmissionServiceTest {
             every { webClientException.message } returns ERROR_MESSAGE
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-            val exception = assertThrows<PrintMessage> { testInstance.delete(deletionRequest) }
+            val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
             assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
-        }
-
-    @Test
-    fun `validate file list`() =
-        runTest {
-            val (fileListPath, accNo, rootPath) = validateFileList
-            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-            coEvery { bioWebClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
-
-            testInstance.validateFileList(validateFileList)
-
-            coVerify(exactly = 1) {
-                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-                bioWebClient.validateFileList(fileListPath, rootPath, accNo)
-            }
         }
 
     private companion object {
@@ -174,8 +155,6 @@ internal class SubmissionServiceTest {
         private const val PASSWORD = "password"
         private const val SERVER = "server"
         private const val USER = "user"
-        private const val FILE_LIST_PATH = "file-list.json"
-        private const val ROOT_PATH = "root-path"
 
         private val webClientException: WebClientException = mockk()
         private val bioWebClient: BioWebClient = mockk()
@@ -183,7 +162,5 @@ internal class SubmissionServiceTest {
         private val submitParams = SubmitParameters(storageMode = FIRE, preferredSources = listOf(SUBMISSION))
 
         private val subRequest = SubmissionRequest(mockk(), false, securityConfig, submitParams, listOf(mockk()))
-        private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
-        private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }
 }

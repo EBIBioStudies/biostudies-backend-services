@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 
 @ExtendWith(MockKExtension::class)
@@ -38,7 +37,7 @@ class SecurityServiceTest(
         runTest {
             coEvery { bioWebClient.grantPermission(USER, ACC_NO, ACCESS_TYPE) } answers { nothing }
 
-            testInstance.grantPermission(PermissionRequest(securityConfig, ACCESS_TYPE, USER, ACC_NO))
+            testInstance.grantPermission(securityConfig, ACCESS_TYPE, USER, ACC_NO)
 
             coVerify(exactly = 1) { bioWebClient.grantPermission(USER, ACC_NO, ACCESS_TYPE) }
         }

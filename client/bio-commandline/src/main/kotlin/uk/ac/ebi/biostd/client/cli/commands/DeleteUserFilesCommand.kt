@@ -10,7 +10,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.DeleteUserFilesParameters.FILE_HELP
 import uk.ac.ebi.biostd.client.cli.common.DeleteUserFilesParameters.REL_PATH_HELP
-import uk.ac.ebi.biostd.client.cli.dto.DeleteUserFilesRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.UserFilesService
 
@@ -25,13 +24,8 @@ internal class DeleteUserFilesCommand(
 
     override fun run() =
         runBlocking {
-            val request =
-                DeleteUserFilesRequest(
-                    fileName = file,
-                    relPath = relPath,
-                    securityConfig = SecurityConfig(server, user, password),
-                )
-            userFilesService.deleteUserFiles(request)
+            val securityConfig = SecurityConfig(server, user, password)
+            userFilesService.deleteUserFiles(securityConfig, file, relPath)
             echo("SUCCESS: User files deleted")
         }
 }
