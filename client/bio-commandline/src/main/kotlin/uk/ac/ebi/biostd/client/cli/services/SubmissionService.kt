@@ -13,7 +13,6 @@ import ebi.ac.uk.model.RequestStatus.REQUESTED
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
-import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import java.time.Duration.ofSeconds
 
 @Suppress("TooManyFunctions")
@@ -55,13 +54,6 @@ internal class SubmissionService {
                 true -> targetClient.submitExtAsync(submission)
                 false -> targetClient.submitExt(submission)
             }
-        }
-
-    suspend fun validateFileList(request: ValidateFileListRequest) =
-        performRequest {
-            val (fileListPath, accNo, rootPath) = request
-            val client = bioWebClient(request.securityConfig)
-            client.validateFileList(fileListPath, rootPath, accNo)
         }
 
     suspend fun generateDoi(

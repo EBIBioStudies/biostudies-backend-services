@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
-import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionServiceTest {
@@ -149,21 +148,6 @@ internal class SubmissionServiceTest {
             assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
         }
 
-    @Test
-    fun `validate file list`() =
-        runTest {
-            val (fileListPath, accNo, rootPath) = validateFileList
-            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-            coEvery { bioWebClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
-
-            testInstance.validateFileList(validateFileList)
-
-            coVerify(exactly = 1) {
-                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-                bioWebClient.validateFileList(fileListPath, rootPath, accNo)
-            }
-        }
-
     private companion object {
         private const val ACC_NO = "S-BSST0"
         private const val ERROR_MESSAGE = "error message"
@@ -171,8 +155,6 @@ internal class SubmissionServiceTest {
         private const val PASSWORD = "password"
         private const val SERVER = "server"
         private const val USER = "user"
-        private const val FILE_LIST_PATH = "file-list.json"
-        private const val ROOT_PATH = "root-path"
 
         private val webClientException: WebClientException = mockk()
         private val bioWebClient: BioWebClient = mockk()
@@ -180,6 +162,5 @@ internal class SubmissionServiceTest {
         private val submitParams = SubmitParameters(storageMode = FIRE, preferredSources = listOf(SUBMISSION))
 
         private val subRequest = SubmissionRequest(mockk(), false, securityConfig, submitParams, listOf(mockk()))
-        private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }
 }
