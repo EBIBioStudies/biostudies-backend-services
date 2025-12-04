@@ -225,7 +225,7 @@ interface ExtSubmissionOperations {
 
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
 
-    fun transferSubmission(
+    fun migrateSubmission(
         accNo: String,
         target: StorageMode,
     )

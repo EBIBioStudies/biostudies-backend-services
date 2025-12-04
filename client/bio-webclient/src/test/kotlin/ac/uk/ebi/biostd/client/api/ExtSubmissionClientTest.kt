@@ -177,13 +177,13 @@ class ExtSubmissionClientTest(
     fun `transfer submission`(
         @MockK requestSpec: RequestBodySpec,
     ) {
-        every { client.post().uri("$EXT_SUBMISSIONS_URL/S-BSST1/transfer/FIRE") } returns requestSpec
+        every { client.post().uri("$EXT_SUBMISSIONS_URL/S-BSST1/migrate/FIRE") } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "ExtSubmission"
 
-        testInstance.transferSubmission("S-BSST1", FIRE)
+        testInstance.migrateSubmission("S-BSST1", FIRE)
 
         verify(exactly = 1) {
-            client.post().uri("$EXT_SUBMISSIONS_URL/S-BSST1/transfer/FIRE")
+            client.post().uri("$EXT_SUBMISSIONS_URL/S-BSST1/migrate/FIRE")
             requestSpec.retrieve().bodyToMono(String::class.java).block()
         }
     }

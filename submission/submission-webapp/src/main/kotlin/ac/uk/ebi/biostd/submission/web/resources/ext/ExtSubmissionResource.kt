@@ -69,12 +69,12 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
     ): SubmissionId = extSubmissionService.generateDoi(user.email, accNo)
 
-    @PostMapping("/{accNo}/transfer/{target}")
-    suspend fun transferSubmission(
+    @PostMapping("/{accNo}/migrate/{target}")
+    suspend fun migrateSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
         @PathVariable target: StorageMode,
-    ) = extSubmissionService.transferSubmission(user.email, accNo, target)
+    ) = extSubmissionService.migrateSubmission(user.email, accNo, target)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

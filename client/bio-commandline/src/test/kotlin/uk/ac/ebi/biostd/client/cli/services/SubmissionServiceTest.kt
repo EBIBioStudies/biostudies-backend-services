@@ -83,13 +83,13 @@ internal class SubmissionServiceTest {
         runTest {
             val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
 
-            every { bioWebClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
+            every { bioWebClient.migrateSubmission(ACC_NO, NFS) } answers { nothing }
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
 
             testInstance.transfer(securityConfig, ACC_NO, NFS)
 
             verify(exactly = 1) {
-                bioWebClient.transferSubmission(ACC_NO, NFS)
+                bioWebClient.migrateSubmission(ACC_NO, NFS)
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD)
             }
         }
