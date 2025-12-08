@@ -290,9 +290,20 @@ Contains test related to resubmission
 | SubmissionPostProcessingTest    | 31-5    | generate DOI                                                                     | Generate a DOI for an already existing submission                                             |
 | SubmissionPostProcessingTest    | 31-6    | generate already existing DOI                                                    | System should fail when trying to generate an already existing DOI                            |
 
+### Submission Security Test Suite
+
+Contains test related to operations over submissions involving system privileges
+
+| Class                         | Test No | Test name                                                  |
+|-------------------------------|---------|------------------------------------------------------------|
+| TransferSubmissionsTest.      | 33-1    | superuser transfers all submissions                        |
+| TransferSubmissionsTest.      | 33-2    | superuser transfers specific submissions                   |
+| TransferSubmissionsTest.      | 33-3    | admin user transfers submissions.                          |
+| TransferSubmissionsTest.      | 33-4    | regular user transfer submissions                          |
+
 ### Admin Operations Test suite
 
-Contains test related to resubmission
+Contains test related to operations over users
 
 | Class            | Test No | Test name                                                  |
 |------------------|---------|------------------------------------------------------------|

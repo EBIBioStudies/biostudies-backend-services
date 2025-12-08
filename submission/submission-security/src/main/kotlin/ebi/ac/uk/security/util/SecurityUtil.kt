@@ -35,12 +35,12 @@ class SecurityUtil(
     private val tokenHash: String,
     private val instanceKeys: InstanceKeys,
 ) {
-    fun createToken(user: DbUser): String {
-        return Jwts.builder()
+    fun createToken(user: DbUser): String =
+        Jwts
+            .builder()
             .setSubject(objectMapper.writeValueAsString(TokenPayload(user.id, user.email, user.fullName)))
             .signWith(SignatureAlgorithm.HS512, tokenHash)
             .compact()
-    }
 
     fun fromToken(token: String): DbUser? = if (jwtParser.isSigned(token)) getFromToken(token) else null
 
@@ -81,7 +81,8 @@ class SecurityUtil(
         path: String,
         userKey: String,
     ): String =
-        UriComponentsBuilder.fromHttpUrl(instance)
+        UriComponentsBuilder
+            .fromUriString(instance)
             .pathSegment(normalizePath(path))
             .pathSegment(normalizePath(userKey))
             .build()
@@ -104,7 +105,11 @@ class SecurityUtil(
     private fun getFromToken(token: String): DbUser? {
         val result =
             runCatching {
-                val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
+                val payload =
+                    jwtParser
+                        .setSigningKey(tokenHash)
+                        .parseClaimsJws(token)
+                        .body.subject
                 val tokenUser = objectMapper.readValue(payload, TokenPayload::class.java)
                 userRepository.readByEmail(tokenUser.email)
             }

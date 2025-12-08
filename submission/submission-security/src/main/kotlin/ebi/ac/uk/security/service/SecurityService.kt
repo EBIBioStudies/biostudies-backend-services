@@ -31,7 +31,6 @@ import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.persistence.getActiveByEmail
-import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
@@ -64,7 +63,8 @@ open class SecurityService(
     private val clusterClient: ClusterClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
-        val user = userRepository.getActiveByLoginOrEmail(request.login)
+        val login = request.login
+        val user = userRepository.findByLoginOrEmailAndActive(login, login, true) ?: throw LoginException()
         require(securityUtil.checkPassword(user.passwordDigest, request.password)) { throw LoginException() }
         return profileService.getUserProfile(user, securityUtil.createToken(user))
     }

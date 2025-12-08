@@ -12,10 +12,13 @@ import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.SubmissionId
+import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -80,6 +83,15 @@ class ExtSubmissionClient(
     ): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
 
     override suspend fun generateDoi(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/$accNo/generate-doi")
+
+    override suspend fun transferSubmissions(options: SubmissionTransferOptions) {
+        client
+            .post()
+            .uri("$EXT_SUBMISSIONS_URL/transfer")
+            .body(BodyInserters.fromValue(options))
+            .retrieve()
+            .awaitBodilessEntity()
+    }
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder

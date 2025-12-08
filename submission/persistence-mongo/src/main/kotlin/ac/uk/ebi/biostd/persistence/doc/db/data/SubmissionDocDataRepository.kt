@@ -45,12 +45,30 @@ import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update.update
 
 @Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
+    suspend fun setOwner(
+        accNo: String,
+        owner: String,
+    ) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
+        mongoTemplate.updateFirst(query, update(SUB_OWNER, owner), DocSubmission::class.java).awaitSingleOrNull()
+    }
+
+    suspend fun getSubmissionsByOwner(
+        owner: String,
+        accNoList: List<String>,
+    ): Flow<DocSubmission> =
+        when {
+            accNoList.isEmpty() -> submissionRepository.findAllByOwnerAndVersionGreaterThan(owner, 0)
+            else -> submissionRepository.findAllByOwnerAndAccNoInAndVersionGreaterThan(owner, accNoList, 0)
+        }
+
     suspend fun getCurrentMaxVersion(accNo: String): Int? {
         val aggregation =
             newAggregation(

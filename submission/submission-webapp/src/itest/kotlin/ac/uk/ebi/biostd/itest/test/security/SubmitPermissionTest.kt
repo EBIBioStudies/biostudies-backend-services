@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.ExistingUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -33,8 +34,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmitPermissionTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private val collection =
         tsv {
@@ -304,14 +305,6 @@ class SubmitPermissionTest(
             superUserWebClient.grantPermission(ExistingUser.email, "S-SBMT2", UPDATE.name)
             assertThat(regularUserWebClient.submit(resubmission, TSV)).isSuccessful()
         }
-
-    object ExistingUser : TestUser {
-        override val username = "Register User"
-        override val email = "register_user@ebi.ac.uk"
-        override val password = "1234"
-        override val superUser = false
-        override val storageMode = StorageMode.NFS
-    }
 
     object NewUser : TestUser {
         override val username = "New User"

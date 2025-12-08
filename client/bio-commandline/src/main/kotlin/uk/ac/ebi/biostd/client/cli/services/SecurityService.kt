@@ -8,38 +8,16 @@ internal class SecurityService {
         accessType: String,
         targetUser: String,
         accNo: String,
-    ) = performRequest { grant(securityConfig, accessType, targetUser, accNo) }
+    ) = performRequest {
+        bioWebClient(securityConfig).grantPermission(targetUser, accNo, accessType)
+    }
 
     suspend fun revokePermission(
         securityConfig: SecurityConfig,
         accessType: String,
         targetUser: String,
         accNo: String,
-    ) = performRequest { revoke(securityConfig, accessType, targetUser, accNo) }
-
-    private suspend fun grant(
-        config: SecurityConfig,
-        accessType: String,
-        targetUser: String,
-        accNo: String,
-    ) {
-        bioWebClient(config.server, config.user, config.password).grantPermission(
-            targetUser,
-            accNo,
-            accessType,
-        )
-    }
-
-    private suspend fun revoke(
-        config: SecurityConfig,
-        accessType: String,
-        targetUser: String,
-        accNo: String,
-    ) {
-        bioWebClient(config.server, config.user, config.password).revokePermission(
-            targetUser,
-            accNo,
-            accessType,
-        )
+    ) = performRequest {
+        bioWebClient(securityConfig).revokePermission(targetUser, accNo, accessType)
     }
 }

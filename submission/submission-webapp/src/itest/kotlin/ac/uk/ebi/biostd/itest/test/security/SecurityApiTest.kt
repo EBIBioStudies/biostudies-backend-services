@@ -26,9 +26,9 @@ import kotlin.test.assertNotNull
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SecurityApiTest(
-    @LocalServerPort val serverPort: Int,
-    @Autowired private val userDataRepository: UserDataRepository,
-    @Autowired val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
+    @param:Autowired private val userDataRepository: UserDataRepository,
+    @param:Autowired private val securityTestService: SecurityTestService,
 ) {
     private lateinit var webClient: SecurityWebClient
 
@@ -57,7 +57,7 @@ class SecurityApiTest(
 
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { webClient.login(LoginRequest(InactiveUser.email, InactiveUser.password)) }
-            .withMessageContaining("Authentication Error: Invalid email address or password")
+            .withMessageContaining("Invalid email address or password")
     }
 
     @Test
