@@ -28,6 +28,7 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionStat
+import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.flow.Flow
@@ -152,7 +153,7 @@ interface UserOperations {
     suspend fun migrateUser(
         email: String,
         options: MigrateHomeOptions,
-    ): Unit
+    )
 }
 
 interface GeneralOperations {
@@ -209,6 +210,7 @@ interface DraftSubmissionOperations {
     suspend fun createSubmissionDraft(content: String): WebSubmissionDraft
 }
 
+@Suppress("TooManyFunctions")
 interface ExtSubmissionOperations {
     fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
 
@@ -238,6 +240,8 @@ interface ExtSubmissionOperations {
     ): SubmissionId
 
     suspend fun generateDoi(accNo: String): SubmissionId
+
+    suspend fun transferSubmissions(options: SubmissionTransferOptions)
 }
 
 interface PostProcessOperations {

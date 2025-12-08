@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.SubmissionId
+import ebi.ac.uk.model.SubmissionTransferOptions
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -79,17 +80,34 @@ internal class SubmissionServiceTest {
         }
 
     @Test
-    fun `transfer submission`() =
+    fun `migrate submission`() =
         runTest {
             val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
 
             every { bioWebClient.migrateSubmission(ACC_NO, NFS) } answers { nothing }
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
 
-            testInstance.transfer(securityConfig, ACC_NO, NFS)
+            testInstance.migrate(securityConfig, ACC_NO, NFS)
 
             verify(exactly = 1) {
                 bioWebClient.migrateSubmission(ACC_NO, NFS)
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD)
+            }
+        }
+
+    @Test
+    fun `transfer submissions`() =
+        runTest {
+            val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+            val options = SubmissionTransferOptions(USER, ON_BEHALF, listOf(ACC_NO))
+
+            coEvery { bioWebClient.transferSubmissions(options) } answers { nothing }
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+
+            testInstance.transfer(securityConfig, options)
+
+            coVerify(exactly = 1) {
+                bioWebClient.transferSubmissions(options)
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD)
             }
         }

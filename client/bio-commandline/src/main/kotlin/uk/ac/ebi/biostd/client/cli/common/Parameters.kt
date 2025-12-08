@@ -25,14 +25,7 @@ internal object SubmissionParameters {
 
 internal object MigrationParameters {
     const val ACC_NO = "Accession number of the submission to be migrated"
-    const val SOURCE = "BioStudies environment to take the submission from"
-    const val TARGET = "BioStudies environment to migrate the submission to"
-    const val SOURCE_USER = "BioStudies user in the source environment"
-    const val SOURCE_PASSWORD = "Password for the BioStudies user in the source environment"
-    const val TARGET_USER = "BioStudies user in the target environment"
-    const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
-    const val TARGET_OWNER = "New owner for the submission in the target environment"
-    const val ASYNC = "Indicates whether the migration should be processed in async mode"
+    const val TARGET = "Determines where submission need to be migrated to. Valid values are: FIRE/NFS"
 }
 
 internal object GrantPermissionParameters {
@@ -47,14 +40,10 @@ internal object RevokePermissionParameters {
     const val ACC_NO = "The accession to revoke the permission to"
 }
 
-internal object FileListValidationParameters {
-    const val ROOT_PATH = "Base path to search for the files in the user folder"
-    const val ACC_NO = "The accNo for the submission which files will be included in the search"
-}
-
 internal object TransferenceParameters {
-    const val ACC_NO = "Accession number of the submission to be transferred"
-    const val TARGET = "Determines where submission need to be transferred to. Valid values are: FIRE/NFS"
+    const val OWNER = "User that owns the submissions to be transferred"
+    const val TARGET_OWNER = "User that will own the transferred submissions"
+    const val ACC_NO_LIST = "Comma separated list of accession numbers of the submissions to be transferred"
 }
 
 internal object SubmissionRequestParameters {

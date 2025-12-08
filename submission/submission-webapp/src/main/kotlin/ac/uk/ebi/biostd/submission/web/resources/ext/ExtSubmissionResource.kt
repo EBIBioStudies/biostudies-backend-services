@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.SubmissionId
+import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -26,6 +28,7 @@ import java.time.Instant
 
 @RestController
 @RequestMapping("/submissions/extended")
+@Suppress("TooManyFunctions")
 class ExtSubmissionResource(
     private val extPageMapper: ExtendedPageMapper,
     private val extSubmissionService: ExtSubmissionService,
@@ -75,6 +78,13 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
         @PathVariable target: StorageMode,
     ) = extSubmissionService.migrateSubmission(user.email, accNo, target)
+
+    @PostMapping("/transfer")
+    @PreAuthorize("isAuthenticated()")
+    suspend fun transferSubmissions(
+        @BioUser user: SecurityUser,
+        @RequestBody options: SubmissionTransferOptions,
+    ) = extSubmissionService.transferSubmissions(user.email, options)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

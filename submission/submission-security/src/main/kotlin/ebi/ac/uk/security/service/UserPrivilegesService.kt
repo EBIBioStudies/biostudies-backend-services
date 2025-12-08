@@ -83,6 +83,11 @@ internal class UserPrivilegesService(
             else -> isSuperUser(email) || permissionsService.hasPermission(email, collection, ADMIN)
         }
 
+    override suspend fun canTransferSubmission(
+        email: String,
+        accNo: String,
+    ): Boolean = isSuperUser(email) || isCollectionAdmin(email, accNo)
+
     private suspend fun hasPermissions(
         user: String,
         accNo: String,

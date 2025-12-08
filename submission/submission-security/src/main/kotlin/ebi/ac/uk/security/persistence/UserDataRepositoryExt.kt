@@ -17,10 +17,6 @@ fun UserDataRepository.getActiveByEmail(email: String): DbUser =
     findByEmailAndActive(email, true)
         ?: throw UserNotFoundByEmailException(email)
 
-fun UserDataRepository.getActiveByLoginOrEmail(login: String): DbUser =
-    findByLoginOrEmailAndActive(login, login, true)
-        ?: throw UserNotFoundByEmailException(login)
-
 fun UserDataRepository.getByActivationKey(key: String): DbUser =
     findByActivationKey(key)
         ?: throw UserWithActivationKeyNotFoundException()

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.extended
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
@@ -41,6 +42,7 @@ class ExtSubmissionServiceTest(
     @param:MockK private val doiService: DoiService,
     @param:MockK private val toSubmissionMapper: ToSubmissionMapper,
     @param:MockK private val submissionSubmitter: ExtSubmissionSubmitter,
+    @param:MockK private val persistenceService: SubmissionPersistenceService,
     @param:MockK private val submissionRepository: SubmissionPersistenceQueryService,
     @param:MockK private val userPrivilegesService: IUserPrivilegesService,
     @param:MockK private val securityQueryService: SecurityQueryService,
@@ -52,6 +54,7 @@ class ExtSubmissionServiceTest(
             doiService,
             toSubmissionMapper,
             submissionSubmitter,
+            persistenceService,
             submissionRepository,
             userPrivilegesService,
             securityQueryService,
