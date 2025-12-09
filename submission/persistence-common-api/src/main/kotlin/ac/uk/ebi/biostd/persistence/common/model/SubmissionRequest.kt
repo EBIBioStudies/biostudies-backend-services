@@ -57,6 +57,7 @@ data class SubmissionRequest(
     val draft: String? = null,
     val status: RequestStatus,
     val modificationTime: OffsetDateTime,
+    val creationTime: OffsetDateTime,
     val newSubmission: Boolean,
     val files: List<File> = emptyList(),
     val preferredSources: List<PreferredSource> = emptyList(),
@@ -86,6 +87,7 @@ data class SubmissionRequest(
         onBehalfUser = onBehalfUser,
         newSubmission = newSubmission,
         status = REQUESTED,
+        creationTime = OffsetDateTime.now(),
         modificationTime = OffsetDateTime.now(),
         process = SubmissionRequestProcessing(submission, previousVersion, notifyTo, silentMode, singleJobMode),
     )

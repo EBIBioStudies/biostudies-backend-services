@@ -108,6 +108,7 @@ class SubmissionRequestDraftService(
                 newSubmission = newSubmission,
                 draft = draft,
                 status = DRAFT,
+                creationTime = creationTime.atOffset(UTC),
                 modificationTime = creationTime.atOffset(UTC),
             )
         requestService.saveRequest(request)

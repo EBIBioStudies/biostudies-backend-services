@@ -173,6 +173,7 @@ object DocRequestFields {
     const val RQT_STATUS = "status"
     const val RQT_ERRORS = "errors"
     const val RQT_MODIFICATION_TIME = "modificationTime"
+    const val RQT_CREATION_TIME = "creationTime"
     const val RQT_NEW_SUBMISSION = "newSubmission"
     const val RQT_PROCESS = "process"
     const val RQT_TOTAL_FILES = "totalFiles"

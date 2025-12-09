@@ -253,6 +253,7 @@ class SubmissionRequestMongoPersistenceService(
             onBehalfUser = rqt.onBehalfUser,
             modificationTime = rqt.modificationTime.toInstant(),
             newSubmission = rqt.newSubmission,
+            creationTime = rqt.creationTime.toInstant(),
         )
     }
 
@@ -296,6 +297,7 @@ class SubmissionRequestMongoPersistenceService(
             process = rqt.process?.let { requestProcessing(it) },
             status = rqt.status,
             modificationTime = rqt.modificationTime.atOffset(UTC),
+            creationTime = rqt.creationTime.atOffset(UTC),
             newSubmission = rqt.newSubmission,
         )
     }
