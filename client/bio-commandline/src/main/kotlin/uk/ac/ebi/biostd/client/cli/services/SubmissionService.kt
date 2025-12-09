@@ -4,17 +4,15 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
 import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.coroutines.waitUntil
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
-import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
-import uk.ac.ebi.biostd.client.cli.dto.GenerateDoiRequest
-import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
+import ebi.ac.uk.model.SubmissionTransferOptions
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
-import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
-import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import java.time.Duration.ofSeconds
 
 @Suppress("TooManyFunctions")
@@ -28,44 +26,34 @@ internal class SubmissionService {
             if (request.await) client.waitForSubmission(accNo, version)
         }
 
-    fun transfer(request: TransferRequest) =
-        performRequest {
-            val client = bioWebClient(request.securityConfig)
-            client.transferSubmission(request.accNo, request.target)
-        }
+    fun migrate(
+        securityConfig: SecurityConfig,
+        accNo: String,
+        target: StorageMode,
+    ) = performRequest {
+        bioWebClient(securityConfig).migrateSubmission(accNo, target)
+    }
 
-    suspend fun delete(request: DeletionRequest) =
-        performRequest {
-            val client = bioWebClient(request.securityConfig)
-            client.deleteSubmissions(request.accNoList)
-        }
+    suspend fun delete(
+        securityConfig: SecurityConfig,
+        accNoList: List<String>,
+    ) = performRequest {
+        bioWebClient(securityConfig).deleteSubmissions(accNoList)
+    }
 
-    fun migrate(request: MigrationRequest): Unit =
-        performRequest {
-            val sourceClient = bioWebClient(request.sourceSecurityConfig)
-            val targetClient = bioWebClient(request.targetSecurityConfig)
-            val source = sourceClient.getExtByAccNo(request.accNo, true)
+    suspend fun transfer(
+        securityConfig: SecurityConfig,
+        options: SubmissionTransferOptions,
+    ) = performRequest {
+        bioWebClient(securityConfig).transferSubmissions(options)
+    }
 
-            val submission = if (request.targetOwner != null) source.copy(owner = request.targetOwner) else source
-            when (request.async) {
-                true -> targetClient.submitExtAsync(submission)
-                false -> targetClient.submitExt(submission)
-            }
-        }
-
-    suspend fun validateFileList(request: ValidateFileListRequest) =
-        performRequest {
-            val (fileListPath, accNo, rootPath) = request
-            val client = bioWebClient(request.securityConfig)
-            client.validateFileList(fileListPath, rootPath, accNo)
-        }
-
-    suspend fun generateDoi(request: GenerateDoiRequest) =
-        performRequest {
-            val (server, user, password) = request.securityConfig
-            val client = bioWebClient(server, user, password)
-            client.generateDoi(request.accNo)
-        }
+    suspend fun generateDoi(
+        securityConfig: SecurityConfig,
+        accNo: String,
+    ) = performRequest {
+        bioWebClient(securityConfig).generateDoi(accNo)
+    }
 
     companion object {
         private const val CHECK_INTERVAL = 20L

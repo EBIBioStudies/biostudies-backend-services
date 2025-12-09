@@ -3,8 +3,10 @@ package ac.uk.ebi.biostd.submission.domain.extended
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -12,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.model.SubmissionId
+import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.extensions.doi
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -30,6 +33,7 @@ class ExtSubmissionService(
     private val doiService: DoiService,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val submissionSubmitter: ExtSubmissionSubmitter,
+    private val persistenceService: SubmissionPersistenceService,
     private val queryService: SubmissionPersistenceQueryService,
     private val privilegesService: IUserPrivilegesService,
     private val securityService: SecurityQueryService,
@@ -132,16 +136,16 @@ class ExtSubmissionService(
         return SubmissionId(accNo, version)
     }
 
-    suspend fun transferSubmission(
+    suspend fun migrateSubmission(
         user: String,
         accNo: String,
         target: StorageMode,
     ): SubmissionId {
-        logger.info { "$accNo $user Received transfer request with target='$target'" }
+        logger.info { "$accNo $user Received migration request with target='$target'" }
         val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
-        require(source.storageMode != target) { throw InvalidTransferTargetException() }
+        require(source.storageMode != target) { throw InvalidMigrationTargetException() }
 
-        val transfer = processSubmission(user, source.copy(storageMode = target))
+        val toMigrate = processSubmission(user, source.copy(storageMode = target))
         val request =
             ExtSubmitRequest(
                 notifyTo = user,
@@ -175,6 +179,24 @@ class ExtSubmissionService(
             }
         }
     }
-}
 
-class InvalidTransferTargetException : RuntimeException("The target and current storage mode must be different")
+    suspend fun transferSubmissions(
+        user: String,
+        options: SubmissionTransferOptions,
+    ) {
+        val (owner, newOwner, accNoList) = options
+
+        suspend fun transfer(accNo: String) {
+            logger.info { "Transferring submission $accNo from $owner to $newOwner" }
+            require(privilegesService.canTransferSubmission(user, accNo)) { throw UnauthorizedOperation(user) }
+            persistenceService.setOwner(accNo, newOwner)
+        }
+
+        require(securityService.existsByEmail(owner)) { throw UserNotFoundException(owner) }
+        require(securityService.existsByEmail(newOwner)) { throw UserNotFoundException(newOwner) }
+
+        queryService
+            .getSubmissionsByOwner(owner, accNoList)
+            .collect { transfer(it.accNo) }
+    }
+}

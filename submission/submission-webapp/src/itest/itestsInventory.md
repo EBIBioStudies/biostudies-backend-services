@@ -215,8 +215,8 @@ Contains test related to resubmission
 | MultipartFileSubmissionApiTest  | 9-5     | invalid format file                                                              |                                                                                               |
 | SubmissionStorageModeTest       | 10-1    | Fire to Nfs                                                                      | Submit in Fire storage mode, resubmit in Nfs mode, and vice versa.                            |
 | SubmissionStorageModeTest       | 10-2    | Nfs to Fire                                                                      |                                                                                               |
-| SubmissionStorageModeTest       | 10-3    | transfer from NFS to FIRE                                                        |                                                                                               |
-| SubmissionStorageModeTest       | 10-4    | transfer from FIRE to NFS                                                        |                                                                                               |
+| SubmissionStorageModeTest       | 10-3    | migrate from NFS to FIRE                                                         |                                                                                               |
+| SubmissionStorageModeTest       | 10-4    | migrate from FIRE to NFS                                                         |                                                                                               |
 | SubmissionStorageModeTest       | 10-5    | previous version keeps storage mode                                              |                                                                                               |
 | SubmissionDraftApiTest          | 12-1    | get draft submission when draft does not exist but submission does               | How the system behaves with respect on drafts                                                 |
 | SubmissionDraftApiTest          | 12-2    | create and get submission draft                                                  |                                                                                               |
@@ -290,9 +290,20 @@ Contains test related to resubmission
 | SubmissionPostProcessingTest    | 31-5    | generate DOI                                                                     | Generate a DOI for an already existing submission                                             |
 | SubmissionPostProcessingTest    | 31-6    | generate already existing DOI                                                    | System should fail when trying to generate an already existing DOI                            |
 
+### Submission Security Test Suite
+
+Contains test related to operations over submissions involving system privileges
+
+| Class                         | Test No | Test name                                                  |
+|-------------------------------|---------|------------------------------------------------------------|
+| TransferSubmissionsTest.      | 33-1    | superuser transfers all submissions                        |
+| TransferSubmissionsTest.      | 33-2    | superuser transfers specific submissions                   |
+| TransferSubmissionsTest.      | 33-3    | admin user transfers submissions.                          |
+| TransferSubmissionsTest.      | 33-4    | regular user transfer submissions                          |
+
 ### Admin Operations Test suite
 
-Contains test related to resubmission
+Contains test related to operations over users
 
 | Class            | Test No | Test name                                                  |
 |------------------|---------|------------------------------------------------------------|

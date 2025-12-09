@@ -10,7 +10,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.ACCESS_TYPE
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.ACC_NO
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.TARGET_USER
-import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 
@@ -27,9 +26,7 @@ internal class GrantPermissionCommand(
     override fun run() =
         runBlocking {
             val securityConfig = SecurityConfig(server, user, password)
-            val request = PermissionRequest(securityConfig, accessType, targetUser, accNo)
-
-            securityService.grantPermission(request)
+            securityService.grantPermission(securityConfig, accessType, targetUser, accNo)
             echo("The user $targetUser has been granted $accessType permission for accession $accNo")
         }
 }

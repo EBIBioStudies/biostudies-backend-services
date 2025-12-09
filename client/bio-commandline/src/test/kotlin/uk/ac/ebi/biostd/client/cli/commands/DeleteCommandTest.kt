@@ -6,7 +6,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -18,11 +17,11 @@ internal class DeleteCommandTest(
 
     @Test
     fun run() {
-        coEvery { submissionService.delete(subDelete) } returns Unit
+        coEvery { submissionService.delete(securityConfig, listOf(ACC_NO1, ACC_NO2)) } returns Unit
 
         testInstance.parse(listOf("-s", SERVER, "-u", USER, "-p", PASSWORD, ACC_NO1, ACC_NO2))
 
-        coVerify(exactly = 1) { submissionService.delete(subDelete) }
+        coVerify(exactly = 1) { submissionService.delete(securityConfig, listOf(ACC_NO1, ACC_NO2)) }
     }
 
     private companion object {
@@ -33,6 +32,5 @@ internal class DeleteCommandTest(
         const val ACC_NO2 = "accNo2"
 
         val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
-        val subDelete = DeletionRequest(securityConfig, listOf(ACC_NO1, ACC_NO2))
     }
 }

@@ -11,7 +11,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ACC_NO_HELP
-import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -28,9 +27,7 @@ internal class DeleteCommand(
     override fun run(): Unit =
         runBlocking {
             val securityConfig = SecurityConfig(server, user, password, onBehalf)
-            val request = DeletionRequest(securityConfig, accNoList)
-
-            submissionService.delete(request)
-            echo("SUCCESS: Submission with AccNo ${request.accNoList.joinToString()} was deleted")
+            submissionService.delete(securityConfig, accNoList)
+            echo("SUCCESS: Submission with AccNo ${accNoList.joinToString()} was deleted")
         }
 }

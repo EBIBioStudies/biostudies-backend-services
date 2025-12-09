@@ -14,7 +14,6 @@ fun bioWebClientErrorHandler(): ExchangeFilterFunction {
         status: HttpStatusCode,
     ) = when (status) {
         HttpStatus.NOT_FOUND -> "Connection Error: The provided server is invalid"
-        HttpStatus.UNAUTHORIZED -> "Authentication Error: Invalid email address or password"
         else -> runCatching { JSONObject(responseBody).toString(2) }.getOrElse { responseBody }
     }
 

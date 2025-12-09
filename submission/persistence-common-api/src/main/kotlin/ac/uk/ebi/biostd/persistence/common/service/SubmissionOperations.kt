@@ -31,6 +31,11 @@ interface SubmissionPersistenceService {
     suspend fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
 
     suspend fun getNextVersion(accNo: String): Int
+
+    suspend fun setOwner(
+        accNo: String,
+        owner: String,
+    )
 }
 
 @Suppress("TooManyFunctions")
@@ -85,6 +90,11 @@ interface SubmissionPersistenceQueryService {
      * @param filter the submission filter
      **/
     suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
+
+    suspend fun getSubmissionsByOwner(
+        owner: String,
+        accNoList: List<String> = emptyList(),
+    ): Flow<BasicSubmission>
 
     @Meta(flags = [CursorOption.NO_TIMEOUT])
     suspend fun findAllActive(

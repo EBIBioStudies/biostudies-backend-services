@@ -75,14 +75,14 @@ private const val FTP_ROOT_PATH: String = "env-test"
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SecurityServiceTest(
     val temporaryFolder: TemporaryFolder,
-    @MockK private val userRepository: UserDataRepository,
-    @MockK private val securityProps: SecurityProperties,
-    @MockK private val securityUtil: SecurityUtil,
-    @MockK private val captchaVerifier: CaptchaVerifier,
-    @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val securityQueryService: SecurityQueryService,
-    @MockK private val clusterClient: ClusterClient,
-    @MockK private val userPrivilegesService: IUserPrivilegesService,
+    @param:MockK private val userRepository: UserDataRepository,
+    @param:MockK private val securityProps: SecurityProperties,
+    @param:MockK private val securityUtil: SecurityUtil,
+    @param:MockK private val captchaVerifier: CaptchaVerifier,
+    @param:MockK private val eventsPublisherService: EventsPublisherService,
+    @param:MockK private val securityQueryService: SecurityQueryService,
+    @param:MockK private val clusterClient: ClusterClient,
+    @param:MockK private val userPrivilegesService: IUserPrivilegesService,
 ) {
     private val testInstance: SecurityService =
         SecurityService(
@@ -107,7 +107,7 @@ internal class SecurityServiceTest(
         fun `login when user is not found`() {
             every { userRepository.findByLoginOrEmailAndActive(EMAIL, EMAIL, true) } returns null
 
-            assertThrows<UserNotFoundByEmailException> { testInstance.login(LoginRequest(EMAIL, PASSWORD)) }
+            assertThrows<LoginException> { testInstance.login(LoginRequest(EMAIL, PASSWORD)) }
         }
 
         @Test

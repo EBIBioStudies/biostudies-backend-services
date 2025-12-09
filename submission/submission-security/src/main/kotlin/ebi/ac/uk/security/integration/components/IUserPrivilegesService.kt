@@ -2,6 +2,7 @@ package ebi.ac.uk.security.integration.components
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 
+@Suppress("TooManyFunctions")
 interface IUserPrivilegesService {
     suspend fun canProvideAccNo(
         submitter: String,
@@ -46,5 +47,10 @@ interface IUserPrivilegesService {
     fun canUpdateReleaseDate(
         email: String,
         collection: String?,
+    ): Boolean
+
+    suspend fun canTransferSubmission(
+        email: String,
+        accNo: String,
     ): Boolean
 }

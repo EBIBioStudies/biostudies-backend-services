@@ -43,11 +43,23 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
     fun deleteAllByAccNo(accNo: String)
 }
 
+@Suppress("TooManyFunctions")
 interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     suspend fun findByAccNo(accNo: String): DocSubmission?
 
     suspend fun findAllByVersionGreaterThan(version: Int): Flow<DocSubmission>
+
+    suspend fun findAllByOwnerAndVersionGreaterThan(
+        owner: String,
+        version: Int,
+    ): Flow<DocSubmission>
+
+    suspend fun findAllByOwnerAndAccNoInAndVersionGreaterThan(
+        owner: String,
+        accNo: List<String>,
+        version: Int,
+    ): Flow<DocSubmission>
 
     suspend fun getByAccNoAndVersion(
         accNo: String,

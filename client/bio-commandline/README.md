@@ -55,48 +55,20 @@ java -jar build/libs/BioStudiesCLI-2.0.jar requestStatus \
 * **v or --version:** Version of the submission request to check the status.
 
 ### Delete
-Delete a submission
+Delete a list of submissions. The accession numbers should be the last parameter in the command separated by a space.
 
-`java -jar build/libs/BioStudiesCLI-2.0.jar delete -s <server> -u <user> -p <password> -ac <accNo>`
+`java -jar build/libs/BioStudiesCLI-2.0.jar delete -s <server> -u <user> -p <password> <accNo1> <accNo2> <accNon>`
 
 #### Arguments
 * **s or --server:** BioStudies instance URL.
 * **u or --user:** BioStudies user with privileges to delete the submission.
 * **p or --password:** The user password.
-* **ac or --accNo:** Accession number of the submission to delete.
 * **b or --onBehalf:** Allows deleting a submission on behalf of the user with the given e-mail.
 
 ### Migrate
-Migrate a submission from one environment to another
+Migrates a submission to the given target storage mode
 
-```
-java -jar build/libs/BioStudiesCLI-2.0.jar migrate \
--ac <accNo> \
--s <source> \
--su <source user> \
--sp <source password> \
--t <target> \
--tu <target user> \
--tp <target password> \
--as <true / false>
-```
-
-#### Arguments
-* **ac or --accNo:** Accession number of the submission to migrate.
-* **s or --server:** BioStudies environment to take the submission from.
-* **su or --sourceUser:** BioStudies user in the source environment. (Only superusers can perform this operation)
-* **sp or --sourcePassword:** Password for the BioStudies user in the source environment.
-* **t or --target:** BioStudies environment to migrate the submission to.
-* **tu or --targetUser:** BioStudies user in the target environment. (Only superusers can perform this operation)
-* **tp or --targetPassword:** Password for the BioStudies user in the target environment.
-* **to or --targetOwner:** New owner for the submission in the target environment. This is an optional parameter. If it
-  isn't provided, the current submission owner should exist in the target environment.
-* **as or --async:** Indicates whether the migration should be processed in async mode.
-
-### Transfer
-Transfers a submission to the given target storage mode
-
-`java -jar build/libs/BioStudiesCLI-2.0.jar transfer -s <server> -u <user> -p <password> -ac <accNo> -t <target>`
+`java -jar build/libs/BioStudiesCLI-2.0.jar migrate -s <server> -u <user> -p <password> -ac <accNo> -t <target>`
 
 #### Arguments
 * **s or --server:** BioStudies instance URL.
@@ -104,6 +76,27 @@ Transfers a submission to the given target storage mode
 * **p or --password:** The user password.
 * **ac or --accNo:** Accession number of the submission to be transferred.
 * **t or --target:** Determines where the submission needs to be transferred to. Valid values are: FIRE/NFS
+
+### Transfer
+Transfers the submission ownership from the current user to the given target user
+
+```
+java -jar build/libs/BioStudiesCLI-2.0.jar transfer \
+-s <server> \
+-u <user> \
+-p <password> \
+-o <owner> \
+-to <target owner> \
+<accNo1> <accNo2> <accNon>`
+```
+> Note: The accession list is optional. If not provided, all submissions owned by the current user will be transferred.
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** BioStudies user with privileges to transfer submissions.
+* **p or --password:** The user password.
+* **o or --owner:** User that owns the submissions to be transferred.
+* **to or --targetOwner:** User that will own the transferred submissions.
 
 ### Generate DOI
 Allows generating a DOI for the given submission.

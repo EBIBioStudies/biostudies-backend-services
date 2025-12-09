@@ -23,4 +23,9 @@ internal class SubmissionMongoPersistenceService(
         val lastVersion = subDataRepository.getCurrentMaxVersion(accNo) ?: 0
         return lastVersion.absoluteValue + 1
     }
+
+    override suspend fun setOwner(
+        accNo: String,
+        owner: String,
+    ) = subDataRepository.setOwner(accNo, owner)
 }

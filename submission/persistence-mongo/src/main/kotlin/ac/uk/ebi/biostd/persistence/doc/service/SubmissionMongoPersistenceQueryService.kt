@@ -151,6 +151,14 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(submissionFilter))
     }
 
+    override suspend fun getSubmissionsByOwner(
+        owner: String,
+        accNoList: List<String>,
+    ): Flow<BasicSubmission> =
+        submissionRepo
+            .getSubmissionsByOwner(owner, accNoList)
+            .map { it.asBasicSubmission(PROCESSED) }
+
     private fun asBasicSubmission(rqt: DocSubmissionRequest): BasicSubmission {
         if (rqt.status == SUBMITTED) {
             val submission = serializationService.deserializeSubmission(rqt.draft.toString(), JSON)

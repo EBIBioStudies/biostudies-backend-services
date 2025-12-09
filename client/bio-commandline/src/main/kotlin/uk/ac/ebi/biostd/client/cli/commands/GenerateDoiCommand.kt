@@ -8,7 +8,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.DoiParameters.ACC_NO
-import uk.ac.ebi.biostd.client.cli.dto.GenerateDoiRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -23,9 +22,7 @@ internal class GenerateDoiCommand(
     override fun run() =
         runBlocking {
             val securityConfig = SecurityConfig(server, user, password)
-            val request = GenerateDoiRequest(accNo, securityConfig)
-
-            submissionService.generateDoi(request)
+            submissionService.generateDoi(securityConfig, accNo)
             echo("SUCCESS: DOI for accession $accNo has been requested")
         }
 }
