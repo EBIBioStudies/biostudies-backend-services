@@ -150,7 +150,7 @@ class ExtSubmissionService(
             ExtSubmitRequest(
                 notifyTo = user,
                 newSubmission = false,
-                submission = transfer,
+                submission = toMigrate,
             )
         val submissionId = submissionSubmitter.createRqt(request)
         eventsPublisherService.submissionRequest(submissionId.accNo, submissionId.version)
