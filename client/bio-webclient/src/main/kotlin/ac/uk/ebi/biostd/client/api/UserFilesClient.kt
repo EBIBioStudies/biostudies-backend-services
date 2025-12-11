@@ -4,17 +4,19 @@ import ac.uk.ebi.biostd.client.common.MultipartBuilder
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
 import ac.uk.ebi.biostd.client.integration.web.UserOperations
 import ebi.ac.uk.api.UserFile
+import ebi.ac.uk.commons.http.ext.RequestParams
+import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.io.KFiles
+import ebi.ac.uk.model.DirFilePath
+import ebi.ac.uk.model.FilePath
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.MigrateHomeOptions
-import ebi.ac.uk.util.web.normalize
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod.GET
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
@@ -64,38 +66,36 @@ internal class UserFilesClient(
         relativePath: String,
     ): File {
         val tempFile = KFiles.createTempFile(fileName)
-        val downloadUrl = "$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName"
         val response =
             client
-                .method(GET)
-                .uri(downloadUrl)
+                .post()
+                .uri("$USER_FILES_URL/download")
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .body(BodyInserters.fromValue(DirFilePath(relativePath, fileName)))
                 .retrieve()
                 .bodyToFlux<DataBuffer>()
         DataBufferUtils.write(response, tempFile).awaitFirstOrNull()
+
         return tempFile.toFile()
     }
 
-    override suspend fun listUserFiles(relativePath: String): List<UserFile> =
-        client
-            .get()
-            .uri("$USER_FILES_URL${normalize(relativePath)}")
-            .retrieve()
-            .awaitBody()
+    override suspend fun listUserFiles(relativePath: String): List<UserFile> {
+        val body = FilePath(relativePath)
+        return client.postForObjectAsync("$USER_FILES_URL/query", RequestParams(body = body))
+    }
 
     override suspend fun uploadFiles(
         files: List<File>,
         relativePath: String,
     ) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val body = MultipartBuilder().addAll("files", files.map { FileSystemResource(it) }).build()
-        client
-            .post()
-            .uri("$USER_FILES_URL${normalize(relativePath)}")
-            .headers { it.addAll(headers) }
-            .body(BodyInserters.fromMultipartData(body))
-            .retrieve()
-            .awaitBodilessEntity()
+        val body =
+            MultipartBuilder()
+                .add("filePath", relativePath)
+                .addAll("files", files.map { FileSystemResource(it) })
+                .build()
+
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/upload", RequestParams(headers, body))
     }
 
     override suspend fun uploadFile(
@@ -109,21 +109,15 @@ internal class UserFilesClient(
         folderName: String,
         relativePath: String,
     ) {
-        client
-            .post()
-            .uri("$USER_FOLDER_URL${normalize(relativePath)}?folder=$folderName")
-            .retrieve()
-            .awaitBodilessEntity()
+        val body = DirFilePath(relativePath, folderName)
+        client.postForObjectAsync<Unit>("$USER_FOLDER_URL/create", RequestParams(body = body))
     }
 
     override suspend fun deleteFile(
         fileName: String,
         relativePath: String,
     ) {
-        client
-            .delete()
-            .uri("$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName")
-            .retrieve()
-            .awaitBodilessEntity()
+        val body = DirFilePath(relativePath, fileName)
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/delete", RequestParams(body = body))
     }
 }
