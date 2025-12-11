@@ -33,8 +33,8 @@ import java.time.temporal.ChronoUnit.HOURS
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class UserAdminApiTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superWebClient: BioWebClient
     private lateinit var userWebClient: BioWebClient
@@ -63,9 +63,9 @@ class UserAdminApiTest(
     fun `30-2 Get user home stats`() =
         runTest {
             userWebClient.createFolder("main")
-            userWebClient.createFolder("sub1", "/main")
+            userWebClient.createFolder("sub1", "main")
 
-            userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"), relativePath = "/main")
+            userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"), relativePath = "main")
             userWebClient.uploadFile(tempFolder.createFile("main-sub1.txt", "content sub"), relativePath = "main/sub1")
 
             val result = superWebClient.getUserHomeStats(SimpleUser.email)

@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ac.uk.ebi.biostd.files.web.common.FileListPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
@@ -10,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.WebExtPage
+import ebi.ac.uk.model.FileListPath
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION

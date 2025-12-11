@@ -4,6 +4,9 @@ import ac.uk.ebi.biostd.files.web.fileListPath
 import ac.uk.ebi.biostd.files.web.groupPath
 import ac.uk.ebi.biostd.files.web.userPath
 import ebi.ac.uk.base.removeFirstOccurrence
+import ebi.ac.uk.model.FileListPath
+import ebi.ac.uk.model.GroupPath
+import ebi.ac.uk.model.UserPath
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -59,24 +62,3 @@ private fun getPath(
             .trim('/'),
         UTF_8.name(),
     )
-
-class UserPath(
-    val path: String,
-)
-
-class GroupPath(
-    val path: String,
-)
-
-class FileListPath(
-    val path: String,
-)
-
-class FilePath(
-    val path: String,
-)
-
-class DirFilePath(
-    val path: String,
-    val fileName: String,
-)

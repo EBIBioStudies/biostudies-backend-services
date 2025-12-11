@@ -35,9 +35,9 @@ import java.util.stream.Stream
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserFileApiTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val resourceLoader: ResourceLoader,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val resourceLoader: ResourceLoader,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     @BeforeAll
     fun init() =
