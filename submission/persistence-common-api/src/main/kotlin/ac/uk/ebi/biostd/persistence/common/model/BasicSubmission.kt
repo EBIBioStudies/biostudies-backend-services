@@ -8,6 +8,7 @@ import java.time.OffsetDateTime
  */
 data class BasicSubmission(
     val accNo: String,
+    val displayAccNo: String,
     val released: Boolean,
     val title: String?,
     val releaseTime: OffsetDateTime?,

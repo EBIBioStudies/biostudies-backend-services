@@ -148,13 +148,6 @@ interface SubmissionRequestPersistenceService {
         modificationTime: Instant,
     )
 
-    suspend fun setSubRequestAccNo(
-        tempAccNo: String,
-        accNo: String,
-        owner: String,
-        modificationTime: Instant,
-    )
-
     suspend fun setSubRequestErrors(
         accNo: String,
         owner: String,
@@ -204,6 +197,11 @@ interface SubmissionRequestPersistenceService {
         accNo: String,
         version: Int,
     )
+
+    suspend fun getEditableRequest(
+        accNo: String,
+        owner: String,
+    ): SubmissionRequest
 }
 
 interface SubmissionRequestFilesPersistenceService {

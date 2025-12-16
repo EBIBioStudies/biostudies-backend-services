@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.ZoneOffset.UTC
 import kotlin.math.max
 
 @Suppress("TooManyFunctions")
@@ -161,13 +162,13 @@ internal class SubmissionMongoPersistenceQueryService(
     private fun asBasicSubmission(rqt: DocSubmissionRequest): BasicSubmission {
         if (rqt.status == SUBMITTED) {
             val submission = serializationService.deserializeSubmission(rqt.draft.toString(), JSON)
-            return submission.asSubmittedRequest(rqt.owner)
+            return submission.asSubmittedRequest(rqt.owner, rqt.creationTime.atOffset(UTC), rqt.newSubmission)
         }
 
         val submission = extSerializationService.deserialize(rqt.process?.submission.toString())
         return when (rqt.status) {
-            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, rqt.errors)
-            else -> submission.asBasicSubmission(PROCESSING)
+            RequestStatus.INVALID -> submission.asBasicSubmission(INVALID, rqt.newSubmission, rqt.errors)
+            else -> submission.asBasicSubmission(PROCESSING, rqt.newSubmission)
         }
     }
 

@@ -13,11 +13,15 @@ import ebi.ac.uk.util.date.isBeforeOrEqual
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+
+val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy:HH:mm")
 
 fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
     BasicSubmission(
         accNo = accNo,
+        displayAccNo = accNo,
         title = section.title ?: title,
         released = released,
         modificationTime = modificationTime.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS),
@@ -27,9 +31,14 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
         errors = emptyList(),
     )
 
-fun Submission.asSubmittedRequest(owner: String): BasicSubmission =
+fun Submission.asSubmittedRequest(
+    owner: String,
+    creationTime: OffsetDateTime,
+    newSubmission: Boolean,
+): BasicSubmission =
     BasicSubmission(
         accNo = accNo,
+        displayAccNo = if (newSubmission) creationTime.format(formatter) else accNo,
         title = section.title ?: title,
         released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now(UTC)) ?: false,
         modificationTime = OffsetDateTime.now(UTC),
@@ -41,10 +50,12 @@ fun Submission.asSubmittedRequest(owner: String): BasicSubmission =
 
 fun ExtSubmission.asBasicSubmission(
     status: ProcessingStatus,
+    newSubmission: Boolean,
     errors: List<String> = emptyList(),
 ): BasicSubmission =
     BasicSubmission(
         accNo = accNo,
+        displayAccNo = if (newSubmission) creationTime.format(formatter) else accNo,
         title = section.title ?: title,
         released = released,
         modificationTime = modificationTime,

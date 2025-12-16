@@ -59,7 +59,6 @@ class SubmissionDatesTest(
             securityTestService.ensureUserRegistration(DefaultUser)
             securityTestService.ensureUserRegistration(SuperUser)
 
-            securityTestService.ensureSequence("S-PERMISIONT")
             securityTestService.ensureSequence("S-BSST")
 
             userWebClient = getWebClient(serverPort, DefaultUser)

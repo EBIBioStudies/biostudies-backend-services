@@ -96,6 +96,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         singleJobMode = false,
                         files = emptyList(),
                         preferredSources = listOf(SUBMISSION),
+                        newSubmission = true,
                         onBehalfUser = null,
                         previousVersion = null,
                     )
@@ -143,6 +144,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                         singleJobMode = false,
                         files = emptyList(),
                         preferredSources = listOf(SUBMISSION),
+                        newSubmission = true,
                         onBehalfUser = null,
                         previousVersion = null,
                     )
@@ -181,10 +183,12 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     owner = "owner@mail.org",
                     draft = "draft-content",
                     status = POST_PROCESSED,
-                    modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    creationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                    modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS).plusSeconds(1),
                     onBehalfUser = null,
                     files = emptyList(),
                     preferredSources = listOf(SUBMISSION.name),
+                    newSubmission = true,
                     errors = emptyList(),
                     process =
                         DocRequestProcessing(
@@ -234,10 +238,12 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 owner = "owner@mail.org",
                 draft = "{ accNo: S-BSST0 }",
                 status = status,
+                creationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
                 modificationTime = modificationTime,
                 onBehalfUser = null,
                 files = emptyList(),
                 preferredSources = listOf(SUBMISSION.name),
+                newSubmission = true,
                 errors = emptyList(),
                 process =
                     DocRequestProcessing(
@@ -304,10 +310,12 @@ class SubmissionRequestMongoPersistenceServiceTest(
             owner = "owner@mail.org",
             draft = "{ accNo: S-BSST1 }",
             status = CLEANED,
+            creationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
             modificationTime = Instant.ofEpochMilli(1664981300),
             onBehalfUser = null,
             files = emptyList(),
             preferredSources = listOf(SUBMISSION.name),
+            newSubmission = true,
             errors = emptyList(),
             process =
                 DocRequestProcessing(

@@ -64,6 +64,14 @@ class SubmissionRequestMongoPersistenceService(
         return request?.let { asRequest(it) }
     }
 
+    override suspend fun getEditableRequest(
+        accNo: String,
+        owner: String,
+    ): SubmissionRequest {
+        val request = requestRepository.getByAccNoAndOwnerAndStatusIn(accNo, owner, EDITABLE_STATUS)
+        return asRequest(request)
+    }
+
     override suspend fun findSubmissionRequestDraft(accNo: String): SubmissionRequest? =
         requestRepository.findByAccNoAndStatusIn(accNo, setOf(DRAFT))?.let {
             asRequest(it)
@@ -83,15 +91,6 @@ class SubmissionRequestMongoPersistenceService(
         modificationTime: Instant,
     ) {
         requestRepository.updateRqtDraft(accNo, owner, draft, modificationTime)
-    }
-
-    override suspend fun setSubRequestAccNo(
-        tempAccNo: String,
-        accNo: String,
-        owner: String,
-        modificationTime: Instant,
-    ) {
-        requestRepository.setSubRequestAccNo(tempAccNo, accNo, owner, modificationTime)
     }
 
     override suspend fun setSubRequestErrors(
@@ -253,6 +252,8 @@ class SubmissionRequestMongoPersistenceService(
             preferredSources = rqt.preferredSources.map { it.name },
             onBehalfUser = rqt.onBehalfUser,
             modificationTime = rqt.modificationTime.toInstant(),
+            newSubmission = rqt.newSubmission,
+            creationTime = rqt.creationTime.toInstant(),
         )
     }
 
@@ -296,6 +297,8 @@ class SubmissionRequestMongoPersistenceService(
             process = rqt.process?.let { requestProcessing(it) },
             status = rqt.status,
             modificationTime = rqt.modificationTime.atOffset(UTC),
+            creationTime = rqt.creationTime.atOffset(UTC),
+            newSubmission = rqt.newSubmission,
         )
     }
 }

@@ -22,6 +22,8 @@ data class DocSubmissionRequest(
     val draft: String?,
     val status: RequestStatus,
     val modificationTime: Instant,
+    val creationTime: Instant,
+    val newSubmission: Boolean,
     val files: List<String>,
     val preferredSources: List<String>,
     val onBehalfUser: String?,
@@ -34,11 +36,13 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_OWNER, owner)
             .setOnInsert(DocRequestFields.RQT_DRAFT, draft)
+            .setOnInsert(DocRequestFields.RQT_CREATION_TIME, creationTime)
             .set(DocRequestFields.RQT_VERSION, version)
             .set(DocRequestFields.RQT_STATUS, status)
             .set(DocRequestFields.RQT_ERRORS, errors)
             .set(DocRequestFields.RQT_PROCESS, process)
             .set(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
+            .set(DocRequestFields.RQT_NEW_SUBMISSION, newSubmission)
             .set(DocRequestFields.RQT_PREFERRED_SOURCES, preferredSources)
             .set(DocRequestFields.RQT_FILES, files)
             .set(DocRequestFields.RQT_ON_BEHALF, onBehalfUser)
