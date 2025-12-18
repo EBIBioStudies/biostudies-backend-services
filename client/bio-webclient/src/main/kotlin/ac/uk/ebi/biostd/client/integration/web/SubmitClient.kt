@@ -242,6 +242,8 @@ interface ExtSubmissionOperations {
     suspend fun generateDoi(accNo: String): SubmissionId
 
     suspend fun transferSubmissions(options: SubmissionTransferOptions)
+
+    suspend fun transferEmailUpdate(options: SubmissionTransferOptions)
 }
 
 interface PostProcessOperations {

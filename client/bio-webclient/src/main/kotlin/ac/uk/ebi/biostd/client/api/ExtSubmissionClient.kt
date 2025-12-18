@@ -84,10 +84,20 @@ class ExtSubmissionClient(
 
     override suspend fun generateDoi(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/$accNo/generate-doi")
 
+    // TODO use postForObjectAsync
     override suspend fun transferSubmissions(options: SubmissionTransferOptions) {
         client
             .post()
             .uri("$EXT_SUBMISSIONS_URL/transfer")
+            .body(BodyInserters.fromValue(options))
+            .retrieve()
+            .awaitBodilessEntity()
+    }
+
+    override suspend fun transferEmailUpdate(options: SubmissionTransferOptions) {
+        client
+            .post()
+            .uri("$EXT_SUBMISSIONS_URL/transfer/email-update")
             .body(BodyInserters.fromValue(options))
             .retrieve()
             .awaitBodilessEntity()
