@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
+import ac.uk.ebi.biostd.persistence.doc.model.formatter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
@@ -44,14 +45,16 @@ internal class SubmissionDraftResource(
     suspend fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
-    ): Flow<ResponseSubmissionDraft> = requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
+    ): Flow<ResponseSubmissionDraft> =
+        requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{accNo}")
     @ResponseBody
     suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
-    ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
+    ): ResponseSubmissionDraft =
+        requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
 
     @GetMapping("/{accNo}/content")
     @ResponseBody
@@ -111,11 +114,17 @@ internal class SubmissionDraftResource(
         return submitWebHandler.submit(request)
     }
 
-    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(accNo, draft!!, modificationTime)
+    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(
+        key = accNo,
+        displayKey = if (newSubmission) creationTime.format(formatter) else accNo,
+        content = draft!!,
+        modificationTime = modificationTime
+    )
 }
 
 internal class ResponseSubmissionDraft(
     val key: String,
+    val displayKey: String,
     @JsonRawValue val content: String,
     val modificationTime: OffsetDateTime,
 )
