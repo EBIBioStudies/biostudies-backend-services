@@ -65,6 +65,5 @@ fun ExtSubmission.asBasicSubmission(
         errors = errors,
     )
 
-
 val ExtSection.title: String?
     get() = attributes.find { it.name == SectionFields.TITLE.value }?.value
