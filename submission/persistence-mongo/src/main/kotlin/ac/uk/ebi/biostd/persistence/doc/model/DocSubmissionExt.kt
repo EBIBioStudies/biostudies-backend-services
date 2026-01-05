@@ -22,6 +22,7 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
     BasicSubmission(
         accNo = accNo,
         displayAccNo = accNo,
+        newSubmission = false,
         title = section.title ?: title,
         released = released,
         modificationTime = modificationTime.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS),
@@ -39,6 +40,7 @@ fun Submission.asSubmittedRequest(
     BasicSubmission(
         accNo = accNo,
         displayAccNo = if (newSubmission) creationTime.format(formatter) else accNo,
+        newSubmission = newSubmission,
         title = section.title ?: title,
         released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now(UTC)) ?: false,
         modificationTime = OffsetDateTime.now(UTC),
@@ -56,6 +58,7 @@ fun ExtSubmission.asBasicSubmission(
     BasicSubmission(
         accNo = accNo,
         displayAccNo = if (newSubmission) creationTime.format(formatter) else accNo,
+        newSubmission = newSubmission,
         title = section.title ?: title,
         released = released,
         modificationTime = modificationTime,

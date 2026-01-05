@@ -45,14 +45,16 @@ internal class SubmissionDraftResource(
     suspend fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
-    ): Flow<ResponseSubmissionDraft> = requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
+    ): Flow<ResponseSubmissionDraft> =
+        requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{accNo}")
     @ResponseBody
     suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
-    ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
+    ): ResponseSubmissionDraft =
+        requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
 
     @GetMapping("/{accNo}/content")
     @ResponseBody
@@ -117,6 +119,7 @@ internal class SubmissionDraftResource(
             key = accNo,
             displayKey = if (newSubmission) creationTime.format(formatter) else accNo,
             content = draft!!,
+            newSubmission = newSubmission,
             modificationTime = modificationTime,
         )
 }
@@ -124,6 +127,7 @@ internal class SubmissionDraftResource(
 internal class ResponseSubmissionDraft(
     val key: String,
     val displayKey: String,
+    val newSubmission: Boolean,
     @JsonRawValue val content: String,
     val modificationTime: OffsetDateTime,
 )

@@ -88,6 +88,7 @@ class SubmissionQueryResource(
         SubmissionDto(
             accno = accNo,
             displayAccNo = displayAccNo,
+            newSubmission = newSubmission,
             title = title.orEmpty(),
             mtime = modificationTime,
             rtime = releaseTime,
