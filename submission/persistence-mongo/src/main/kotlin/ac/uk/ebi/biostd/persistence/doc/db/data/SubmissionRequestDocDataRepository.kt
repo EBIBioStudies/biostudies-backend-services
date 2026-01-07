@@ -82,7 +82,7 @@ class SubmissionRequestDocDataRepository(
             Query(
                 where(RQT_ACC_NO)
                     .`is`(request.accNo)
-                    .andOperator(where(RQT_OWNER).`is`(request.owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
+                    .andOperator(where(RQT_OWNER).`is`(request.owner), where(RQT_STATUS).nin(PROCESSED_STATUS)),
             )
 
         mongoTemplate
@@ -94,7 +94,7 @@ class SubmissionRequestDocDataRepository(
         return submissionRequestRepository.getByAccNoAndStatusNotInAndOwner(
             request.accNo,
             PROCESSED_STATUS,
-            request.owner
+            request.owner,
         )
     }
 

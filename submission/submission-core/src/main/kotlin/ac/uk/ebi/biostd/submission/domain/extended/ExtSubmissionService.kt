@@ -44,8 +44,7 @@ class ExtSubmissionService(
         version: Int,
     ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
 
-    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit =
-        submissionSubmitter.handleManyAsync(submissions)
+    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit = submissionSubmitter.handleManyAsync(submissions)
 
     suspend fun refreshSubmission(
         user: String,
