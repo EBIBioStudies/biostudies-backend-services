@@ -117,7 +117,7 @@ class SubmissionAsyncTest(
             val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
             val extSubmitRequest =
                 ExtSubmitRequest(
-                    notifyTo = SuperUser.email,
+                    owner = SuperUser.email,
                     submission = extSubmission,
                     singleJobMode = false,
                     newSubmission = false,

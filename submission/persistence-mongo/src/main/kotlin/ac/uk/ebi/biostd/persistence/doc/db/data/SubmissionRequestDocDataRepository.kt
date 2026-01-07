@@ -67,6 +67,7 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
+import org.springframework.data.mongodb.core.upsert
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 
@@ -81,17 +82,20 @@ class SubmissionRequestDocDataRepository(
             Query(
                 where(RQT_ACC_NO)
                     .`is`(request.accNo)
-                    .andOperator(where(RQT_STATUS).nin(PROCESSED_STATUS)),
+                    .andOperator(where(RQT_OWNER).`is`(request.owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
             )
 
         mongoTemplate
-            .upsert(
+            .upsert<DocSubmissionRequest>(
                 query,
                 request.asUpsert(),
-                DocSubmissionRequest::class.java,
             ).awaitSingle()
 
-        return submissionRequestRepository.getByAccNoAndStatusNotIn(request.accNo, PROCESSED_STATUS)
+        return submissionRequestRepository.getByAccNoAndStatusNotInAndOwner(
+            request.accNo,
+            PROCESSED_STATUS,
+            request.owner
+        )
     }
 
     /**
