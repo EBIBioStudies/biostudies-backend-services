@@ -207,7 +207,7 @@ class SubmitWebHandler(
                 relPath = accNoService.getRelPath(draft.accNo),
                 submission = submission,
                 submitter = submitter,
-                owner = onBehalfUser?.email ?: submitter.email,
+                owner = submitter.email,
                 sources = sources,
                 preferredSources = preferredSources,
                 requestFiles = requestFiles.orEmpty(),
