@@ -45,16 +45,14 @@ internal class SubmissionDraftResource(
     suspend fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
-    ): Flow<ResponseSubmissionDraft> =
-        requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
+    ): Flow<ResponseSubmissionDraft> = requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{accNo}")
     @ResponseBody
     suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
-    ): ResponseSubmissionDraft =
-        requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
+    ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
 
     @GetMapping("/{accNo}/content")
     @ResponseBody

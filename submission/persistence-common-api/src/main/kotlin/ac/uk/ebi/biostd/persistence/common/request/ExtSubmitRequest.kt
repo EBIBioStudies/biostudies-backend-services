@@ -5,7 +5,7 @@ import ebi.ac.uk.io.sources.PreferredSource
 import java.io.File
 
 data class ExtSubmitRequest(
-    val notifyTo: String,
+    val owner: String,
     val submission: ExtSubmission,
     val previousVersion: Int? = null,
     val onBehalfUser: String? = null,

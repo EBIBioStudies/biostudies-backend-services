@@ -63,7 +63,7 @@ class SubmissionOnBehalfTest(
     @Test
     fun `14-1 submission on behalf another user`() =
         runTest {
-            val submission =
+            val submissionPagetab =
                 tsv {
                     line("Submission", "ON-BEHALF-001")
                     line("Title", "Submission Title")
@@ -74,11 +74,14 @@ class SubmissionOnBehalfTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val response = onBehalfClient.submit(submission, TSV)
+            val response = onBehalfClient.submit(submissionPagetab, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            assertThat(toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))).isEqualTo(
+            val submission = submissionRepository.getExtByAccNo(accNo)
+
+            assertThat(submission.owner).isEqualTo(RegularUser.email)
+            assertThat(toSubmissionMapper.toSimpleSubmission(submission)).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
                 },

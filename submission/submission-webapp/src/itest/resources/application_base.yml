@@ -1,6 +1,7 @@
 logging:
   level:
-    root: info
+    # change to info for more detailed logs
+    root: warn
 
 server:
   tomcat:

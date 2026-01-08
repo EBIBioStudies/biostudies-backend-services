@@ -66,9 +66,9 @@ class LocalExtSubmissionSubmitter(
             SubmissionRequest(
                 accNo = sub.accNo,
                 version = sub.version,
-                owner = sub.owner,
+                owner = rqt.owner,
                 submission = sub,
-                notifyTo = rqt.notifyTo,
+                notifyTo = rqt.owner,
                 silentMode = rqt.silentMode,
                 files = rqt.requestFiles,
                 previousVersion = rqt.previousVersion,
