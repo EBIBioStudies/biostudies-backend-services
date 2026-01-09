@@ -70,11 +70,6 @@ class FtpFileService(
         path: String,
         fileName: String,
     ) {
-//        val filePath = basePath.safeResolve(path).safeResolve(fileName)
-//        // Check existence only to provide better error message
-//        // FTP deleteFile will handle both files and directories
-//        val fileExists = ftp.findFile(filePath)
-//        if (fileExists == null) throw FileNotFoundException(path, fileName)
         ftp.deleteFile(basePath.safeResolve(path).safeResolve(fileName))
     }
 
