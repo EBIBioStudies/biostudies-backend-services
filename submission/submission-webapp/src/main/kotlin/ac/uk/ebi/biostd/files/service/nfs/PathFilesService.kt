@@ -1,5 +1,8 @@
 package ac.uk.ebi.biostd.files.service.nfs
 
+import ac.uk.ebi.biostd.files.exception.FileAlreadyExistsException
+import ac.uk.ebi.biostd.files.exception.FileNotFoundException
+import ac.uk.ebi.biostd.files.exception.FileOperationException
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
@@ -43,7 +46,7 @@ class PathFilesService internal constructor(
     ): File =
         withContext(Dispatchers.IO) {
             val userFile = basePath.safeResolve(path).safeResolve(fileName)
-            require(userFile.exists() && userFile.isFile) { "Invalid request $path is not a valid user file" }
+            if (!userFile.exists() || !userFile.isFile) throw FileNotFoundException(path, fileName)
             userFile
         }
 
@@ -78,7 +81,25 @@ class PathFilesService internal constructor(
         fileName: String,
     ) = withContext(Dispatchers.IO) {
         val userFile = basePath.safeResolve(path).safeResolve(fileName)
+        if (!userFile.exists()) throw FileNotFoundException(path, fileName)
         FileUtils.deleteFile(userFile)
+    }
+
+    override suspend fun renameFile(
+        path: String,
+        originalName: String,
+        newName: String
+    ): Boolean = withContext(Dispatchers.IO) {
+        val sourceFile = basePath.safeResolve(path).safeResolve(originalName)
+        val targetFile = basePath.safeResolve(path).safeResolve(newName)
+
+        if (sourceFile.exists().not()) throw FileNotFoundException(path, originalName)
+        if (targetFile.exists()) throw FileAlreadyExistsException(path, newName)
+
+        val renamed = sourceFile.renameTo(targetFile)
+        if (!renamed) throw FileOperationException("rename", originalName)
+
+        true
     }
 
     private fun File.safeResolve(path: String): File {
