@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.FilePath
+import ebi.ac.uk.model.RenameFilePath
 import ebi.ac.uk.model.UserPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.Dispatchers
@@ -16,14 +17,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
 
@@ -140,6 +134,16 @@ class UserFilesResource(
     ) {
         val filesService = fileServiceFactory.forUser(user)
         filesService.deleteFile(filePath.path, filePath.fileName)
+    }
+
+    @PostMapping("/files/user/rename")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun renameFile(
+        @BioUser user: SecurityUser,
+        @RequestBody filePath: RenameFilePath,
+    ) : Boolean {
+        val filesService = fileServiceFactory.forUser(user)
+        return filesService.renameFile(filePath.path, filePath.originalName, filePath.newName)
     }
 
     @PostMapping("/folder/user/create")
