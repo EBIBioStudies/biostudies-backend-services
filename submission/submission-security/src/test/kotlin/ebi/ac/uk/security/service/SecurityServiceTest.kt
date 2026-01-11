@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -83,6 +84,7 @@ internal class SecurityServiceTest(
     @param:MockK private val securityQueryService: SecurityQueryService,
     @param:MockK private val clusterClient: ClusterClient,
     @param:MockK private val userPrivilegesService: IUserPrivilegesService,
+    @param:MockK private val subFilesPersistenceService: SubmissionFilesPersistenceService,
 ) {
     private val testInstance: SecurityService =
         SecurityService(
@@ -94,6 +96,7 @@ internal class SecurityServiceTest(
                 nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
                 userFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
                 privilegesService = userPrivilegesService,
+                subFilesPersistenceService = subFilesPersistenceService
             ),
             captchaVerifier,
             eventsPublisherService,

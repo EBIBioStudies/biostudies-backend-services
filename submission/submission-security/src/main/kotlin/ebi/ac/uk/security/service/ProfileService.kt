@@ -34,7 +34,7 @@ class ProfileService(
     private val nfsUserFilesDirPath: Path,
     private val userFtpRootPath: String,
     private val privilegesService: IUserPrivilegesService,
-    private val filesPersistenceService: SubmissionFilesPersistenceService,
+    private val subFilesPersistenceService: SubmissionFilesPersistenceService,
 ) {
     fun getUserProfile(
         user: DbUser,
@@ -82,7 +82,7 @@ class ProfileService(
                 .filter { it.isFile }
                 .map {
                     val md5 = it.md5()
-                    InventoryFile(it.path, it.length(), md5, filesPersistenceService.findSubmissionFile(md5))
+                    InventoryFile(it.path, it.length(), md5, subFilesPersistenceService.findSubmissionFile(md5))
                 }.toList()
         return FolderInventory(files)
     }
@@ -117,7 +117,8 @@ class ProfileService(
     private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupFolder> =
         groups.map { GroupFolder(it.name, groupMagicFolder(it), it.description) }
 
-    private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: DbUserGroup) =
+        Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(
         folderType: StorageMode,

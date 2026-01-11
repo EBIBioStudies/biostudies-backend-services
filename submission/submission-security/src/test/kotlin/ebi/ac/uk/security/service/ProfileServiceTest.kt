@@ -2,6 +2,7 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -23,6 +24,8 @@ class ProfileServiceTest(
     temporaryFolder: TemporaryFolder,
     @MockK
     private val privilegesService: IUserPrivilegesService,
+    @MockK
+    private val filesPersistenceService: SubmissionFilesPersistenceService,
 ) {
     private val environment = "env-test"
     private val filesDir = temporaryFolder.createDirectory("userFiles")
@@ -49,6 +52,7 @@ class ProfileServiceTest(
             userFtpDirPath = ftpFilesDir.toPath(),
             nfsUserFilesDirPath = filesDir.toPath(),
             privilegesService = privilegesService,
+            subFilesPersistenceService = filesPersistenceService,
         )
 
     @Test

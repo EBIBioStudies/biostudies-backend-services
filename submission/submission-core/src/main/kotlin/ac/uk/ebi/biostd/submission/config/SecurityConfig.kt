@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
@@ -8,11 +9,15 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
+import ac.uk.ebi.biostd.submission.domain.security.LocalUserFolderService
+import ac.uk.ebi.biostd.submission.domain.security.RemoteUserFolderService
+import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
+import ebi.ac.uk.security.service.ProfileService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -47,8 +52,8 @@ class SecurityConfig(
             groupRepository,
             queryService,
             userPermissionsService,
-            eventsPublisherService,
             filesPersistenceService,
+            eventsPublisherService,
             securityProps,
             clusterClient,
         )
@@ -66,4 +71,19 @@ class SecurityConfig(
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): SecurityFilter = securityConfig.securityFilter()
+
+    @Bean
+    fun localUserFolderService(
+        securityQueryService: SecurityQueryService,
+        userRepository: UserDataRepository,
+        profileService: ProfileService,
+        props: SecurityProperties,
+    ): LocalUserFolderService {
+        return LocalUserFolderService(securityQueryService, userRepository, profileService, props)
+    }
+
+    @Bean
+    fun remoteUserFolderService(remoteSubmitterExecutor: RemoteSubmitterExecutor): RemoteUserFolderService {
+        return RemoteUserFolderService(remoteSubmitterExecutor)
+    }
 }

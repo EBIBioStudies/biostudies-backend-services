@@ -17,7 +17,6 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
-import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -45,7 +44,6 @@ import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.time.Duration
 import kotlin.io.path.absolutePathString
 
 private val logger = KotlinLogging.logger {}
@@ -130,37 +128,6 @@ open class SecurityService(
         if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
         resetNotification(request.email, request.instanceKey, request.path)
     }
-
-    @Transactional
-    override suspend fun updateMagicFolder(
-        email: String,
-        migrateOptions: MigrateHomeOptions,
-    ) {
-        val stats = securityQueryService.getUserFolderStats(email)
-        if (migrateOptions.onlyIfEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
-        updateMagicFolder(
-            email,
-            StorageMode.valueOf(migrateOptions.storageMode),
-            migrateOptions.copyFilesSinceDays,
-        )
-    }
-
-    private suspend fun updateMagicFolder(
-        email: String,
-        storageMode: StorageMode,
-        days: Int,
-    ): Unit =
-        withContext(Dispatchers.IO) {
-            val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
-            if (user.storageMode == storageMode) error("User '$email' Storage is already $storageMode")
-
-            val source = profileService.asSecurityUser(user)
-            val target = profileService.asSecurityUser(user.apply { this.storageMode = storageMode })
-
-            createMagicFolder(target)
-            userRepository.save(user)
-            copyFilesClusterJob(source.userFolder.path, target.userFolder.path, days)
-        }
 
     private fun setPassword(
         user: DbUser,
@@ -249,32 +216,6 @@ open class SecurityService(
         logger.info { "Finished creating the cluster FTP folder $path" }
     }
 
-    private suspend fun copyFilesClusterJob(
-        source: Path,
-        target: Path,
-        days: Int,
-    ) {
-        val command =
-            """
-            rsync -av \
-            --files-from=<(find $source -mtime -$days | sed "s|^$source/||") $source $target \
-            && echo "rsync exit code: 0" || echo "rsync exit code: $?" \\
-            && chgrp -R biostudies $target
-            """.trimIndent()
-
-        logger.debug { "Migrating with command '$command'" }
-        val jobSpec =
-            JobSpec(
-                queue = DataMoverQueue,
-                command = command,
-                minutes = Duration.ofDays(1).toMinutes().toInt(),
-            )
-
-        logger.info { "Started copying files to the cluster FTP folder $target from $source" }
-        clusterClient.triggerJobSync(jobSpec)
-        logger.info { "Finished copying files to the cluster FTP folder $target from $source" }
-    }
-
     private fun createNfsMagicFolder(
         email: String,
         nfsFolder: NfsUserFolder,
@@ -301,7 +242,7 @@ open class SecurityService(
         )
 
     companion object {
-        internal const val UNIX_RWX__X___ = 710
-        internal const val UNIX_RWXRWX___ = 770
+        const val UNIX_RWX__X___ = 710
+        const val UNIX_RWXRWX___ = 770
     }
 }

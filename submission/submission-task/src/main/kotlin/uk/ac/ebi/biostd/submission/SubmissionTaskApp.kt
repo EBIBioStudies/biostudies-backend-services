@@ -1,8 +1,9 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Mode
+import ac.uk.ebi.biostd.common.properties.MIGRATION_OPTIONS
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
+import ac.uk.ebi.biostd.common.properties.Mode.MIGRAGE_USER_FOLDER
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
@@ -11,7 +12,9 @@ import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
+import ac.uk.ebi.biostd.submission.domain.security.LocalUserFolderService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -58,6 +61,12 @@ class DynamicProperties(val environment: Environment) {
         return binder.bind("email", String::class.java)
             .orElseThrow { IllegalStateException("email property not found") }
     }
+
+    fun migrationOptions(): MigrateHomeOptions {
+        val binder = Binder.get(environment)
+        return binder.bind(MIGRATION_OPTIONS, MigrateHomeOptions::class.java)
+            .orElseThrow { IllegalStateException("migrationOptions property not found") }
+    }
 }
 
 @Component
@@ -67,6 +76,7 @@ class Execute(
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionPostProcessingService: LocalPostProcessingService,
+    private val localUserFolderService: LocalUserFolderService,
 ) : CommandLineRunner {
     override fun run(vararg args: String): Nothing {
         logger.info { "Starting submission task command line runner. args: '${args.joinToString()}'" }
@@ -78,14 +88,19 @@ class Execute(
                 POST_PROCESS_STATS -> postProcessStats()
                 POST_PROCESS_INNER_FILES -> postProcessInnerFiles()
                 POST_PROCESS_PAGETAB_FILES -> postProcessPagetabFiles()
-                Mode.MIGRAGE_USER_FOLDER -> migrateUserFolder()
+                MIGRAGE_USER_FOLDER -> migrateUserFolder()
             }
             exitProcess(SpringApplication.exit(context))
         }
     }
 
-    private fun migrateUserFolder() {
-        TODO("Not yet implemented")
+    private suspend fun migrateUserFolder() {
+        val user = dynamicProperties.userEmail()
+        val options = dynamicProperties.migrationOptions()
+
+        logger.info { "Migrating user folder for $user. Options: $options" }
+        localUserFolderService.updateMagicFolder(user, options)
+        logger.info { "Finished migrating user folder for $user" }
     }
 
     private suspend fun postProcessSingle() {
