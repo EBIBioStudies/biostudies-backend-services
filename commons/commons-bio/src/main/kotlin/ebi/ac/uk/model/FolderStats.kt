@@ -8,3 +8,7 @@ data class FolderStats(
     val totalFilesSize: Long,
     val lastModification: Instant,
 )
+
+data class FolderInventory(val files: List<InventoryFile>)
+
+data class InventoryFile(val path: String, val size: Long, val md5: String, val submission: String?)

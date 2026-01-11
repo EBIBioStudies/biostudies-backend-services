@@ -1,11 +1,12 @@
 package ac.uk.ebi.biostd.security.web
 
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService
+import ac.uk.ebi.biostd.submission.domain.security.SecurityService
 import ebi.ac.uk.extended.model.ExtUser
+import ebi.ac.uk.model.FolderInventory
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.components.SecurityQueryService
-import ebi.ac.uk.security.service.SecurityService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,9 +27,14 @@ class UserAdminResource(
     ): ExtUser = extUserService.getExtUser(email)
 
     @GetMapping("/{email:.*}/home-stats")
-    fun getExtUserHomeStats(
+    suspend fun getExtUserHomeStats(
         @PathVariable email: String,
     ): FolderStats = securityQueryService.getUserFolderStats(email)
+
+    @GetMapping("/{email:.*}/home-inventory")
+    suspend fun getExtUserHomeIventory(
+        @PathVariable email: String,
+    ): FolderInventory = securityQueryService.getUserFolderInventory(email)
 
     @PostMapping("/{email:.*}/migrate")
     suspend fun migrateUser(

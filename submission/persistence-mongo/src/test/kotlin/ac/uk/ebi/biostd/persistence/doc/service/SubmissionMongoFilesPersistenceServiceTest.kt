@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
@@ -53,8 +54,10 @@ class SubmissionMongoFilesPersistenceServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val submission: ExtSubmission,
     @Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
+    @Autowired private val submissionFilesDocRepository: SubmissionFilesDocDataRepository,
 ) {
-    private val testInstance = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
+    private val testInstance =
+        SubmissionMongoFilesPersistenceService(fileListDocFileRepository, submissionFilesDocRepository)
 
     @AfterEach
     fun afterEach(): Unit =

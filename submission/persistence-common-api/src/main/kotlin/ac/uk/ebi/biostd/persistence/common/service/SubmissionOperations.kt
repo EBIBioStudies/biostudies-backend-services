@@ -113,6 +113,8 @@ interface SubmissionFilesPersistenceService {
         sub: ExtSubmission,
         path: String,
     ): ExtFile?
+
+    suspend fun findSubmissionFile(md5: String): String?
 }
 
 interface SubmissionLinksPersistenceService {

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -9,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
-import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -33,6 +33,7 @@ class SecurityConfig(
         userDataRepository: UserDataRepository,
         queryService: SubmissionMetaQueryService,
         tokenRepository: TokenDataRepository,
+        filesPersistenceService: SubmissionFilesPersistenceService,
         tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,
         userPermissionsService: UserPermissionsService,
@@ -47,21 +48,21 @@ class SecurityConfig(
             queryService,
             userPermissionsService,
             eventsPublisherService,
+            filesPersistenceService,
             securityProps,
             clusterClient,
         )
 
     @Bean
-    fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
-
-    @Bean
-    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService = securityConfig.securityQueryService()
+    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService =
+        securityConfig.securityQueryService()
 
     @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
 
     @Bean
-    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService = securityConfig.userPrivilegesService()
+    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService =
+        securityConfig.userPrivilegesService()
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): SecurityFilter = securityConfig.securityFilter()
