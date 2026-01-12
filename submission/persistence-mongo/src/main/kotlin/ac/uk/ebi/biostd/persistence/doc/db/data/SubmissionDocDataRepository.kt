@@ -88,21 +88,24 @@ class SubmissionDocDataRepository(
 
     suspend fun getCurrentMaxVersion2(accNo: String): Int? {
         val rqtCollection = mongoTemplate.getCollectionName(DocSubmissionRequest::class.java)
-        val docSubmissionRequestPipeline = newAggregation(
-            match(where(SUB_ACC_NO).`is`(accNo)),
-            project().and(SUB_ACC_NO).`as`(SUB_ACC_NO).and(absoluteValueOf(SUB_VERSION)).`as`("version")
-        ).pipeline
+        val docSubmissionRequestPipeline =
+            newAggregation(
+                match(where(SUB_ACC_NO).`is`(accNo)),
+                project().and(SUB_ACC_NO).`as`(SUB_ACC_NO).and(absoluteValueOf(SUB_VERSION)).`as`("version"),
+            ).pipeline
 
-        val aggregation = newAggregation(
-            DocSubmission::class.java,
-            match(where(SUB_ACC_NO).`is`(accNo)),
-            unionWith(rqtCollection).pipeline(docSubmissionRequestPipeline),
-            group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
-        )
+        val aggregation =
+            newAggregation(
+                DocSubmission::class.java,
+                match(where(SUB_ACC_NO).`is`(accNo)),
+                unionWith(rqtCollection).pipeline(docSubmissionRequestPipeline),
+                group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
+            )
 
-        val result = mongoTemplate
-            .aggregate<Result>(aggregation)
-            .awaitFirstOrNull()
+        val result =
+            mongoTemplate
+                .aggregate<Result>(aggregation)
+                .awaitFirstOrNull()
         return result?.maxVersion
     }
 
@@ -189,8 +192,7 @@ class SubmissionDocDataRepository(
     ): DocSubmission = submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
-        private fun createCountAggregation(filter: SubmissionFilter) =
-            createAggregation(filter).plus(group().count().`as`("submissions"))
+        private fun createCountAggregation(filter: SubmissionFilter) = createAggregation(filter).plus(group().count().`as`("submissions"))
 
         private fun createSubmissionAggregation(filter: SubmissionFilter) =
             createAggregation(filter, filter.offset to filter.limit.toLong())

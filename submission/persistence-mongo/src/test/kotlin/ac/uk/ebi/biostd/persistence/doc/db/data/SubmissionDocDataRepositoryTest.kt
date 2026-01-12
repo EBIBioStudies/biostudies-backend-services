@@ -203,12 +203,13 @@ internal class SubmissionDocDataRepositoryTest(
             }
 
         @Test
-        fun `get max version when both submission and request`() = runTest {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1))
-            requestDocDataRepository.save(testDocSubmissionRequest.copy(accNo = "S-BSST5", version = 2))
+        fun `get max version when both submission and request`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1))
+                requestDocDataRepository.save(testDocSubmissionRequest.copy(accNo = "S-BSST5", version = 2))
 
-            assertThat(testInstance.getCurrentMaxVersion2("S-BSST5")).isEqualTo(2)
-        }
+                assertThat(testInstance.getCurrentMaxVersion2("S-BSST5")).isEqualTo(2)
+            }
     }
 
     @Test

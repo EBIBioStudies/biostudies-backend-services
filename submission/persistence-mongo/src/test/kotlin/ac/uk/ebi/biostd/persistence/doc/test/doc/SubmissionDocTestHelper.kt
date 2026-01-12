@@ -82,32 +82,32 @@ internal val testDocSubmission: DocSubmission
             storageMode = StorageMode.NFS,
         )
 
-
 internal val testDocSubmissionRequest: DocSubmissionRequest
-    get() = DocSubmissionRequest(
-        id = ObjectId(),
-        accNo = SUB_ACC_NO,
-        version = SUB_VERSION,
-        owner = SUBMITTER,
-        draft = "draft-content",
-        status = REQUESTED,
-        creationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-        modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS).plusSeconds(1),
-        newSubmission = true,
-        onBehalfUser = null,
-        files = emptyList(),
-        preferredSources = listOf("SUBMISSION"),
-        errors = emptyList(),
-        process =
-            DocRequestProcessing(
-                silentMode = false,
-                notifyTo = "user-b@test.org",
-                submission = BasicDBObject.parse(jsonObj { "submission" to SUB_ACC_NO }.toString()),
-                totalFiles = 51,
-                fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
-                currentIndex = 61,
-                statusChanges = emptyList(),
-                previousVersion = 1,
-                singleJobMode = true,
-            ),
-    )
+    get() =
+        DocSubmissionRequest(
+            id = ObjectId(),
+            accNo = SUB_ACC_NO,
+            version = SUB_VERSION,
+            owner = SUBMITTER,
+            draft = "draft-content",
+            status = REQUESTED,
+            creationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS).plusSeconds(1),
+            newSubmission = true,
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf("SUBMISSION"),
+            errors = emptyList(),
+            process =
+                DocRequestProcessing(
+                    silentMode = false,
+                    notifyTo = "user-b@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to SUB_ACC_NO }.toString()),
+                    totalFiles = 51,
+                    fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
+                    currentIndex = 61,
+                    statusChanges = emptyList(),
+                    previousVersion = 1,
+                    singleJobMode = true,
+                ),
+        )
