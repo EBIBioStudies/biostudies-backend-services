@@ -48,7 +48,6 @@ private val logger = KotlinLogging.logger {}
 
 @Component
 class DynamicProperties(val environment: Environment) {
-
     fun submissions(): List<SubmissionId> {
         val binder = Binder.get(environment)
         return binder

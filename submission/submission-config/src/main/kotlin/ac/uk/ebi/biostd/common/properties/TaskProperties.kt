@@ -18,7 +18,6 @@ enum class Mode {
     POST_PROCESS_INNER_FILES,
     POST_PROCESS_PAGETAB_FILES,
     MIGRAGE_USER_FOLDER,
-
 }
 
 const val SUBMISISONS_PARAM_NAME = "submissions"

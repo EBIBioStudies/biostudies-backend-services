@@ -117,8 +117,7 @@ class ProfileService(
     private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupFolder> =
         groups.map { GroupFolder(it.name, groupMagicFolder(it), it.description) }
 
-    private fun groupMagicFolder(it: DbUserGroup) =
-        Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(
         folderType: StorageMode,

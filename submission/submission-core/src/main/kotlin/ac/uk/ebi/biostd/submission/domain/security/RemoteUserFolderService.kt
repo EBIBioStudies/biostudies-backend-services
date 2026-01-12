@@ -14,12 +14,13 @@ class RemoteUserFolderService(
         email: String,
         options: MigrateHomeOptions,
     ) {
-        val args = listOf<ExecutionArg>(
-            ExecutionArg(MIGRATION_EMAIL, email),
-            ExecutionArg("${MIGRATION_OPTIONS}.storageMode", options.storageMode),
-            ExecutionArg("${MIGRATION_OPTIONS}.copyFilesSinceDays", options.copyFilesSinceDays.toString()),
-            ExecutionArg("${MIGRATION_OPTIONS}.onlyIfEmptyFolder", options.onlyIfEmptyFolder.toString()),
-        )
+        val args =
+            listOf<ExecutionArg>(
+                ExecutionArg(MIGRATION_EMAIL, email),
+                ExecutionArg("${MIGRATION_OPTIONS}.storageMode", options.storageMode),
+                ExecutionArg("${MIGRATION_OPTIONS}.copyFilesSinceDays", options.copyFilesSinceDays.toString()),
+                ExecutionArg("${MIGRATION_OPTIONS}.onlyIfEmptyFolder", options.onlyIfEmptyFolder.toString()),
+            )
         remoteSubmitterExecutor.executeRemotely(args, Mode.MIGRAGE_USER_FOLDER)
     }
 }

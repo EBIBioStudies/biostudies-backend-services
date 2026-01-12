@@ -19,7 +19,6 @@ import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
-import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
@@ -57,7 +56,6 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
-    private val securityQueryService: SecurityQueryService,
     private val clusterClient: ClusterClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {

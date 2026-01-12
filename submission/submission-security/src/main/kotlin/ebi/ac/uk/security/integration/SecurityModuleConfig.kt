@@ -93,8 +93,7 @@ class SecurityModuleConfig(
             tokenRepo: TokenDataRepository,
             userRepo: UserDataRepository,
             props: SecurityProperties,
-        ): SecurityUtil =
-            SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+        ): SecurityUtil = SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
         fun profileService(
             props: SecurityProperties,
@@ -106,7 +105,7 @@ class SecurityModuleConfig(
                 userFtpDirPath = Paths.get(props.filesProperties.userFtpDirPath),
                 nfsUserFilesDirPath = Paths.get(props.filesProperties.filesDirPath),
                 privilegesService = userPermissionsService,
-                subFilesPersistenceService = subFilesPersistenceService
+                subFilesPersistenceService = subFilesPersistenceService,
             )
     }
 }
