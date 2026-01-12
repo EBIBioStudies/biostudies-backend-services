@@ -7,7 +7,6 @@ import ebi.ac.uk.model.FolderInventory
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.components.SecurityQueryService
-import ebi.ac.uk.security.service.SecurityService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/security/users")
 class UserAdminResource(
     private val extUserService: ExtUserService,
-    private val securityService: SecurityService,
     private val securityQueryService: SecurityQueryService,
     private val remoteUserFolderService: RemoteUserFolderService,
 ) {

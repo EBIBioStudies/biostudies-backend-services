@@ -62,7 +62,6 @@ class SecurityModuleConfig(
             profileService,
             captchaVerifier,
             eventsPublisherService,
-            securityQueryService,
             clusterClient,
         )
     }
