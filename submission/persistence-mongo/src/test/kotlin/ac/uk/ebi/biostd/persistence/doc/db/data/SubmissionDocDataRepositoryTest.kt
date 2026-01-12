@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmissionRequest
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.createNfsFile
@@ -41,6 +42,7 @@ import java.time.Duration.ofSeconds
 internal class SubmissionDocDataRepositoryTest(
     private val tempFolder: TemporaryFolder,
     @param:Autowired private val testInstance: SubmissionDocDataRepository,
+    @param:Autowired private val requestDocDataRepository: SubmissionRequestDocDataRepository,
     @param:Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
     @param:Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
@@ -185,10 +187,10 @@ internal class SubmissionDocDataRepositoryTest(
         @Test
         fun `by current version`() =
             runTest {
-                testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
-                testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1))
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = 2))
 
-                assertThat(testInstance.getCurrentMaxVersion("S-BSST3")).isEqualTo(2)
+                assertThat(testInstance.getCurrentMaxVersion("S-BSST5")).isEqualTo(2)
             }
 
         @Test
@@ -197,7 +199,16 @@ internal class SubmissionDocDataRepositoryTest(
                 testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
                 testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
 
-                assertThat(testInstance.getCurrentMaxVersion("S-BSST4")).isEqualTo(2)
+                assertThat(testInstance.getCurrentMaxVersion2("S-BSST4")).isEqualTo(2)
+            }
+
+        @Test
+        fun `get max version when both submission and request`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1))
+                requestDocDataRepository.save(testDocSubmissionRequest.copy(accNo = "S-BSST5", version = 2))
+
+                assertThat(testInstance.getCurrentMaxVersion2("S-BSST5")).isEqualTo(2)
             }
     }
 
