@@ -21,6 +21,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongo
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import kotlinx.coroutines.flow.Flow
@@ -33,15 +34,18 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.aggregate
 import org.springframework.data.mongodb.core.aggregation.Aggregation.group
 import org.springframework.data.mongodb.core.aggregation.Aggregation.limit
 import org.springframework.data.mongodb.core.aggregation.Aggregation.match
 import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation
+import org.springframework.data.mongodb.core.aggregation.Aggregation.project
 import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
+import org.springframework.data.mongodb.core.aggregation.UnionWithOperation.unionWith
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -79,6 +83,26 @@ class SubmissionDocDataRepository(
             )
 
         val result = mongoTemplate.aggregate(aggregation, Result::class.java).awaitFirstOrNull()
+        return result?.maxVersion
+    }
+
+    suspend fun getCurrentMaxVersion2(accNo: String): Int? {
+        val rqtCollection = mongoTemplate.getCollectionName(DocSubmissionRequest::class.java)
+        val docSubmissionRequestPipeline = newAggregation(
+            match(where(SUB_ACC_NO).`is`(accNo)),
+            project().and(SUB_ACC_NO).`as`(SUB_ACC_NO).and(absoluteValueOf(SUB_VERSION)).`as`("version")
+        ).pipeline
+
+        val aggregation = newAggregation(
+            DocSubmission::class.java,
+            match(where(SUB_ACC_NO).`is`(accNo)),
+            unionWith(rqtCollection).pipeline(docSubmissionRequestPipeline),
+            group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
+        )
+
+        val result = mongoTemplate
+            .aggregate<Result>(aggregation)
+            .awaitFirstOrNull()
         return result?.maxVersion
     }
 
@@ -165,7 +189,8 @@ class SubmissionDocDataRepository(
     ): DocSubmission = submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
-        private fun createCountAggregation(filter: SubmissionFilter) = createAggregation(filter).plus(group().count().`as`("submissions"))
+        private fun createCountAggregation(filter: SubmissionFilter) =
+            createAggregation(filter).plus(group().count().`as`("submissions"))
 
         private fun createSubmissionAggregation(filter: SubmissionFilter) =
             createAggregation(filter, filter.offset to filter.limit.toLong())
