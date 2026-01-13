@@ -89,18 +89,19 @@ class PathFilesService internal constructor(
         path: String,
         originalName: String,
         newName: String,
-    ): Boolean = withContext(Dispatchers.IO) {
-        val sourceFile = basePath.safeResolve(path).safeResolve(originalName)
-        val targetFile = basePath.safeResolve(path).safeResolve(newName)
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            val sourceFile = basePath.safeResolve(path).safeResolve(originalName)
+            val targetFile = basePath.safeResolve(path).safeResolve(newName)
 
-        if (sourceFile.exists().not()) throw FileNotFoundException(path, originalName)
-        if (targetFile.exists()) throw FileAlreadyExistsException(path, newName)
+            if (sourceFile.exists().not()) throw FileNotFoundException(path, originalName)
+            if (targetFile.exists()) throw FileAlreadyExistsException(path, newName)
 
-        val renamed = sourceFile.renameTo(targetFile)
-        if (!renamed) throw FileOperationException("rename", originalName)
+            val renamed = sourceFile.renameTo(targetFile)
+            if (!renamed) throw FileOperationException("rename", originalName)
 
-        true
-    }
+            true
+        }
 
     private fun File.safeResolve(path: String): File {
         val resolved = resolve(path)
