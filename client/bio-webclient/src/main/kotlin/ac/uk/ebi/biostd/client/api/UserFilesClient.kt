@@ -126,8 +126,8 @@ internal class UserFilesClient(
         relativePath: String,
         originalName: String,
         newName: String,
-    ): Boolean {
+    ) {
         val body = RenameFilePath(relativePath, originalName, newName)
-        return client.postForObjectAsync<Boolean>("$USER_FILES_URL/rename", RequestParams(body = body))
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/rename", RequestParams(body = body))
     }
 }

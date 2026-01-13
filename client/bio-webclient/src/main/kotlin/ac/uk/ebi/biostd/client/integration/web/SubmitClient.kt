@@ -80,7 +80,7 @@ interface FilesOperations {
         relativePath: String,
         originalName: String,
         newName: String,
-    ): Boolean
+    )
 
     suspend fun createFolder(
         folderName: String,
