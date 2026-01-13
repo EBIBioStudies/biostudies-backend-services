@@ -88,7 +88,7 @@ class PathFilesService internal constructor(
     override suspend fun renameFile(
         path: String,
         originalName: String,
-        newName: String
+        newName: String,
     ): Boolean = withContext(Dispatchers.IO) {
         val sourceFile = basePath.safeResolve(path).safeResolve(originalName)
         val targetFile = basePath.safeResolve(path).safeResolve(newName)

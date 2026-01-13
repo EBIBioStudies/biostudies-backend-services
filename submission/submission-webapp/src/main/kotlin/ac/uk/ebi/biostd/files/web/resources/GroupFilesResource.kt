@@ -78,7 +78,7 @@ class GroupFilesResource(
         @BioUser user: SecurityUser,
         @PathVariable groupName: String,
         @RequestBody filePath: RenameFilePath,
-    ) : Boolean {
+    ): Boolean {
         val groupService = fileServiceFactory.forUserGroup(user, groupName)
         return groupService.renameFile(filePath.path, filePath.originalName, filePath.newName)
     }

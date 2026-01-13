@@ -58,7 +58,10 @@ interface FtpClient {
     /**
      * Rename the file or folder in the given path.
      */
-    suspend fun renameFile(originalPath: Path, newName: String): Boolean
+    suspend fun renameFile(
+        originalPath: Path,
+        newName: String,
+    ): Boolean
 
     suspend fun findFile(path: Path): FTPFile?
 
@@ -167,7 +170,10 @@ private class SimpleFtpClient(
         }
     }
 
-    override suspend fun renameFile(originalPath: Path, newName: String): Boolean  =
+    override suspend fun renameFile(
+        originalPath: Path,
+        newName: String,
+    ): Boolean =
         withContext(Dispatchers.IO) {
             ftpClient().executeRestoringWorkingDirectory { ftp ->
                 if (originalPath.parent != null) ftp.changeWorkingDirectory(originalPath.parent.toString())

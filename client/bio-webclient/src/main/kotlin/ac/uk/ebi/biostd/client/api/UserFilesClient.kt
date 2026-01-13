@@ -122,7 +122,11 @@ internal class UserFilesClient(
         client.postForObjectAsync<Unit>("$USER_FILES_URL/delete", RequestParams(body = body))
     }
 
-    override suspend fun renameFile(relativePath: String, originalName: String, newName: String): Boolean {
+    override suspend fun renameFile(
+        relativePath: String,
+        originalName: String,
+        newName: String,
+    ): Boolean {
         val body = RenameFilePath(relativePath, originalName, newName)
         return client.postForObjectAsync<Boolean>("$USER_FILES_URL/rename", RequestParams(body = body))
     }
