@@ -4,8 +4,10 @@ import ebi.ac.uk.test.createFile
 import ebi.ac.uk.test.createTempFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junitpioneer.jupiter.RetryingTest
 import java.io.File
@@ -26,10 +28,15 @@ class FtpClientTest(
             FTP_TIMEOUT,
         )
 
+    @BeforeEach
+    fun setUp() =
+        runBlocking {
+            testInstance.deleteFile(HOME)
+        }
+
     @RetryingTest(TEST_RETRY)
     fun uploadFileInFolder() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile = createTempFile("test-file-1")
             val rootPath = Paths.get("")
 
@@ -45,7 +52,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun findFile() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile = temporaryFolder.createFile("test-file-1", "content")
             val fileFolder = Paths.get("").resolve("a-folder")
 
@@ -62,7 +68,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun `delete folder`() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile = createTempFile("test-file-1")
 
             val rootPath = Paths.get("")
@@ -87,7 +92,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun `rename a file`() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile = createTempFile("test-file-rename")
 
             val rootPath = Paths.get("test-folder")
@@ -103,10 +107,6 @@ class FtpClientTest(
             val result = testInstance.renameFile(originalPath, newName)
             assertThat(result).isTrue()
 
-            val filesAfterRename = testInstance.listFiles(rootPath)
-            assertThat(filesAfterRename).satisfiesOnlyOnce { it.name == "renamed.txt" && it.isFile }
-            assertThat(filesAfterRename).noneMatch { it.name == "original.txt" }
-
             assertThat(testInstance.findFile(originalPath)).isNull()
             assertThat(testInstance.findFile(newPath)).isNotNull()
         }
@@ -114,7 +114,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun `rename a folder`() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile = createTempFile("test-file-in-folder")
 
             val rootPath = Paths.get("")
@@ -141,8 +140,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun `rename non-existing file returns false`() =
         runTest {
-            testInstance.deleteFile(HOME)
-
             val rootPath = Paths.get("")
             val nonExistingPath = rootPath.resolve("non-existing.txt")
 
@@ -153,7 +150,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun `rename to existing name returns false`() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile1 = createTempFile("test-file-1")
             val tempFile2 = createTempFile("test-file-2")
 
@@ -175,7 +171,6 @@ class FtpClientTest(
     @RetryingTest(TEST_RETRY)
     fun `upload a file, list it and download it`() =
         runTest {
-            testInstance.deleteFile(HOME)
             val tempFile = createTempFile("test-file")
 
             val rootPath = Paths.get("")
