@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.core.io.ResourceLoader
-import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
@@ -172,8 +171,9 @@ class UserFileApiTest(
                     .exceptionOrNull()
             assertThat(fileNotExistingAfterRename).describedAs("Downloading a renamed file should fail").isNotNull()
             // Rename a non-existing file
-            val nonExistingError = runCatching { webClient.renameFile(testPath, "non_existing.txt", "some_name.txt") }
-                .exceptionOrNull()
+            val nonExistingError =
+                runCatching { webClient.renameFile(testPath, "non_existing.txt", "some_name.txt") }
+                    .exceptionOrNull()
             assertThat(nonExistingError).describedAs("Rename of non-existing file should fail").isNotNull()
             assertThat(nonExistingError).isInstanceOf(WebClientException::class.java)
             assertThat((nonExistingError as WebClientException).message)
@@ -185,8 +185,9 @@ class UserFileApiTest(
             val anotherFile = tempFolder.createFile(anotherFileName, "Another content")
             webClient.uploadFiles(listOf(anotherFile), relativePath = testPath)
 
-            val renameError = runCatching { webClient.renameFile(testPath, anotherFile.name, newName) }
-                .exceptionOrNull()
+            val renameError =
+                runCatching { webClient.renameFile(testPath, anotherFile.name, newName) }
+                    .exceptionOrNull()
             assertThat(renameError).describedAs("Rename to a pre-existing file should fail").isNotNull()
             assertThat(renameError).isInstanceOf(WebClientException::class.java)
             assertThat((renameError as WebClientException).message)
