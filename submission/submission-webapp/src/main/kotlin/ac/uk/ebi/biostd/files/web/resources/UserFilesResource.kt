@@ -149,9 +149,9 @@ class UserFilesResource(
     suspend fun renameFile(
         @BioUser user: SecurityUser,
         @RequestBody filePath: RenameFilePath,
-    ): Boolean {
+    ) {
         val filesService = fileServiceFactory.forUser(user)
-        return filesService.renameFile(filePath.path, filePath.originalName, filePath.newName)
+        filesService.renameFile(filePath.path, filePath.originalName, filePath.newName)
     }
 
     @PostMapping("/folder/user/create")

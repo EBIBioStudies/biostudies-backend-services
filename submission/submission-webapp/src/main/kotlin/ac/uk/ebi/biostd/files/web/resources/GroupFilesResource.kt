@@ -78,9 +78,9 @@ class GroupFilesResource(
         @BioUser user: SecurityUser,
         @PathVariable groupName: String,
         @RequestBody filePath: RenameFilePath,
-    ): Boolean {
+    ) {
         val groupService = fileServiceFactory.forUserGroup(user, groupName)
-        return groupService.renameFile(filePath.path, filePath.originalName, filePath.newName)
+        groupService.renameFile(filePath.path, filePath.originalName, filePath.newName)
     }
 
     @PostMapping("/folder/groups/{groupName}/create")

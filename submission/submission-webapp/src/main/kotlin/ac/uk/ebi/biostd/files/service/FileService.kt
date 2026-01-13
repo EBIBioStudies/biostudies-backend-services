@@ -38,14 +38,13 @@ interface FileService {
 
     /**
      * Renames a file from originalName to newName.
-     * @throws ac.uk.ebi.biostd.files.exception.FileNotFoundException if the original file does not exist (maps to HTTP 404)
-     * @throws ac.uk.ebi.biostd.files.exception.FileAlreadyExistsException if a file with the new name already exists (maps to HTTP 409)
-     * @throws ac.uk.ebi.biostd.files.exception.FileOperationException if the rename operation fails (maps to HTTP 500)
-     * @return true if the file was renamed successfully
+     * @throws IllegalArgumentException if the original file does not exist
+     * @throws IllegalArgumentException if the new name file already exists
+     * @throws IllegalStateException if the rename operation fails
      */
     suspend fun renameFile(
         path: String,
         originalName: String,
         newName: String,
-    ): Boolean
+    )
 }

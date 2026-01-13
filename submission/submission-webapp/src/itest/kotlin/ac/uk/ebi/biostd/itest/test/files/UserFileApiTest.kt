@@ -173,22 +173,26 @@ class UserFileApiTest(
             // assertThat(error).isInstanceOf(WebClientException::class.java)
             // assertThat((error as WebClientException).statusCode).isEqualTo(HttpStatus.NOT_FOUND)
             // Rename a non-existing file
-            val nonExistingError =
-                runCatching { webClient.renameFile(testPath, "non_existing.txt", "some_name.txt") }.exceptionOrNull()
+            val nonExistingError = runCatching { webClient.renameFile(testPath, "non_existing.txt", "some_name.txt") }
+                .exceptionOrNull()
             assertThat(nonExistingError).describedAs("Rename of non-existing file should fail").isNotNull()
             assertThat(nonExistingError).isInstanceOf(WebClientException::class.java)
-            assertThat((nonExistingError as WebClientException).statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+            assertThat((nonExistingError as WebClientException).message)
+                .contains("non_existing.txt")
+                .contains("does not exist")
 
             // Rename to a pre-existing name
             val anotherFileName = "another_file.txt"
             val anotherFile = tempFolder.createFile(anotherFileName, "Another content")
             webClient.uploadFiles(listOf(anotherFile), relativePath = testPath)
 
-            val renameError =
-                runCatching { webClient.renameFile(testPath, anotherFile.name, newName) }.exceptionOrNull()
+            val renameError = runCatching { webClient.renameFile(testPath, anotherFile.name, newName) }
+                .exceptionOrNull()
             assertThat(renameError).describedAs("Rename to a pre-existing file should fail").isNotNull()
             assertThat(renameError).isInstanceOf(WebClientException::class.java)
-            assertThat((renameError as WebClientException).statusCode).isEqualTo(HttpStatus.CONFLICT)
+            assertThat((renameError as WebClientException).message)
+                .contains(newName)
+                .contains("already exists")
 
             val finalFiles = webClient.listUserFiles(relativePath = testPath)
             assertThat(finalFiles).hasSize(2)
@@ -213,7 +217,9 @@ class UserFileApiTest(
 
             val error = runCatching { webClient.renameFile(testPath, originalName, newName) }.exceptionOrNull()
             assertThat(error).isInstanceOf(WebClientException::class.java)
-            assertThat((error as WebClientException).statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+            assertThat((error as WebClientException).message)
+                .containsIgnoringCase("does not exist")
+                .contains(originalName)
         }
 
     private fun assertFile(
