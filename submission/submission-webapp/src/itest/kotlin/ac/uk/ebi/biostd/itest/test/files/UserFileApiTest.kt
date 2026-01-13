@@ -167,11 +167,10 @@ class UserFileApiTest(
             assertThat(resultFile.name).isEqualTo(newName)
             assertThat(resultFile.md5()).isEqualTo(file.md5())
 
-            // This doesn't work as downloading a file which doesn't exist is not returning an error
-            // val error = runCatching { webClient.downloadFile(originalName, testPath) }.exceptionOrNull()
-            // assertThat(error).describedAs("Download of original file should fail after rename").isNotNull()
-            // assertThat(error).isInstanceOf(WebClientException::class.java)
-            // assertThat((error as WebClientException).statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+            val fileNotExistingAfterRename =
+                runCatching { webClient.downloadFile(originalName, testPath) }
+                    .exceptionOrNull()
+            assertThat(fileNotExistingAfterRename).describedAs("Downloading a renamed file should fail").isNotNull()
             // Rename a non-existing file
             val nonExistingError = runCatching { webClient.renameFile(testPath, "non_existing.txt", "some_name.txt") }
                 .exceptionOrNull()

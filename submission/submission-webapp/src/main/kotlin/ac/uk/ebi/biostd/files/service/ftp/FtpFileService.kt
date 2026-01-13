@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.ftp.FtpClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.nio.file.Files
@@ -33,13 +35,15 @@ class FtpFileService(
     override suspend fun getFile(
         path: String,
         fileName: String,
-    ): File {
-        val target = Files.createTempFile(null, fileName)
-        val ftpPath = basePath.safeResolve(path).safeResolve(fileName)
+    ): File =
+        withContext(Dispatchers.IO) {
+            val target = Files.createTempFile(null, fileName)
+            val ftpPath = basePath.safeResolve(path).safeResolve(fileName)
 
-        target.outputStream().use { ftp.downloadFile(ftpPath, it) }
-        return target.toFile()
-    }
+            target.outputStream().use { ftp.downloadFile(ftpPath, it) }
+            require(Files.size(target) > 0) { "File not found or empty: $ftpPath" }
+            target.toFile()
+        }
 
     override suspend fun createFolder(
         path: String,
