@@ -53,6 +53,8 @@ class SecurityModuleConfig(
 
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
+    fun profileService(): ProfileService = profileService
+
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
     private val securityService by lazy {
         SecurityService(
@@ -92,7 +94,8 @@ class SecurityModuleConfig(
             tokenRepo: TokenDataRepository,
             userRepo: UserDataRepository,
             props: SecurityProperties,
-        ): SecurityUtil = SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+        ): SecurityUtil =
+            SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
         fun profileService(
             props: SecurityProperties,

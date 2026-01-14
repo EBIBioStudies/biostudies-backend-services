@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
@@ -77,13 +76,15 @@ class SecurityConfig(
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
 
     @Bean
+    fun profileService(securityConfig: SecurityModuleConfig): ProfileService = securityConfig.profileService()
+
+    @Bean
     fun localUserFolderService(
         securityQueryService: SecurityQueryService,
         userRepository: UserDataRepository,
         profileService: ProfileService,
-        props: SecurityProperties,
     ): LocalUserFolderService {
-        return LocalUserFolderService(securityQueryService, userRepository, profileService, props)
+        return LocalUserFolderService(securityQueryService, userRepository, profileService, securityProps)
     }
 
     @Bean

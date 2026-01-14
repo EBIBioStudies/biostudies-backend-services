@@ -24,7 +24,7 @@ import java.nio.file.attribute.PosixFilePermissions
 
 private val logger = KotlinLogging.logger {}
 
-class LocalUserFolderService(
+open class LocalUserFolderService(
     private val securityQueryService: SecurityQueryService,
     private val userRepository: UserDataRepository,
     private val profileService: ProfileService,
