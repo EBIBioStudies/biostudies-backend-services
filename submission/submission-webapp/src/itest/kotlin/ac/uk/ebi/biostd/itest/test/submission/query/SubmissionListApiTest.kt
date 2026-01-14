@@ -278,7 +278,6 @@ class SubmissionListApiTest(
         override val storageMode = StorageMode.NFS
     }
 
-
     /**
      * Represents a bio studies super user.
      */

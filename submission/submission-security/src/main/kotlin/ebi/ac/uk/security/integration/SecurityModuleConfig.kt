@@ -94,8 +94,7 @@ class SecurityModuleConfig(
             tokenRepo: TokenDataRepository,
             userRepo: UserDataRepository,
             props: SecurityProperties,
-        ): SecurityUtil =
-            SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+        ): SecurityUtil = SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
         fun profileService(
             props: SecurityProperties,
