@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.submission.domain.security.RemoteUserFolderService
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -59,16 +60,21 @@ class SecurityConfig(
         )
 
     @Bean
-    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService = securityConfig.securityQueryService()
+    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService =
+        securityConfig.securityQueryService()
 
     @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
 
     @Bean
-    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService = securityConfig.userPrivilegesService()
+    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService =
+        securityConfig.userPrivilegesService()
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): SecurityFilter = securityConfig.securityFilter()
+
+    @Bean
+    fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
 
     @Bean
     fun localUserFolderService(
