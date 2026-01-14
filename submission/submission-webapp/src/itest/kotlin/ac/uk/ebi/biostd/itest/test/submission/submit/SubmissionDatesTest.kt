@@ -28,7 +28,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -391,11 +390,6 @@ class SubmissionDatesTest(
 
                 colAdminWebClient = getWebClient(serverPort, CollectionUser)
             }
-
-        @BeforeEach
-        fun beforeEach() {
-            colAdminWebClient = getWebClient(serverPort, CollectionUser)
-        }
 
         @Test
         fun `28-9 Collection Admin submits and re submit in the past`() =

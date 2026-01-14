@@ -39,8 +39,8 @@ class SubmitPermissionTest(
 ) {
     private val collection =
         tsv {
-            line("Submission", "ACollection")
-            line("AccNoTemplate", "!{S-APR}")
+            line("Submission", "ASubmitCollection")
+            line("AccNoTemplate", "!{SUB-APR}")
             line()
 
             line("Project")

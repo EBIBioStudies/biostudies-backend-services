@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -276,6 +275,18 @@ class SubmissionListApiTest(
         override val email = "regular-for-listing@ebi.ac.uk"
         override val password = "12345"
         override val superUser = false
+        override val storageMode = StorageMode.NFS
+    }
+
+
+    /**
+     * Represents a bio studies super user.
+     */
+    object SuperUser : TestUser {
+        override val username = "Super User"
+        override val email = "biostudies-mgmt-list@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
         override val storageMode = StorageMode.NFS
     }
 }
