@@ -199,7 +199,7 @@ internal class SubmissionDocDataRepositoryTest(
                 testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
                 testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
 
-                assertThat(testInstance.getCurrentMaxVersion2("S-BSST4")).isEqualTo(2)
+                assertThat(testInstance.getCurrentMaxVersion("S-BSST4")).isEqualTo(2)
             }
 
         @Test
@@ -208,7 +208,7 @@ internal class SubmissionDocDataRepositoryTest(
                 testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1))
                 requestDocDataRepository.save(testDocSubmissionRequest.copy(accNo = "S-BSST5", version = 2))
 
-                assertThat(testInstance.getCurrentMaxVersion2("S-BSST5")).isEqualTo(2)
+                assertThat(testInstance.getCurrentMaxVersion("S-BSST5")).isEqualTo(2)
             }
     }
 

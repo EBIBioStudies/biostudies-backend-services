@@ -152,15 +152,15 @@ class SubmissionDraftApiTest(
                     "accno" to "ABC-129"
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "Source"
-                                "value" to "PageTab"
-                                "reference" to false
-                                "nameAttrs" to jsonArray()
-                                "valueAttrs" to jsonArray()
-                            },
-                        )
+                            jsonArray(
+                                jsonObj {
+                                    "name" to "Source"
+                                    "value" to "PageTab"
+                                    "reference" to false
+                                    "nameAttrs" to jsonArray()
+                                    "valueAttrs" to jsonArray()
+                                },
+                            )
                 }.toString(),
                 JSON,
             )
@@ -174,15 +174,15 @@ class SubmissionDraftApiTest(
                     "accno" to "ABC-129"
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "Source"
-                                "value" to "Draft"
-                                "reference" to false
-                                "nameAttrs" to jsonArray()
-                                "valueAttrs" to jsonArray()
-                            },
-                        )
+                            jsonArray(
+                                jsonObj {
+                                    "name" to "Source"
+                                    "value" to "Draft"
+                                    "reference" to false
+                                    "nameAttrs" to jsonArray()
+                                    "valueAttrs" to jsonArray()
+                                },
+                            )
                 }.toString()
             superWebClient.getSubmissionDraft("ABC-129")
 
@@ -211,9 +211,9 @@ class SubmissionDraftApiTest(
                         jsonObj {
                             "accno" to accNo
                             "section" to
-                                jsonObj {
-                                    "type" to "Study"
-                                }
+                                    jsonObj {
+                                        "type" to "Study"
+                                    }
                             "type" to "submission"
                         }.toString(),
                     ).body
@@ -225,9 +225,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "Another"
-                        }
+                            jsonObj {
+                                "type" to "Another"
+                            }
                     "type" to "submission"
                 }.toString(),
             )
@@ -243,9 +243,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "Yet-Another"
-                        }
+                            jsonObj {
+                                "type" to "Yet-Another"
+                            }
                     "type" to "submission"
                 }.toString(),
             )
@@ -264,9 +264,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "Study"
-                        }
+                            jsonObj {
+                                "type" to "Study"
+                            }
                     "type" to "submission"
                 }.toString()
 
@@ -277,9 +277,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "ByDraft"
-                        }
+                            jsonObj {
+                                "type" to "ByDraft"
+                            }
                     "type" to "submission"
                 }.toString(),
             )
@@ -288,9 +288,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "Another"
-                        }
+                            jsonObj {
+                                "type" to "Another"
+                            }
                     "type" to "submission"
                 }.toString()
             val response = superWebClient.submit(subV2)
@@ -308,9 +308,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "Study"
-                        }
+                            jsonObj {
+                                "type" to "Study"
+                            }
                     "type" to "submission"
                 }.toString()
 
@@ -325,9 +325,9 @@ class SubmissionDraftApiTest(
                         jsonObj {
                             "accno" to accNo
                             "section" to
-                                jsonObj {
-                                    "type" to "ByDraft"
-                                }
+                                    jsonObj {
+                                        "type" to "ByDraft"
+                                    }
                             "type" to "submission"
                         }.toString(),
                     )
@@ -344,9 +344,9 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to accNo
                     "section" to
-                        jsonObj {
-                            "type" to "Study"
-                        }
+                            jsonObj {
+                                "type" to "Study"
+                            }
                     "type" to "submission"
                 }.toString()
 
@@ -372,12 +372,12 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "Source"
-                                "value" to "PageTab"
-                            },
-                        )
+                            jsonArray(
+                                jsonObj {
+                                    "name" to "Source"
+                                    "value" to "PageTab"
+                                },
+                            )
                 }.toString()
             val draft = superWebClient.getSubmissionDraft(accNo).key
             superWebClient.updateSubmissionDraft(accNo, newPageTab)
@@ -387,6 +387,53 @@ class SubmissionDraftApiTest(
             assertThat(submission.attributes.first().name).isEqualTo("Source")
             assertThat(submission.attributes.first().value).isEqualTo("PageTab")
         }
+
+    @Test
+    fun `12-13 multiple user submission of the same submission draft`() = runTest {
+        val pageTab =
+            jsonObj {
+                "type" to "Study"
+            }.toString()
+        val userSubmission =
+            jsonObj {
+                "type" to "Study"
+                "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "User"
+                                "value" to "Regular"
+                            },
+                        )
+            }
+        val superUserSubmission = jsonObj {
+            "type" to "Study"
+            "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "User"
+                            "value" to "SuperUser"
+                        },
+                    )
+        }
+
+        val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
+        val superUserDraft = superWebClient.getSubmissionDraft(accNo).key
+        val regularUserDraft = regularWebClient.getSubmissionDraft(accNo).key
+
+        // Submit user submission
+        regularWebClient.updateSubmissionDraft(accNo, userSubmission.toString())
+        regularWebClient.submitFromDraft(regularUserDraft)
+        val submission = superWebClient.getExtByAccNo(accNo)
+        assertThat(submission.attributes.first().name).isEqualTo("User")
+        assertThat(submission.attributes.first().value).isEqualTo("Regular")
+
+        // Submit super user submission
+        superWebClient.updateSubmissionDraft(accNo, superUserSubmission.toString())
+        superWebClient.submitFromDraft(superUserDraft)
+        val superUserSubmissionResult = superWebClient.getExtByAccNo(accNo)
+        assertThat(superUserSubmissionResult.attributes.first().name).isEqualTo("User")
+        assertThat(superUserSubmissionResult.attributes.first().value).isEqualTo("SuperUser")
+    }
 
     private object RegularUser : TestUser {
         override val username = "Regular User"
