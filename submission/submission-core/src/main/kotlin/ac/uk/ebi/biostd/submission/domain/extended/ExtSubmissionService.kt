@@ -44,7 +44,8 @@ class ExtSubmissionService(
         version: Int,
     ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
 
-    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit = submissionSubmitter.handleManyAsync(submissions)
+    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit =
+        submissionSubmitter.handleManyAsync(submissions)
 
     suspend fun refreshSubmission(
         user: String,
@@ -76,7 +77,11 @@ class ExtSubmissionService(
         val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
         val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
-        val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay(), released = released)
+        val toRelease = submission.copy(
+            releaseTime = releaseDate.asOffsetAtStartOfDay(),
+            released = released,
+            version = persistenceService.getNextVersion(accNo),
+        )
         val request =
             ExtSubmitRequest(
                 owner = user,
@@ -145,7 +150,9 @@ class ExtSubmissionService(
         val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         require(source.storageMode != target) { throw InvalidMigrationTargetException() }
 
-        val toMigrate = processSubmission(user, source.copy(storageMode = target))
+        val newVersion = source.copy(storageMode = target, version = persistenceService.getNextVersion(accNo))
+        val toMigrate = processSubmission(user, newVersion)
+
         val request =
             ExtSubmitRequest(
                 owner = user,

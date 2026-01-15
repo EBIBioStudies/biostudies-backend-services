@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
@@ -46,7 +45,6 @@ private val logger = KotlinLogging.logger {}
 class LocalExtSubmissionSubmitter(
     private val properties: ApplicationProperties,
     private val requestService: SubmissionRequestPersistenceService,
-    private val persistenceService: SubmissionPersistenceService,
     private val requestFilesValidator: SubmissionRequestFilesValidator,
     private val requestIndexer: SubmissionRequestIndexer,
     private val requestLoader: SubmissionRequestLoader,
@@ -61,7 +59,7 @@ class LocalExtSubmissionSubmitter(
     private val eventsPublisherService: EventsPublisherService,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRqt(rqt: ExtSubmitRequest): SubmissionId {
-        val sub = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val sub = rqt.submission
         val request =
             SubmissionRequest(
                 accNo = sub.accNo,
@@ -77,7 +75,6 @@ class LocalExtSubmissionSubmitter(
                 preferredSources = rqt.preferredSources,
                 singleJobMode = rqt.singleJobMode,
             )
-
         return requestService.saveRequest(request)
     }
 

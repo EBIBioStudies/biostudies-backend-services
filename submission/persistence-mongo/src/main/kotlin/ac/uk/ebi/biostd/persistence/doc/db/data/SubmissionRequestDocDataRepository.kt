@@ -82,9 +82,8 @@ class SubmissionRequestDocDataRepository(
             Query(
                 where(RQT_ACC_NO)
                     .`is`(request.accNo)
-                    .andOperator(where(RQT_OWNER).`is`(request.owner), where(RQT_STATUS).nin(PROCESSED_STATUS)),
+                    .andOperator(where(RQT_VERSION).`is`(request.version), where(RQT_STATUS).nin(PROCESSED_STATUS)),
             )
-
         mongoTemplate
             .upsert<DocSubmissionRequest>(
                 query,
