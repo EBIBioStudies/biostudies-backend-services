@@ -83,14 +83,25 @@ class SubmissionRequestDraftService(
         return saveRequest(draft, user, accNo.toString(), true)
     }
 
-    public suspend fun createActiveRequestByAccNo(
+    /**
+     * Create or update active request by accession number. Note that as user may have at max one active request if
+     * one is found it is updated otherwise a new request is created.
+     */
+    public suspend fun createOrUpdateActiveRequestByAccNo(
         draft: String,
         owner: String,
         accNo: String,
         attachTo: String?,
     ): SubmissionRequest {
         accNoService.checkAccess(accNo, owner, attachTo)
-        return saveRequest(draft, owner, accNo, false)
+        val activeDraft = requestService.findEditableRequest(accNo, owner)
+        return when (activeDraft) {
+            null -> saveRequest(draft, owner, accNo, false)
+            else -> {
+                requestService.updateRequestDraft(accNo, owner, draft, Instant.now())
+                requestService.getEditableRequest(accNo, owner)
+            }
+        }
     }
 
     private suspend fun saveRequest(
@@ -125,6 +136,6 @@ class SubmissionRequestDraftService(
         val current = submissionQueryService.getExtByAccNo(accNo)
         val submission = toSubmissionMapper.toSimpleSubmission(current)
         val draft = serializationService.serializeSubmission(submission, JsonPretty)
-        return createActiveRequestByAccNo(draft, owner, accNo, submission.attachTo)
+        return createOrUpdateActiveRequestByAccNo(draft, owner, accNo, submission.attachTo)
     }
 }

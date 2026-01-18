@@ -111,7 +111,7 @@ class SubmitWebHandler(
             ): SubmissionRequest {
                 val pageTab = serializationService.serializeSubmission(submission, JSON)
                 if (requestDraftService.hasProcessingRequest(accNo)) throw ConcurrentSubException(accNo)
-                return requestDraftService.createActiveRequestByAccNo(pageTab, owner, accNo, attachTo)
+                return requestDraftService.createOrUpdateActiveRequestByAccNo(pageTab, owner, accNo, attachTo)
             }
 
             suspend fun createNewDraft(): SubmissionRequest {

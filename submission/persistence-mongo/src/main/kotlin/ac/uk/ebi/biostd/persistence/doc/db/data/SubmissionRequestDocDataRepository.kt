@@ -67,6 +67,7 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
+import org.springframework.data.mongodb.core.updateFirst
 import org.springframework.data.mongodb.core.upsert
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
@@ -306,7 +307,7 @@ class SubmissionRequestDocDataRepository(
                     where(RQT_STATUS).nin(PROCESSED_STATUS),
                 )
 
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmissionRequest>(Query(where), update).awaitSingleOrNull()
     }
 
     suspend fun setSubRequestAccNo(

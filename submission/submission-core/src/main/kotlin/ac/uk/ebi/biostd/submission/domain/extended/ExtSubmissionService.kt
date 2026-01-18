@@ -54,7 +54,7 @@ class ExtSubmissionService(
         val submission = queryService.getExtByAccNo(accNo, true)
         val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
-        val toRefresh = submission.copy(released = released)
+        val toRefresh = submission.copy(released = released, version = persistenceService.getNextVersion(accNo))
         val request =
             ExtSubmitRequest(
                 owner = user,
@@ -105,7 +105,7 @@ class ExtSubmissionService(
         val doi = doiService.calculateDoi(extSub.accNo, sub, extSub)
 
         requireNotNull(doi) { "Failed to generate DOI for submission '$accNo'" }
-        return submitExtAsync(user, extSub.copy(doi = doi))
+        return submitExtAsync(user, extSub.copy(doi = doi, version = persistenceService.getNextVersion(accNo)))
     }
 
     suspend fun submitExt(
