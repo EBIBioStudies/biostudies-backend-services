@@ -210,6 +210,15 @@ internal class SubmissionDocDataRepositoryTest(
 
                 assertThat(testInstance.getCurrentMaxVersion("S-BSST5")).isEqualTo(2)
             }
+
+        @Test
+        fun `get max version when max version is not the active one`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = 1))
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -2))
+
+                assertThat(testInstance.getCurrentMaxVersion("S-BSST5")).isEqualTo(2)
+            }
     }
 
     @Test

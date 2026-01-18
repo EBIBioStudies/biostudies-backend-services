@@ -90,11 +90,7 @@ class SubmissionRequestDocDataRepository(
                 request.asUpsert(),
             ).awaitSingle()
 
-        return submissionRequestRepository.getByAccNoAndStatusNotInAndOwner(
-            request.accNo,
-            PROCESSED_STATUS,
-            request.owner,
-        )
+        return submissionRequestRepository.getByAccNoAndVersion(request.accNo, request.version)
     }
 
     /**

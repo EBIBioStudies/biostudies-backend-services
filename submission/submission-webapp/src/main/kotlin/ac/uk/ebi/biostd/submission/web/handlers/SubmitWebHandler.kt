@@ -100,7 +100,7 @@ class SubmitWebHandler(
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (requestFiles, preferredSources) = rqt.filesConfig
 
-        suspend fun getOrCreateRequestDraft(
+        suspend fun getOrCreateRequest(
             accNo: String?,
             owner: String,
             submission: Submission,
@@ -199,7 +199,7 @@ class SubmitWebHandler(
             val sources = getSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
-            val draft = getOrCreateRequestDraft(accNo, submitter.email, submission)
+            val draft = getOrCreateRequest(accNo, submitter.email, submission)
 
             return SubmitRequest(
                 accNo = draft.accNo,

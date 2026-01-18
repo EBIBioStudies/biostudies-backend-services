@@ -426,6 +426,7 @@ class SubmissionDraftApiTest(
             regularWebClient.updateSubmissionDraft(accNo, userSubmission.toString())
             regularWebClient.submitFromDraft(regularUserDraft)
             val submission = superWebClient.getExtByAccNo(accNo)
+            assertThat(submission.version).isEqualTo(3)
             assertThat(submission.attributes.first().name).isEqualTo("User")
             assertThat(submission.attributes.first().value).isEqualTo("Regular")
 
@@ -433,6 +434,7 @@ class SubmissionDraftApiTest(
             superWebClient.updateSubmissionDraft(accNo, superUserSubmission.toString())
             superWebClient.submitFromDraft(superUserDraft)
             val superUserSubmissionResult = superWebClient.getExtByAccNo(accNo)
+            assertThat(superUserSubmissionResult.version).isEqualTo(2)
             assertThat(superUserSubmissionResult.attributes.first().name).isEqualTo("User")
             assertThat(superUserSubmissionResult.attributes.first().value).isEqualTo("SuperUser")
         }
