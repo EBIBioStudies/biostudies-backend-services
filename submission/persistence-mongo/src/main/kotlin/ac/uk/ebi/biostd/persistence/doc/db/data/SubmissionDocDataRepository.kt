@@ -74,19 +74,6 @@ class SubmissionDocDataRepository(
         }
 
     suspend fun getCurrentMaxVersion(accNo: String): Int? {
-        val aggregation =
-            newAggregation(
-                DocSubmission::class.java,
-                match(where(SUB_ACC_NO).`is`(accNo)),
-                group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
-                sort(Sort.Direction.DESC, "maxVersion"),
-            )
-
-        val result = mongoTemplate.aggregate(aggregation, Result::class.java).awaitFirstOrNull()
-        return result?.maxVersion
-    }
-
-    suspend fun getCurrentMaxVersion2(accNo: String): Int? {
         val rqtCollection = mongoTemplate.getCollectionName(DocSubmissionRequest::class.java)
         val docSubmissionRequestPipeline =
             newAggregation(
