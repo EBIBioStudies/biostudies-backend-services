@@ -388,6 +388,57 @@ class SubmissionDraftApiTest(
             assertThat(submission.attributes.first().value).isEqualTo("PageTab")
         }
 
+    @Test
+    fun `12-13 multiple user submission of the same submission draft`() =
+        runTest {
+            val pageTab =
+                jsonObj {
+                    "type" to "Study"
+                }.toString()
+            val userSubmission =
+                jsonObj {
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "User"
+                                "value" to "Regular"
+                            },
+                        )
+                }
+            val superUserSubmission =
+                jsonObj {
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "User"
+                                "value" to "SuperUser"
+                            },
+                        )
+                }
+
+            val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
+            val superUserDraft = superWebClient.getSubmissionDraft(accNo).key
+            val regularUserDraft = regularWebClient.getSubmissionDraft(accNo).key
+
+            // Submit user submission
+            regularWebClient.updateSubmissionDraft(accNo, userSubmission.toString())
+            regularWebClient.submitFromDraft(regularUserDraft)
+            val submission = superWebClient.getExtByAccNo(accNo)
+            assertThat(submission.version).isEqualTo(3)
+            assertThat(submission.attributes.first().name).isEqualTo("User")
+            assertThat(submission.attributes.first().value).isEqualTo("Regular")
+
+            // Submit super user submission
+            superWebClient.updateSubmissionDraft(accNo, superUserSubmission.toString())
+            superWebClient.submitFromDraft(superUserDraft)
+            val superUserSubmissionResult = superWebClient.getExtByAccNo(accNo)
+            assertThat(superUserSubmissionResult.version).isEqualTo(2)
+            assertThat(superUserSubmissionResult.attributes.first().name).isEqualTo("User")
+            assertThat(superUserSubmissionResult.attributes.first().value).isEqualTo("SuperUser")
+        }
+
     private object RegularUser : TestUser {
         override val username = "Regular User"
         override val email = "regular-drafts@ebi.ac.uk"
