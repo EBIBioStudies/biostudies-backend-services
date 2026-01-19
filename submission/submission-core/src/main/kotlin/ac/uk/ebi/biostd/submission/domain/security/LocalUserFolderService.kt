@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.model.MigrateHomeOptions
+import ebi.ac.uk.model.nonSubmissionFiles
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
@@ -35,8 +36,8 @@ open class LocalUserFolderService(
         email: String,
         migrateOptions: MigrateHomeOptions,
     ) {
-        val stats = securityQueryService.getUserFolderStats(email)
-        if (migrateOptions.onlyIfEmptyFolder && stats.totalFiles > 0) error("$email is not empty and can not be migrated")
+        val stats = securityQueryService.getUserFolderInventory(email)
+        if (migrateOptions.onlyIfEmptyFolder && stats.nonSubmissionFiles > 0) error("$email is not empty and can not be migrated")
         updateMagicFolder(
             email,
             StorageMode.valueOf(migrateOptions.storageMode),

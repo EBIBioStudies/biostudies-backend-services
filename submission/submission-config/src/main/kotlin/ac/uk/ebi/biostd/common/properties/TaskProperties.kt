@@ -21,5 +21,5 @@ enum class Mode {
 }
 
 const val SUBMISISONS_PARAM_NAME = "submissions"
-const val MIGRATION_OPTIONS = "migrationOptions"
+const val MIGRATION_OPTIONS = "migration-options"
 const val MIGRATION_EMAIL = "email"
