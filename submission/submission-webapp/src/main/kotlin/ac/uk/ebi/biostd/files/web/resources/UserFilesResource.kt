@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.FilePath
+import ebi.ac.uk.model.RenameFilePath
 import ebi.ac.uk.model.UserPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
 
+@Suppress("TooManyFunctions")
 @RestController
 @PreAuthorize("isAuthenticated()")
 class UserFilesResource(
@@ -140,6 +142,16 @@ class UserFilesResource(
     ) {
         val filesService = fileServiceFactory.forUser(user)
         filesService.deleteFile(filePath.path, filePath.fileName)
+    }
+
+    @PostMapping("/files/user/rename")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun renameFile(
+        @BioUser user: SecurityUser,
+        @RequestBody filePath: RenameFilePath,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.renameFile(filePath.path, filePath.originalName, filePath.newName)
     }
 
     @PostMapping("/folder/user/create")
