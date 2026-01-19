@@ -21,7 +21,7 @@ import ebi.ac.uk.util.date.atMidnight
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
@@ -45,10 +45,10 @@ import java.time.ZoneOffset
 )
 @DirtiesContext
 class SubmissionReleaseTestWithSecretKey(
-    @LocalServerPort val serverPort: Int,
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -83,13 +83,13 @@ class SubmissionReleaseTestWithSecretKey(
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE003")
 
             val expectedFile = File("${ITestListener.ftpPath}/${submitted.relPath}/Files/file_27-3.txt")
-            Assertions.assertThat(expectedFile).exists()
-            Assertions.assertThat(expectedFile).hasContent("27-3 file content")
+            assertThat(expectedFile).exists()
+            assertThat(expectedFile).hasContent("27-3 file content")
 
             val key = submitted.secretKey
             val subFilesPath =
                 "$submissionPath/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
-            Assertions.assertThat(File("$subFilesPath/file_27-3.txt")).doesNotExist()
+            assertThat(File("$subFilesPath/file_27-3.txt")).doesNotExist()
         }
 
     @Test
@@ -115,13 +115,13 @@ class SubmissionReleaseTestWithSecretKey(
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE004")
 
-            Assertions.assertThat(File("${ITestListener.ftpPath}/${submitted.relPath}")).doesNotExist()
+            assertThat(File("${ITestListener.ftpPath}/${submitted.relPath}")).doesNotExist()
 
             val key = submitted.secretKey
             val subFilesPath = "$submissionPath/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
             val expectedFile = File("$subFilesPath/file_27-4.txt")
-            Assertions.assertThat(expectedFile).exists()
-            Assertions.assertThat(expectedFile).hasContent("27-4 file content")
+            assertThat(expectedFile).exists()
+            assertThat(expectedFile).hasContent("27-4 file content")
 
             val result =
                 webClient.submit(
@@ -149,8 +149,8 @@ class SubmissionReleaseTestWithSecretKey(
             webClient.submit(submission, SubmissionFormat.TSV)
 
             val submitted = submissionRepository.getExtByAccNo(accNo)
-            Assertions.assertThat(submitted.releaseTime).isEqualTo(releaseTime.atMidnight())
-            Assertions.assertThat(submitted.released).isEqualTo(false)
+            assertThat(submitted.releaseTime).isEqualTo(releaseTime.atMidnight())
+            assertThat(submitted.released).isEqualTo(false)
 
             val (rqtAccNo, rqtVersion) = webClient.releaseSubmission(accNo, newRelease.toInstant())
 
@@ -161,7 +161,7 @@ class SubmissionReleaseTestWithSecretKey(
                 )
             }
             val newVersion = submissionRepository.getExtByAccNo(accNo)
-            Assertions.assertThat(newVersion.releaseTime).isEqualTo(newRelease.atMidnight())
-            Assertions.assertThat(newVersion.released).isEqualTo(true)
+            assertThat(newVersion.releaseTime).isEqualTo(newRelease.atMidnight())
+            assertThat(newVersion.released).isEqualTo(true)
         }
 }

@@ -12,6 +12,7 @@ import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.FilePath
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.MigrateHomeOptions
+import ebi.ac.uk.model.RenameFilePath
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.buffer.DataBuffer
@@ -119,5 +120,14 @@ internal class UserFilesClient(
     ) {
         val body = DirFilePath(relativePath, fileName)
         client.postForObjectAsync<Unit>("$USER_FILES_URL/delete", RequestParams(body = body))
+    }
+
+    override suspend fun renameFile(
+        relativePath: String,
+        originalName: String,
+        newName: String,
+    ) {
+        val body = RenameFilePath(relativePath, originalName, newName)
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/rename", RequestParams(body = body))
     }
 }

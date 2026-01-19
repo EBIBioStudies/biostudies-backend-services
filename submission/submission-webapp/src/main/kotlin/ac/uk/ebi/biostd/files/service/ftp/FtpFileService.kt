@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.ftp.FtpClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.nio.file.Files
@@ -33,13 +35,15 @@ class FtpFileService(
     override suspend fun getFile(
         path: String,
         fileName: String,
-    ): File {
-        val target = Files.createTempFile(null, fileName)
-        val ftpPath = basePath.safeResolve(path).safeResolve(fileName)
+    ): File =
+        withContext(Dispatchers.IO) {
+            val target = Files.createTempFile(null, fileName)
+            val ftpPath = basePath.safeResolve(path).safeResolve(fileName)
 
-        target.outputStream().use { ftp.downloadFile(ftpPath, it) }
-        return target.toFile()
-    }
+            target.outputStream().use { ftp.downloadFile(ftpPath, it) }
+            require(Files.size(target) > 0) { "File not found or empty: $ftpPath" }
+            target.toFile()
+        }
 
     override suspend fun createFolder(
         path: String,
@@ -68,6 +72,21 @@ class FtpFileService(
         fileName: String,
     ) {
         ftp.deleteFile(basePath.safeResolve(path).safeResolve(fileName))
+    }
+
+    override suspend fun renameFile(
+        path: String,
+        originalName: String,
+        newName: String,
+    ) {
+        val sourcePath = basePath.safeResolve(path).safeResolve(originalName)
+        val targetPath = basePath.safeResolve(path).safeResolve(newName)
+
+        require(ftp.findFile(sourcePath) != null) { "The file to be renamed does not exist: $sourcePath" }
+        require(ftp.findFile(targetPath) == null) {
+            "The new name for the file already exists at $path, please choose a different name than $newName"
+        }
+        check(ftp.renameFile(sourcePath, newName)) { "Failed to rename file from '$originalName' to '$newName'" }
     }
 
     private fun Path.safeResolve(path: String): Path {

@@ -43,7 +43,6 @@ class PathFilesService internal constructor(
     ): File =
         withContext(Dispatchers.IO) {
             val userFile = basePath.safeResolve(path).safeResolve(fileName)
-            require(userFile.exists() && userFile.isFile) { "Invalid request $path is not a valid user file" }
             userFile
         }
 
@@ -79,6 +78,26 @@ class PathFilesService internal constructor(
     ) = withContext(Dispatchers.IO) {
         val userFile = basePath.safeResolve(path).safeResolve(fileName)
         FileUtils.deleteFile(userFile)
+    }
+
+    override suspend fun renameFile(
+        path: String,
+        originalName: String,
+        newName: String,
+    ) = withContext(Dispatchers.IO) {
+        val sourceFile = basePath.safeResolve(path).safeResolve(originalName)
+        val targetFile = basePath.safeResolve(path).safeResolve(newName)
+
+        require(sourceFile.exists()) {
+            "The file to be renamed does not exist: $sourceFile"
+        }
+        require(targetFile.exists().not()) {
+            "The new name for the file already exists at $path, please choose a different name than $newName"
+        }
+
+        check(sourceFile.renameTo(targetFile)) {
+            "Failed to rename file from '$originalName' to '$newName'"
+        }
     }
 
     private fun File.safeResolve(path: String): File {

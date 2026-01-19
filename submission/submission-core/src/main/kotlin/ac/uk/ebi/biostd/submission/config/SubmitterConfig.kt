@@ -224,7 +224,6 @@ class SubmitterConfig(
     fun localExtSubmissionSubmitter(
         appProperties: ApplicationProperties,
         requestService: SubmissionRequestPersistenceService,
-        persistenceService: SubmissionPersistenceService,
         submissionQueryService: ExtSubmissionQueryService,
         requestFilesValidator: SubmissionRequestFilesValidator,
         requestIndexer: SubmissionRequestIndexer,
@@ -241,7 +240,6 @@ class SubmitterConfig(
         LocalExtSubmissionSubmitter(
             appProperties,
             requestService,
-            persistenceService,
             requestFilesValidator,
             requestIndexer,
             requestLoader,
