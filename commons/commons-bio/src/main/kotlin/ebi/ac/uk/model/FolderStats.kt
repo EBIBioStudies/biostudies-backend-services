@@ -12,6 +12,12 @@ data class FolderStats(
 data class FolderInventory(val files: List<InventoryFile>)
 
 val FolderInventory.nonSubmissionFiles
-    get() : Int = files.count() { it.submission == null }
+    get(): Int = files.count { it.submission == null }
 
-data class InventoryFile(val path: String, val size: Long, val md5: String, val submission: String?)
+data class InventoryFile(
+    val path: String,
+    val size: Long,
+    val md5: String,
+    val modificationDate: Instant,
+    val submission: String?,
+)

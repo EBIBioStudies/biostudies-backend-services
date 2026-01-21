@@ -36,8 +36,8 @@ class RemoteSubmitterExecutor(
             val job =
                 clusterClient.triggerJobAsync(
                     JobSpec(
-                        cores = properties.taskCores,
-                        ram = MemorySpec.fromMegaBytes(properties.taskMemoryMgb),
+                        cores = 2,
+                        ram = MemorySpec.FOUR_GB,
                         minutes = properties.taskMinutes,
                         queue = DataMoverQueue,
                         command = command,
@@ -47,8 +47,8 @@ class RemoteSubmitterExecutor(
                 {
                     logger.info {
                         "Triggered submission task $mode. " +
-                            "Job Id: ${it.id} | Logs: ${it.logsPath}. " +
-                            "args: '${args.joinToString("\n")}'"
+                                "Job Id: ${it.id} | Logs: ${it.logsPath}. " +
+                                "args: '${args.joinToString("\n")}'"
                     }
                 },
                 { throw it },

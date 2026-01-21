@@ -7,7 +7,6 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.model.MigrateHomeOptions
-import ebi.ac.uk.model.nonSubmissionFiles
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
@@ -17,7 +16,6 @@ import ebi.ac.uk.security.service.ProfileService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -25,19 +23,18 @@ import java.nio.file.attribute.PosixFilePermissions
 
 private val logger = KotlinLogging.logger {}
 
-open class LocalUserFolderService(
+class LocalUserFolderService(
     private val securityQueryService: SecurityQueryService,
     private val userRepository: UserDataRepository,
     private val profileService: ProfileService,
     private val props: SecurityProperties,
 ) {
-    @Transactional
     suspend fun updateMagicFolder(
         email: String,
         migrateOptions: MigrateHomeOptions,
     ) {
-        val stats = securityQueryService.getUserFolderInventory(email)
-        if (migrateOptions.onlyIfEmptyFolder && stats.nonSubmissionFiles > 0) error("$email is not empty and can not be migrated")
+        //val stats = securityQueryService.getUserFolderInventory(email)
+        //if (migrateOptions.onlyIfEmptyFolder && stats.nonSubmissionFiles > 0) error("$email is not empty and can not be migrated")
         updateMagicFolder(
             email,
             StorageMode.valueOf(migrateOptions.storageMode),
@@ -103,21 +100,32 @@ open class LocalUserFolderService(
         target: Path,
         days: Int,
     ) = withContext(Dispatchers.IO) {
-        val command =
-            """
-            rsync -av \
-            --files-from=<(find $source -mtime -$days | sed "s|^$source/||") $source $target \
-            && echo "rsync exit code: 0" || echo "rsync exit code: $?" \\
-            && chgrp -R biostudies $target
-            """.trimIndent()
+        val rsyncCommand = """
+        rsync -av \
+        --files-from=<(find "$source" -mtime -$days -type f | sed "s|^$source/||") \
+        "$source" "$target"
+    """.trimIndent()
 
-        logger.info { "Executing command '$command'" }
+        logger.info { "Executing rsync command: '$rsyncCommand'" }
+        executeCommand(rsyncCommand)
 
+        val permsCommand = """
+    chgrp -R biostudies "$target" && \
+    find "$target" -type f -exec chmod 660 {} + && \
+    find "$target" -type d -exec chmod 770 {} +
+""".trimIndent()
+
+        logger.info { "Fixing permissions: '$permsCommand'" }
+        executeCommand(permsCommand)
+    }
+
+    private fun executeCommand(command: String) {
         val pb = ProcessBuilder("bash", "-c", command)
         pb.redirectErrorStream(true)
         val process = pb.start()
+        process.inputStream.bufferedReader().useLines { lines -> lines.forEach { logger.info { it } } }
         val exitCode = process.waitFor()
-        logger.info { "Finished copying files to the cluster FTP folder $target from $source. Exit code: $exitCode" }
+        logger.info { "Finished executing command. Exit code: $exitCode" }
     }
 
     companion object {

@@ -59,13 +59,15 @@ class SecurityConfig(
         )
 
     @Bean
-    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService = securityConfig.securityQueryService()
+    fun securityQueryService(securityConfig: SecurityModuleConfig): SecurityQueryService =
+        securityConfig.securityQueryService()
 
     @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
 
     @Bean
-    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService = securityConfig.userPrivilegesService()
+    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService =
+        securityConfig.userPrivilegesService()
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): SecurityFilter = securityConfig.securityFilter()
@@ -82,6 +84,7 @@ class SecurityConfig(
         userRepository: UserDataRepository,
         profileService: ProfileService,
     ): LocalUserFolderService {
+        requireNotNull(securityQueryService)
         return LocalUserFolderService(securityQueryService, userRepository, profileService, securityProps)
     }
 
