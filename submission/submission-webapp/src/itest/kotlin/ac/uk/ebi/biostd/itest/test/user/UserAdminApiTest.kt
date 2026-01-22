@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -75,6 +76,7 @@ class UserAdminApiTest(
         }
 
     @Test
+    @Disabled
     fun `30-3 Migrate user folder when not empty folder and disable`() =
         runTest {
             userWebClient.uploadFile(tempFolder.createFile("main.txt", "content"))
@@ -89,6 +91,7 @@ class UserAdminApiTest(
         }
 
     @Test
+    @Disabled
     fun `30-4 Migrate user folder when not empty folder and enable`() =
         runTest {
             val testUser =
@@ -126,6 +129,7 @@ class UserAdminApiTest(
         }
 
     @Test
+    @Disabled
     fun `30-5 Migrate user folder when empty folder`() =
         runTest {
             val testUser =

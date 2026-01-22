@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.integration
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -37,6 +38,7 @@ class SecurityModuleConfig(
     private val groupRepository: UserGroupDataRepository,
     private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
+    private val subFilesPersistenceService: SubmissionFilesPersistenceService,
     private val eventsPublisherService: EventsPublisherService,
     private val props: SecurityProperties,
     private val clusterClient: ClusterClient,
@@ -51,6 +53,8 @@ class SecurityModuleConfig(
 
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
+    fun profileService(): ProfileService = profileService
+
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
     private val securityService by lazy {
         SecurityService(
@@ -60,7 +64,6 @@ class SecurityModuleConfig(
             profileService,
             captchaVerifier,
             eventsPublisherService,
-            securityQueryService,
             clusterClient,
         )
     }
@@ -81,7 +84,7 @@ class SecurityModuleConfig(
     private val captchaVerifier by lazy { CaptchaVerifier(WebClient.builder().build(), props) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
-    private val profileService by lazy { profileService(props, userPrivilegesService) }
+    private val profileService by lazy { profileService(props, userPrivilegesService, subFilesPersistenceService) }
     private val securityUtil by lazy { securityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props) }
 
     companion object {
@@ -96,12 +99,14 @@ class SecurityModuleConfig(
         fun profileService(
             props: SecurityProperties,
             userPermissionsService: IUserPrivilegesService,
+            subFilesPersistenceService: SubmissionFilesPersistenceService,
         ): ProfileService =
             ProfileService(
                 userFtpRootPath = props.filesProperties.userFtpRootPath,
                 userFtpDirPath = Paths.get(props.filesProperties.userFtpDirPath),
                 nfsUserFilesDirPath = Paths.get(props.filesProperties.filesDirPath),
                 privilegesService = userPermissionsService,
+                subFilesPersistenceService = subFilesPersistenceService,
             )
     }
 }

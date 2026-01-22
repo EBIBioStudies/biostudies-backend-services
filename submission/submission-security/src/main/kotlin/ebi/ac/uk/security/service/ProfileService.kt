@@ -2,10 +2,14 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.model.FolderInventory
 import ebi.ac.uk.model.FolderStats
+import ebi.ac.uk.model.InventoryFile
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.GroupFolder
@@ -14,17 +18,23 @@ import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserFolder
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
-import kotlin.math.max
 
+@Suppress("TooManyFunctions")
 class ProfileService(
     private val userFtpDirPath: Path,
     private val nfsUserFilesDirPath: Path,
     private val userFtpRootPath: String,
     private val privilegesService: IUserPrivilegesService,
+    private val subFilesPersistenceService: SubmissionFilesPersistenceService,
 ) {
     fun getUserProfile(
         user: DbUser,
@@ -47,7 +57,7 @@ class ProfileService(
             notificationsEnabled = user.notificationsEnabled,
         )
 
-    fun getUserFolderStats(user: DbUser): FolderStats {
+    suspend fun getUserFolderStats(user: DbUser): FolderStats {
         val profile = asSecurityUser(user)
         return when (val userFolder = profile.userFolder) {
             is FtpUserFolder -> error("Ftp user folder not supported")
@@ -55,7 +65,35 @@ class ProfileService(
         }
     }
 
-    private fun calculateFolderStats(nfsUserFolder: File): FolderStats {
+    suspend fun getUserFolderInventory(user: DbUser): FolderInventory {
+        val profile = asSecurityUser(user)
+        return when (val userFolder = profile.userFolder) {
+            is FtpUserFolder -> error("Ftp user folder not supported")
+            is NfsUserFolder -> calculateFolderInventory(userFolder.path.toFile())
+        }
+    }
+
+    private suspend fun calculateFolderInventory(nfsUserFolder: File): FolderInventory {
+        val files =
+            nfsUserFolder
+                .walk()
+                .drop(1)
+                .asFlow()
+                .filter { it.isFile }
+                .map {
+                    val md5 = it.md5()
+                    InventoryFile(
+                        it.path,
+                        it.length(),
+                        md5,
+                        Instant.ofEpochMilli(it.lastModified()),
+                        subFilesPersistenceService.findSubmissionFile(md5)
+                    )
+                }.toList()
+        return FolderInventory(files)
+    }
+
+    private suspend fun calculateFolderStats(nfsUserFolder: File): FolderStats {
         var totalFiles = 0
         var totalSize = 0L
         var totalDirectories = 0
@@ -64,11 +102,11 @@ class ProfileService(
         nfsUserFolder
             .walk()
             .drop(1)
+            .asFlow()
             .onEach { if (it.isFile) totalFiles++ else totalDirectories++ }
             .filter { it.isFile }
-            .forEach { file ->
+            .collect { file ->
                 totalSize += file.length()
-                latestModificationTime = max(latestModificationTime, file.lastModified())
             }
 
         return FolderStats(
@@ -85,7 +123,8 @@ class ProfileService(
     private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupFolder> =
         groups.map { GroupFolder(it.name, groupMagicFolder(it), it.description) }
 
-    private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: DbUserGroup) =
+        Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(
         folderType: StorageMode,

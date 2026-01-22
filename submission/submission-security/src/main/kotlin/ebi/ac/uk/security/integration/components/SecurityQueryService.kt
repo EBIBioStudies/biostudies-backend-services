@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.integration.components
 
+import ebi.ac.uk.model.FolderInventory
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
@@ -19,5 +20,7 @@ interface SecurityQueryService {
         username: String,
     ): SecurityUser
 
-    fun getUserFolderStats(email: String): FolderStats
+    suspend fun getUserFolderStats(email: String): FolderStats
+
+    suspend fun getUserFolderInventory(email: String): FolderInventory
 }

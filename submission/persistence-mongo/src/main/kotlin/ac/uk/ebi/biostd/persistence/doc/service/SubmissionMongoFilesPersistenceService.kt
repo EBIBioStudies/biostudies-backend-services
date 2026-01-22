@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -11,7 +12,12 @@ import kotlinx.coroutines.flow.map
 
 internal class SubmissionMongoFilesPersistenceService(
     private val fileListDocFileRepository: FileListDocFileDocDataRepository,
+    private val submissionFilesDocRepository: SubmissionFilesDocDataRepository,
 ) : SubmissionFilesPersistenceService {
+    override suspend fun findSubmissionFile(md5: String): String? {
+        return submissionFilesDocRepository.findByFileMd5(md5).firstOrNull()?.submissionAccNo
+    }
+
     override fun getReferencedFiles(
         sub: ExtSubmission,
         fileListName: String,

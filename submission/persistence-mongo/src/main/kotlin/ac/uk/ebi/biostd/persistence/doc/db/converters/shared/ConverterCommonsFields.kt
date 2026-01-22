@@ -63,6 +63,7 @@ object DocSubmissionFileFields {
     const val DOC_SUB_FILE_SUBMISSION_ACC_NO = "submissionAccNo"
     const val DOC_SUB_FILE_SUBMISSION_VERSION = "submissionVersion"
     const val DOC_SUB_FILE_FILE = "file"
+    const val DOC_SUB_FILE_MD5 = "md5"
 }
 
 object FileListDocFileFields {

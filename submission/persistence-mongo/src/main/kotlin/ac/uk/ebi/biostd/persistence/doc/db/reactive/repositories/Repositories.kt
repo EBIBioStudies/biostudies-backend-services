@@ -229,6 +229,9 @@ interface SubmissionDocFileRepository : CoroutineCrudRepository<DocSubmissionFil
         accNo: String,
         version: Int,
     ): Flow<DocSubmissionFile>
+
+    @Query("{ 'file.md5': '?0'}")
+    fun findByFileMd5(md5: String): Flow<DocSubmissionFile>
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {

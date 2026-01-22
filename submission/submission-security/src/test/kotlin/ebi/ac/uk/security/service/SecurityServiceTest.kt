@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -15,7 +16,6 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
@@ -80,9 +80,9 @@ internal class SecurityServiceTest(
     @param:MockK private val securityUtil: SecurityUtil,
     @param:MockK private val captchaVerifier: CaptchaVerifier,
     @param:MockK private val eventsPublisherService: EventsPublisherService,
-    @param:MockK private val securityQueryService: SecurityQueryService,
     @param:MockK private val clusterClient: ClusterClient,
     @param:MockK private val userPrivilegesService: IUserPrivilegesService,
+    @param:MockK private val subFilesPersistenceService: SubmissionFilesPersistenceService,
 ) {
     private val testInstance: SecurityService =
         SecurityService(
@@ -94,10 +94,10 @@ internal class SecurityServiceTest(
                 nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
                 userFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
                 privilegesService = userPrivilegesService,
+                subFilesPersistenceService = subFilesPersistenceService,
             ),
             captchaVerifier,
             eventsPublisherService,
-            securityQueryService,
             clusterClient,
         )
 

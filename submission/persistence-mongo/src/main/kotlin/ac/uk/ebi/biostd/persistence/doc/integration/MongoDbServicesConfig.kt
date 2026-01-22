@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
@@ -58,7 +59,8 @@ class MongoDbServicesConfig {
     @Bean
     internal fun submissionFilesPersistenceService(
         fileListDocFileRepository: FileListDocFileDocDataRepository,
-    ): SubmissionFilesPersistenceService = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
+        submissionFilesDocRepository: SubmissionFilesDocDataRepository,
+    ): SubmissionFilesPersistenceService = SubmissionMongoFilesPersistenceService(fileListDocFileRepository, submissionFilesDocRepository)
 
     @Bean
     internal fun submissionLinksPersistenceService(

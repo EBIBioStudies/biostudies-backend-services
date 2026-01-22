@@ -1,7 +1,9 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.MIGRATION_OPTIONS
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
+import ac.uk.ebi.biostd.common.properties.Mode.MIGRAGE_USER_FOLDER
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
@@ -10,7 +12,10 @@ import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
+import ac.uk.ebi.biostd.submission.domain.security.LocalUserFolderService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ebi.ac.uk.model.MigrateHomeOptions
+import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.CommandLineRunner
@@ -19,8 +24,11 @@ import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.context.properties.bind.Bindable
+import org.springframework.boot.context.properties.bind.Binder
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import kotlin.system.exitProcess
 
@@ -39,11 +47,35 @@ fun main(args: Array<String>) {
 private val logger = KotlinLogging.logger {}
 
 @Component
+class DynamicProperties(val environment: Environment) {
+    fun submissions(): List<SubmissionId> {
+        val binder = Binder.get(environment)
+        return binder
+            .bind("submissions", Bindable.listOf(SubmissionId::class.java))
+            .orElseThrow { IllegalStateException("submissions property not found") }
+    }
+
+    fun userEmail(): String {
+        val binder = Binder.get(environment)
+        return binder.bind("email", String::class.java)
+            .orElseThrow { IllegalStateException("email property not found") }
+    }
+
+    fun migrationOptions(): MigrateHomeOptions {
+        val binder = Binder.get(environment)
+        return binder.bind(MIGRATION_OPTIONS, MigrateHomeOptions::class.java)
+            .orElseThrow { IllegalStateException("migrationOptions property not found") }
+    }
+}
+
+@Component
 class Execute(
     private val properties: TaskProperties,
+    private val dynamicProperties: DynamicProperties,
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionPostProcessingService: LocalPostProcessingService,
+    private val localUserFolderService: LocalUserFolderService,
 ) : CommandLineRunner {
     override fun run(vararg args: String): Nothing {
         logger.info { "Starting submission task command line runner. args: '${args.joinToString()}'" }
@@ -55,30 +87,41 @@ class Execute(
                 POST_PROCESS_STATS -> postProcessStats()
                 POST_PROCESS_INNER_FILES -> postProcessInnerFiles()
                 POST_PROCESS_PAGETAB_FILES -> postProcessPagetabFiles()
+                MIGRAGE_USER_FOLDER -> migrateUserFolder()
             }
             exitProcess(SpringApplication.exit(context))
         }
     }
 
+    private suspend fun migrateUserFolder() {
+        val user = dynamicProperties.userEmail()
+        val options = dynamicProperties.migrationOptions()
+
+        logger.info { "Migrating user folder for $user. Options: $options" }
+        localUserFolderService.updateMagicFolder(user, options)
+        logger.info { "Finished migrating user folder for $user" }
+    }
+
     private suspend fun postProcessSingle() {
-        properties.submissions.forEach { submissionPostProcessingService.postProcess(it.accNo) }
+        dynamicProperties.submissions().forEach { submissionPostProcessingService.postProcess(it.accNo) }
     }
 
     private suspend fun postProcessStats() {
-        properties.submissions.forEach { submissionPostProcessingService.calculateStats(it.accNo) }
+        dynamicProperties.submissions().forEach { submissionPostProcessingService.calculateStats(it.accNo) }
     }
 
     private suspend fun postProcessInnerFiles() {
-        properties.submissions.forEach { submissionPostProcessingService.indexSubmissionInnerFiles(it.accNo) }
+        dynamicProperties.submissions().forEach { submissionPostProcessingService.indexSubmissionInnerFiles(it.accNo) }
     }
 
     private suspend fun postProcessPagetabFiles() {
-        properties.submissions.forEach { submissionPostProcessingService.generateFallbackPageTabFiles(it.accNo) }
+        dynamicProperties.submissions()
+            .forEach { submissionPostProcessingService.generateFallbackPageTabFiles(it.accNo) }
     }
 
     private suspend fun handleRequest() {
         logger.info { "Handling submission requests --------------------------------------------------" }
-        properties.submissions.forEach { runProcess(it.accNo, it.version) }
+        dynamicProperties.submissions().forEach { runProcess(it.accNo, it.version) }
         logger.info { "Completed handling submission requests ----------------------------------------" }
     }
 
