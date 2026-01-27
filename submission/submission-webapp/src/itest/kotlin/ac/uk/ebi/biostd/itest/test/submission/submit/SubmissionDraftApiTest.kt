@@ -3,10 +3,13 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -37,14 +40,19 @@ class SubmissionDraftApiTest(
     @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
     @param:LocalServerPort val serverPort: Int,
 ) {
-    private lateinit var webClient: BioWebClient
+    private lateinit var superWebClient: BioWebClient
+    private lateinit var regularWebClient: BioWebClient
 
     @BeforeAll
     fun init() =
         runBlocking {
             securityTestService.ensureSequence("S-BSST")
+
             securityTestService.ensureUserRegistration(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+            superWebClient = getWebClient(serverPort, SuperUser)
+
+            securityTestService.ensureUserRegistration(RegularUser)
+            regularWebClient = getWebClient(serverPort, RegularUser)
         }
 
     @Test
@@ -56,11 +64,11 @@ class SubmissionDraftApiTest(
                     "type" to "Study"
                 }.toString()
 
-            webClient.submit(pageTab, JSON)
+            superWebClient.submit(pageTab, JSON)
 
-            val draftSubmission = webClient.getSubmissionDraft("ABC-123")
+            val draftSubmission = superWebClient.getSubmissionDraft("ABC-123")
             assertThat(draftSubmission.key).isEqualTo(draftSubmission.key)
-            webClient.deleteSubmissionDraft(draftSubmission.key)
+            superWebClient.deleteSubmissionDraft(draftSubmission.key)
         }
 
     @Test
@@ -72,11 +80,11 @@ class SubmissionDraftApiTest(
                     "type" to "Study"
                 }.toString()
 
-            val draftSubmission = webClient.createSubmissionDraft(pageTab)
+            val draftSubmission = superWebClient.createSubmissionDraft(pageTab)
 
-            val resultDraft = webClient.getSubmissionDraft(draftSubmission.key)
+            val resultDraft = superWebClient.getSubmissionDraft(draftSubmission.key)
             assertEquals(resultDraft.content.toString(), pageTab, false)
-            webClient.deleteSubmissionDraft(draftSubmission.key)
+            superWebClient.deleteSubmissionDraft(draftSubmission.key)
         }
 
     @Test
@@ -89,14 +97,14 @@ class SubmissionDraftApiTest(
                     "type" to "Study"
                 }.toString()
 
-            val firstVersion = webClient.createSubmissionDraft(pageTab)
-            webClient.updateSubmissionDraft(firstVersion.key, "{ \"value\": 1 }")
+            val firstVersion = superWebClient.createSubmissionDraft(pageTab)
+            superWebClient.updateSubmissionDraft(firstVersion.key, "{ \"value\": 1 }")
 
-            val secondVersion = webClient.getSubmissionDraft(firstVersion.key)
+            val secondVersion = superWebClient.getSubmissionDraft(firstVersion.key)
             assertThat(firstVersion)
             assertEquals(secondVersion.content.toString(), updatedValue, false)
             assertThat(firstVersion.modificationTime).isBefore(secondVersion.modificationTime)
-            webClient.deleteSubmissionDraft(firstVersion.key)
+            superWebClient.deleteSubmissionDraft(firstVersion.key)
         }
 
     @Test
@@ -108,17 +116,17 @@ class SubmissionDraftApiTest(
                     "title" to "From Draft"
                 }.toString()
 
-            val draft = webClient.createSubmissionDraft(pageTab)
+            val draft = superWebClient.createSubmissionDraft(pageTab)
 
-            webClient.submitFromDraft(draft.key)
+            superWebClient.submitFromDraft(draft.key)
 
-            assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
+            assertThat(superWebClient.getAllSubmissionDrafts()).isEmpty()
         }
 
     @Test
     fun `12-5 get draft submission when neither draft nor submission exists`() =
         runTest {
-            assertThrows<WebClientException> { webClient.getSubmissionDraft("ABC-127") }
+            assertThrows<WebClientException> { superWebClient.getSubmissionDraft("ABC-127") }
         }
 
     @Test
@@ -129,9 +137,9 @@ class SubmissionDraftApiTest(
                     "accno" to "ABC-128"
                     "type" to "Study"
                 }.toString()
-            webClient.submit(pageTab, JSON)
+            superWebClient.submit(pageTab, JSON)
 
-            webClient.deleteSubmissionDraft("ABC-128")
+            superWebClient.deleteSubmissionDraft("ABC-128")
 
             assertThat(requestRepository.findEditableRequest("ABC-128", SuperUser.email))
         }
@@ -139,7 +147,7 @@ class SubmissionDraftApiTest(
     @Test
     fun `12-7 re submit from draft`() =
         runTest {
-            webClient.submit(
+            superWebClient.submit(
                 jsonObj {
                     "accno" to "ABC-129"
                     "type" to "Study"
@@ -157,7 +165,7 @@ class SubmissionDraftApiTest(
                 JSON,
             )
 
-            val version1 = webClient.getExtByAccNo("ABC-129")
+            val version1 = superWebClient.getExtByAccNo("ABC-129")
             assertThat(version1.attributes.first().name).isEqualTo("Source")
             assertThat(version1.attributes.first().value).isEqualTo("PageTab")
 
@@ -176,13 +184,13 @@ class SubmissionDraftApiTest(
                             },
                         )
                 }.toString()
-            webClient.getSubmissionDraft("ABC-129")
+            superWebClient.getSubmissionDraft("ABC-129")
 
-            webClient.updateSubmissionDraft("ABC-129", updatedDraft)
+            superWebClient.updateSubmissionDraft("ABC-129", updatedDraft)
 
-            webClient.submitFromDraft("ABC-129")
+            superWebClient.submitFromDraft("ABC-129")
 
-            val version2 = webClient.getExtByAccNo("ABC-129")
+            val version2 = superWebClient.getExtByAccNo("ABC-129")
             assertThat(version2.attributes.first().name).isEqualTo("Source")
             assertThat(version2.attributes.first().value).isEqualTo("Draft")
 
@@ -198,7 +206,7 @@ class SubmissionDraftApiTest(
         runTest {
             val accNo = "ABC-130"
             val newSubmission =
-                webClient
+                superWebClient
                     .submit(
                         jsonObj {
                             "accno" to accNo
@@ -211,8 +219,8 @@ class SubmissionDraftApiTest(
                     ).body
             assertThat(newSubmission.section.type).isEqualTo("Study")
 
-            val firstVersion = webClient.getSubmissionDraft(accNo)
-            webClient.updateSubmissionDraft(
+            val firstVersion = superWebClient.getSubmissionDraft(accNo)
+            superWebClient.updateSubmissionDraft(
                 accNo,
                 jsonObj {
                     "accno" to accNo
@@ -224,13 +232,13 @@ class SubmissionDraftApiTest(
                 }.toString(),
             )
 
-            val secondVersion = webClient.getSubmissionDraft(accNo)
-            val updatedSubmission = webClient.submitFromDraft(accNo).body
+            val secondVersion = superWebClient.getSubmissionDraft(accNo)
+            val updatedSubmission = superWebClient.submitFromDraft(accNo).body
             assertThat(updatedSubmission.section.type).isEqualTo("Another")
             assertThat(secondVersion.modificationTime).isAfter(firstVersion.modificationTime)
 
-            webClient.getSubmissionDraft(accNo)
-            webClient.updateSubmissionDraft(
+            superWebClient.getSubmissionDraft(accNo)
+            superWebClient.updateSubmissionDraft(
                 accNo,
                 jsonObj {
                     "accno" to accNo
@@ -242,10 +250,10 @@ class SubmissionDraftApiTest(
                 }.toString(),
             )
 
-            val thirdVersion = webClient.getSubmissionDraft(accNo)
+            val thirdVersion = superWebClient.getSubmissionDraft(accNo)
             assertThat(thirdVersion.content.getProperty("section.type")).isEqualTo("Yet-Another")
             assertThat(thirdVersion.modificationTime).isAfter(secondVersion.modificationTime)
-            webClient.deleteSubmissionDraft(accNo)
+            superWebClient.deleteSubmissionDraft(accNo)
         }
 
     @Test
@@ -262,9 +270,9 @@ class SubmissionDraftApiTest(
                     "type" to "submission"
                 }.toString()
 
-            assertThat(webClient.submit(subV1)).isSuccessful()
-            webClient.getSubmissionDraft(accNo)
-            webClient.updateSubmissionDraft(
+            assertThat(superWebClient.submit(subV1)).isSuccessful()
+            superWebClient.getSubmissionDraft(accNo)
+            superWebClient.updateSubmissionDraft(
                 accNo,
                 jsonObj {
                     "accno" to accNo
@@ -285,7 +293,7 @@ class SubmissionDraftApiTest(
                         }
                     "type" to "submission"
                 }.toString()
-            val response = webClient.submit(subV2)
+            val response = superWebClient.submit(subV2)
             assertThat(response).isSuccessful()
 
             val updatedSubmission = response.body
@@ -306,13 +314,13 @@ class SubmissionDraftApiTest(
                     "type" to "submission"
                 }.toString()
 
-            assertThat(webClient.submit(sub)).isSuccessful()
-            webClient.getSubmissionDraft(accNo)
+            assertThat(superWebClient.submit(sub)).isSuccessful()
+            superWebClient.getSubmissionDraft(accNo)
             requestRepository.setDraftStatus(accNo, SuperUser.email, SUBMITTED, Instant.now())
 
             val exception =
                 assertThrows<WebClientException> {
-                    webClient.updateSubmissionDraft(
+                    superWebClient.updateSubmissionDraft(
                         accNo,
                         jsonObj {
                             "accno" to accNo
@@ -342,12 +350,102 @@ class SubmissionDraftApiTest(
                     "type" to "submission"
                 }.toString()
 
-            assertThat(webClient.submit(sub)).isSuccessful()
-            webClient.getSubmissionDraft(accNo)
+            assertThat(superWebClient.submit(sub)).isSuccessful()
+            superWebClient.getSubmissionDraft(accNo)
             requestRepository.setDraftStatus(accNo, SuperUser.email, SUBMITTED, Instant.now())
 
-            val exception = assertThrows<WebClientException> { webClient.getSubmissionDraft("ABC-133") }
+            val exception = assertThrows<WebClientException> { superWebClient.getSubmissionDraft("ABC-133") }
             val error = "Request 'ABC-133' is being processed. Submission request draft operations are blocked."
             assertThat(exception).hasMessageContaining(error)
         }
+
+    @Test
+    fun `12-12 re submit draft of another user submission with admin user`() =
+        runTest {
+            val pageTab =
+                jsonObj {
+                    "type" to "Study"
+                }.toString()
+            val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
+
+            val newPageTab =
+                jsonObj {
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "Source"
+                                "value" to "PageTab"
+                            },
+                        )
+                }.toString()
+            val draft = superWebClient.getSubmissionDraft(accNo).key
+            superWebClient.updateSubmissionDraft(accNo, newPageTab)
+
+            superWebClient.submitFromDraft(draft)
+            val submission = superWebClient.getExtByAccNo(accNo)
+            assertThat(submission.attributes.first().name).isEqualTo("Source")
+            assertThat(submission.attributes.first().value).isEqualTo("PageTab")
+        }
+
+    @Test
+    fun `12-13 multiple user submission of the same submission draft`() =
+        runTest {
+            val pageTab =
+                jsonObj {
+                    "type" to "Study"
+                }.toString()
+            val userSubmission =
+                jsonObj {
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "User"
+                                "value" to "Regular"
+                            },
+                        )
+                }
+            val superUserSubmission =
+                jsonObj {
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            jsonObj {
+                                "name" to "User"
+                                "value" to "SuperUser"
+                            },
+                        )
+                }
+
+            val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
+            val superUserDraft = superWebClient.getSubmissionDraft(accNo).key
+            val regularUserDraft = regularWebClient.getSubmissionDraft(accNo).key
+
+            // Submit user submission
+            regularWebClient.updateSubmissionDraft(accNo, userSubmission.toString())
+            regularWebClient.submitFromDraft(regularUserDraft)
+            val submission = superWebClient.getExtByAccNo(accNo)
+            assertThat(submission.version).isEqualTo(3)
+            assertThat(submission.attributes.first().name).isEqualTo("User")
+            assertThat(submission.attributes.first().value).isEqualTo("Regular")
+
+            // Submit super user submission
+            superWebClient.updateSubmissionDraft(accNo, superUserSubmission.toString())
+            superWebClient.submitFromDraft(superUserDraft)
+            val superUserSubmissionResult = superWebClient.getExtByAccNo(accNo)
+            assertThat(superUserSubmissionResult.version).isEqualTo(2)
+            assertThat(superUserSubmissionResult.attributes.first().name).isEqualTo("User")
+            assertThat(superUserSubmissionResult.attributes.first().value).isEqualTo("SuperUser")
+        }
+
+    private object RegularUser : TestUser {
+        override val username = "Regular User"
+        override val email = "regular-drafts@ebi.ac.uk"
+        override val password = "678910"
+        override val superUser = false
+        override val storageMode: StorageMode = StorageMode.NFS
+
+        override fun asRegisterRequest() = RegisterRequest(username, email, password, notificationsEnabled = true)
+    }
 }

@@ -76,6 +76,12 @@ interface FilesOperations {
         relativePath: String = EMPTY,
     )
 
+    suspend fun renameFile(
+        relativePath: String,
+        originalName: String,
+        newName: String,
+    )
+
     suspend fun createFolder(
         folderName: String,
         relativePath: String = EMPTY,

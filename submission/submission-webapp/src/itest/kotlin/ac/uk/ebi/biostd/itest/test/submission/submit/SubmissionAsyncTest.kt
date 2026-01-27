@@ -117,13 +117,14 @@ class SubmissionAsyncTest(
             val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
             val extSubmitRequest =
                 ExtSubmitRequest(
-                    notifyTo = SuperUser.email,
-                    submission = extSubmission,
+                    owner = SuperUser.email,
+                    submission = extSubmission.copy(version = 2),
                     singleJobMode = false,
                     newSubmission = false,
                 )
 
             extSubmissionSubmitter.createRqt(extSubmitRequest)
+
             val statusAfterCreation = requestRepository.getRequest("SimpleAsync2", 2)
             assertThat(statusAfterCreation.status).isEqualTo(REQUESTED)
 

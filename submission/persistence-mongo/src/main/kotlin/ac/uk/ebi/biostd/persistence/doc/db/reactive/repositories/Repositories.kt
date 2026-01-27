@@ -119,6 +119,12 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         status: Set<RequestStatus>,
     ): DocSubmissionRequest
 
+    suspend fun getByAccNoAndStatusNotInAndOwner(
+        accNo: String,
+        status: Set<RequestStatus>,
+        owner: String,
+    ): DocSubmissionRequest
+
     suspend fun findByAccNoAndVersion(
         accNo: String,
         version: Int,

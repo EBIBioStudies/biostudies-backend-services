@@ -100,7 +100,7 @@ class SubmitWebHandler(
         val (submitter, onBehalfUser, attrs, storageMode, silentMode, singleJobMode) = rqt.config
         val (requestFiles, preferredSources) = rqt.filesConfig
 
-        suspend fun getOrCreateRequestDraft(
+        suspend fun getOrCreateRequest(
             accNo: String?,
             owner: String,
             submission: Submission,
@@ -111,7 +111,7 @@ class SubmitWebHandler(
             ): SubmissionRequest {
                 val pageTab = serializationService.serializeSubmission(submission, JSON)
                 if (requestDraftService.hasProcessingRequest(accNo)) throw ConcurrentSubException(accNo)
-                return requestDraftService.createActiveRequestByAccNo(pageTab, owner, accNo, attachTo)
+                return requestDraftService.createOrUpdateActiveRequestByAccNo(pageTab, owner, accNo, attachTo)
             }
 
             suspend fun createNewDraft(): SubmissionRequest {
@@ -199,7 +199,7 @@ class SubmitWebHandler(
             val sources = getSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources).withAttributes(attrs)
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
-            val draft = getOrCreateRequestDraft(accNo, submitter.email, submission)
+            val draft = getOrCreateRequest(accNo, submitter.email, submission)
 
             return SubmitRequest(
                 accNo = draft.accNo,
@@ -207,7 +207,7 @@ class SubmitWebHandler(
                 relPath = accNoService.getRelPath(draft.accNo),
                 submission = submission,
                 submitter = submitter,
-                owner = onBehalfUser?.email ?: submitter.email,
+                owner = submitter.email,
                 sources = sources,
                 preferredSources = preferredSources,
                 requestFiles = requestFiles.orEmpty(),

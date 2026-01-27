@@ -52,7 +52,6 @@ class SubmissionWebConfig {
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
         appProperties: ApplicationProperties,
         requestService: SubmissionRequestPersistenceService,
-        persistenceService: SubmissionPersistenceService,
         requestFilesValidator: SubmissionRequestFilesValidator,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
@@ -70,7 +69,6 @@ class SubmissionWebConfig {
             LocalExtSubmissionSubmitter(
                 appProperties,
                 requestService,
-                persistenceService,
                 requestFilesValidator,
                 requestIndexer,
                 requestLoader,

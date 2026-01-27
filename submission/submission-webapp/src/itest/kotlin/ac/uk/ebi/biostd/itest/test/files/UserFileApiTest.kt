@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.files
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -141,6 +142,101 @@ class UserFileApiTest(
             val resultFile = webClient.downloadFile(file.name, testPath)
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.md5()).isEqualTo(file.md5())
+            webClient.deleteFile(testPath)
+        }
+
+    @ParameterizedTest(name = "17-6 rename a text file using {0}")
+    @MethodSource("webClients")
+    fun `17-6 user text file rename`(webClient: BioWebClient) =
+        runTest {
+            val testPath = "test-folder-17-6"
+            val originalName = "a_file.txt"
+            val newName = "a_new_name_file.txt"
+
+            val file = tempFolder.createFile(originalName, "An example content")
+
+            webClient.uploadFiles(listOf(file), relativePath = testPath)
+            webClient.renameFile(testPath, file.name, newName)
+
+            val files = webClient.listUserFiles(relativePath = testPath)
+            assertThat(files).hasSize(1)
+            assertThat(files.first().name).isEqualTo(newName)
+
+            val resultFile = webClient.downloadFile(newName, testPath)
+            assertThat(resultFile.name).isEqualTo(newName)
+            assertThat(resultFile.md5()).isEqualTo(file.md5())
+
+            webClient.deleteFile(testPath)
+        }
+
+    @ParameterizedTest(name = "17-7 rename a non-existing file using {0}")
+    @MethodSource("webClients")
+    fun `17-7 rename non-existing file`(webClient: BioWebClient) =
+        runTest {
+            val testPath = "test-folder-17-7"
+            val originalName = "non_existing.txt"
+            val newName = "a_new_name_file.txt"
+
+            val error = runCatching { webClient.renameFile(testPath, originalName, newName) }.exceptionOrNull()
+            assertThat(error).isInstanceOf(WebClientException::class.java)
+            assertThat((error as WebClientException).message)
+                .containsIgnoringCase("does not exist")
+                .contains(originalName)
+        }
+
+    @ParameterizedTest(name = "17-8 renamed file should not exist under original name using {0}")
+    @MethodSource("webClients")
+    fun `17-8 original file not accessible after rename`(webClient: BioWebClient) =
+        runTest {
+            val testPath = "test-folder-17-8"
+            val originalName = "a_file.txt"
+            val newName = "a_new_name_file.txt"
+
+            val file = tempFolder.createFile(originalName, "An example content")
+
+            webClient.uploadFiles(listOf(file), relativePath = testPath)
+            webClient.renameFile(testPath, file.name, newName)
+
+            val fileNotExistingAfterRename =
+                runCatching { webClient.downloadFile(originalName, testPath) }
+                    .exceptionOrNull()
+            assertThat(fileNotExistingAfterRename).describedAs("Downloading a renamed file should fail").isNotNull()
+
+            webClient.deleteFile(testPath)
+        }
+
+    @ParameterizedTest(name = "17-9 rename to existing file name should fail using {0}")
+    @MethodSource("webClients")
+    fun `17-9 rename to existing file name`(webClient: BioWebClient) =
+        runTest {
+            val testPath = "test-folder-17-9"
+            val existingFileName = "existing_file.txt"
+            val targetFileName = "target_file.txt"
+
+            val existingFile = tempFolder.createFile(existingFileName, "Existing content")
+            val targetFile = tempFolder.createFile(targetFileName, "Target content")
+
+            webClient.uploadFiles(listOf(existingFile), relativePath = testPath)
+            webClient.uploadFiles(listOf(targetFile), relativePath = testPath)
+
+            val renameError =
+                runCatching { webClient.renameFile(testPath, existingFileName, targetFileName) }
+                    .exceptionOrNull()
+            assertThat(renameError).describedAs("Rename to a pre-existing file should fail").isNotNull()
+            assertThat(renameError).isInstanceOf(WebClientException::class.java)
+            assertThat((renameError as WebClientException).message)
+                .contains(targetFileName)
+                .contains("already exists")
+
+            val finalFiles = webClient.listUserFiles(relativePath = testPath)
+            assertThat(finalFiles).hasSize(2)
+            assertThat(finalFiles)
+                .anyMatch { it.name == existingFileName && it.type == FILE }
+                .anyMatch { it.name == targetFileName && it.type == FILE }
+
+            assertThat(webClient.downloadFile(existingFileName, testPath).md5()).isEqualTo(existingFile.md5())
+            assertThat(webClient.downloadFile(targetFileName, testPath).md5()).isEqualTo(targetFile.md5())
+
             webClient.deleteFile(testPath)
         }
 

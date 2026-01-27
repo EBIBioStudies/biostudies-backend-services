@@ -26,7 +26,7 @@ class SubmissionSubmitter(
         val sub = processRequest(rqt)
         submissionSubmitter.createRqt(
             ExtSubmitRequest(
-                notifyTo = rqt.owner,
+                owner = rqt.owner,
                 submission = sub,
                 onBehalfUser = rqt.onBehalfUser?.email,
                 previousVersion = rqt.previousVersion?.version,

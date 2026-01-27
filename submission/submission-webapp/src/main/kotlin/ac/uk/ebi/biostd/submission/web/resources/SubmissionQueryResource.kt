@@ -86,11 +86,13 @@ class SubmissionQueryResource(
 
     private fun BasicSubmission.asDto() =
         SubmissionDto(
-            accNo,
-            title.orEmpty(),
-            modificationTime,
-            releaseTime,
-            status.value,
-            errors,
+            accno = accNo,
+            displayAccNo = displayAccNo,
+            newSubmission = newSubmission,
+            title = title.orEmpty(),
+            mtime = modificationTime,
+            rtime = releaseTime,
+            status = status.value,
+            errors = errors,
         )
 }

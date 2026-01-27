@@ -67,6 +67,8 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
+import org.springframework.data.mongodb.core.updateFirst
+import org.springframework.data.mongodb.core.upsert
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 
@@ -81,17 +83,15 @@ class SubmissionRequestDocDataRepository(
             Query(
                 where(RQT_ACC_NO)
                     .`is`(request.accNo)
-                    .andOperator(where(RQT_STATUS).nin(PROCESSED_STATUS)),
+                    .andOperator(where(RQT_VERSION).`is`(request.version), where(RQT_STATUS).nin(PROCESSED_STATUS)),
             )
-
         mongoTemplate
-            .upsert(
+            .upsert<DocSubmissionRequest>(
                 query,
                 request.asUpsert(),
-                DocSubmissionRequest::class.java,
             ).awaitSingle()
 
-        return submissionRequestRepository.getByAccNoAndStatusNotIn(request.accNo, PROCESSED_STATUS)
+        return submissionRequestRepository.getByAccNoAndVersion(request.accNo, request.version)
     }
 
     /**
@@ -307,7 +307,7 @@ class SubmissionRequestDocDataRepository(
                     where(RQT_STATUS).nin(PROCESSED_STATUS),
                 )
 
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmissionRequest>(Query(where), update).awaitSingleOrNull()
     }
 
     suspend fun setSubRequestAccNo(

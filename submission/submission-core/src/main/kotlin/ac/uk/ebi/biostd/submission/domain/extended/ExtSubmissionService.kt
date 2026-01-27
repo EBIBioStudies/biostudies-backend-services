@@ -55,10 +55,10 @@ class ExtSubmissionService(
         val submission = queryService.getExtByAccNo(accNo, true)
         val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
-        val toRefresh = submission.copy(released = released)
+        val toRefresh = submission.copy(released = released, version = persistenceService.getNextVersion(accNo))
         val request =
             ExtSubmitRequest(
-                notifyTo = user,
+                owner = user,
                 newSubmission = false,
                 submission = toRefresh,
             )
@@ -77,10 +77,15 @@ class ExtSubmissionService(
         val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
         val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
 
-        val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay(), released = released)
+        val toRelease =
+            submission.copy(
+                releaseTime = releaseDate.asOffsetAtStartOfDay(),
+                released = released,
+                version = persistenceService.getNextVersion(accNo),
+            )
         val request =
             ExtSubmitRequest(
-                notifyTo = user,
+                owner = user,
                 newSubmission = false,
                 submission = toRelease,
             )
@@ -101,7 +106,7 @@ class ExtSubmissionService(
         val doi = doiService.calculateDoi(extSub.accNo, sub, extSub)
 
         requireNotNull(doi) { "Failed to generate DOI for submission '$accNo'" }
-        return submitExtAsync(user, extSub.copy(doi = doi))
+        return submitExtAsync(user, extSub.copy(doi = doi, version = persistenceService.getNextVersion(accNo)))
     }
 
     suspend fun submitExt(
@@ -112,7 +117,7 @@ class ExtSubmissionService(
         val submission = processSubmission(user, sub)
         val request =
             ExtSubmitRequest(
-                notifyTo = user,
+                owner = user,
                 newSubmission = queryService.existByAccNo(sub.accNo),
                 submission = submission,
             )
@@ -128,7 +133,7 @@ class ExtSubmissionService(
         val submission = processSubmission(user, sub)
         val request =
             ExtSubmitRequest(
-                notifyTo = user,
+                owner = user,
                 newSubmission = queryService.existByAccNo(sub.accNo),
                 submission = submission,
             )
@@ -146,10 +151,12 @@ class ExtSubmissionService(
         val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
         require(source.storageMode != target) { throw InvalidMigrationTargetException() }
 
-        val toMigrate = processSubmission(user, source.copy(storageMode = target))
+        val newVersion = source.copy(storageMode = target, version = persistenceService.getNextVersion(accNo))
+        val toMigrate = processSubmission(user, newVersion)
+
         val request =
             ExtSubmitRequest(
-                notifyTo = user,
+                owner = user,
                 newSubmission = false,
                 submission = toMigrate,
             )

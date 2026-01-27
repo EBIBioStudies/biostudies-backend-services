@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.FilePath
+import ebi.ac.uk.model.RenameFilePath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
@@ -69,6 +70,17 @@ class GroupFilesResource(
     ) {
         val groupService = fileServiceFactory.forUserGroup(user, groupName)
         groupService.deleteFile(filePath.path, filePath.fileName)
+    }
+
+    @PostMapping("/files/groups/{groupName}/rename")
+    @ResponseStatus(value = HttpStatus.OK)
+    suspend fun renameFile(
+        @BioUser user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestBody filePath: RenameFilePath,
+    ) {
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
+        groupService.renameFile(filePath.path, filePath.originalName, filePath.newName)
     }
 
     @PostMapping("/folder/groups/{groupName}/create")

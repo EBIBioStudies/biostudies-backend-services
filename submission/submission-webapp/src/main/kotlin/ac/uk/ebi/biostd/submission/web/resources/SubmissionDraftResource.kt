@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
+import ac.uk.ebi.biostd.persistence.doc.model.formatter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestDraftService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
@@ -111,11 +112,20 @@ internal class SubmissionDraftResource(
         return submitWebHandler.submit(request)
     }
 
-    private fun SubmissionRequest.asResponseDraft() = ResponseSubmissionDraft(accNo, draft!!, modificationTime)
+    private fun SubmissionRequest.asResponseDraft() =
+        ResponseSubmissionDraft(
+            key = accNo,
+            displayKey = if (newSubmission) creationTime.format(formatter) else accNo,
+            content = draft!!,
+            newSubmission = newSubmission,
+            modificationTime = modificationTime,
+        )
 }
 
 internal class ResponseSubmissionDraft(
     val key: String,
+    val displayKey: String,
+    val newSubmission: Boolean,
     @JsonRawValue val content: String,
     val modificationTime: OffsetDateTime,
 )

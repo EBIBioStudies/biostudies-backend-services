@@ -3,11 +3,17 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
+import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
+import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import com.mongodb.BasicDBObject
+import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -74,4 +80,34 @@ internal val testDocSubmission: DocSubmission
             collections = listOf(testDocCollection),
             section = testDocSection,
             storageMode = StorageMode.NFS,
+        )
+
+internal val testDocSubmissionRequest: DocSubmissionRequest
+    get() =
+        DocSubmissionRequest(
+            id = ObjectId(),
+            accNo = SUB_ACC_NO,
+            version = SUB_VERSION,
+            owner = SUBMITTER,
+            draft = "draft-content",
+            status = REQUESTED,
+            creationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            modificationTime = Instant.now().truncatedTo(ChronoUnit.MILLIS).plusSeconds(1),
+            newSubmission = true,
+            onBehalfUser = null,
+            files = emptyList(),
+            preferredSources = listOf("SUBMISSION"),
+            errors = emptyList(),
+            process =
+                DocRequestProcessing(
+                    silentMode = false,
+                    notifyTo = "user-b@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to SUB_ACC_NO }.toString()),
+                    totalFiles = 51,
+                    fileChanges = DocFilesChanges(1, 3, 10, 8, 2),
+                    currentIndex = 61,
+                    statusChanges = emptyList(),
+                    previousVersion = 1,
+                    singleJobMode = true,
+                ),
         )

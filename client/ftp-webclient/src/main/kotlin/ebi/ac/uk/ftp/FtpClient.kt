@@ -55,6 +55,14 @@ interface FtpClient {
      */
     suspend fun deleteFile(path: Path)
 
+    /**
+     * Rename the file or folder in the given path.
+     */
+    suspend fun renameFile(
+        originalPath: Path,
+        newName: String,
+    ): Boolean
+
     suspend fun findFile(path: Path): FTPFile?
 
     companion object {
@@ -161,6 +169,17 @@ private class SimpleFtpClient(
             }
         }
     }
+
+    override suspend fun renameFile(
+        originalPath: Path,
+        newName: String,
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            ftpClient().executeRestoringWorkingDirectory { ftp ->
+                if (originalPath.parent != null) ftp.changeWorkingDirectory(originalPath.parent.toString())
+                ftp.rename(originalPath.fileName.toString(), newName)
+            }
+        }
 
     private fun ftpClient(): FTPClient {
         val ftp = ftpClient(connectionTimeout.milliseconds, defaultTimeout.milliseconds)
