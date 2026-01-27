@@ -301,7 +301,4 @@ class TransferSubmissionsTest(
             assertThat(error.message)
                 .contains("There is a user already registered with the email address '${ExistingUser.email}'.")
         }
-
-    // TODO docs
-    // TODO AE scripts
 }
