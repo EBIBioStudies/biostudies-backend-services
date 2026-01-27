@@ -87,9 +87,12 @@ java -jar build/libs/BioStudiesCLI-2.0.jar transfer \
 -p <password> \
 -o <owner> \
 -to <target owner> \
+-un <user name> \
 <accNo1> <accNo2> <accNon>`
 ```
-> Note: The accession list is optional. If not provided, all submissions owned by the current user will be transferred.
+> Notes:
+> - The accession list is optional. If not provided, all submissions owned by the current user will be transferred.
+> - The username is required only if the new owner doesn't exist in the system.
 
 #### Arguments
 * **s or --server:** BioStudies instance URL.
@@ -97,6 +100,26 @@ java -jar build/libs/BioStudiesCLI-2.0.jar transfer \
 * **p or --password:** The user password.
 * **o or --owner:** User that owns the submissions to be transferred.
 * **to or --targetOwner:** User that will own the transferred submissions.
+* **un or --userName:** Full name to be used to create the target user account in case it doesn't exist.
+
+### Update User Email
+Updates the email of the given user and transfers all the submissions owned by the user to the new email.
+
+```
+java -jar build/libs/BioStudiesCLI-2.0.jar updateUserEmail \
+-s <server> \
+-u <user> \
+-p <password> \
+-ce <current email> \
+-ne <new email>`
+```
+
+#### Arguments
+* **s or --server:** BioStudies instance URL.
+* **u or --user:** BioStudies user with privileges to transfer submissions.
+* **p or --password:** The user password.
+* **ce or --currentEmail:** Current email address of the user to update.
+* **ne or --newEmail:** New email address of the user to update.
 
 ### Generate DOI
 Allows generating a DOI for the given submission.

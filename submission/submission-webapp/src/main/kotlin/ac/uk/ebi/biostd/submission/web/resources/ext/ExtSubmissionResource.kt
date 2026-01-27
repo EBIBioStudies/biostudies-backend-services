@@ -86,6 +86,13 @@ class ExtSubmissionResource(
         @RequestBody options: SubmissionTransferOptions,
     ) = extSubmissionService.transferSubmissions(user.email, options)
 
+    @PostMapping("/transfer/email-update")
+    @PreAuthorize("isAuthenticated()")
+    suspend fun update(
+        @BioUser user: SecurityUser,
+        @RequestBody options: SubmissionTransferOptions,
+    ) = extSubmissionService.transferEmailUpdate(user.email, options)
+
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     suspend fun submitExtended(

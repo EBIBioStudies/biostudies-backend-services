@@ -29,7 +29,7 @@ internal class TransferCommandTest(
     @Test
     fun `transfer specific submissions`() {
         val subs = listOf(ACC_NO1, ACC_NO2)
-        val options = SubmissionTransferOptions(OWNER, TARGET_OWNER, subs)
+        val options = SubmissionTransferOptions(OWNER, TARGET_OWNER, USER_NAME, subs)
         coEvery { submissionService.transfer(securityConfig, options) } returns Unit
 
         testInstance.parse(
@@ -44,6 +44,8 @@ internal class TransferCommandTest(
                 OWNER,
                 "-to",
                 TARGET_OWNER,
+                "-un",
+                USER_NAME,
                 ACC_NO1,
                 ACC_NO2,
             ),
@@ -58,6 +60,7 @@ internal class TransferCommandTest(
         const val PASSWORD = "password"
         const val OWNER = "owner"
         const val TARGET_OWNER = "target"
+        const val USER_NAME = "userName"
         const val ACC_NO1 = "accNo1"
         const val ACC_NO2 = "accNo2"
 

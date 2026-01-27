@@ -7,6 +7,7 @@ import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.commons.http.ext.postForObject
+import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -16,9 +17,7 @@ import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
-import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -84,14 +83,11 @@ class ExtSubmissionClient(
 
     override suspend fun generateDoi(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/$accNo/generate-doi")
 
-    override suspend fun transferSubmissions(options: SubmissionTransferOptions) {
-        client
-            .post()
-            .uri("$EXT_SUBMISSIONS_URL/transfer")
-            .body(BodyInserters.fromValue(options))
-            .retrieve()
-            .awaitBodilessEntity()
-    }
+    override suspend fun transferSubmissions(options: SubmissionTransferOptions) =
+        client.postForObjectAsync<Unit>("$EXT_SUBMISSIONS_URL/transfer", RequestParams(body = options))
+
+    override suspend fun transferEmailUpdate(options: SubmissionTransferOptions) =
+        client.postForObjectAsync<Unit>("$EXT_SUBMISSIONS_URL/transfer/email-update", RequestParams(body = options))
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder

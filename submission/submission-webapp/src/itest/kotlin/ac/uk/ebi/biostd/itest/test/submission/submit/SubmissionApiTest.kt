@@ -62,12 +62,12 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class SubmissionApiTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @Autowired val testMessageService: TestMessageService,
-    @Autowired val submissionRequestRepository: SubmissionRequestRepository,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:Autowired val testMessageService: TestMessageService,
+    @param:Autowired val submissionRequestRepository: SubmissionRequestRepository,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
