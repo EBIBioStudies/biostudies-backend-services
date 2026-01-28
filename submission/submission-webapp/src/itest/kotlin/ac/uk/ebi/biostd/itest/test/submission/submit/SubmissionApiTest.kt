@@ -625,6 +625,32 @@ class SubmissionApiTest(
         }
     }
 
+    @Test
+    fun `16-19 versions get increased with re submission`() =
+        runTest {
+            var accNo = "Version-123"
+            val subV1 =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "Empty AccNo")
+                }.toString()
+
+            val response = webClient.submit(subV1, TSV)
+            assertThat(response).isSuccessful()
+
+            val v1 = submissionRepository.getExtByAccNo(accNo)
+            assertThat(v1.version).isEqualTo(1)
+
+            val draft = webClient.getSubmissionDraft(accNo).key
+            webClient.submitFromDraft(draft)
+            val v2 = submissionRepository.getExtByAccNo(accNo)
+            assertThat(v2.version).isEqualTo(2)
+
+            webClient.submit(subV1, TSV)
+            val v3 = submissionRepository.getExtByAccNo(accNo)
+            assertThat(v3.version).isEqualTo(3)
+        }
+
     private suspend fun getSimpleSubmission(accNo: String) =
         toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 }

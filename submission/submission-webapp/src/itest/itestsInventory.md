@@ -98,12 +98,12 @@ Contains test related to file list.
 
 Contains test related to link list.
 
-| Class                  | Test No | Test name                                                         |
-|------------------------|---------|-------------------------------------------------------------------|
-| LinkListSubmissionTest | 32-1    | TSV submission with link list.                                    |
-| LinkListSubmissionTest | 32-2    | JSON submission with link list                                    |
-| LinkListSubmissionTest | 32-3    | resubmission modifying links                                      |
-| LinkListSubmissionTest | 32-4    | resubmission reusing link list                                    |
+| Class                  | Test No | Test name                      |
+|------------------------|---------|--------------------------------|
+| LinkListSubmissionTest | 32-1    | TSV submission with link list. |
+| LinkListSubmissionTest | 32-2    | JSON submission with link list |
+| LinkListSubmissionTest | 32-3    | resubmission modifying links   |
+| LinkListSubmissionTest | 32-4    | resubmission reusing link list |
 
 ## Submission/Resubmission Test Suite
 
@@ -131,6 +131,8 @@ Contains test related to submission
 | SubmissionApiTest      | 16-15   | Submit study publish SubmissionSubmitted message                          |
 | SubmissionApiTest      | 16-16   | Submit study with silentMode does not publish SubmissionSubmitted message |
 | SubmissionApiTest      | 16-17   | Submit study with singleJobMode                                           |
+| SubmissionApiTest      | 16-18   | Submit private study inner folder can be listed                           |
+| SubmissionApiTest      | 16-19   | versions get increased with re submissiom                                 |
 | AllInOneSubmissionTest | 2-1     | Submit all in one TSV study                                               |
 | AllInOneSubmissionTest | 2-2     | Submit all in one JSON study                                              |
 
@@ -149,11 +151,11 @@ Contains test related to resubmission
 
 ### Stats Test suite
 
-| Class               | Test No | Test name                                           |
-|---------------------|---------|-----------------------------------------------------|
-| SubmissionStatsTest | 26-1    | find stats                                          |
-| SubmissionStatsTest | 26-2    | increment stats by file                             |
-| SubmissionStatsTest | 26-3    | stats for non existing submissions are ignored      |
+| Class               | Test No | Test name                                      |
+|---------------------|---------|------------------------------------------------|
+| SubmissionStatsTest | 26-1    | find stats                                     |
+| SubmissionStatsTest | 26-2    | increment stats by file                        |
+| SubmissionStatsTest | 26-3    | stats for non existing submissions are ignored |
 
 ### Async submission Test suite
 
@@ -230,7 +232,7 @@ Contains test related to resubmission
 | SubmissionDraftApiTest          | 12-10   | update a draft with an processing request                                        |                                                                                               |
 | SubmissionDraftApiTest          | 12-11   | create a draft with an processing request                                        |                                                                                               |
 | SubmissionDraftApiTest          | 12-12   | re submit draft of another user submission with admin user                       |                                                                                               |
-| SubmissionDraftApiTest          | 12-13   | update draft of another user submission with admin user                           |                                                                                               |
+| SubmissionDraftApiTest          | 12-13   | update draft of another user submission with admin user                          |                                                                                               |
 | SubmissionOnBehalfTest          | 14-1    | submission on behalf another user                                                | Performs differents submissions on behalf other user                                          |
 | SubmissionOnBehalfTest          | 14-2    | submission on behalf new user                                                    |                                                                                               |
 | SubmissionOnBehalfTest          | 14-3    | submission on behalf created user with files in his folder                       |                                                                                               |
@@ -297,12 +299,12 @@ Contains test related to resubmission
 
 Contains test related to operations over submissions involving system privileges
 
-| Class                         | Test No | Test name                                                  |
-|-------------------------------|---------|------------------------------------------------------------|
-| TransferSubmissionsTest.      | 33-1    | superuser transfers all submissions                        |
-| TransferSubmissionsTest.      | 33-2    | superuser transfers specific submissions                   |
-| TransferSubmissionsTest.      | 33-3    | admin user transfers submissions.                          |
-| TransferSubmissionsTest.      | 33-4    | regular user transfer submissions                          |
+| Class                    | Test No | Test name                                |
+|--------------------------|---------|------------------------------------------|
+| TransferSubmissionsTest. | 33-1    | superuser transfers all submissions      |
+| TransferSubmissionsTest. | 33-2    | superuser transfers specific submissions |
+| TransferSubmissionsTest. | 33-3    | admin user transfers submissions.        |
+| TransferSubmissionsTest. | 33-4    | regular user transfer submissions        |
 
 ### Admin Operations Test suite
 
