@@ -27,6 +27,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.DOC_SUB_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
@@ -198,11 +199,12 @@ internal class DatabaseChangeLogTest(
                         .listIndexes()
                         .asFlow()
                         .toList()
-                assertThat(subFilesIndexes).hasSize(4)
+                assertThat(subFilesIndexes).hasSize(5)
                 assertThat(subFilesIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(subFilesIndexes[1]).containsEntry("key", Document(DOC_SUB_FILE_SUBMISSION_ACC_NO, 1))
                 assertThat(subFilesIndexes[2]).containsEntry("key", Document(DOC_SUB_FILE_SUBMISSION_VERSION, 1))
-                assertThat(subFilesIndexes[3]).containsEntry(
+                assertThat(subFilesIndexes[3]).containsEntry("key", Document("$DOC_SUB_FILE_FILE.$DOC_SUB_FILE_MD5", 1))
+                assertThat(subFilesIndexes[4]).containsEntry(
                     "key",
                     Document("$DOC_SUB_FILE_FILE.$FILE_DOC_FILEPATH", 1),
                 )

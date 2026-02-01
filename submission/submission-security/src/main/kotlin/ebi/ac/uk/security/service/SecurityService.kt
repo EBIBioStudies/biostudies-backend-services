@@ -257,7 +257,7 @@ open class SecurityService(
         val command =
             """
             rsync -av \
-            --files-from=<(find $source -mtime -$days | sed "s|^$source/||") $source $target \
+            --files-from=<(find $source -type f -mtime -$days | sed "s|^$source/||") $source $target \
             && echo "rsync exit code: 0" || echo "rsync exit code: $?" \\
             && chgrp -R biostudies $target
             """.trimIndent()
