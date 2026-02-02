@@ -242,7 +242,11 @@ open class SecurityService(
         permissions: Int,
     ) {
         val folderPath = path.absolutePathString()
-        val command = "mkdir -m $permissions -p $folderPath && chgrp -R biostudies $folderPath"
+        val createCommand = "mkdir -m $permissions"
+        val permissionsCommand = "chmod $permissions $folderPath"
+        val changeGroupCommand = "find $folderPath -group biostudies -prune -o -exec chgrp biostudies {} +"
+
+        val command = "$createCommand && $permissionsCommand && $changeGroupCommand"
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
         logger.info { "Started creating the cluster FTP folder $path" }
