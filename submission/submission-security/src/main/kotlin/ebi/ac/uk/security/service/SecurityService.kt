@@ -242,7 +242,7 @@ open class SecurityService(
         permissions: Int,
     ) {
         val folderPath = path.absolutePathString()
-        val createCommand = "mkdir -m $permissions"
+        val createCommand = "mkdir -p $folderPath"
         val permissionsCommand = "chmod $permissions $folderPath"
         val changeGroupCommand = "find $folderPath -group biostudies -prune -o -exec chgrp biostudies {} +"
 
