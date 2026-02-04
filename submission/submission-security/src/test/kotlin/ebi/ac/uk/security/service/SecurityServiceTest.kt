@@ -217,14 +217,18 @@ internal class SecurityServiceTest(
             assertThat(parentFolderJobSpec.queue).isEqualTo(DataMoverQueue)
             assertThat(parentFolderJobSpec.command)
                 .isEqualTo(
-                    "mkdir -p $parentFolder && chmod 710 $parentFolder && find $parentFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
+                    "mkdir -p $parentFolder && " +
+                        "chmod 710 $parentFolder && " +
+                        "find $parentFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
                 )
 
             val userFolderJobSpec = jobSpecSlots.second()
             assertThat(userFolderJobSpec.queue).isEqualTo(DataMoverQueue)
             assertThat(userFolderJobSpec.command)
                 .isEqualTo(
-                    "mkdir -p $userFolder && chmod 770 $userFolder && find $userFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
+                    "mkdir -p $userFolder && " +
+                        "chmod 770 $userFolder && " +
+                        "find $userFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
                 )
         }
 
