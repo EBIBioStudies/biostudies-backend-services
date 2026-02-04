@@ -41,6 +41,12 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
     ): Flow<DocSubmissionStats>
 
     fun deleteAllByAccNo(accNo: String)
+
+    @Query(
+        value = "{ accNo: { \$not: /^S-E/ }, storageMode: 'NFS', lastUpdated: {\$lte: ?0}, released: true }",
+        sort = "{ 'stats.FILES_SIZE': -1 }",
+    )
+    suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>
 }
 
 @Suppress("TooManyFunctions")
@@ -90,12 +96,6 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
     suspend fun findSubmissionCollections(accNo: String): SubmissionCollections?
-
-    @Query(
-        value = "{ storageMode: 'NFS', modificationTime: {\$lte: ?0} , version: { \$gte: 0 }, released: true }",
-        fields = "{ accNo: 1 }",
-    )
-    suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>
 }
 
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =

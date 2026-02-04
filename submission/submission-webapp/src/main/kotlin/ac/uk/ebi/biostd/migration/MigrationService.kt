@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.migration
 
 import ac.uk.ebi.biostd.common.properties.MigrationProperties
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import ebi.ac.uk.extended.model.StorageMode.FIRE
@@ -19,7 +19,7 @@ private val logger = KotlinLogging.logger {}
 
 class MigrationService(
     private val properties: MigrationProperties,
-    private val submissionRepository: SubmissionDocDataRepository,
+    private val statsRepository: SubmissionStatsDataRepository,
     private val submissionRequestRepository: SubmissionRequestDocDataRepository,
     private val extSubmissionService: ExtSubmissionService,
 ) {
@@ -37,7 +37,7 @@ class MigrationService(
     suspend fun migrateSubmissions() {
         logger.info { "Running submission FIRE migration" }
         val limit = Instant.now().minus(properties.minModificationDays.toLong(), ChronoUnit.DAYS)
-        submissionRepository
+        statsRepository
             .findReadyToMigrate(limit)
             .filterNot { submissionRequestRepository.existsByAccNoAndStatusIn(it.accNo, PROCESSING_STATUS) }
             .take(properties.limit)

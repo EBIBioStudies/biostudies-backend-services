@@ -7,6 +7,7 @@ import TestVersions.Junit5PioneerVersion
 import TestVersions.JunitExtensionsVersion
 import TestVersions.MockKVersion
 import TestVersions.TestContainerS3mockVersion
+import TestVersions.TestContainersVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
@@ -50,6 +51,7 @@ object TestVersions {
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
     const val WiremockVersion = "3.13.1"
+    const val TestContainersVersion = "1.21.4"
     const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
@@ -123,12 +125,12 @@ object TestDependencies {
     const val Wiremock = "org.wiremock:wiremock-standalone:$WiremockVersion"
 
     // Test Containers
-    const val TestContainerMysql = "org.testcontainers:mysql"
-    const val TestContainerRabbitMq = "org.testcontainers:rabbitmq"
+    const val TestContainerMysql = "org.testcontainers:mysql:$TestContainersVersion"
+    const val TestContainerRabbitMq = "org.testcontainers:rabbitmq:$TestContainersVersion"
     const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerS3mockVersion"
-    const val TestContainerMongoDb = "org.testcontainers:mongodb"
-    const val TestContainer = "org.testcontainers:testcontainers"
-    const val TestContainerJUnit = "org.testcontainers:junit-jupiter"
+    const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainersVersion"
+    const val TestContainer = "org.testcontainers:testcontainers:$TestContainersVersion"
+    const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainersVersion"
 }
 
 object Dependencies {
