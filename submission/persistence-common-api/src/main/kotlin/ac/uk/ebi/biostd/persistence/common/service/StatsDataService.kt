@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStats
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import com.mongodb.bulk.BulkWriteResult
+import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
@@ -32,9 +33,7 @@ interface StatsDataService {
      * Save all the given stats and update submission latest updated date.
      */
     suspend fun saveAll(
-        accNo: String,
-        subCreationTime: Instant,
-        collections: List<String>,
+        sub: ExtSubmission,
         stats: List<SubmissionStat>,
     ): BulkWriteResult
 

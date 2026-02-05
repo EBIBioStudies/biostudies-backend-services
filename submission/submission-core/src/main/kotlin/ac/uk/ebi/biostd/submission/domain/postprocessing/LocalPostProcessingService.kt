@@ -119,7 +119,6 @@ class LocalPostProcessingService(
                 if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
             }
 
-        val collections = sub.collections.map { it.accNo }
         val emptyDirectories = directories.count { hasFiles(it, sub) }
         val stats =
             listOf(
@@ -128,7 +127,7 @@ class LocalPostProcessingService(
                 SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
             )
 
-        statsDataService.saveAll(sub.accNo, sub.creationTime.toInstant(), collections, stats)
+        statsDataService.saveAll(sub, stats)
         logger.info { "Finished calculating stats for submission ${sub.accNo}, version ${sub.version}" }
     }
 

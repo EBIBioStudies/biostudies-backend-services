@@ -9,7 +9,9 @@ import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_LAST_UPDATED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STATS_MAP
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -18,6 +20,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates
+import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -70,7 +73,7 @@ class StatsMongoDataService(
             ?.let {
                 SubmissionStats(
                     it.accNo,
-                    it.stats.map { SubmissionStat(accNo, it.key, it.value) },
+                    it.stats.map { stat -> SubmissionStat(accNo, stat.key, stat.value) },
                 )
             }
 
@@ -99,19 +102,20 @@ class StatsMongoDataService(
             ?: throw StatNotFoundException(accNo, submissionStatType)
 
     override suspend fun saveAll(
-        accNo: String,
-        subCreationTime: Instant,
-        collections: List<String>,
+        sub: ExtSubmission,
         stats: List<SubmissionStat>,
     ): BulkWriteResult {
+        val collections = sub.collections.map { it.accNo }
         val upserts =
             stats
                 .map {
                     UpdateOneModel<Document>(
                         Filters.eq("accNo", it.accNo),
                         listOf(
+                            Updates.set(STATS_RELEASED, sub.released),
                             Updates.set(STATS_COLLECTIONS, collections),
-                            Updates.set(STATS_SUB_CREATION_TIME, subCreationTime),
+                            Updates.set(STATS_STORAGE_MODE, sub.storageMode),
+                            Updates.set(STATS_SUB_CREATION_TIME, sub.creationTime.toInstant()),
                             Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
                             Updates.set(STATS_LAST_UPDATED, Instant.now()),
                         ),
