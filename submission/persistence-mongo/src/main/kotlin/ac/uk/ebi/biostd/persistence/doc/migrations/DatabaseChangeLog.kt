@@ -11,6 +11,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
@@ -204,7 +206,9 @@ suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
     indexOps<DocSubmissionStats>().apply {
         createIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_RELEASED, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_COLLECTIONS, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_STORAGE_MODE, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_SUB_CREATION_TIME, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()

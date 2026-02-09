@@ -80,7 +80,19 @@ class StatsReporterDataRepositoryTest(
             accNo: String,
             stats: Map<String, Long>,
             collections: List<String> = emptyList(),
-        ) = mongoTemplate.save(DocSubmissionStats(ObjectId(), accNo, stats, testSub.creationTime, collections)).block()
+        ) {
+            val stat =
+                DocSubmissionStats(
+                    id = ObjectId(),
+                    accNo = accNo,
+                    released = testSub.released,
+                    stats = stats,
+                    subCreationTime = testSub.creationTime,
+                    storageMode = testSub.storageMode,
+                    collections = collections,
+                )
+            mongoTemplate.save(stat).block()
+        }
 
         save(accNo = "S-BSST3", stats = mapOf(FILES_SIZE.value to 3))
         save(accNo = "S-BIAD1", stats = mapOf(FILES_SIZE.value to 4, VIEWS.value to 11), collections = bioImages)

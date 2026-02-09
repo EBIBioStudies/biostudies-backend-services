@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.api.SubmitParameters
@@ -56,6 +57,7 @@ import java.time.OffsetDateTime
 class SubmissionPostProcessingTest(
     @param:Autowired val statsDataService: StatsDataService,
     @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val statsDataRepository: SubmissionStatsDataRepository,
     @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @param:Autowired val submissionFilesDocDataRepository: SubmissionFilesDocDataRepository,
     @param:LocalServerPort val serverPort: Int,
@@ -140,30 +142,24 @@ class SubmissionPostProcessingTest(
             val subFile1 = tempFolder.createFile("stats file 1.doc", "doc content")
             val subFile2 = tempFolder.createFile("statsFile2.txt", "content")
             val subFile3 = tempFolder.createFile("statsFile3.pdf", "pdf content")
-            val params = if (enableFire) SubmitParameters(storageMode = FIRE) else SubmitParameters(storageMode = NFS)
+            val storageMode = if (enableFire) FIRE else NFS
             webClient.uploadFiles(listOf(subFile1, subFile2, fileList))
             webClient.uploadFiles(listOf(subFile3), "a")
 
-            assertThat(webClient.submit(version1, TSV, params)).isSuccessful()
+            assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
             waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
 
             val subV1 = submissionRepository.getExtByAccNo("S-STTS1")
-            val statsV1 = statsDataService.findStatsByAccNo("S-STTS1")
+            val statsV1 = statsDataRepository.getByAccNo("S-STTS1")
             val expectedFilesSize = tabFilesSize(subV1) + subFile1.size()
-            assertThat(statsV1).satisfiesOnlyOnce {
-                assertThat(it.type).isEqualTo(DIRECTORIES)
-                assertThat(it.value).isEqualTo(0)
-            }
-            assertThat(statsV1).satisfiesOnlyOnce {
-                assertThat(it.type).isEqualTo(FILES_SIZE)
-                assertThat(it.value).isEqualTo(expectedFilesSize)
-            }
-            assertThat(statsV1).satisfiesOnlyOnce {
-                assertThat(it.type).isEqualTo(NON_DECLARED_FILES_DIRECTORIES)
-                assertThat(it.value).isEqualTo(0)
-            }
+            assertThat(statsV1.released).isTrue()
+            assertThat(statsV1.storageMode).isEqualTo(storageMode)
+            assertThat(statsV1.stats).hasSize(3)
+            assertThat(statsV1.stats[DIRECTORIES.name]).isEqualTo(0)
+            assertThat(statsV1.stats[FILES_SIZE.name]).isEqualTo(expectedFilesSize)
+            assertThat(statsV1.stats[NON_DECLARED_FILES_DIRECTORIES.name]).isEqualTo(0)
 
-            assertThat(webClient.submit(version2, TSV, params)).isSuccessful()
+            assertThat(webClient.submit(version2, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
             waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
 
             val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
@@ -173,20 +169,13 @@ class SubmissionPostProcessingTest(
             assertThat(subV2.doi).isEqualTo("$BS_DOI_ID/S-STTS1")
 
             // Verify submission stats are calculated
-            val statsV2 = statsDataService.findStatsByAccNo("S-STTS1")
-            assertThat(statsV2).hasSize(3)
-            assertThat(statsV2).satisfiesOnlyOnce {
-                assertThat(it.type).isEqualTo(DIRECTORIES)
-                assertThat(it.value).isEqualTo(1)
-            }
-            assertThat(statsV2).satisfiesOnlyOnce {
-                assertThat(it.type).isEqualTo(FILES_SIZE)
-                assertThat(it.value).isEqualTo(tabFilesSize(subV2) + subFilesSize)
-            }
-            assertThat(statsV2).satisfiesOnlyOnce {
-                assertThat(it.type).isEqualTo(NON_DECLARED_FILES_DIRECTORIES)
-                assertThat(it.value).isEqualTo(1)
-            }
+            val statsV2 = statsDataRepository.getByAccNo("S-STTS1")
+            assertThat(statsV1.released).isTrue()
+            assertThat(statsV2.storageMode).isEqualTo(storageMode)
+            assertThat(statsV2.stats).hasSize(3)
+            assertThat(statsV2.stats[DIRECTORIES.name]).isEqualTo(1)
+            assertThat(statsV2.stats[FILES_SIZE.name]).isEqualTo(tabFilesSize(subV2) + subFilesSize)
+            assertThat(statsV2.stats[NON_DECLARED_FILES_DIRECTORIES.name]).isEqualTo(1)
 
             // Verify submission inner files are persisted
             val innerFilesV2 = submissionFilesDocDataRepository.findByAccNoAndVersion("S-STTS1", 2).toList()

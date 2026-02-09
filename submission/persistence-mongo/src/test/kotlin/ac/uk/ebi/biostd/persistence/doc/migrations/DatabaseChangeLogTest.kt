@@ -12,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_NON_DECLARED_FILES_DIRECTORIES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
@@ -182,14 +184,16 @@ internal class DatabaseChangeLogTest(
                         .listIndexes()
                         .asFlow()
                         .toList()
-                assertThat(statsIndexes).hasSize(7)
+                assertThat(statsIndexes).hasSize(9)
                 assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(statsIndexes[1]).containsEntry("key", Document(STATS_ACC_NO, 1))
-                assertThat(statsIndexes[2]).containsEntry("key", Document(STATS_COLLECTIONS, 1))
-                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_SUB_CREATION_TIME, 1))
-                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
-                assertThat(statsIndexes[5]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
-                assertThat(statsIndexes[6]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
+                assertThat(statsIndexes[2]).containsEntry("key", Document(STATS_RELEASED, 1))
+                assertThat(statsIndexes[3]).containsEntry("key", Document(STATS_COLLECTIONS, 1))
+                assertThat(statsIndexes[4]).containsEntry("key", Document(STATS_STORAGE_MODE, 1))
+                assertThat(statsIndexes[5]).containsEntry("key", Document(STATS_SUB_CREATION_TIME, 1))
+                assertThat(statsIndexes[6]).containsEntry("key", Document(STATS_FILE_SIZE, 1))
+                assertThat(statsIndexes[7]).containsEntry("key", Document(STATS_DIRECTORIES, 1))
+                assertThat(statsIndexes[8]).containsEntry("key", Document(STATS_NON_DECLARED_FILES_DIRECTORIES, 1))
             }
 
             suspend fun assertSubmissionFilesIndexes() {
