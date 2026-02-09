@@ -43,7 +43,13 @@ internal object RevokePermissionParameters {
 internal object TransferenceParameters {
     const val OWNER = "User that owns the submissions to be transferred"
     const val TARGET_OWNER = "User that will own the transferred submissions"
+    const val USER_NAME = "Full name to be used to create the target user account in case it doesn't exist"
     const val ACC_NO_LIST = "Comma separated list of accession numbers of the submissions to be transferred"
+}
+
+internal object UpdateUserEmailParameters {
+    const val CURRENT_EMAIL = "Current email address of the user to update"
+    const val NEW_EMAIL = "New email address of the user to update"
 }
 
 internal object SubmissionRequestParameters {

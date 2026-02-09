@@ -187,4 +187,118 @@ class TransferSubmissionsTest(
             val error = assertThrows<WebClientException> { regularUserWebClient.transferSubmissions(options) }
             assertThat(error.message).contains("The user '${RegularUser.email}' is not allowed to perform this action")
         }
+
+    @Test
+    fun `33-5 superuser transfers submissions to non existing user`() =
+        runTest {
+            val accNo1 = "S-CHOWN7"
+            val sub1 =
+                tsv {
+                    line("Submission", accNo1)
+                    line("Title", "Change Owner 7")
+                    line()
+                }.toString()
+
+            val onBehalfClient =
+                SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
+
+            val options =
+                SubmissionTransferOptions(
+                    owner = RegularUser.email,
+                    newOwner = "new_user@ebi.ac.uk",
+                    userName = "New User",
+                )
+            superUserWebClient.transferSubmissions(options)
+            assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo("new_user@ebi.ac.uk")
+        }
+
+    @Test
+    fun `33-6 superuser transfers submissions to non existing user without name`() =
+        runTest {
+            val accNo1 = "S-CHOWN8"
+            val sub1 =
+                tsv {
+                    line("Submission", accNo1)
+                    line("Title", "Change Owner 8")
+                    line()
+                }.toString()
+
+            val onBehalfClient =
+                SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
+
+            val options =
+                SubmissionTransferOptions(
+                    owner = RegularUser.email,
+                    newOwner = "new_user@ebi.ac.uk",
+                )
+            val error = assertThrows<WebClientException> { superUserWebClient.transferSubmissions(options) }
+            assertThat(error.message).contains("User name required for new owner")
+        }
+
+    @Test
+    fun `33-7 superuser transfers submissions with email update`() =
+        runTest {
+            val accNo1 = "S-CHOWN9"
+            val sub1 =
+                tsv {
+                    line("Submission", accNo1)
+                    line("Title", "Change Owner 9")
+                    line()
+                }.toString()
+
+            val onBehalfClient =
+                SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
+
+            val options =
+                SubmissionTransferOptions(
+                    owner = RegularUser.email,
+                    newOwner = "new_email@ebi.ac.uk",
+                )
+            superUserWebClient.transferEmailUpdate(options)
+            assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo("new_email@ebi.ac.uk")
+        }
+
+    @Test
+    fun `33-8 superuser transfers submissions with email update to existing`() =
+        runTest {
+            val accNo1 = "S-CHOWN10"
+            val sub1 =
+                tsv {
+                    line("Submission", accNo1)
+                    line("Title", "Change Owner 10")
+                    line()
+                }.toString()
+
+            val onBehalfClient =
+                SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
+
+            val options =
+                SubmissionTransferOptions(
+                    owner = RegularUser.email,
+                    newOwner = ExistingUser.email,
+                )
+            val error = assertThrows<WebClientException> { superUserWebClient.transferEmailUpdate(options) }
+            assertThat(error.message)
+                .contains("There is a user already registered with the email address '${ExistingUser.email}'.")
+        }
 }

@@ -299,12 +299,12 @@ Contains test related to resubmission
 
 Contains test related to operations over submissions involving system privileges
 
-| Class                    | Test No | Test name                                |
-|--------------------------|---------|------------------------------------------|
-| TransferSubmissionsTest. | 33-1    | superuser transfers all submissions      |
-| TransferSubmissionsTest. | 33-2    | superuser transfers specific submissions |
-| TransferSubmissionsTest. | 33-3    | admin user transfers submissions.        |
-| TransferSubmissionsTest. | 33-4    | regular user transfer submissions        |
+| Class                         | Test No | Test name                                                  |
+|-------------------------------|---------|------------------------------------------------------------|
+| TransferSubmissionsTest       | 33-1    | superuser transfers all submissions                        |
+| TransferSubmissionsTest       | 33-2    | superuser transfers specific submissions                   |
+| TransferSubmissionsTest       | 33-3    | admin user transfers submissions.                          |
+| TransferSubmissionsTest       | 33-4    | regular user transfer submissions                          |
 
 ### Admin Operations Test suite
 

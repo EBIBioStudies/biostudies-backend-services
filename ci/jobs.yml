@@ -15,13 +15,13 @@ deploy-dev:
     - build-test
   script:
     - gradle deployBioCommandLine -Penv=dev -PdeployPath=$APPS_PATH/cli/dev
-#    - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
-#    - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
+    - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
+    - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle deployScheduler -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev
-#    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
+    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle deployHandlers -Penv=dev -PdeployPath=$APPS_PATH/handlers/dev
-#    - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
-#    - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/dev
+    - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
+    - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/dev
     - gradle updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
     - gradle deploySubmitter -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
 
@@ -42,13 +42,13 @@ deploy-beta:
     - build-test
   script:
     - gradle deployBioCommandLine -Penv=beta -PdeployPath=$APPS_PATH/cli/beta
-#    - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
-#    - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
+    - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
+    - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle deployScheduler -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta
-#    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
+    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle deployHandlers -Penv=beta -PdeployPath=$APPS_PATH/handlers/beta
-#    - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
-#    - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/beta
+    - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
+    - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/beta
     - gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta
     - gradle deploySubmitter -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
 
@@ -69,14 +69,14 @@ deploy-prod:
     - build-test
   script:
     - gradle deployBioCommandLine -Penv=prod -PdeployPath=$APPS_PATH/cli/prod
-#    - gradle deployBioCommandLine -Penv=codon -PdeployPath=$CODON_APPS_PATH/cli
-#    - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
-#    - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
+    - gradle deployBioCommandLine -Penv=codon -PdeployPath=$CODON_APPS_PATH/cli
+    - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
+    - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
-#    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
+    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle deployHandlers -Penv=prod -PdeployPath=$APPS_PATH/handlers/prod
-#    - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
-#    - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/prod
+    - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
+    - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/prod
     - gradle updateSubmissionTaskArtifact -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod
     - gradle updateSubmissionTaskArtifact -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator
     - gradle deployMigratorSubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator -PjvmParams=-Xmx8g

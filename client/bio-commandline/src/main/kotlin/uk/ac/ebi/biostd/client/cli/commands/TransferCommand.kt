@@ -13,6 +13,7 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.ACC_NO_LIST
 import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.OWNER
 import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.TARGET_OWNER
+import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.USER_NAME
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -24,12 +25,13 @@ internal class TransferCommand(
     private val password by option("-p", "--password", help = PASSWORD_HELP).required()
     private val owner by option("-o", "--owner", help = OWNER).required()
     private val targetOwner by option("-to", "--targetOwner", help = TARGET_OWNER).required()
+    private val userName by option("-un", "--userName", help = USER_NAME)
     private val accNoList: List<String> by argument("--accNo", help = ACC_NO_LIST).multiple(required = false)
 
     override fun run(): Unit =
         runBlocking {
             val securityConfig = SecurityConfig(server, user, password)
-            val options = SubmissionTransferOptions(owner, targetOwner, accNoList)
+            val options = SubmissionTransferOptions(owner, targetOwner, userName, accNoList)
 
             subService.transfer(securityConfig, options)
             echo("SUCCESS: Submissions transferred from user '$owner' to '$targetOwner'")

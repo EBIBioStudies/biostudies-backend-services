@@ -19,6 +19,7 @@ import ebi.ac.uk.model.extensions.doi
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
@@ -187,11 +188,32 @@ class ExtSubmissionService(
         }
     }
 
+    suspend fun transferEmailUpdate(
+        user: String,
+        options: SubmissionTransferOptions,
+    ) {
+        require(securityService.existsByEmail(options.newOwner, onlyActive = false).not()) {
+            throw UserAlreadyRegister(options.newOwner)
+        }
+
+        val owner = securityService.getUser(options.owner)
+        transferSubmissions(user, options.copy(userName = owner.fullName))
+    }
+
     suspend fun transferSubmissions(
         user: String,
         options: SubmissionTransferOptions,
     ) {
-        val (owner, newOwner, accNoList) = options
+        val userName = options.userName.orEmpty()
+        val (owner, newOwner, _, accNoList) = options
+
+        fun validateUsers() {
+            require(securityService.existsByEmail(owner, onlyActive = false)) { throw UserNotFoundException(owner) }
+            if (securityService.existsByEmail(newOwner, onlyActive = false).not()) {
+                require(userName.isNotBlank()) { "User name required for new owner" }
+                securityService.getOrCreateInactive(newOwner, userName)
+            }
+        }
 
         suspend fun transfer(accNo: String) {
             logger.info { "Transferring submission $accNo from $owner to $newOwner" }
@@ -199,9 +221,7 @@ class ExtSubmissionService(
             persistenceService.setOwner(accNo, newOwner)
         }
 
-        require(securityService.existsByEmail(owner)) { throw UserNotFoundException(owner) }
-        require(securityService.existsByEmail(newOwner)) { throw UserNotFoundException(newOwner) }
-
+        validateUsers()
         queryService
             .getSubmissionsByOwner(owner, accNoList)
             .collect { transfer(it.accNo) }

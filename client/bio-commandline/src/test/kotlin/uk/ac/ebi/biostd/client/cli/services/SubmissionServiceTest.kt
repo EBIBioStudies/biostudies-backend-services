@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.creat
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
@@ -17,6 +18,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -31,7 +33,11 @@ import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 
 @ExtendWith(MockKExtension::class)
-internal class SubmissionServiceTest {
+internal class SubmissionServiceTest(
+    @param:MockK private val extUser: ExtUser,
+    @param:MockK private val bioWebClient: BioWebClient,
+    @param:MockK private val webClientException: WebClientException,
+) {
     private val testInstance = SubmissionService()
 
     @AfterEach
@@ -41,7 +47,7 @@ internal class SubmissionServiceTest {
     fun beforeEach() = mockkObject(SecurityWebClient)
 
     @Test
-    fun `submit`() =
+    fun submit() =
         runTest {
             val accepted = SubmissionId("S-BSST1", 2)
 
@@ -96,19 +102,63 @@ internal class SubmissionServiceTest {
         }
 
     @Test
-    fun `transfer submissions`() =
+    fun `transfer submissions to existing user`() =
         runTest {
             val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
-            val options = SubmissionTransferOptions(USER, ON_BEHALF, listOf(ACC_NO))
+            val options = SubmissionTransferOptions(USER, ON_BEHALF, userName = null, listOf(ACC_NO))
 
+            coEvery { bioWebClient.getExtUser(ON_BEHALF) } returns extUser
             coEvery { bioWebClient.transferSubmissions(options) } answers { nothing }
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
 
             testInstance.transfer(securityConfig, options)
 
             coVerify(exactly = 1) {
+                bioWebClient.getExtUser(ON_BEHALF)
                 bioWebClient.transferSubmissions(options)
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD)
+            }
+        }
+
+    @Test
+    fun `transfer submissions to non existing user`() =
+        runTest {
+            val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+            val options = SubmissionTransferOptions(USER, ON_BEHALF, USER_NAME)
+
+            coEvery { bioWebClient.getExtUser(ON_BEHALF) } throws Exception()
+            coEvery { bioWebClient.transferSubmissions(options) } answers { nothing }
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+
+            testInstance.transfer(securityConfig, options)
+
+            coVerify(exactly = 1) {
+                bioWebClient.getExtUser(ON_BEHALF)
+                bioWebClient.transferSubmissions(options)
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD)
+            }
+        }
+
+    @Test
+    fun `transfer submissions to non existing user without user name`() =
+        runTest {
+            val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+            val options = SubmissionTransferOptions(USER, ON_BEHALF)
+
+            coEvery { bioWebClient.getExtUser(ON_BEHALF) } throws Exception()
+            coEvery { bioWebClient.transferSubmissions(options) } answers { nothing }
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+
+            val str = "New owner 'onBehalf' doesn't exist. Use option '-un' or '--userName' to provide the full name."
+            val error = assertThrows<PrintMessage> { testInstance.transfer(securityConfig, options) }
+            assertThat(error).hasMessageContaining(str)
+
+            coVerify(exactly = 1) {
+                bioWebClient.getExtUser(ON_BEHALF)
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD)
+            }
+            coVerify(exactly = 0) {
+                bioWebClient.transferSubmissions(options)
             }
         }
 
@@ -173,12 +223,10 @@ internal class SubmissionServiceTest {
         private const val PASSWORD = "password"
         private const val SERVER = "server"
         private const val USER = "user"
+        private const val USER_NAME = "userName"
 
-        private val webClientException: WebClientException = mockk()
-        private val bioWebClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
         private val submitParams = SubmitParameters(storageMode = FIRE, preferredSources = listOf(SUBMISSION))
-
         private val subRequest = SubmissionRequest(mockk(), false, securityConfig, submitParams, listOf(mockk()))
     }
 }
