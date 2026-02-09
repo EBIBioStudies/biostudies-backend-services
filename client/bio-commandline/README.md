@@ -93,6 +93,7 @@ java -jar build/libs/BioStudiesCLI-2.0.jar transfer \
 > Notes:
 > - The accession list is optional. If not provided, all submissions owned by the current user will be transferred.
 > - The username is required only if the new owner doesn't exist in the system.
+> - If the username is provided, and it contains spaces, it should be enclosed in quotes.
 
 #### Arguments
 * **s or --server:** BioStudies instance URL.
