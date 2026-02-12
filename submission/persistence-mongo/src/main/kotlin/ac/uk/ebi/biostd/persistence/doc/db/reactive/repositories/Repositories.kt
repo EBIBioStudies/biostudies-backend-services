@@ -43,7 +43,7 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
     fun deleteAllByAccNo(accNo: String)
 
     @Query(
-        value = "{ accNo: { \$not: /^S-E/ }, storageMode: 'NFS', lastUpdated: {\$lte: ?0}, released: true }",
+        value = "{ accNo: { \$not: /^S-E/ }, storageMode: 'NFS', subModificationTime: {\$lte: ?0}, released: true }",
         sort = "{ 'stats.FILES_SIZE': -1 }",
     )
     suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>

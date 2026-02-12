@@ -14,6 +14,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -196,20 +198,25 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
 /**
  * submission_stats collection indexes
  * 1. AccNo
- * 2. Collections
- * 3. Creation time
- * 4. Files Size
- * 5. Directories
- * 6. Non-declared Files Directories
+ * 2. Version
+ * 3. Released
+ * 4. Collections
+ * 5. Creation time
+ * 6. Modification time
+ * 7. Files Size
+ * 8. Directories
+ * 9. Non Declared Files Directories
  */
 suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
     indexOps<DocSubmissionStats>().apply {
         createIndex(backgroundIndex().on(STATS_ACC_NO, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_VERSION, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_RELEASED, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_COLLECTIONS, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_STORAGE_MODE, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_SUB_CREATION_TIME, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_SUB_MODIFICATION_TIME, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()
