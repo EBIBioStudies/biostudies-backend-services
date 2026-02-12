@@ -85,9 +85,11 @@ class StatsReporterDataRepositoryTest(
                 DocSubmissionStats(
                     id = ObjectId(),
                     accNo = accNo,
+                    version = testSub.version,
                     released = testSub.released,
                     stats = stats,
                     subCreationTime = testSub.creationTime,
+                    subModificationTime = testSub.modificationTime,
                     storageMode = testSub.storageMode,
                     collections = collections,
                 )
