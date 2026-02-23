@@ -37,7 +37,10 @@ class PmcLinksLoader(
     val serializationService: ExtSerializationService,
     val submissionService: ExtSubmissionService,
 ) {
-    suspend fun loadSubmission(user: SecurityUser, accNo: String) {
+    suspend fun loadSubmission(
+        user: SecurityUser,
+        accNo: String,
+    ) {
         val pmcId = PmcId(accNo, accNo.replace("S-EPMC", "PMC"))
         val submission = queryService.getExtendedSubmission(accNo, includeFileListFiles = true)
         if (triggerAnalisis(submission, pmcId)) {
@@ -62,24 +65,29 @@ class PmcLinksLoader(
     }
 
     private suspend fun createLinkList(pmcId: PmcId): ExtLinkList? {
-        fun asLink(filename: String, pmcLinkLink: PmcFileLink): List<ExtLink> {
+        fun asLink(
+            filename: String,
+            pmcLinkLink: PmcFileLink,
+        ): List<ExtLink> {
             return pmcLinkLink.tags
                 .map {
                     ExtLink(
                         url = it.uri,
-                        attributes = listOf(
-                            ExtAttribute("filename", filename),
-                            ExtAttribute("value", pmcLinkLink.exact),
-                            ExtAttribute("type", pmcLinkLink.type),
-                        )
+                        attributes =
+                            listOf(
+                                ExtAttribute("filename", filename),
+                                ExtAttribute("value", pmcLinkLink.exact),
+                                ExtAttribute("type", pmcLinkLink.type),
+                            ),
                     )
                 }
         }
 
-        val links = pmcWebClient.getStatus(pmcId.pmcId).files
-            .filter { it.status == "success" }
-            .map { file -> pmcWebClient.getResult(pmcId.pmcId, file.filename) }
-            .flatMap { result -> result.results.flatMap { asLink(result.filename, it) } }
+        val links =
+            pmcWebClient.getStatus(pmcId.pmcId).files
+                .filter { it.status == "success" }
+                .map { file -> pmcWebClient.getResult(pmcId.pmcId, file.filename) }
+                .flatMap { result -> result.results.flatMap { asLink(result.filename, it) } }
 
         return when {
             links.isEmpty() -> null
@@ -95,32 +103,38 @@ class PmcLinksLoader(
      * Wait for PMC result, if any file succedd
      */
     private suspend fun waitForResult(pmcId: PmcId): Boolean {
-        val result = withTimeoutOrNull(5.minutes) {
-            while (isActive) {
-                val results = pmcWebClient.getStatus(pmcId.pmcId).files.map { it.status }
-                logger.info("Got result $results for ${pmcId.pmcId}")
-                if (results.none { it == "pending" }) break else delay(1.seconds)
+        val result =
+            withTimeoutOrNull(5.minutes) {
+                while (isActive) {
+                    val results = pmcWebClient.getStatus(pmcId.pmcId).files.map { it.status }
+                    logger.info("Got result $results for ${pmcId.pmcId}")
+                    if (results.none { it == "pending" }) break else delay(1.seconds)
+                }
+                true
             }
-            true
-        }
         return result ?: false
     }
 
-    private suspend fun triggerAnalisis(sub: ExtSubmission, pmcId: PmcId): Boolean {
-        val files = sub.allSectionsFiles
-            .filter { it.fileName.matches(Regex(".*\\.(doc|docx|txt|pdf|html)")) }
-            .map {
-                PmcFile(
-                    filename = it.fileName,
-                    url = "https://www.ebi.ac.uk/biostudies/files/${pmcId.accNo}/${it.fileName}"
-                )
-            }
+    private suspend fun triggerAnalisis(
+        sub: ExtSubmission,
+        pmcId: PmcId,
+    ): Boolean {
+        val files =
+            sub.allSectionsFiles
+                .filter { it.fileName.matches(Regex(".*\\.(doc|docx|txt|pdf|html)")) }
+                .map {
+                    PmcFile(
+                        filename = it.fileName,
+                        url = "https://www.ebi.ac.uk/biostudies/files/${pmcId.accNo}/${it.fileName}",
+                    )
+                }
         if (files.isNotEmpty()) {
-            val request = PmcAnalisisRequest(
-                pmcId = pmcId.pmcId,
-                callback = URI.create("http://wp-np2-e9.ebi.ac.uk:9018/biostudiesWrapper/callback/${pmcId.pmcId}"),
-                files = files
-            )
+            val request =
+                PmcAnalisisRequest(
+                    pmcId = pmcId.pmcId,
+                    callback = URI.create("http://wp-np2-e9.ebi.ac.uk:9018/biostudiesWrapper/callback/${pmcId.pmcId}"),
+                    files = files,
+                )
             pmcWebClient.submitStudy(request)
             return true
         }

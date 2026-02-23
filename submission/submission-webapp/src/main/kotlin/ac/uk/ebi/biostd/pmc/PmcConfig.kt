@@ -9,7 +9,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 class PmcConfig {
-
     @Bean
     fun pmcLinksLoader(
         queryService: ExtSubmissionQueryService,

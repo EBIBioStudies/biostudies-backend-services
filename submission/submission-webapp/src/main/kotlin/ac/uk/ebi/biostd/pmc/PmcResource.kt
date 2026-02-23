@@ -13,7 +13,10 @@ class PmcResource(
     private val pmcLinksLoader: PmcLinksLoader,
 ) {
     @PostMapping("/loadLinks")
-    suspend fun loadLinks(@RequestBody request: LoadRequest, @BioUser user: SecurityUser) {
+    suspend fun loadLinks(
+        @RequestBody request: LoadRequest,
+        @BioUser user: SecurityUser,
+    ) {
         pmcLinksLoader.loadSubmission(user, request.accNo)
     }
 }

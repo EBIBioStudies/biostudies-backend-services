@@ -26,31 +26,33 @@ class PmcClient(
             .awaitBody<PmcAnalisisStatusResponse>()
     }
 
-    suspend fun getResult(pmcId: String, filename: String): PmcAnalisisFileResult {
+    suspend fun getResult(
+        pmcId: String,
+        filename: String,
+    ): PmcAnalisisFileResult {
         return client
             .get()
-            .uri("/getAnnotations/${pmcId}/${filename}")
+            .uri("/getAnnotations/$pmcId/$filename")
             .retrieve()
             .awaitBody<PmcAnalisisFileResult>()
     }
 
     companion object {
         fun createClient(basicToken: String): PmcClient {
-            val client = WebClient.builder()
-                .baseUrl("https://www.textminingapi.europepmc.org")
-                .defaultHeader("Authorization", "Basic $basicToken")
-                .build()
+            val client =
+                WebClient.builder()
+                    .baseUrl("https://www.textminingapi.europepmc.org")
+                    .defaultHeader("Authorization", "Basic $basicToken")
+                    .build()
             return PmcClient(client)
         }
     }
-
 }
 
 data class PmcAnalisisFileResult(
     @field:JsonProperty("ft_id")
     val pmcId: String,
     val filename: String,
-
     @field:JsonProperty("anns")
     val results: List<PmcFileLink>,
 )
@@ -79,4 +81,5 @@ data class PmcAnalisisRequest(
 )
 
 data class PmcFileResponse(val filename: String, val status: String, val url: String)
+
 data class PmcFile(val filename: String, val url: String)
