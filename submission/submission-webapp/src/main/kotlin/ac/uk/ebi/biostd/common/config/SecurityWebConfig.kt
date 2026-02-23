@@ -50,6 +50,8 @@ class SecurityWebConfig(
                     .permitAll()
                     .requestMatchers("/fire/**")
                     .permitAll()
+                    .requestMatchers("/pmc/**")
+                    .permitAll()
                     .anyRequest()
                     .fullyAuthenticated()
             }.exceptionHandling { exceptions ->

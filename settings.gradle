@@ -18,11 +18,11 @@ include("commons:commons-model-extended-serialization")
 include("commons:commons-model-extended-test")
 
 include("client:bio-webclient")
-include("client:bio-webclient-demo")
 include("client:bio-commandline")
 include("client:cluster-client")
 include("client:fire-webclient")
 include("client:ftp-webclient")
+include("client:pmc-webclient")
 
 include("events:events-publisher")
 include("infrastructure")
@@ -47,3 +47,5 @@ include("scheduler:tasks:pmc-processor-task")
 include("scheduler:tasks:stats-reporter-task")
 include("scheduler:tasks:submission-releaser-task")
 
+
+include 'client:pmc-webclient'

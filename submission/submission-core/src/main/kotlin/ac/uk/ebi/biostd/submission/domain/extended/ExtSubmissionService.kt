@@ -45,7 +45,8 @@ class ExtSubmissionService(
         version: Int,
     ): ExtSubmission = submissionSubmitter.handleRequest(accNo, version)
 
-    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit = submissionSubmitter.handleManyAsync(submissions)
+    suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit =
+        submissionSubmitter.handleManyAsync(submissions)
 
     suspend fun refreshSubmission(
         user: String,
@@ -114,7 +115,7 @@ class ExtSubmissionService(
         sub: ExtSubmission,
     ): ExtSubmission {
         logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
-        val submission = processSubmission(user, sub)
+        val submission = processSubmission(user, sub).copy(version = persistenceService.getNextVersion(sub.accNo))
         val request =
             ExtSubmitRequest(
                 owner = user,
@@ -130,7 +131,7 @@ class ExtSubmissionService(
         sub: ExtSubmission,
     ): SubmissionId {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
-        val submission = processSubmission(user, sub)
+        val submission = processSubmission(user, sub).copy(version = persistenceService.getNextVersion(sub.accNo))
         val request =
             ExtSubmitRequest(
                 owner = user,
