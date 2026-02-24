@@ -14,6 +14,7 @@ import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
+import Projects.ClientPmcWebClient
 import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
@@ -99,6 +100,7 @@ dependencies {
     api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
+    api(project(ClientPmcWebClient))
 
     annotationProcessor(SpringBootConfigurationProcessor)
     implementation(SpringBootStarterWeb)
