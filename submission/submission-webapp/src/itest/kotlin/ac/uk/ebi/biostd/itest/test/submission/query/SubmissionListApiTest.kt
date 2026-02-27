@@ -16,6 +16,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -162,6 +164,7 @@ class SubmissionListApiTest(
                 tsv {
                     line("Submission", "SPACE-123")
                     line("Title", "Submission hello world")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -202,6 +205,7 @@ class SubmissionListApiTest(
                 tsv {
                     line("Submission")
                     line("Title", "Submission alpha omega")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -227,6 +231,7 @@ class SubmissionListApiTest(
                 tsv {
                     line("Submission", "SECT-125")
                     line("Title", "the Submission spaces title")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")

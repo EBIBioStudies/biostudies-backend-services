@@ -16,6 +16,7 @@ import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.SubmissionTransferOptions
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -58,6 +60,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo1)
                     line("Title", "Change Owner 1")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -66,6 +69,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo2)
                     line("Title", "Change Owner 2")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -94,6 +98,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo1)
                     line("Title", "Change Owner 3")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -102,6 +107,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo2)
                     line("Title", "Change Owner 4")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -136,6 +142,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", collectionAccNo)
                     line("AccNoTemplate", "!{$collectionAccNo}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -147,6 +154,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo)
                     line("Title", "Change Owner 5")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line("AttachTo", collectionAccNo)
                     line()
                 }.toString()
@@ -172,6 +180,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo)
                     line("Title", "Change Owner 6")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -196,6 +205,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo1)
                     line("Title", "Change Owner 7")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -225,6 +235,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo1)
                     line("Title", "Change Owner 8")
+                    line("ReleaseDate", "2099-09-21")
                     line()
                 }.toString()
 
@@ -253,6 +264,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo1)
                     line("Title", "Change Owner 9")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -281,6 +293,7 @@ class TransferSubmissionsTest(
                 tsv {
                     line("Submission", accNo1)
                     line("Title", "Change Owner 10")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 

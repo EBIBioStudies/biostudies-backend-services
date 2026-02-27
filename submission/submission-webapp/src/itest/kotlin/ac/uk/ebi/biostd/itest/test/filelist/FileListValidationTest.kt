@@ -19,6 +19,7 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.apache.commons.io.FileUtils
@@ -36,13 +37,14 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FileListValidationTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -146,6 +148,7 @@ class FileListValidationTest(
                 val previousVersion =
                     tsv {
                         line("Submission", "S-FLV123")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")

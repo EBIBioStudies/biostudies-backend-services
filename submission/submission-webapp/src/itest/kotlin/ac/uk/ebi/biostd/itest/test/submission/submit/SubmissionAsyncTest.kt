@@ -37,7 +37,9 @@ import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -53,6 +55,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.Duration
 import java.time.Duration.ofMillis
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -81,6 +84,7 @@ class SubmissionAsyncTest(
                 tsv {
                     line("Submission", "SimpleAsync1")
                     line("Title", "Async Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("RootSection")
@@ -94,6 +98,7 @@ class SubmissionAsyncTest(
             assertThat(saved).isEqualTo(
                 submission("SimpleAsync1") {
                     title = "Async Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     section("RootSection") {}
                 },
             )
@@ -106,6 +111,7 @@ class SubmissionAsyncTest(
                 tsv {
                     line("Submission", "SimpleAsync2")
                     line("Title", "Submission Stages")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("RootSection")
@@ -159,6 +165,7 @@ class SubmissionAsyncTest(
                 tsv {
                     line("Submission", "SMulti-001")
                     line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -171,6 +178,7 @@ class SubmissionAsyncTest(
                 tsv {
                     line("Submission", "SMulti-002")
                     line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -226,12 +234,14 @@ class SubmissionAsyncTest(
                 tsv {
                     line("Submission", "SMulti-004")
                     line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
             val submission2 =
                 tsv {
                     line("Submission", "SMulti-005")
                     line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")

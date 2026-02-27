@@ -36,7 +36,7 @@ class ToSubmissionMapper(
             addAll(attributes.filter { it.name != COLLECTION_VALIDATOR.value }.map { it.toAttribute() })
             title?.let { add(Attribute(TITLE.value, it)) }
             doi?.let { add(Attribute(DOI.value, it)) }
-            releaseTime?.let { add(Attribute(RELEASE_DATE.value, it.toLocalDate().toString())) }
+            add(Attribute(RELEASE_DATE.value, releaseTime.toLocalDate().toString()))
             rootPath?.let { add(Attribute(ROOT_PATH.value, it)) }
             addAll(
                 collections

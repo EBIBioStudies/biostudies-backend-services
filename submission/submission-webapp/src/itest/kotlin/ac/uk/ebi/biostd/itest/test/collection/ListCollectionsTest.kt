@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -23,12 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ListCollectionsTest(
-    @LocalServerPort val serverPort: Int,
-    @Autowired val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
 ) {
     private lateinit var superUserWebClient: BioWebClient
     private lateinit var regularUserWebClient: BioWebClient
@@ -87,6 +89,7 @@ class ListCollectionsTest(
             tsv {
                 line("Submission", "SampleCollection")
                 line("AccNoTemplate", "!{S-SAMP}")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Project")
@@ -96,6 +99,7 @@ class ListCollectionsTest(
             tsv {
                 line("Submission", "DefaultCollection")
                 line("AccNoTemplate", "!{S-DFLT}")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Project")

@@ -23,8 +23,8 @@ import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
 internal class RtNotificationServiceTest(
-    @MockK private val loader: TemplateLoader,
-    @MockK private val ticketService: RtTicketService,
+    @param:MockK private val loader: TemplateLoader,
+    @param:MockK private val ticketService: RtTicketService,
 ) {
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -36,7 +36,7 @@ internal class RtNotificationServiceTest(
         @Nested
         inner class WhenSubmitting {
             @Test
-            fun `when no released but release date`() {
+            fun `when private`() {
                 testNotification(
                     submission =
                         testSubmission.copy(
@@ -49,27 +49,6 @@ internal class RtNotificationServiceTest(
                     Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
                     
                     You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
-                    
-                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
-                    
-                    Best regards,
-                    
-                    BioStudies Team
-
-                    """.trimIndent(),
-                )
-            }
-
-            @Test
-            fun `when no released no release date`() {
-                testNotification(
-                    submission = testSubmission.copy(releaseTime = null, released = false),
-                    """
-                    Dear owner@mail.org,
-                    
-                    Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
-                    
-                    You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is not set so it's not publicly available. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
                     
                     Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
                     

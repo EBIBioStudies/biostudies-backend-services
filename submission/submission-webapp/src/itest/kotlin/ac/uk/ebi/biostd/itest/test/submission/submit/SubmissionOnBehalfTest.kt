@@ -26,7 +26,9 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -38,16 +40,17 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionOnBehalfTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val userDataRepository: UserDataRepository,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val userDataRepository: UserDataRepository,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -67,6 +70,7 @@ class SubmissionOnBehalfTest(
                 tsv {
                     line("Submission", "ON-BEHALF-001")
                     line("Title", "Submission Title")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             val onBehalfClient =
@@ -84,6 +88,7 @@ class SubmissionOnBehalfTest(
             assertThat(toSubmissionMapper.toSimpleSubmission(submission)).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                 },
             )
         }
@@ -98,6 +103,7 @@ class SubmissionOnBehalfTest(
                 tsv {
                     line("Submission", "ON-BEHALF-002")
                     line("Title", "Submission Title")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             val response =
@@ -129,6 +135,7 @@ class SubmissionOnBehalfTest(
                 tsv {
                     line("Submission", "ON-BEHALF-003")
                     line("Title", "Submission Title")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -163,6 +170,7 @@ class SubmissionOnBehalfTest(
                 tsv {
                     line("Submission", "ON-BEHALF-004")
                     line("Title", "Submission Title")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -189,14 +197,15 @@ class SubmissionOnBehalfTest(
     @Test
     fun `14-5 On behalf with manager with another user submission update user Owner`() =
         runTest {
-            securityTestService.ensureUserRegistration(AnohterUser)
+            securityTestService.ensureUserRegistration(AnotherUser)
             val submission =
                 tsv {
                     line("Submission")
                     line("Title", "Submission Title")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            val anotherUserClient = getWebClient(serverPort, AnohterUser)
+            val anotherUserClient = getWebClient(serverPort, AnotherUser)
             val response = anotherUserClient.submit(submission, TSV)
             assertThat(response).isSuccessful()
 
@@ -210,6 +219,7 @@ class SubmissionOnBehalfTest(
                 tsv {
                     line("Submission", accNo)
                     line("Title", "Submission Title Updated")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             val updated = onBehalfClient.submit(submissionUpdated, TSV)
@@ -221,7 +231,7 @@ class SubmissionOnBehalfTest(
             assertThat(result.submitter).isEqualTo(SuperUser.email)
         }
 
-    object AnohterUser : TestUser {
+    object AnotherUser : TestUser {
         override val username = "Another User"
         override val email = "another@ebi.ac.uk"
         override val password = "678910"

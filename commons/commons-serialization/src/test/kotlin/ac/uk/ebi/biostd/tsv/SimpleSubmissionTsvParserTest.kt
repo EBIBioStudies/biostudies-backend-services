@@ -10,8 +10,10 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
 
 class SimpleSubmissionTsvParserTest {
     private val testInstance: TsvSerializer = TsvSerializer()
@@ -24,7 +26,7 @@ class SimpleSubmissionTsvParserTest {
         val expected =
             tsv {
                 line(ACC_NO_KEY, "S-IHECRE00000919.1")
-                line(SubFields.RELEASE_DATE, "2015-02-20")
+                line(SubFields.RELEASE_DATE, OffsetDateTime.now().toStringDate())
                 line(ROOT_PATH_KEY, sub.rootPath!!)
                 line(TITLE_KEY, sub.title!!)
                 line("DataSource", "BLUEPRINT")

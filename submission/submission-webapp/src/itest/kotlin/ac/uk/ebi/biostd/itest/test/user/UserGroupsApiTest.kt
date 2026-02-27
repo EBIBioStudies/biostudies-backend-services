@@ -27,8 +27,8 @@ private const val GROUP_DESC = "Bio-test-group description"
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserGroupsApiTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superWebClient: BioWebClient
     private lateinit var regularWebClient: BioWebClient

@@ -33,6 +33,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.apache.commons.io.FileUtils
@@ -51,6 +52,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.nio.file.Paths
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -86,6 +88,9 @@ class FileListSubmissionTest(
                         jsonArray({
                             "name" to "Title"
                             "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
                         })
                     "section" to {
                         "accno" to "SECT-001"
@@ -132,6 +137,9 @@ class FileListSubmissionTest(
                         jsonArray({
                             "name" to "Title"
                             "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
                         })
                     "section" to {
                         "accno" to "SECT-001"
@@ -184,6 +192,9 @@ class FileListSubmissionTest(
                         jsonArray({
                             "name" to "Title"
                             "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
                         })
                     "section" to {
                         "accno" to "SECT-001"
@@ -216,6 +227,7 @@ class FileListSubmissionTest(
                 tsv {
                     line("Submission", "S-TEST6")
                     line("Title", "Submission With Inner File List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -257,6 +269,7 @@ class FileListSubmissionTest(
                 tsv {
                     line("Submission", "S-TEST72")
                     line("Title", "Reuse Previous Version File List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -294,6 +307,7 @@ class FileListSubmissionTest(
                 tsv {
                     line("Submission")
                     line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -334,6 +348,7 @@ class FileListSubmissionTest(
                     tsv {
                         line("Submission", "S-TEST8")
                         line("Title", "Empty File List")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -365,6 +380,7 @@ class FileListSubmissionTest(
                     tsv {
                         line("Submission", "S-TEST9")
                         line("Title", "Empty Attribute Name")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")

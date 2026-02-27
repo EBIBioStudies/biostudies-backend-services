@@ -67,11 +67,11 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionRefreshApiTest(
-    @Autowired val mongoTemplate: ReactiveMongoTemplate,
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val fileListRepository: FileListDocFileDocDataRepository,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val mongoTemplate: ReactiveMongoTemplate,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val fileListRepository: FileListDocFileDocDataRepository,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 

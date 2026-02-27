@@ -10,10 +10,10 @@ import ebi.ac.uk.util.date.asIsoTime
 import ebi.ac.uk.util.date.fromIsoTime
 import java.time.OffsetDateTime
 
-const val SUBMISSION_EXTESIONS = "ebi.ac.uk.model.extensions.SubExtKt"
+const val SUBMISSION_EXTENSIONS = "ebi.ac.uk.model.extensions.SubExtKt"
 
 /**
- * Indicate that submission should be register for specific project.
+ * Indicate that the submission should be registered for a specific project.
  */
 var Submission.attachTo: String?
     get() = find(SubFields.ATTACH_TO)
@@ -79,7 +79,7 @@ var Submission.rootPath: String?
     }
 
 /**
- * Obtain the submission title attribute if present.
+ * Get the submission title attribute if present.
  */
 var Submission.title: String?
     get() = find(SubFields.TITLE)
@@ -88,7 +88,7 @@ var Submission.title: String?
     }
 
 /**
- * Obtain the submission DOI attribute if present.
+ * Get the submission DOI attribute if present.
  */
 var Submission.doi: String?
     get() = find(SubFields.DOI)
@@ -97,16 +97,7 @@ var Submission.doi: String?
     }
 
 /**
- * Obtain the submission ReviewType attribute if present.
- */
-var Submission.reviewType: String?
-    get() = find(SubFields.REVIEW_TYPE)
-    set(value) {
-        value?.let { this[SubFields.REVIEW_TYPE] = it }
-    }
-
-/**
- * Obtain the submission accession number template if present.
+ * Get the submission accession number template if present.
  */
 var Submission.accNoTemplate: String?
     get() = find(SubFields.ACC_NO_TEMPLATE)

@@ -29,8 +29,8 @@ import ebi.ac.uk.asserts.assertThat as assertSubmit
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionRequestApiTest(
-    @LocalServerPort private val serverPort: Int,
-    @Autowired private val securityTestService: SecurityTestService,
+    @param:LocalServerPort private val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
 ) {
     private lateinit var webClient: BioWebClient
 

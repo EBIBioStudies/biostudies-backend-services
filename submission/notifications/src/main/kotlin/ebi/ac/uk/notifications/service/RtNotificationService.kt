@@ -74,7 +74,7 @@ class RtNotificationService(
                 stUrl,
                 ownerFullName,
                 description,
-                submission.releaseTime?.toStringDate(),
+                submission.releaseTime.toStringDate(),
             )
         }
 
@@ -94,7 +94,7 @@ class RtNotificationService(
                 accNo = submission.accNo,
                 title = title,
                 releaseMessage = releaseMessage(submission, uiUrl),
-                releaseDate = submission.releaseTime?.toStringDate().orEmpty(),
+                releaseDate = submission.releaseTime.toStringDate(),
             )
         }
 
@@ -102,13 +102,12 @@ class RtNotificationService(
             sub: ExtSubmission,
             uiUrl: String,
         ): String {
-            val releaseDate = sub.releaseTime?.toStringDate()
+            val releaseDate = sub.releaseTime.toStringDate()
             val released = sub.released
 
             return when {
                 released -> EMPTY
-                releaseDate != null -> privateWithReleaseDateMessage(linkMessage(sub, uiUrl), releaseDate)
-                else -> privateMessage(linkMessage(sub, uiUrl))
+                else -> privateWithReleaseDateMessage(linkMessage(sub, uiUrl), releaseDate)
             }
         }
 

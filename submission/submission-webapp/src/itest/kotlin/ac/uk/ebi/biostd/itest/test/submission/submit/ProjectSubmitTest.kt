@@ -32,11 +32,11 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProjectSubmitTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val tagsDataRepository: AccessTagDataRepo,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val sequenceRepository: SequenceDataRepository,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val tagsDataRepository: AccessTagDataRepo,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val sequenceRepository: SequenceDataRepository,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -55,6 +55,7 @@ class ProjectSubmitTest(
                     line("Submission", "PrivateProject")
                     line("Title", "A Private Project")
                     line("AccNoTemplate", "!{S-PRP}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -104,6 +105,7 @@ class ProjectSubmitTest(
                 tsv {
                     line("Submission", "A-Project")
                     line("AccNoTemplate", "!{S-APRJ}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -113,6 +115,7 @@ class ProjectSubmitTest(
                 tsv {
                     line("Submission", "Another-Project")
                     line("AccNoTemplate", "!{S-APRJ}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")

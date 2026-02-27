@@ -14,6 +14,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -31,6 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.serialization.extensions.getProperty
 import java.time.Instant
+import java.time.OffsetDateTime
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -62,6 +64,11 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to "ABC-123"
                     "type" to "Study"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
 
             superWebClient.submit(pageTab, JSON)
@@ -114,6 +121,11 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to "ABC-126"
                     "title" to "From Draft"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
 
             val draft = superWebClient.createSubmissionDraft(pageTab)
@@ -136,6 +148,11 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "accno" to "ABC-128"
                     "type" to "Study"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
             superWebClient.submit(pageTab, JSON)
 
@@ -152,15 +169,16 @@ class SubmissionDraftApiTest(
                     "accno" to "ABC-129"
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "Source"
-                                "value" to "PageTab"
-                                "reference" to false
-                                "nameAttrs" to jsonArray()
-                                "valueAttrs" to jsonArray()
-                            },
-                        )
+                        jsonArray({
+                            "name" to "Source"
+                            "value" to "PageTab"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString(),
                 JSON,
             )
@@ -174,15 +192,16 @@ class SubmissionDraftApiTest(
                     "accno" to "ABC-129"
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "Source"
-                                "value" to "Draft"
-                                "reference" to false
-                                "nameAttrs" to jsonArray()
-                                "valueAttrs" to jsonArray()
-                            },
-                        )
+                        jsonArray({
+                            "name" to "Source"
+                            "value" to "Draft"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
             superWebClient.getSubmissionDraft("ABC-129")
 
@@ -210,6 +229,11 @@ class SubmissionDraftApiTest(
                     .submit(
                         jsonObj {
                             "accno" to accNo
+                            "attributes" to
+                                jsonArray({
+                                    "name" to "ReleaseDate"
+                                    "value" to OffsetDateTime.now().toStringDate()
+                                })
                             "section" to
                                 jsonObj {
                                     "type" to "Study"
@@ -224,6 +248,11 @@ class SubmissionDraftApiTest(
                 accNo,
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "Another"
@@ -242,6 +271,11 @@ class SubmissionDraftApiTest(
                 accNo,
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "Yet-Another"
@@ -263,6 +297,11 @@ class SubmissionDraftApiTest(
             val subV1 =
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "Study"
@@ -276,6 +315,11 @@ class SubmissionDraftApiTest(
                 accNo,
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "ByDraft"
@@ -287,6 +331,11 @@ class SubmissionDraftApiTest(
             val subV2 =
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "Another"
@@ -307,6 +356,11 @@ class SubmissionDraftApiTest(
             val sub =
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "Study"
@@ -324,6 +378,11 @@ class SubmissionDraftApiTest(
                         accNo,
                         jsonObj {
                             "accno" to accNo
+                            "attributes" to
+                                jsonArray({
+                                    "name" to "ReleaseDate"
+                                    "value" to OffsetDateTime.now().toStringDate()
+                                })
                             "section" to
                                 jsonObj {
                                     "type" to "ByDraft"
@@ -343,6 +402,11 @@ class SubmissionDraftApiTest(
             val sub =
                 jsonObj {
                     "accno" to accNo
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                     "section" to
                         jsonObj {
                             "type" to "Study"
@@ -365,6 +429,11 @@ class SubmissionDraftApiTest(
             val pageTab =
                 jsonObj {
                     "type" to "Study"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
             val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
 
@@ -372,12 +441,13 @@ class SubmissionDraftApiTest(
                 jsonObj {
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "Source"
-                                "value" to "PageTab"
-                            },
-                        )
+                        jsonArray({
+                            "name" to "Source"
+                            "value" to "PageTab"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
             val draft = superWebClient.getSubmissionDraft(accNo).key
             superWebClient.updateSubmissionDraft(accNo, newPageTab)
@@ -394,28 +464,35 @@ class SubmissionDraftApiTest(
             val pageTab =
                 jsonObj {
                     "type" to "Study"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }.toString()
             val userSubmission =
                 jsonObj {
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "User"
-                                "value" to "Regular"
-                            },
-                        )
+                        jsonArray({
+                            "name" to "User"
+                            "value" to "Regular"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }
             val superUserSubmission =
                 jsonObj {
                     "type" to "Study"
                     "attributes" to
-                        jsonArray(
-                            jsonObj {
-                                "name" to "User"
-                                "value" to "SuperUser"
-                            },
-                        )
+                        jsonArray({
+                            "name" to "User"
+                            "value" to "SuperUser"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
                 }
 
             val accNo = regularWebClient.submit(pageTab, JSON).body.accNo

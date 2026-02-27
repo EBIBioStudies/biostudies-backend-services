@@ -12,7 +12,7 @@ data class BasicSubmission(
     val newSubmission: Boolean,
     val released: Boolean,
     val title: String?,
-    val releaseTime: OffsetDateTime?,
+    val releaseTime: OffsetDateTime,
     val modificationTime: OffsetDateTime,
     var status: ProcessingStatus,
     val owner: String,

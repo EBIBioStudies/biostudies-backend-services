@@ -54,7 +54,7 @@ class DocSubmissionConverter(
             rootPath = source.getString(SUB_ROOT_PATH),
             released = source.getBoolean(SUB_RELEASED),
             secretKey = source.getString(SUB_SECRET_KEY),
-            releaseTime = source.getDate(SUB_RELEASE_TIME)?.toInstant(),
+            releaseTime = source.getDate(SUB_RELEASE_TIME).toInstant(),
             submissionTime = source.getDate(SUB_SUBMISSION_TIME).toInstant(),
             modificationTime = source.getDate(SUB_MODIFICATION_TIME).toInstant(),
             creationTime = source.getDate(SUB_CREATION_TIME).toInstant(),

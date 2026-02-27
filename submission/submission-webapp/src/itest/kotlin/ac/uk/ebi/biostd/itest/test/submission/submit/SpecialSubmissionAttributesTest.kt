@@ -39,6 +39,7 @@ import ebi.ac.uk.io.ext.createOrReplaceFile
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.isAuthor
 import ebi.ac.uk.model.extensions.isOrganization
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
@@ -88,6 +89,7 @@ class SpecialSubmissionAttributesTest(
                 tsv {
                     line("Submission", "S-TEST123")
                     line("Title", "Submission With Tags")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001", "", "classifier:tag")
@@ -99,6 +101,7 @@ class SpecialSubmissionAttributesTest(
             assertThat(submitted).isEqualTo(
                 submission("S-TEST123") {
                     title = "Submission With Tags"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     section("Study") {
                         accNo = "SECT-001"
                         tags = mutableListOf(Pair("Classifier", "Tag"))
@@ -114,6 +117,7 @@ class SpecialSubmissionAttributesTest(
                 tsv {
                     line("Submission", "S-STBL123")
                     line("Title", "Test Section Table")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -214,6 +218,7 @@ class SpecialSubmissionAttributesTest(
                     line("Title", "Test Section Table")
                     line("Submission Empty Attribute", "")
                     line("Submission Null Attribute")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -325,6 +330,7 @@ class SpecialSubmissionAttributesTest(
                 tsv {
                     line("Submission", "S-STBL124")
                     line("Title", "Test Section Table")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")

@@ -30,10 +30,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AllInOneSubmissionTest(
-    @Autowired val subRepository: SubmissionPersistenceQueryService,
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val subRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
     private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper

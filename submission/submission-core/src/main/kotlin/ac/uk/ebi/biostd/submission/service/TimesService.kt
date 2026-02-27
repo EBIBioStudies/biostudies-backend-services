@@ -24,12 +24,12 @@ class TimesService(
     internal fun getTimes(rqt: SubmitRequest): Times {
         val now = OffsetDateTime.now()
         val creationTime = rqt.previousVersion?.creationTime ?: now
-        val releaseTime = rqt.submission.releaseDate?.let { parseDate(it) }
-        val released = releaseTime?.isBeforeOrEqual(now).orFalse()
+        val releaseTime = rqt.submission.releaseDate?.let { parseDate(it) } ?: now
+        val released = releaseTime.isBeforeOrEqual(now)
         val submitter = rqt.submitter.email
         val collection = rqt.collection?.accNo
 
-        if (releaseTime != null && privileges.canUpdateReleaseDate(submitter, collection).not()) {
+        if (privileges.canUpdateReleaseDate(submitter, collection).not()) {
             checkReleaseTime(
                 rqt,
                 releaseTime,
@@ -60,6 +60,6 @@ class TimesService(
 data class Times(
     val createTime: OffsetDateTime,
     val submissionTime: OffsetDateTime,
-    val releaseTime: OffsetDateTime?,
+    val releaseTime: OffsetDateTime,
     val released: Boolean,
 )
