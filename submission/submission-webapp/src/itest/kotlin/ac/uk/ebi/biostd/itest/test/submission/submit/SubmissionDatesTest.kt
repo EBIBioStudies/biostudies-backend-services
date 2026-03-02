@@ -372,7 +372,7 @@ class SubmissionDatesTest(
 
     @Nested
     inner class CollectionAdminUser {
-        private val collectionAccNo = "PermissionCollection"
+        private val collectionAccNo = "AdminPermissionCollection"
         private lateinit var colAdminWebClient: BioWebClient
 
         @BeforeAll
@@ -382,7 +382,7 @@ class SubmissionDatesTest(
                     tsv {
                         line("Submission", collectionAccNo)
                         line("AccNoTemplate", "!{S-PERMISIONT}")
-                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line("ReleaseDate", "2099-09-21")
                         line()
 
                         line("Project")

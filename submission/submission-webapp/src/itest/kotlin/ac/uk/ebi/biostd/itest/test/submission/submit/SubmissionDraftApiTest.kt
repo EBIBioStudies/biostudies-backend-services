@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
@@ -40,6 +41,7 @@ import java.time.OffsetDateTime
 class SubmissionDraftApiTest(
     @param:Autowired val securityTestService: SecurityTestService,
     @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
+    @param:Autowired val requestDocRepository: SubmissionRequestDocDataRepository,
     @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superWebClient: BioWebClient
@@ -48,6 +50,7 @@ class SubmissionDraftApiTest(
     @BeforeAll
     fun init() =
         runBlocking {
+            requestDocRepository.deleteAll()
             securityTestService.ensureSequence("S-BSST")
 
             securityTestService.ensureUserRegistration(SuperUser)

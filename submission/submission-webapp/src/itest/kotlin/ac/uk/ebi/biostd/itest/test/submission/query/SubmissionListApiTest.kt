@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
@@ -28,7 +28,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
 import java.time.OffsetDateTime
@@ -38,7 +37,7 @@ import java.time.OffsetDateTime
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class SubmissionListApiTest(
     @param:Autowired val securityTestService: SecurityTestService,
-    @param:Autowired val mongoTemplate: ReactiveMongoTemplate,
+    @param:Autowired val submissionMongoRepository: SubmissionMongoRepository,
     @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superUserClient: BioWebClient
@@ -48,7 +47,7 @@ class SubmissionListApiTest(
     fun init() =
         runBlocking {
             securityTestService.ensureSequence("S-BSST")
-            mongoTemplate.ensureSubmissionIndexes()
+            submissionMongoRepository.deleteAll()
 
             securityTestService.ensureUserRegistration(SuperUser)
             superUserClient = getWebClient(serverPort, SuperUser)

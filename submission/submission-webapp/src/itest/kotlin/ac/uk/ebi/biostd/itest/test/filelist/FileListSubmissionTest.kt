@@ -348,7 +348,7 @@ class FileListSubmissionTest(
                     tsv {
                         line("Submission", "S-TEST8")
                         line("Title", "Empty File List")
-                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line("ReleaseDate", "2099-09-21")
                         line()
 
                         line("Study")

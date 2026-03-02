@@ -250,7 +250,7 @@ class TransferSubmissionsTest(
             val options =
                 SubmissionTransferOptions(
                     owner = RegularUser.email,
-                    newOwner = "new_user@ebi.ac.uk",
+                    newOwner = "new_non_existing_user@ebi.ac.uk",
                 )
             val error = assertThrows<WebClientException> { superUserWebClient.transferSubmissions(options) }
             assertThat(error.message).contains("User name required for new owner")

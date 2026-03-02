@@ -74,12 +74,12 @@ class SubmissionToCollectionsTest(
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
             val expected =
-                submission("S-TEST-EXT1") {
+                submission("S-COL-TEST-EXT1") {
                     title = "AccNo Generation Test"
                     releaseDate = OffsetDateTime.now().toStringDate()
                     attachTo = "Test-Project"
                 }
-            assertThat(getSimpleSubmission("S-TEST-EXT1")).isEqualTo(expected)
+            assertThat(getSimpleSubmission("S-COL-TEST-EXT1")).isEqualTo(expected)
         }
 
     @Test
@@ -89,7 +89,7 @@ class SubmissionToCollectionsTest(
                 tempFolder.createFile(
                     "submission.tsv",
                     tsv {
-                        line("Submission", "S-TEST1")
+                        line("Submission", "S-COL-TEST1")
                         line("AttachTo", "Test-Project")
                         line("Title", "Overridden Project")
                         line("ReleaseDate", "2099-09-21")
@@ -104,10 +104,10 @@ class SubmissionToCollectionsTest(
                 )
             assertThat(webClient.submitMultipart(submissionFile, params)).isSuccessful()
 
-            assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
-                submission("S-TEST1") {
+            assertThat(getSimpleSubmission("S-COL-TEST1")).isEqualTo(
+                submission("S-COL-TEST1") {
                     title = "Overridden Project"
-                    releaseDate = OffsetDateTime.now().toStringDate()
+                    releaseDate = "2099-09-21"
                     attachTo = "Public-Project"
                 },
             )
@@ -238,7 +238,7 @@ class SubmissionToCollectionsTest(
         val testProject =
             tsv {
                 line("Submission", "Test-Project")
-                line("AccNoTemplate", "!{S-TEST-EXT}")
+                line("AccNoTemplate", "!{S-COL-TEST-EXT}")
                 line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
