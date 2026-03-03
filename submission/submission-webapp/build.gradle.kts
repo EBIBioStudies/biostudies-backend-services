@@ -46,12 +46,12 @@ import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.SnakeYaml
-import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
 import TestDependencies.TestContainerRabbitMq
 import TestDependencies.TestContainerS3mock
+import TestDependencies.TestContainers
 import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
@@ -151,7 +151,7 @@ dependencies {
     testImplementation(testFixtures(project(FtpWebClient)))
     testImplementation(TestContainerS3mock)
     testImplementation(TestContainerMongoDb)
-    testImplementation(TestContainer)
+    testImplementation(TestContainers)
     testImplementation(TestContainerJUnit)
 }
 

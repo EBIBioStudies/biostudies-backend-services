@@ -72,11 +72,11 @@ class PmcSubmitter(
         submitMany(sub)
             .fold(
                 {
-                    logger.info { "submitted batch $idx, accNos='${sub.map { it.accNo }.joinToString()}'" }
+                    logger.info { "submitted batch $idx, accNos='${sub.joinToString { it.accNo }}'" }
                     submissionService.saveSubmittingSubmissions(sub, it)
                 },
                 {
-                    logger.error(it) { "failed to batch $idx, accNos='${sub.map { it.accNo }.joinToString()}'" }
+                    logger.error(it) { "failed to batch $idx, accNos='${sub.joinToString { it.accNo }}'" }
                     errorService.saveErrors(sub, PmcMode.SUBMIT, it)
                 },
             )
@@ -89,7 +89,7 @@ class PmcSubmitter(
         suspend fun submitMany(): List<SubmissionId> {
             val submissionsMap = submissions.associateBy({ it.accNo }, { it.body })
             val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
-            val files = submissions.map { it.accNo to getSubFiles(it) }.toMap()
+            val files = submissions.associate { it.accNo to getSubFiles(it) }
 
             return bioWebClient.submitMultipartAsync(
                 submissions = submissionsMap,

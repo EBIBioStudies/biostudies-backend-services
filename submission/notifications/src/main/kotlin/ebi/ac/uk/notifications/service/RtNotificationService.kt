@@ -119,9 +119,6 @@ class RtNotificationService(
             append("$uiUrl/studies/${sub.accNo}?key=${sub.secretKey}")
         }
 
-        private fun privateMessage(linkMessage: String) =
-            "The release date of this study is not set so it's not publicly available. $linkMessage"
-
         private fun privateWithReleaseDateMessage(
             linkMessage: String,
             releaseDate: String,

@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
 import ac.uk.ebi.biostd.submission.service.DoiService
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode

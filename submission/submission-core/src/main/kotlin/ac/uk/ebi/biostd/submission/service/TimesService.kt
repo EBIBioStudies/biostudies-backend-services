@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.util.date.atStartOfDay
