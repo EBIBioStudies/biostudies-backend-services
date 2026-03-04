@@ -26,12 +26,13 @@ import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 @EnableConfigurationProperties(AppProperties::class, StatsReporterProperties::class)
 internal class SchedulerConfig {
     @Bean
-    fun clusterClient(appProperties: AppProperties): ClusterClient = SlurmClusterClient.create(
-        appProperties.cluster.sshKey,
-        appProperties.cluster.slurmServer,
-        appProperties.cluster.logsPath,
-        appProperties.cluster.wrapperPath,
-    )
+    fun clusterClient(appProperties: AppProperties): ClusterClient =
+        SlurmClusterClient.create(
+            appProperties.cluster.sshKey,
+            appProperties.cluster.slurmServer,
+            appProperties.cluster.logsPath,
+            appProperties.cluster.wrapperPath,
+        )
 
     @Bean
     fun loaderService(
@@ -94,5 +95,4 @@ internal class SchedulerConfig {
             statsTrigger,
             releaserTrigger,
         )
-
 }

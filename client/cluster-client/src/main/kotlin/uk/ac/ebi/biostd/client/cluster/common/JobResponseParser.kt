@@ -4,7 +4,6 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 
 private val slurmResponseRegex = "Submitted batch job (\\d+)\\s*\$".toRegex()
 
-
 @Suppress("MagicNumber")
 fun toSlurmJob(
     response: String,

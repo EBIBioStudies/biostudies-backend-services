@@ -15,11 +15,10 @@ import uk.ac.ebi.biostd.client.cluster.model.QueueSpec
 @RestController
 @RequestMapping("/cluster")
 class ClusterOperationsResource(
-    private val clusterClient: ClusterClient
+    private val clusterClient: ClusterClient,
 ) {
     @PostMapping("/health")
-    suspend fun clusterHealthCheck(
-    ): Job {
+    suspend fun clusterHealthCheck(): Job {
         val spec = JobSpec(command = "echo 'hello';")
         return clusterClient.triggerJobSync(spec)
     }
@@ -46,7 +45,7 @@ class ClusterOperationsResource(
     suspend fun jobLogs(
         @PathVariable jobId: String,
     ): String {
-        return clusterClient.jobLogs( jobId)
+        return clusterClient.jobLogs(jobId)
     }
 
     data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {

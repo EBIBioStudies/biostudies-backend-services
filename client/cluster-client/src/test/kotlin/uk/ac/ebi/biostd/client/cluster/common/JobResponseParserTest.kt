@@ -5,7 +5,6 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 
 internal class JobResponseParserTest {
-
     @Test
     fun toJobSlurmRespone() {
         val job = toSlurmJob("Submitted batch job 27223401", "logs/path")
