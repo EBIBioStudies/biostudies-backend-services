@@ -7,10 +7,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
-import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
-import uk.ac.ebi.biostd.client.cluster.model.Cluster.LSF
-import uk.ac.ebi.biostd.client.cluster.model.Cluster.SLURM
 import uk.ac.ebi.scheduler.common.config.NotificationsConfig.Companion.PMC_NOTIFICATIONS_SENDER
 import uk.ac.ebi.scheduler.common.config.NotificationsConfig.Companion.SCHEDULER_NOTIFICATIONS_SENDER
 import uk.ac.ebi.scheduler.common.properties.AppProperties
@@ -29,11 +26,12 @@ import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 @EnableConfigurationProperties(AppProperties::class, StatsReporterProperties::class)
 internal class SchedulerConfig {
     @Bean
-    fun clusterOperations(appProperties: AppProperties): ClusterClient =
-        when (appProperties.cluster.default) {
-            LSF -> lsfCluster(appProperties)
-            SLURM -> slurmCluster(appProperties)
-        }
+    fun clusterClient(appProperties: AppProperties): ClusterClient = SlurmClusterClient.create(
+        appProperties.cluster.sshKey,
+        appProperties.cluster.slurmServer,
+        appProperties.cluster.logsPath,
+        appProperties.cluster.wrapperPath,
+    )
 
     @Bean
     fun loaderService(
@@ -97,20 +95,4 @@ internal class SchedulerConfig {
             releaserTrigger,
         )
 
-    companion object {
-        fun lsfCluster(properties: AppProperties): LsfClusterClient =
-            LsfClusterClient.create(
-                properties.cluster.sshKey,
-                properties.cluster.lsfServer,
-                properties.cluster.logsPath,
-            )
-
-        fun slurmCluster(properties: AppProperties): SlurmClusterClient =
-            SlurmClusterClient.create(
-                properties.cluster.sshKey,
-                properties.cluster.slurmServer,
-                properties.cluster.logsPath,
-                properties.cluster.wrapperPath,
-            )
-    }
 }

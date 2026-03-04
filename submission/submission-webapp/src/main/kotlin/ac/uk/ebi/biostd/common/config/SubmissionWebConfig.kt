@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.cluster.web.ClusterExecutor
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -9,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.submission.config.GeneralConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
@@ -41,6 +41,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 
@@ -162,5 +163,5 @@ class SubmissionWebConfig {
     fun onBehalfUtils(securityQueryService: SecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
 
     @Bean
-    fun clusterExecutor(properties: ApplicationProperties): ClusterExecutor = ClusterExecutor(properties)
+    fun clusterClient(properties: ApplicationProperties): SlurmClusterClient = GeneralConfig.slurmCluster(properties)
 }

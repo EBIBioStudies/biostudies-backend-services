@@ -1,7 +1,6 @@
 package uk.ac.ebi.scheduler.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import uk.ac.ebi.biostd.client.cluster.model.Cluster
 
 @ConfigurationProperties(prefix = "app")
 data class AppProperties(
@@ -29,9 +28,7 @@ data class SlackConfiguration(
 data class ClusterConfiguration(
     val user: String,
     val sshKey: String,
-    val lsfServer: String,
     val slurmServer: String,
     val logsPath: String,
     val wrapperPath: String,
-    val default: Cluster,
 )
