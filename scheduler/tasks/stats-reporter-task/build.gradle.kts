@@ -12,9 +12,9 @@ import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.KotlinCoroutinesTest
-import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
+import TestDependencies.TestContainers
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -43,7 +43,7 @@ dependencies {
         exclude("junit", module = "junit")
     }
     testImplementation(TestContainerMongoDb)
-    testImplementation(TestContainer)
+    testImplementation(TestContainers)
     testImplementation(TestContainerJUnit)
 }
 

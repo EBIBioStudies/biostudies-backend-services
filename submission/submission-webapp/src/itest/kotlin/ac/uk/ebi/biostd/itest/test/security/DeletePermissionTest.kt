@@ -92,6 +92,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT1")
                         line("Title", "Delete Submission 1")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                     }.toString()
 
@@ -138,6 +139,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT121")
                         line("Title", "Delete Submission 121")
+                        line("ReleaseDate", "2099-09-21")
                         line()
                         line("File", "test-file1.txt")
                         line()
@@ -146,6 +148,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT122")
                         line("Title", "Delete Submission 122")
+                        line("ReleaseDate", "2099-09-21")
                         line()
                         line("File", "test-file2.txt")
                         line()
@@ -169,6 +172,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT13")
                         line("Title", "Delete Submission 13")
+                        line("ReleaseDate", "2099-09-21")
                         line()
                     }.toString()
 
@@ -190,6 +194,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT3")
                         line("Title", "Delete Submission 3")
+                        line("ReleaseDate", "2099-09-21")
                         line()
                     }.toString()
 
@@ -249,6 +254,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT10")
                         line("Title", "Delete Submission 10")
+                        line("ReleaseDate", "2099-09-21")
                         line()
                     }.toString()
 
@@ -272,6 +278,7 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "ACollection")
                         line("AccNoTemplate", "!{S-APR}")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Project")
@@ -287,6 +294,7 @@ class DeletePermissionTest(
                         line("Submission", "S-DLT5")
                         line("Title", "Delete Submission 5")
                         line("AttachTo", "ACollection")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                     }.toString()
 
@@ -323,6 +331,7 @@ class DeletePermissionTest(
                         line("Submission", "S-DLT7")
                         line("Title", "Delete Submission 7")
                         line("AttachTo", "ACollection")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                     }.toString()
 
@@ -370,26 +379,24 @@ class DeletePermissionTest(
                     tsv {
                         line("Submission", "S-DLT112")
                         line("Title", "Delete Submission 112")
-                        line()
-                    }.toString()
-                val submission3 =
-                    tsv {
-                        line("Submission", "S-DLT113")
-                        line("Title", "Delete Submission 113")
                         line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                     }.toString()
 
+                val onBehalfClient =
+                    SecurityWebClient
+                        .create("http://localhost:$serverPort")
+                        .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
                 assertThat(superUserWebClient.submit(submission1, TSV)).isSuccessful()
-                assertThat(superUserWebClient.submit(submission2, TSV)).isSuccessful()
-                assertThat(superUserWebClient.submit(submission3, TSV)).isSuccessful()
+                assertThat(onBehalfClient.submit(submission2, TSV)).isSuccessful()
 
                 val exception =
                     assertThrows<WebClientException> {
-                        superUserWebClient.deleteSubmissions(listOf("S-DLT111", "S-DLT112", "S-DLT113"))
+                        regularUserWebClient.deleteSubmissions(listOf("S-DLT111", "S-DLT112"))
                     }
                 assertThat(exception).hasMessageContaining(
-                    "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT113",
+                    "The user regular@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT112",
                 )
             }
     }

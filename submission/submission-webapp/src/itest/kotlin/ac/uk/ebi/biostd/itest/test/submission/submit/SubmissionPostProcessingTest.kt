@@ -250,10 +250,14 @@ class SubmissionPostProcessingTest(
             val submission1 =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
                 }.toString()
             val submission2 =
                 tsv {
                     line("Submission", accNo2)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
                 }.toString()
 
             webClient.submit(submission1, TSV)

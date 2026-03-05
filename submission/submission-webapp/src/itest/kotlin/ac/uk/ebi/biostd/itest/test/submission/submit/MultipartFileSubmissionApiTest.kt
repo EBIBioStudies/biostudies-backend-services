@@ -31,6 +31,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -45,16 +46,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.nio.file.Paths
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class MultipartFileSubmissionApiTest(
-    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired private val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -79,7 +81,10 @@ class MultipartFileSubmissionApiTest(
                             cell("Title")
                             cell("Excel Submission")
                         }
-
+                        row {
+                            cell("ReleaseDate")
+                            cell(OffsetDateTime.now().toStringDate())
+                        }
                         row {
                             cell("")
                             cell("")
@@ -138,6 +143,10 @@ class MultipartFileSubmissionApiTest(
                             cell("Excel \n Submission")
                         }
                         row {
+                            cell("ReleaseDate")
+                            cell(OffsetDateTime.now().toStringDate())
+                        }
+                        row {
                             cell("")
                             cell("")
                         }
@@ -157,6 +166,7 @@ class MultipartFileSubmissionApiTest(
                 Submission	S-EXC124
                 Title	"Excel 
                  Submission"
+                ReleaseDate	${OffsetDateTime.now().toStringDate()}
 
                 Study	SECT-1
                 """.trimIndent(),
@@ -168,8 +178,9 @@ class MultipartFileSubmissionApiTest(
         runTest {
             val submission =
                 tsv {
-                    line("Submission", "S-TEST1")
+                    line("Submission", "S-MULTIPART-1")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -193,7 +204,7 @@ class MultipartFileSubmissionApiTest(
             val response = webClient.submitMultipart(submission, TSV, params, files)
 
             assertThat(response).isSuccessful()
-            assertSubmissionFiles("S-TEST1", "File1.txt")
+            assertSubmissionFiles("S-MULTIPART-1", "File1.txt")
             fileList.delete()
         }
 
@@ -202,11 +213,14 @@ class MultipartFileSubmissionApiTest(
         runTest {
             val submission =
                 jsonObj {
-                    "accno" to "S-TEST2"
+                    "accno" to "S-MULTIPART-2"
                     "attributes" to
                         jsonArray({
                             "name" to "Title"
                             "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
                         })
                     "section" to {
                         "accno" to "SECT-001"
@@ -244,7 +258,7 @@ class MultipartFileSubmissionApiTest(
             val response = webClient.submitMultipart(submission, JSON, params, files)
 
             assertThat(response).isSuccessful()
-            assertSubmissionFiles("S-TEST2", "File2.txt")
+            assertSubmissionFiles("S-MULTIPART-2", "File2.txt")
             fileList.delete()
         }
 
@@ -255,8 +269,9 @@ class MultipartFileSubmissionApiTest(
                 tempFolder.createFile(
                     "submission.tsv",
                     tsv {
-                        line("Submission", "S-TEST6")
+                        line("Submission", "S-MULTIPART-6")
                         line("Title", "Test Submission")
+                        line("ReleaseDate", "2099-09-21")
                         line("Type", "Test")
                         line()
 
@@ -274,11 +289,12 @@ class MultipartFileSubmissionApiTest(
             assertThat(response).isSuccessful()
             submission.delete()
 
-            val savedSubmission = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-TEST6"))
-            assertThat(savedSubmission.attributes).hasSize(3)
+            val savedSubmission = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-MULTIPART-6"))
+            assertThat(savedSubmission.attributes).hasSize(4)
             assertThat(savedSubmission["Exp"]).isEqualTo("1")
             assertThat(savedSubmission["Type"]).isEqualTo("Exp")
             assertThat(savedSubmission["Title"]).isEqualTo("Test Submission")
+            assertThat(savedSubmission["ReleaseDate"]).isEqualTo("2099-09-21")
         }
 
     @Test

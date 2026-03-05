@@ -26,7 +26,7 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
         title = section.title ?: title,
         released = released,
         modificationTime = modificationTime.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS),
-        releaseTime = releaseTime?.atOffset(UTC)?.truncatedTo(ChronoUnit.MILLIS),
+        releaseTime = releaseTime.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS),
         status = status,
         owner = owner,
         errors = emptyList(),
@@ -44,7 +44,9 @@ fun Submission.asSubmittedRequest(
         title = section.title ?: title,
         released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now(UTC)) ?: false,
         modificationTime = OffsetDateTime.now(UTC),
-        releaseTime = releaseDate?.let { LocalDate.parse(it).atStartOfDay().atOffset(UTC) },
+        releaseTime =
+            releaseDate?.let { LocalDate.parse(it).atStartOfDay().atOffset(UTC) }
+                ?: OffsetDateTime.now(UTC),
         status = ProcessingStatus.PROCESSING,
         owner = owner,
         errors = emptyList(),

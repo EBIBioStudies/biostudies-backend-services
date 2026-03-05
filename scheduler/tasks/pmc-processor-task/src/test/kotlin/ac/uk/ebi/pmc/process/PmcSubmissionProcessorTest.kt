@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.pmc.ERROR_ACCNO
+import ac.uk.ebi.pmc.ERROR_ACC_NO
 import ac.uk.ebi.pmc.ERROR_SOURCE_FILE
 import ac.uk.ebi.pmc.FILE1_CONTENT
 import ac.uk.ebi.pmc.FILE1_NAME
@@ -64,7 +64,9 @@ import java.time.Duration.ofSeconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = [PersistenceConfig::class])
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSubmissionProcessorTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val mongoContainer: MongoDBContainer =
         MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
             .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -84,7 +86,9 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
     private fun setUpNotificationServer() {
         wireMockNotificationServer.stubFor(
             WireMock.post(urlEqualTo("/notifications")).willReturn(
-                aResponse().withStatus(HTTP_OK).withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                aResponse()
+                    .withStatus(HTTP_OK)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                     .withBody("response".toJsonQuote()),
             ),
         )
@@ -98,7 +102,8 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
     private fun setUpWireMockFilesServer() {
         wireMockFilesServer.stubFor(
             get(urlEqualTo(URL_FILE1_FILES_SERVER)).willReturn(
-                aResponse().withStatus(HTTP_OK)
+                aResponse()
+                    .withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                     .withBody(submissionFile1.readBytes()),
             ),
@@ -106,7 +111,8 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
 
         wireMockFilesServer.stubFor(
             get(urlEqualTo(URL_FILE2_FILES_SERVER)).willReturn(
-                aResponse().withStatus(HTTP_OK)
+                aResponse()
+                    .withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                     .withBody(submissionFile2.readBytes()),
             ),
@@ -218,7 +224,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
         }
 
         private fun assertError(savedError: SubmissionErrorDocument) {
-            assertThat(savedError.accNo).isEqualTo(ERROR_ACCNO)
+            assertThat(savedError.accNo).isEqualTo(ERROR_ACC_NO)
             assertThat(savedError.sourceFile).isEqualTo(ERROR_SOURCE_FILE)
             assertThat(savedError.mode).isEqualTo(PmcMode.PROCESS)
             assertThat(savedError.submissionText).isEqualTo(invalidFileSubmission.body)

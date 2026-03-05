@@ -22,6 +22,7 @@ import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSubsection
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.validation.DuplicatedSectionAccNoException
+import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.attribute
@@ -59,6 +60,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("AttachTo", "EuropePMC")
@@ -72,6 +74,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("Abstract", null)
@@ -85,6 +88,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("Abstract", null)
@@ -98,6 +102,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("Abstract", null)
@@ -111,6 +116,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "The \"Submission\": title.")
                 attribute("Abstract", "\"The Submission\": this is description.")
                 attribute("Sub-Title", "\"The Submission (quoted)\": this is description.")
@@ -125,6 +131,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("AttachTo", "EuropePMC")
@@ -138,6 +145,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "This is a really long title \n with a break line")
                 attribute("Another", "another attribute")
             },
@@ -150,6 +158,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC124") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Submission With Detailed Attributes")
 
                 attribute(
@@ -171,6 +180,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
 
                 section("Study") {
@@ -187,6 +197,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
                 section("Compound") {
                     attribute("Title", "Generic Root Section")
@@ -201,6 +212,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-007A") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
                 section("RootSection") {
                     attribute("Title", "Generic Root Section")
@@ -218,8 +230,8 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
-
                 section("Study") {
                     attribute("Title", "Test Root Section")
                     attribute("Abstract", "Test abstract")
@@ -234,8 +246,8 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
-
                 section("Study") {
                     attribute("Title", "Test Root Section")
                     attribute("Abstract", "Test abstract")
@@ -255,6 +267,7 @@ class TsvDeserializerTest {
         val submission =
             tsv {
                 line("Submission", "S-STBL123")
+                line("ReleaseDate", "2023-02-12")
                 line("Title", "Test Section Table")
                 line()
 
@@ -269,6 +282,7 @@ class TsvDeserializerTest {
         val result = deserializer.deserialize(submission.toString())
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-STBL123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Section Table")
 
                 section("Study") {
@@ -287,6 +301,7 @@ class TsvDeserializerTest {
         val submission =
             tsv {
                 line("Submission", "S-STBL123")
+                line("ReleaseDate", "2023-02-12")
                 line("Title", "Test Section Table")
                 line()
 
@@ -301,6 +316,7 @@ class TsvDeserializerTest {
         val result = deserializer.deserialize(submission.toString())
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-STBL123") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Section Table")
 
                 section("Study") {
@@ -320,8 +336,8 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
-
                 section("Study") {
                     attribute("Title", "Test Root Section")
                     attribute("Abstract", "Test abstract")
@@ -363,8 +379,8 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
-
                 section("Study") {
                     attribute("Title", "Test Root Section")
                     attribute("Abstract", "Test abstract")
@@ -406,6 +422,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
 
                 section("Study") {
@@ -425,6 +442,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
 
                 section("Study") {
@@ -470,6 +488,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
 
                 section("Study") {
@@ -490,6 +509,7 @@ class TsvDeserializerTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
+                attribute("ReleaseDate", "2023-02-12")
                 attribute("Title", "Test Submission")
 
                 section("Study") {
@@ -522,6 +542,7 @@ class TsvDeserializerTest {
         val submission =
             tsv {
                 line("Submission", "E-MTAB-8568")
+                line("ReleaseDate", "2023-02-12")
                 line("Title", "Duplicated Section AccNo")
                 line()
 
@@ -543,6 +564,47 @@ class TsvDeserializerTest {
 
         assertThat(errorCause).isInstanceOf(DuplicatedSectionAccNoException::class.java)
         assertThat(errorCause.message).isEqualTo("A section with accNo s-E-MTAB-8568 already exists")
+    }
+
+    @Test
+    fun `submission without ReleaseDate`() {
+        val submission =
+            tsv {
+                line("Submission", "S-EPMC123")
+                line("Title", "Submission without ReleaseDate")
+                line()
+            }
+
+        val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
+        val errorCause =
+            exception.errors
+                .entries()
+                .first()
+                .value.cause
+
+        assertThat(errorCause).isInstanceOf(InvalidElementException::class.java)
+        assertThat(errorCause.message).isEqualTo("ReleaseDate is required. Element was not created.")
+    }
+
+    @Test
+    fun `submission with empty ReleaseDate`() {
+        val submission =
+            tsv {
+                line("Submission", "S-EPMC123")
+                line("ReleaseDate")
+                line("Title", "Submission without ReleaseDate")
+                line()
+            }
+
+        val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
+        val errorCause =
+            exception.errors
+                .entries()
+                .first()
+                .value.cause
+
+        assertThat(errorCause).isInstanceOf(InvalidElementException::class.java)
+        assertThat(errorCause.message).isEqualTo("ReleaseDate is required. Element was not created.")
     }
 
     @Nested
@@ -660,8 +722,11 @@ class TsvDeserializerTest {
 
         private fun assertSubmissionWithRootSection(result: Submission) {
             assertThat(result.accNo).isEqualTo("S-EPMC125")
-            assertThat(result.attributes).hasSize(1)
-            assertThat(result.attributes.first()).isEqualTo(Attribute("Title", "Test Submission"))
+            assertThat(result.attributes).hasSize(2)
+            assertThat(result.attributes).containsExactly(
+                Attribute("ReleaseDate", "2023-02-12"),
+                Attribute("Title", "Test Submission"),
+            )
             val section = result.section
             assertThat(section.type).isEqualTo("Study")
             val sectionAttributes = section.attributes

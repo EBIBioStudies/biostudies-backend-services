@@ -1,3 +1,4 @@
+
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.KotlinCoroutines
@@ -21,6 +22,7 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
+import TestDependencies.TestContainers
 import TestDependencies.Wiremock
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
@@ -51,11 +53,12 @@ dependencies {
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringWebFlux)
 
-    testImplementation(TestContainerMongoDb)
-    testImplementation(SpringBootStarterTest)
     testImplementation(AssertJ)
-    testImplementation(Wiremock)
+    testImplementation(SpringBootStarterTest)
+    testImplementation(TestContainers)
     testImplementation(TestContainerJUnit)
+    testImplementation(TestContainerMongoDb)
+    testImplementation(Wiremock)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

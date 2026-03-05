@@ -6,6 +6,7 @@ import ebi.ac.uk.dsl.tsv.tsv
 fun basicSubmission() =
     tsv {
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Basic Submission")
         line("DataSource", "EuropePMC")
         line("AttachTo", "EuropePMC")
@@ -15,6 +16,7 @@ fun basicSubmission() =
 fun submissionWithEmptyAttribute() =
     tsv {
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Basic Submission")
         line("DataSource", "EuropePMC")
         line("Abstract")
@@ -24,6 +26,7 @@ fun submissionWithEmptyAttribute() =
 fun submissionWithBlankAttribute() =
     tsv {
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Basic Submission")
         line("DataSource", "EuropePMC")
         line("Abstract", "  ")
@@ -33,6 +36,7 @@ fun submissionWithBlankAttribute() =
 fun submissionWithNullAttribute() =
     tsv {
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Basic Submission")
         line("DataSource", "EuropePMC")
         line("Abstract")
@@ -42,6 +46,7 @@ fun submissionWithNullAttribute() =
 fun submissionWithQuoteValue() =
     tsv {
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "The \"Submission\": title.")
         line("Abstract", "\"The Submission\": this is description.")
         line("Sub-Title", "\"The Submission (quoted)\": this is description.")
@@ -52,6 +57,7 @@ fun submissionWithQuoteValue() =
 fun basicSubmissionWithMultiline() =
     tsv {
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "\"This is a really long title \n with a break line\"")
         line("Another", "another attribute")
     }
@@ -60,6 +66,7 @@ fun basicSubmissionWithComments() =
     tsv {
         line("# This is a test submission")
         line("Submission", "S-EPMC123")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Basic Submission")
         line("# This is a comment in the middle of the attrs")
         line("DataSource", "EuropePMC")
@@ -72,6 +79,10 @@ fun basicSubmissionWithComments() =
 fun submissionWithInvalidNameAttributeDetail() =
     tsv {
         line("Submission", "S-EPMC124")
+        line("ReleaseDate", "2023-02-12")
+        line()
+
+        line("Study")
         line("(Seq Type)", "RNA")
         line()
     }
@@ -79,6 +90,10 @@ fun submissionWithInvalidNameAttributeDetail() =
 fun submissionWithInvalidValueAttributeDetail() =
     tsv {
         line("Submission", "S-EPMC124")
+        line("ReleaseDate", "2023-02-12")
+        line()
+
+        line("Study")
         line("[Ontology]", "EFO")
         line()
     }
@@ -86,6 +101,7 @@ fun submissionWithInvalidValueAttributeDetail() =
 fun submissionWithDetailedAttributes() =
     tsv {
         line("Submission", "S-EPMC124")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Submission With Detailed Attributes")
         line("Submission Type", "RNA-seq of non coding RNA")
         line("(Seq Type)", "RNA")
@@ -97,6 +113,7 @@ fun submissionWithDetailedAttributes() =
 fun submissionWithRootSection() =
     tsv {
         line("Submission", "S-EPMC125")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Test Submission")
         line()
 
@@ -109,6 +126,7 @@ fun submissionWithRootSection() =
 fun submissionWithGenericRootSection() =
     tsv {
         line("Submission", "S-EPMC125")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Test Submission")
         line()
 
@@ -120,6 +138,7 @@ fun submissionWithGenericRootSection() =
 fun submissionWithMultipleLineBreaks() =
     tsv {
         line("Submission", "S-EPMC125")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Test Submission")
         line()
         line()
@@ -235,6 +254,7 @@ fun submissionWithFilesTable() =
 fun sectionWithEmptyAccParentSection() =
     tsv {
         line("Submission", "S-007A")
+        line("ReleaseDate", "2023-02-12")
         line("Title", "Test Submission")
         line()
 

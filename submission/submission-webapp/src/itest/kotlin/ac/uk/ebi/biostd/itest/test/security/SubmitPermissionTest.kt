@@ -18,6 +18,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -29,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -41,6 +43,7 @@ class SubmitPermissionTest(
         tsv {
             line("Submission", "ACollection")
             line("AccNoTemplate", "!{S-APR}")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Project")
@@ -81,6 +84,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "TestCollection")
                     line("AccNoTemplate", "!{S-CLL}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -91,6 +95,7 @@ class SubmitPermissionTest(
                     line("Submission")
                     line("AttachTo", "TestCollection")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
@@ -110,6 +115,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "TestCollection2")
                     line("AccNoTemplate", "!{S-COLL}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -120,6 +126,7 @@ class SubmitPermissionTest(
                     line("Submission")
                     line("AttachTo", "TestCollection2")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
@@ -135,6 +142,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "TestCollection3")
                     line("AccNoTemplate", "!{S-CLC}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -145,6 +153,7 @@ class SubmitPermissionTest(
                     line("Submission")
                     line("AttachTo", "TestCollection3")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             create("http://localhost:$serverPort").registerUser(NewUser.asRegisterRequest())
@@ -161,6 +170,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "TestCollection4")
                     line("AccNoTemplate", "!{S-CLCT}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -171,6 +181,7 @@ class SubmitPermissionTest(
                     line("Submission")
                     line("AttachTo", "TestCollection4")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
@@ -186,6 +197,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "TestCollection5")
                     line("AccNoTemplate", "!{S-TCLT}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -196,6 +208,7 @@ class SubmitPermissionTest(
                     line("Submission")
                     line("AttachTo", "TestCollection5")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
@@ -208,6 +221,7 @@ class SubmitPermissionTest(
                     line("Submission", "S-TCLT1")
                     line("AttachTo", "TestCollection5")
                     line("Title", "Test Resubmission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(regularUserWebClient.submit(resubmission, TSV)).isSuccessful()
@@ -220,6 +234,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "TestCollection6")
                     line("AccNoTemplate", "!{T-CLLC}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")
@@ -230,6 +245,7 @@ class SubmitPermissionTest(
                     line("Submission")
                     line("AttachTo", "TestCollection6")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             val impersonatedUserClient = getWebClient(serverPort, ImpersonatedUser)
@@ -243,6 +259,7 @@ class SubmitPermissionTest(
                     line("Submission", "T-CLLC1")
                     line("AttachTo", "TestCollection6")
                     line("Title", "Test Resubmission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
             assertThat(impersonatedUserClient.submit(resubmission, TSV)).isSuccessful()
         }
@@ -254,6 +271,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "S-SBMT1")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -266,6 +284,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "S-SBMT1")
                     line("Title", "Test Resubmission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -284,6 +303,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "S-SBMT2")
                     line("Title", "Test Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -296,6 +316,7 @@ class SubmitPermissionTest(
                 tsv {
                     line("Submission", "S-SBMT2")
                     line("Title", "Test Resubmission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")

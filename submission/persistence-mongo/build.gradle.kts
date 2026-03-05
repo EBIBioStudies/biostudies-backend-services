@@ -21,9 +21,9 @@ import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
+import TestDependencies.TestContainers
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
@@ -66,7 +66,7 @@ dependencies {
         exclude("junit", module = "junit")
     }
     testImplementation(TestContainerMongoDb)
-    testImplementation(TestContainer)
+    testImplementation(TestContainers)
     testImplementation(TestContainerJUnit)
 }
 

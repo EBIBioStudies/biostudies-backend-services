@@ -39,8 +39,10 @@ import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
 import ebi.ac.uk.model.constants.FileFields.DB_PUBLISHED
 import ebi.ac.uk.model.constants.FileFields.DB_SIZE
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -59,18 +61,19 @@ import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class SubmissionFileSourceTest(
-    @Autowired private val filesRepository: SubmissionFilesPersistenceService,
-    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired private val requestFilesPersistenceService: SubmissionRequestFilesPersistenceService,
-    @Autowired private val securityTestService: SecurityTestService,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val filesRepository: SubmissionFilesPersistenceService,
+    @param:Autowired private val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired private val requestFilesPersistenceService: SubmissionRequestFilesPersistenceService,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -88,6 +91,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST1")
                     line("Title", "Preferred Source Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -169,6 +173,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST3")
                         line("Title", "Simple Submission With directory on FIRE")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -211,6 +216,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST81")
                         line("Title", "Simple Submission With directory")
+                        line("ReleaseDate", "2099-09-21")
                         line()
 
                         line("Study")
@@ -269,6 +275,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST82")
                         line("Title", "Simple Submission With directory")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -297,6 +304,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST9")
                         line("Title", "Simple Submission with directory")
+                        line("ReleaseDate", "2099-09-21")
                         line()
 
                         line("Study")
@@ -327,6 +335,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST9")
                         line("Title", "Simple Submission With directory")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -359,6 +368,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST34")
                         line("Title", "Directories With The Same Name on FIRE")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -413,6 +423,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST4")
                         line("Title", "Simple Submission With directory on NFS")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -453,6 +464,7 @@ class SubmissionFileSourceTest(
                     tsv {
                         line("Submission", "S-FSTST34")
                         line("Title", "Directories With The Same Name on NFS")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -534,6 +546,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST4")
                     line("Title", "Simple Submission With Files")
+                    line("ReleaseDate", "2099-09-21")
                     line()
 
                     line("Study")
@@ -576,6 +589,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST4")
                     line("Title", "Multiple References")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -612,6 +626,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST5")
                     line("Title", "Sample Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -633,6 +648,7 @@ class SubmissionFileSourceTest(
             assertThat(submitted).isEqualTo(
                 submission("S-FSTST5") {
                     title = "Sample Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     section("Study") {
                         file("groups/$groupName/GroupFile1.txt")
                         file("groups/$groupName/folder/GroupFile2.txt")
@@ -649,6 +665,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST6")
                     line("Title", "Sample Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -693,6 +710,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST7")
                     line("Title", "Submission Source Only")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -751,6 +769,7 @@ class SubmissionFileSourceTest(
                 tsv {
                     line("Submission", "S-FSTST8")
                     line("Title", "Duplicated MD5 Files")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")

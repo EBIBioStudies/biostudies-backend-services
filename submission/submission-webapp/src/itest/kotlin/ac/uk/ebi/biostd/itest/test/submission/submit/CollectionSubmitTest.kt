@@ -31,12 +31,12 @@ import java.time.OffsetDateTime
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ProjectSubmitTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val tagsDataRepository: AccessTagDataRepo,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val sequenceRepository: SequenceDataRepository,
-    @LocalServerPort val serverPort: Int,
+class CollectionSubmitTest(
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val tagsDataRepository: AccessTagDataRepo,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val sequenceRepository: SequenceDataRepository,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -48,35 +48,36 @@ class ProjectSubmitTest(
         }
 
     @Test
-    fun `7-1 submit private project`() =
+    fun `7-1 submit private collection`() =
         runTest {
-            val privateProject =
+            val privateCollection =
                 tsv {
                     line("Submission", "PrivateProject")
                     line("Title", "A Private Project")
                     line("AccNoTemplate", "!{S-PRP}")
+                    line("ReleaseDate", "2099-09-21")
                     line()
 
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(privateProject, TSV)).isSuccessful()
+            assertThat(webClient.submit(privateCollection, TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
-            assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
-            assertThat(submittedProject.title).isEqualTo("A Private Project")
+            val submittedCollection = submissionRepository.getExtByAccNo("PrivateProject")
+            assertThat(submittedCollection.accNo).isEqualTo("PrivateProject")
+            assertThat(submittedCollection.title).isEqualTo("A Private Project")
 
-            assertThat(submittedProject.collections).hasSize(1)
-            assertThat(submittedProject.collections.first().accNo).isEqualTo("PrivateProject")
+            assertThat(submittedCollection.collections).hasSize(1)
+            assertThat(submittedCollection.collections.first().accNo).isEqualTo("PrivateProject")
 
             assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue
             assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue
         }
 
     @Test
-    fun `7-2 submit public project`() =
+    fun `7-2 submit public collection`() =
         runTest {
-            val publicProject =
+            val publicCollection =
                 tsv {
                     line("Submission", "PublicProject")
                     line("Title", "Public Project")
@@ -87,12 +88,12 @@ class ProjectSubmitTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(publicProject, TSV)).isSuccessful()
+            assertThat(webClient.submit(publicCollection, TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
-            assertThat(submittedProject.accNo).isEqualTo("PublicProject")
-            assertThat(submittedProject.title).isEqualTo("Public Project")
-            assertThat(submittedProject.collections).containsExactly(ExtCollection("PublicProject"))
+            val submittedCollection = submissionRepository.getExtByAccNo("PublicProject")
+            assertThat(submittedCollection.accNo).isEqualTo("PublicProject")
+            assertThat(submittedCollection.title).isEqualTo("Public Project")
+            assertThat(submittedCollection.collections).containsExactly(ExtCollection("PublicProject"))
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue
             assertThat(sequenceRepository.existsByPrefix("S-PUB-EXT")).isTrue
         }
@@ -100,26 +101,28 @@ class ProjectSubmitTest(
     @Test
     fun `7-3 submit duplicated accNo template`() =
         runTest {
-            val aProject =
+            val aCollection =
                 tsv {
                     line("Submission", "A-Project")
                     line("AccNoTemplate", "!{S-APRJ}")
+                    line("ReleaseDate", "2099-09-21")
                     line()
 
                     line("Project")
                 }.toString()
 
-            val anotherProject =
+            val anotherCollection =
                 tsv {
                     line("Submission", "Another-Project")
                     line("AccNoTemplate", "!{S-APRJ}")
+                    line("ReleaseDate", "2099-09-21")
                     line()
 
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(aProject, TSV)).isSuccessful()
-            val exception = assertThrows<WebClientException> { webClient.submit(anotherProject, TSV) }
+            assertThat(webClient.submit(aCollection, TSV)).isSuccessful()
+            val exception = assertThrows<WebClientException> { webClient.submit(anotherCollection, TSV) }
             assertThat(exception).hasMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
         }
 }

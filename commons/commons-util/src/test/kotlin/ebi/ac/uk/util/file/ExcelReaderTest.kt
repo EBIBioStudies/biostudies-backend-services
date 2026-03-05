@@ -3,6 +3,7 @@ package ebi.ac.uk.util.file
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.util.date.toStringDate
 import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -10,9 +11,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
+import java.time.OffsetDateTime
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
+class ExcelReaderTest(
+    private val temporaryFolder: TemporaryFolder,
+) {
     @Test
     fun `read as TSV`() {
         val testFile =
@@ -24,6 +28,10 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     row {
                         cell("Title")
                         cell("Excel Submission")
+                    }
+                    row {
+                        cell("ReleaseDate")
+                        cell(OffsetDateTime.now().toStringDate())
                     }
 
                     row {
@@ -73,6 +81,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             tsv {
                 line("Submission")
                 line("Title", "Excel Submission")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Study", "SECT-001")
@@ -124,6 +133,10 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                         cell("Title")
                         cell("Excel Submission With Empty Cells")
                     }
+                    row {
+                        cell("ReleaseDate")
+                        cell(OffsetDateTime.now().toStringDate())
+                    }
 
                     row {
                         cell("")
@@ -168,6 +181,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             tsv {
                 line("Submission")
                 line("Title", "Excel Submission With Empty Cells")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Study", "SECT-001")

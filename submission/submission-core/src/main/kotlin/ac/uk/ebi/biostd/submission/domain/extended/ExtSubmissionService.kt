@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
 import ac.uk.ebi.biostd.submission.service.DoiService
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -53,7 +52,7 @@ class ExtSubmissionService(
     ): SubmissionId {
         logger.info { "$accNo $user Received async refresh request, accNo='$accNo'" }
         val submission = queryService.getExtByAccNo(accNo, true)
-        val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
+        val released = submission.releaseTime.isBeforeOrEqual(OffsetDateTime.now())
 
         val toRefresh = submission.copy(released = released, version = persistenceService.getNextVersion(accNo))
         val request =
@@ -75,7 +74,7 @@ class ExtSubmissionService(
         logger.info { "$accNo $user Received async release request, accNo='{$accNo}', releaseDate = $releaseDate" }
         val submission = queryService.getExtByAccNo(accNo, true)
         val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
-        val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
+        val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now())
 
         val toRelease =
             submission.copy(

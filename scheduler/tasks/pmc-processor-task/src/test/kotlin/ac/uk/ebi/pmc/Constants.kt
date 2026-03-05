@@ -5,12 +5,14 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.util.date.toStringDate
 import java.time.Instant
+import java.time.OffsetDateTime
 
 const val FILE1_CONTENT = "that is the content"
 const val FILE2_CONTENT = "that is another the content"
 const val FILE3_PATH = "/8901234/file3.txt"
-const val ERROR_ACCNO = "S-EPMC8901234"
+const val ERROR_ACC_NO = "S-EPMC8901234"
 const val ERROR_SOURCE_FILE = "sourceFile2"
 
 const val FILE1_NAME = "file1.txt"
@@ -20,11 +22,16 @@ const val URL_FILE2_FILES_SERVER = "/files/getFileStream/PMC1234567?filename=fil
 const val URL_FILE3_FILES_SERVER = "/files/getFileStream/PMC8901234?filename=file3.txt"
 internal const val SUB_ERROR_TEXT = "Submission\tS-456ERROR\tPublic\n\nStudy\n\nLinks"
 internal const val ACC_NO = "S-123SUCCESS"
-internal val SUB_ATTRIBUTE = Attribute("Title", "Submission title")
+internal val SUB_ATTRIBUTES = listOf(Attribute("Title", "Submission title"), Attribute("ReleaseDate", "2018-01-01"))
 
 val submissionBody =
     jsonObj {
         "accno" to "S-EPMC1234567"
+        "attributes" to
+            jsonArray({
+                "name" to "ReleaseDate"
+                "value" to OffsetDateTime.now().toStringDate()
+            })
         "section" to
             jsonObj {
                 "type" to "Study"
@@ -63,6 +70,11 @@ val submissionBody =
 val invalidFileSubmissionBody =
     jsonObj {
         "accno" to "S-EPMC8901234"
+        "attributes" to
+            jsonArray({
+                "name" to "ReleaseDate"
+                "value" to OffsetDateTime.now().toStringDate()
+            })
         "section" to
             jsonObj {
                 "type" to "Study"
@@ -89,9 +101,15 @@ val invalidFileSubmissionBody =
                     )
             }
     }
-val prcoessedSubmissionBody =
+
+val processedSubmissionBody =
     jsonObj {
         "accno" to "S-EPMC1234567"
+        "attributes" to
+            jsonArray({
+                "name" to "ReleaseDate"
+                "value" to OffsetDateTime.now().toStringDate()
+            })
         "section" to
             jsonObj {
                 "type" to "Study"
@@ -146,7 +164,7 @@ internal val invalidFileSubmission =
 internal val processedSubmission =
     SubmissionDocument(
         accNo = "S-EPMC1234567",
-        body = prcoessedSubmissionBody.toString(),
+        body = processedSubmissionBody.toString(),
         status = SubmissionStatus.PROCESSED,
         sourceFile = "sourceFile1",
         posInFile = 0,

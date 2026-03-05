@@ -42,10 +42,10 @@ import java.time.OffsetDateTime
 )
 @DirtiesContext
 class SubmissionReleaseTestWithoutSecretKey(
-    @LocalServerPort val serverPort: Int,
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
 ) {
     private lateinit var webClient: BioWebClient
 

@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -24,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -32,8 +34,8 @@ import kotlin.time.measureTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionPerformanceTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -69,6 +71,7 @@ class SubmissionPerformanceTest(
                 tsv {
                     line("Submission", "SPER-1")
                     line("Title", "Performance Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")

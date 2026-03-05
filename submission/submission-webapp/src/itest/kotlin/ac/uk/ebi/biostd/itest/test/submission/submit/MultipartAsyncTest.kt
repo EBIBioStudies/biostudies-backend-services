@@ -15,6 +15,7 @@ import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -27,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -50,8 +52,9 @@ class MultipartAsyncTest(
         runTest {
             val submission =
                 tsv {
-                    line("Submission", "SMulti-001")
+                    line("Submission", "S-MULTIPART-ASYNC-001")
                     line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -62,8 +65,9 @@ class MultipartAsyncTest(
 
             val submission2 =
                 tsv {
-                    line("Submission", "SMulti-002")
+                    line("Submission", "S-MULTIPART-ASYNC-002")
                     line("Title", "Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -81,18 +85,18 @@ class MultipartAsyncTest(
             val result =
                 webClient.submitMultipartAsync(
                     format = TSV_EXTENSION,
-                    submissions = mapOf("SMulti-001" to submission, "SMulti-002" to submission2),
-                    files = mapOf("SMulti-001" to listOf(file), "SMulti-002" to listOf(file2, file3)),
+                    submissions = mapOf("S-MULTIPART-ASYNC-001" to submission, "S-MULTIPART-ASYNC-002" to submission2),
+                    files = mapOf("S-MULTIPART-ASYNC-001" to listOf(file), "S-MULTIPART-ASYNC-002" to listOf(file2, file3)),
                     parameters = SubmitParameters(storageMode = storageMode),
                 )
 
             assertThat(result).hasSize(2)
             val sub1 = result.first()
-            assertThat(sub1.accNo).isEqualTo("SMulti-001")
+            assertThat(sub1.accNo).isEqualTo("S-MULTIPART-ASYNC-001")
             assertThat(sub1.version).isEqualTo(1)
 
             val sub2 = result[1]
-            assertThat(sub2.accNo).isEqualTo("SMulti-002")
+            assertThat(sub2.accNo).isEqualTo("S-MULTIPART-ASYNC-002")
             assertThat(sub2.version).isEqualTo(1)
 
             waitUntil(timeout = FIVE_SECONDS) { submissionRepository.existByAccNoAndVersion(sub1.accNo, sub1.version) }

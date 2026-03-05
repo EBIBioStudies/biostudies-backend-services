@@ -129,7 +129,7 @@ object TestDependencies {
     const val TestContainerRabbitMq = "org.testcontainers:rabbitmq:$TestContainersVersion"
     const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerS3mockVersion"
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainersVersion"
-    const val TestContainer = "org.testcontainers:testcontainers:$TestContainersVersion"
+    const val TestContainers = "org.testcontainers:testcontainers:$TestContainersVersion"
     const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainersVersion"
 }
 

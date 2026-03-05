@@ -37,9 +37,9 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class DeleteFilesPermissionTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val requestRepository: SubmissionRequestPersistenceService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
     private lateinit var superUserWebClient: BioWebClient
@@ -245,8 +245,8 @@ class DeleteFilesPermissionTest(
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.security.preventFileDeletion=false"])
     inner class PreventFileDeletionFlag(
-        @Autowired val securityTestService: SecurityTestService,
-        @LocalServerPort val serverPort: Int,
+        @param:Autowired val securityTestService: SecurityTestService,
+        @param:LocalServerPort val serverPort: Int,
     ) {
         @Test
         fun `1-18 Regular user deletes their own public submission files when preventFileDeletion is disabled`() =

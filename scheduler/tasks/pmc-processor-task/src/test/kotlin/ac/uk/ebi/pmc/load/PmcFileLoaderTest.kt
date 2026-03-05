@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.ACC_NO
 import ac.uk.ebi.pmc.PmcTaskExecutor
-import ac.uk.ebi.pmc.SUB_ATTRIBUTE
+import ac.uk.ebi.pmc.SUB_ATTRIBUTES
 import ac.uk.ebi.pmc.SUB_ERROR_TEXT
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.persistence.docs.InputFileDocument
@@ -59,7 +59,9 @@ import java.time.Duration.ofSeconds
 @TestInstance(Lifecycle.PER_CLASS)
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
+internal class PmcFileLoaderTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val mongoContainer: MongoDBContainer =
         MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
             .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -209,7 +211,7 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
                 assertThat(it.attributes.second().name).isEqualTo("P12004")
                 assertThat(it.attributes.second().value).isEqualTo("uniprot")
             }
-            assertThat(deserializedSubmission.attributes).isEqualTo(listOf(SUB_ATTRIBUTE))
+            assertThat(deserializedSubmission.attributes).isEqualTo(SUB_ATTRIBUTES)
         }
     }
 }
