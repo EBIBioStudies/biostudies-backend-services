@@ -89,6 +89,7 @@ class StatsReporterDataRepositoryTest(
                     released = testSub.released,
                     stats = stats,
                     subCreationTime = testSub.creationTime,
+                    subReleaseTime = testSub.releaseTime,
                     subModificationTime = testSub.modificationTime,
                     storageMode = testSub.storageMode,
                     collections = collections,

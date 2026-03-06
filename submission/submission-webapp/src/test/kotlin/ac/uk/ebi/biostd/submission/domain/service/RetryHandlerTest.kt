@@ -17,16 +17,15 @@ import java.time.temporal.ChronoUnit.HOURS
 
 @ExtendWith(MockKExtension::class)
 class RetryHandlerTest(
-    @MockK private val extSubmissionService: ExtSubmissionService,
-    @MockK private val requestService: SubmissionRequestPersistenceService,
+    @param:MockK private val submission: ExtSubmission,
+    @param:MockK private val extSubmissionService: ExtSubmissionService,
+    @param:MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
     private val testInstance = RetryHandler(extSubmissionService, requestService)
 
     @Test
-    fun onStart(
-        @MockK submission: ExtSubmission,
-    ) {
-        every { requestService.getActiveRequests() } returns flowOf(SubmissionId("a", 1), SubmissionId("b", 2))
+    fun onStart() {
+        every { requestService.getProcessingRequests() } returns flowOf(SubmissionId("a", 1), SubmissionId("b", 2))
         coEvery { extSubmissionService.reTriggerSubmission("a", 1) } throws IllegalStateException("Error trigger")
         coEvery { extSubmissionService.reTriggerSubmission("b", 2) } answers { submission }
 
@@ -37,10 +36,8 @@ class RetryHandlerTest(
     }
 
     @Test
-    fun onSchedule(
-        @MockK submission: ExtSubmission,
-    ) {
-        every { requestService.getActiveRequests(Duration.of(3, HOURS)) } returns
+    fun onSchedule() {
+        every { requestService.getProcessingRequests(Duration.of(3, HOURS)) } returns
             flowOf(
                 SubmissionId("a", 1),
                 SubmissionId("b", 2),

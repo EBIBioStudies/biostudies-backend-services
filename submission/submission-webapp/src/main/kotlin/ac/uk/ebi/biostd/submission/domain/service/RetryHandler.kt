@@ -27,7 +27,7 @@ class RetryHandler(
         runBlocking {
             logger.info { "Re processing pending submission on application start" }
             requestService
-                .getActiveRequests(Duration.of(3, ChronoUnit.HOURS))
+                .getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
                 .chunked(RETRY_BATCH)
                 .collect { reTriggerSafely(it.map { (accNo, version) -> SubmissionId(accNo, version) }) }
         }
@@ -37,7 +37,7 @@ class RetryHandler(
         runBlocking {
             logger.info { "Scheduled re processing of pending submission" }
             requestService
-                .getActiveRequests(Duration.of(3, ChronoUnit.HOURS))
+                .getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
                 .chunked(RETRY_BATCH)
                 .collect { reTriggerSafely(it.map { (accNo, version) -> SubmissionId(accNo, version) }) }
         }
