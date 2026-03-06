@@ -41,7 +41,6 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 
@@ -161,7 +160,4 @@ class SubmissionWebConfig {
 
     @Bean
     fun onBehalfUtils(securityQueryService: SecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
-
-    @Bean
-    fun clusterClient(properties: ApplicationProperties): SlurmClusterClient = GeneralConfig.slurmCluster(properties)
 }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.cluster.web
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,6 +15,7 @@ import uk.ac.ebi.biostd.client.cluster.model.QueueSpec
 
 @RestController
 @RequestMapping("/cluster")
+@ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
 class ClusterOperationsResource(
     private val clusterClient: ClusterClient,
 ) {
