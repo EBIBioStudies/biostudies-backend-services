@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.ac.ebi.biostd.client.cluster.model.Cluster
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
@@ -15,42 +15,37 @@ import uk.ac.ebi.biostd.client.cluster.model.QueueSpec
 @RestController
 @RequestMapping("/cluster")
 class ClusterOperationsResource(
-    private val clusterExecutor: ClusterExecutor,
+    private val clusterClient: ClusterClient,
 ) {
-    @PostMapping("/{cluster}/health")
-    suspend fun clusterHealthCheck(
-        @PathVariable cluster: String,
-    ): Job {
+    @PostMapping("/health")
+    suspend fun clusterHealthCheck(): Job {
         val spec = JobSpec(command = "echo 'hello';")
-        return clusterExecutor.triggerJobSync(Cluster.fromName(cluster), spec)
+        return clusterClient.triggerJobSync(spec)
     }
 
-    @PostMapping("/{cluster}/submit")
+    @PostMapping("/submit")
     suspend fun submitJob(
-        @PathVariable cluster: String,
         @RequestBody job: JobSpecDto,
     ): Job {
-        val response = clusterExecutor.triggerJobAsync(Cluster.fromName(cluster), job.asJobSpec())
+        val response = clusterClient.triggerJobAsync(job.asJobSpec())
         return response.fold(
             { it },
             { throw IllegalStateException(it) },
         )
     }
 
-    @GetMapping("/{cluster}/jobs/{jobId}/status")
+    @GetMapping("/jobs/{jobId}/status")
     suspend fun jobStatus(
-        @PathVariable cluster: String,
         @PathVariable jobId: String,
     ): JobStatus {
-        return JobStatus(clusterExecutor.jobStatus(Cluster.fromName(cluster), jobId))
+        return JobStatus(clusterClient.jobStatus(jobId))
     }
 
-    @GetMapping("/{cluster}/jobs/{jobId}/logs")
+    @GetMapping("/jobs/{jobId}/logs")
     suspend fun jobLogs(
-        @PathVariable cluster: String,
         @PathVariable jobId: String,
     ): String {
-        return clusterExecutor.jobLogs(Cluster.fromName(cluster), jobId)
+        return clusterClient.jobLogs(jobId)
     }
 
     data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {

@@ -20,10 +20,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
-import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
-import uk.ac.ebi.biostd.client.cluster.model.Cluster.LSF
-import uk.ac.ebi.biostd.client.cluster.model.Cluster.SLURM
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
@@ -87,11 +84,7 @@ class GeneralConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
-    fun clusterClient(properties: ApplicationProperties): ClusterClient =
-        when (properties.cluster.default) {
-            LSF -> lsfCluster(properties)
-            SLURM -> slurmCluster(properties)
-        }
+    fun clusterClient(properties: ApplicationProperties): ClusterClient = slurmCluster(properties)
 
     @Bean
     fun remoteSubmitterExecutor(
@@ -194,13 +187,6 @@ class GeneralConfig {
                 ftpPort = ftpProperties.ftpPort,
                 defaultTimeout = ftpProperties.defaultTimeout,
                 connectionTimeout = ftpProperties.connectionTimeout,
-            )
-
-        fun lsfCluster(properties: ApplicationProperties): LsfClusterClient =
-            LsfClusterClient.create(
-                properties.cluster.key,
-                properties.cluster.lsfServer,
-                properties.cluster.logsPath,
             )
 
         fun retryConfig(properties: FireProperties) =
