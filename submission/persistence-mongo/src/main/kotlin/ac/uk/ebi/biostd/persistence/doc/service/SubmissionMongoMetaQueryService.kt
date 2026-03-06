@@ -22,16 +22,14 @@ class SubmissionMongoMetaQueryService(
         val collectionPattern = collection.attrValue(ACC_NO_TEMPLATE) ?: throw CollectionWithoutPatternException(accNo)
         val validator = collection.attrValue(COLLECTION_VALIDATOR)
         val collections = collection.collections.map { it.accNo }
-        val releaseTime = collection.releaseTime?.atOffset(UTC)
+        val releaseTime = collection.releaseTime.atOffset(UTC)
         return BasicCollection(collection.accNo, collectionPattern, collections, validator, releaseTime)
     }
 
     override suspend fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
         submissionRepository.findByAccNo(accNo)?.asBasicSubmission(PROCESSED)
 
-    override suspend fun getCollections(accNo: String): List<String> {
-        return submissionRepository.getCollections(accNo).map { it.accNo }
-    }
+    override suspend fun getCollections(accNo: String): List<String> = submissionRepository.getCollections(accNo).map { it.accNo }
 
     override suspend fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 

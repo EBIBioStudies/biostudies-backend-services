@@ -1,5 +1,6 @@
 Submission	S-123SUCCESS	Public
-Title	Submission title	
+Title	Submission title
+ReleaseDate	2018-01-01
 		
 Study		
 Title	Submission title	

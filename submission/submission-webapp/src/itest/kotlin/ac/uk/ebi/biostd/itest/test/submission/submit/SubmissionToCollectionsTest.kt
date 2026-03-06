@@ -44,11 +44,11 @@ import kotlin.test.assertFailsWith
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionToCollectionsTest(
-    @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired private val testCollectionValidator: TestCollectionValidator,
-    @Autowired private val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired private val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired private val testCollectionValidator: TestCollectionValidator,
+    @param:Autowired private val toSubmissionMapper: ToSubmissionMapper,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -68,15 +68,18 @@ class SubmissionToCollectionsTest(
                     line("Submission")
                     line("AttachTo", "Test-Project")
                     line("Title", "AccNo Generation Test")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
                 }.toString()
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
             val expected =
-                submission("S-TEST-EXT1") {
+                submission("S-COL-TEST-EXT1") {
                     title = "AccNo Generation Test"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     attachTo = "Test-Project"
                 }
-            assertThat(getSimpleSubmission("S-TEST-EXT1")).isEqualTo(expected)
+            assertThat(getSimpleSubmission("S-COL-TEST-EXT1")).isEqualTo(expected)
         }
 
     @Test
@@ -86,9 +89,11 @@ class SubmissionToCollectionsTest(
                 tempFolder.createFile(
                     "submission.tsv",
                     tsv {
-                        line("Submission", "S-TEST1")
+                        line("Submission", "S-COL-TEST1")
                         line("AttachTo", "Test-Project")
                         line("Title", "Overridden Project")
+                        line("ReleaseDate", "2099-09-21")
+                        line()
                     }.toString(),
                 )
 
@@ -99,29 +104,11 @@ class SubmissionToCollectionsTest(
                 )
             assertThat(webClient.submitMultipart(submissionFile, params)).isSuccessful()
 
-            assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
-                submission("S-TEST1") {
+            assertThat(getSimpleSubmission("S-COL-TEST1")).isEqualTo(
+                submission("S-COL-TEST1") {
                     title = "Overridden Project"
+                    releaseDate = "2099-09-21"
                     attachTo = "Public-Project"
-                },
-            )
-        }
-
-    @Test
-    fun `8-3 no release date to private collection`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "S-PRP0")
-                    line("AttachTo", "Private-Project")
-                    line("Title", "No Release Date To Private Project")
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-            assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(
-                submission("S-PRP0") {
-                    title = "No Release Date To Private Project"
-                    attachTo = "Private-Project"
                 },
             )
         }
@@ -170,25 +157,6 @@ class SubmissionToCollectionsTest(
         }
 
     @Test
-    fun `8-6 no release date to public collection`() =
-        runTest {
-            val submission =
-                tsv {
-                    line("Submission", "S-PUP1")
-                    line("AttachTo", "Public-Project")
-                    line("Title", "No Release Date To Public Project")
-                }.toString()
-
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
-            assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(
-                submission("S-PUP1") {
-                    title = "No Release Date To Public Project"
-                    attachTo = "Public-Project"
-                },
-            )
-        }
-
-    @Test
     fun `8-7 submit to collection with validator`() =
         runTest {
             val submission =
@@ -196,6 +164,8 @@ class SubmissionToCollectionsTest(
                     line("Submission", "S-VLD0")
                     line("AttachTo", "ValidatedCollection")
                     line("Title", "A Validated Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
                 }.toString()
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
@@ -203,6 +173,7 @@ class SubmissionToCollectionsTest(
             assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(
                 submission("S-VLD0") {
                     title = "A Validated Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     attachTo = "ValidatedCollection"
                 },
             )
@@ -216,6 +187,8 @@ class SubmissionToCollectionsTest(
                     line("Submission", "S-FLC0")
                     line("AttachTo", "FailCollection")
                     line("Title", "A Fail Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
                 }.toString()
 
             val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
@@ -231,6 +204,7 @@ class SubmissionToCollectionsTest(
                 tsv {
                     line("Submission", "S-PROVIDED1")
                     line("AttachTo", "Test-Project")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                     line("Study")
                     line()
@@ -249,6 +223,7 @@ class SubmissionToCollectionsTest(
                 tsv {
                     line("Submission", "S-PROVIDED2")
                     line("AttachTo", "Private-Project")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                     line("Study")
                     line()
@@ -263,7 +238,8 @@ class SubmissionToCollectionsTest(
         val testProject =
             tsv {
                 line("Submission", "Test-Project")
-                line("AccNoTemplate", "!{S-TEST-EXT}")
+                line("AccNoTemplate", "!{S-COL-TEST-EXT}")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Project")
@@ -273,6 +249,7 @@ class SubmissionToCollectionsTest(
             tsv {
                 line("Submission", "Private-Project")
                 line("AccNoTemplate", "!{S-PRP-EXT}")
+                line("ReleaseDate", "2099-09-21")
                 line()
 
                 line("Project")
@@ -293,6 +270,7 @@ class SubmissionToCollectionsTest(
                 line("Submission", "ValidatedCollection")
                 line("AccNoTemplate", "!{S-VLD-EXT}")
                 line("CollectionValidator", "TestCollectionValidator")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Project")
@@ -303,6 +281,7 @@ class SubmissionToCollectionsTest(
                 line("Submission", "FailCollection")
                 line("AccNoTemplate", "!{S-FLC-EXT}")
                 line("CollectionValidator", "FailCollectionValidator")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
 
                 line("Project")

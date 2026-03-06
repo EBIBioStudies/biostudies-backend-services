@@ -22,6 +22,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -37,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -70,6 +72,7 @@ class SubmissionStatsTest(
             val submission =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
 
@@ -94,6 +97,7 @@ class SubmissionStatsTest(
             val submission1 =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
             webClient.submit(submission1, TSV)
@@ -122,6 +126,7 @@ class SubmissionStatsTest(
             val submission1 =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
             webClient.submit(submission1, TSV)

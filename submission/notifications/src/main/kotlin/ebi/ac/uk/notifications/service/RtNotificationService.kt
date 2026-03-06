@@ -74,7 +74,7 @@ class RtNotificationService(
                 stUrl,
                 ownerFullName,
                 description,
-                submission.releaseTime?.toStringDate(),
+                submission.releaseTime.toStringDate(),
             )
         }
 
@@ -94,7 +94,7 @@ class RtNotificationService(
                 accNo = submission.accNo,
                 title = title,
                 releaseMessage = releaseMessage(submission, uiUrl),
-                releaseDate = submission.releaseTime?.toStringDate().orEmpty(),
+                releaseDate = submission.releaseTime.toStringDate(),
             )
         }
 
@@ -102,13 +102,12 @@ class RtNotificationService(
             sub: ExtSubmission,
             uiUrl: String,
         ): String {
-            val releaseDate = sub.releaseTime?.toStringDate()
+            val releaseDate = sub.releaseTime.toStringDate()
             val released = sub.released
 
             return when {
                 released -> EMPTY
-                releaseDate != null -> privateWithReleaseDateMessage(linkMessage(sub, uiUrl), releaseDate)
-                else -> privateMessage(linkMessage(sub, uiUrl))
+                else -> privateWithReleaseDateMessage(linkMessage(sub, uiUrl), releaseDate)
             }
         }
 
@@ -119,9 +118,6 @@ class RtNotificationService(
             append("You will be able to see it only by logging in or by accessing it through this link: ")
             append("$uiUrl/studies/${sub.accNo}?key=${sub.secretKey}")
         }
-
-        private fun privateMessage(linkMessage: String) =
-            "The release date of this study is not set so it's not publicly available. $linkMessage"
 
         private fun privateWithReleaseDateMessage(
             linkMessage: String,

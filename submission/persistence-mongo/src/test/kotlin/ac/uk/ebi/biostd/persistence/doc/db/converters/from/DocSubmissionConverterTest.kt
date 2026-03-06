@@ -20,15 +20,15 @@ import java.util.Date
 
 @ExtendWith(MockKExtension::class)
 internal class DocSubmissionConverterTest(
-    @MockK val docAttributeConverter: DocAttributeConverter,
-    @MockK val attributeDocument: Document,
-    @MockK val docAttribute: DocAttribute,
-    @MockK val docSectionConverter: DocSectionConverter,
-    @MockK val sectionDocument: Document,
-    @MockK val docSection: DocSection,
-    @MockK val docFileConverter: DocFileConverter,
-    @MockK val subTabFile: Document,
-    @MockK val docFile: DocFile,
+    @param:MockK val docAttributeConverter: DocAttributeConverter,
+    @param:MockK val attributeDocument: Document,
+    @param:MockK val docAttribute: DocAttribute,
+    @param:MockK val docSectionConverter: DocSectionConverter,
+    @param:MockK val sectionDocument: Document,
+    @param:MockK val docSection: DocSection,
+    @param:MockK val docFileConverter: DocFileConverter,
+    @param:MockK val subTabFile: Document,
+    @param:MockK val docFile: DocFile,
 ) {
     private val testInstance = DocSubmissionConverter(docFileConverter, docSectionConverter, docAttributeConverter)
 

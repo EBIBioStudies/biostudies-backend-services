@@ -31,6 +31,7 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.paths.FILES_PATH
@@ -86,12 +87,14 @@ class SubmissionApiTest(
             val submission =
                 submission("SimpleAcc1") {
                     title = "Simple Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                 }
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("SimpleAcc1")).isEqualTo(
                 submission("SimpleAcc1") {
                     title = "Simple Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                 },
             )
         }
@@ -103,6 +106,8 @@ class SubmissionApiTest(
                 tsv {
                     line("Submission")
                     line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
                 }.toString()
 
             val response = webClient.submit(submission, TSV)
@@ -111,6 +116,7 @@ class SubmissionApiTest(
             assertThat(getSimpleSubmission(response.body.accNo)).isEqualTo(
                 submission(response.body.accNo) {
                     title = "Empty AccNo"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                 },
             )
         }
@@ -123,6 +129,7 @@ class SubmissionApiTest(
                     line("Submission", "S-12364")
                     line("Title", "Sample Submission")
                     line("RootPath", "RootPathFolder")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -142,6 +149,7 @@ class SubmissionApiTest(
             assertThat(getSimpleSubmission("S-12364")).isEqualTo(
                 submission("S-12364") {
                     title = "Sample Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     rootPath = "RootPathFolder"
                     section("Study") { file("DataFile5.txt") }
                 },
@@ -155,6 +163,7 @@ class SubmissionApiTest(
                 tsv {
                     line("Submission", "E-MTAB123")
                     line("Title", "Generic Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Experiment")
@@ -165,6 +174,7 @@ class SubmissionApiTest(
             assertThat(getSimpleSubmission("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     section("Experiment") { }
                 },
             )
@@ -187,6 +197,7 @@ class SubmissionApiTest(
             val submission =
                 submission("S-400") {
                     title = "Submission with invalid file"
+                    releaseDate = OffsetDateTime.now().toStringDate()
                     section("Study") { file("invalidfile.txt") }
                 }
 
@@ -445,6 +456,7 @@ class SubmissionApiTest(
                 tsv {
                     line("Submission", "SFTP-1")
                     line("Title", "FTP user Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study")
@@ -461,7 +473,7 @@ class SubmissionApiTest(
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
     inner class SubmitWebBasePath(
-        @LocalServerPort val serverPort: Int,
+        @param:LocalServerPort val serverPort: Int,
     ) {
         private lateinit var webClient: BioWebClient
 
@@ -477,6 +489,7 @@ class SubmissionApiTest(
                     tsv {
                         line("Submission", "S-12366")
                         line("Title", "Sample Submission")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
 
                         line("Study")
@@ -497,7 +510,7 @@ class SubmissionApiTest(
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.asyncMode=true"])
     inner class SubmitAsyncFileValidation(
-        @LocalServerPort val serverPort: Int,
+        @param:LocalServerPort val serverPort: Int,
     ) {
         private lateinit var webClient: BioWebClient
 
@@ -513,6 +526,7 @@ class SubmissionApiTest(
                 val submission =
                     tsv {
                         line("Submission", accNo)
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                         line("Study")
                         line()
@@ -553,6 +567,7 @@ class SubmissionApiTest(
             val submission =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
@@ -566,6 +581,7 @@ class SubmissionApiTest(
             val submission =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(silentMode = true))).isSuccessful()
@@ -579,6 +595,7 @@ class SubmissionApiTest(
             val submission =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                     line("Study")
                     line()
@@ -605,6 +622,7 @@ class SubmissionApiTest(
             val submission =
                 tsv {
                     line("Submission", accNo)
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                     line("Study")
                     line()
@@ -633,6 +651,7 @@ class SubmissionApiTest(
                 tsv {
                     line("Submission", accNo)
                     line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
             val response = webClient.submit(subV1, TSV)

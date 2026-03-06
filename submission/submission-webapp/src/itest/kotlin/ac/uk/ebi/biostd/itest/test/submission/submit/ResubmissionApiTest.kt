@@ -45,11 +45,11 @@ import java.time.OffsetDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ResubmissionApiTest(
-    @Autowired val securityTestService: SecurityTestService,
-    @Autowired val requestRepository: SubmissionRequestPersistenceService,
-    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val filesRepository: SubmissionFilesPersistenceService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired val securityTestService: SecurityTestService,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
+    @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val filesRepository: SubmissionFilesPersistenceService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -203,6 +203,7 @@ class ResubmissionApiTest(
                     tsv {
                         line("Submission", "S-RSTST3")
                         line("Title", "Sample Submission")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line("RootPath", rootPath)
                         line()
                         line("Study")

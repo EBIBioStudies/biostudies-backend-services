@@ -3,7 +3,7 @@ package ac.uk.ebi.pmc.process.util
 import ac.uk.ebi.pmc.client.PmcApi
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.SUBMISSION_EXTESIONS
+import ebi.ac.uk.model.extensions.SUBMISSION_EXTENSIONS
 import ebi.ac.uk.model.extensions.allFiles
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -32,7 +32,7 @@ class FileDownloaderTest(
         @MockK file: BioFile,
     ) {
         runTest {
-            mockkStatic(SUBMISSION_EXTESIONS)
+            mockkStatic(SUBMISSION_EXTENSIONS)
             val exception = RuntimeException("An http Exception")
             val targetFolder = temporaryFolder.root
             every { submission.allFiles() } returns listOf(file)

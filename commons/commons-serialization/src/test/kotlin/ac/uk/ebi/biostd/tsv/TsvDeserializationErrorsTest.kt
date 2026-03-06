@@ -20,9 +20,11 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.OffsetDateTime
 
 class TsvDeserializationErrorsTest {
     private val deserializer = TsvDeserializer()
@@ -40,6 +42,7 @@ class TsvDeserializationErrorsTest {
             tsv {
                 line("Submission", "S-BIAD2")
                 line("Title", "A Title")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 line()
             }.toString()
 

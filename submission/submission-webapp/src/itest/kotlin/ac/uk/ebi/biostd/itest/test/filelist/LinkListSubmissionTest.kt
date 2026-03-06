@@ -29,6 +29,7 @@ import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -42,6 +43,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -64,10 +66,12 @@ class LinkListSubmissionTest(
     @Test
     fun `32-1 TSV submission with link list`() =
         runTest {
+            val releaseDate = OffsetDateTime.now().toStringDate()
             val submission =
                 tsv {
                     line("Submission", "S-LLT311")
                     line("Title", "TSV Submission With Link List")
+                    line("ReleaseDate", releaseDate)
                     line()
 
                     line("Study", "SECT-001")
@@ -100,6 +104,9 @@ class LinkListSubmissionTest(
                   "attributes" : [ {
                     "name" : "Title",
                     "value" : "TSV Submission With Link List"
+                  }, {
+                    "name" : "ReleaseDate",
+                    "value" : "$releaseDate"
                   } ],
                   "section" : {
                     "accno" : "SECT-001",
@@ -119,6 +126,7 @@ class LinkListSubmissionTest(
                 """
                 Submission	S-LLT311
                 Title	TSV Submission With Link List
+                ReleaseDate	$releaseDate
 
                 Study	SECT-001
                 Link List	LinkList.tsv
@@ -151,6 +159,9 @@ class LinkListSubmissionTest(
                         jsonArray({
                             "name" to "Title"
                             "value" to "JSON Submission With Link List"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
                         })
                     "section" to {
                         "accno" to "SECT-001"
@@ -198,6 +209,7 @@ class LinkListSubmissionTest(
                 tsv {
                     line("Submission", "S-LLT313")
                     line("Title", "Resubmission With Links Modification")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -225,6 +237,7 @@ class LinkListSubmissionTest(
                 tsv {
                     line("Submission", "S-LLT313")
                     line("Title", "Resubmission With Links Modification")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -262,6 +275,7 @@ class LinkListSubmissionTest(
                 tsv {
                     line("Submission", "S-LLT314")
                     line("Title", "Submission With Metadata")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")
@@ -289,6 +303,7 @@ class LinkListSubmissionTest(
                 tsv {
                     line("Submission", "S-LLT314")
                     line("Title", "Resubmission With Metadata Update")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Study", "SECT-001")

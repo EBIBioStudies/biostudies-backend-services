@@ -18,19 +18,26 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_RELEASE_DATE
 import ac.uk.ebi.biostd.validation.REQUIRED_ROOT_SECTION
+import ac.uk.ebi.biostd.validation.REQUIRED_SUBMISSION
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.SUBMISSION
 
 internal class ChunkProcessor {
     fun getSubmission(tsvChunk: TsvChunk): Submission {
-        validate(tsvChunk.getType() like SUBMISSION) { "Expected to find block type of $SUBMISSION" }
+        validate(tsvChunk.getType() like SUBMISSION) { REQUIRED_SUBMISSION }
+
+        val attributes = toAttributes(tsvChunk.lines)
+        val releaseDate = attributes.find { it.name like RELEASE_DATE }?.value.orEmpty()
+        require(releaseDate.isNotBlank()) { throw InvalidElementException(REQUIRED_RELEASE_DATE) }
 
         return Submission(
             accNo = tsvChunk.findId().orEmpty(),
-            attributes = toAttributes(tsvChunk.lines),
+            attributes = attributes,
         )
     }
 

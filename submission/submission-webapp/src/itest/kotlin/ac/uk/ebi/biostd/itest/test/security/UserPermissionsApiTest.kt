@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -32,15 +33,16 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @ExtendWith(SpringExtension::class)
 @Import(FilePersistenceConfig::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserPermissionsApiTest(
-    @Autowired private val userDataRepository: UserDataRepository,
-    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
-    @Autowired private val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @param:Autowired private val userDataRepository: UserDataRepository,
+    @param:Autowired private val accessPermissionRepository: AccessPermissionRepository,
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superWebClient: BioWebClient
     private lateinit var regularWebClient: BioWebClient
@@ -58,6 +60,7 @@ class UserPermissionsApiTest(
                 tsv {
                     line("Submission", "PermissionCollection")
                     line("AccNoTemplate", "!{S-PCOL}")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
 
                     line("Project")

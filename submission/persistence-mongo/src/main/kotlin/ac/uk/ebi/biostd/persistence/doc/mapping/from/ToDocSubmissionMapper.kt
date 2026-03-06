@@ -38,7 +38,7 @@ class ToDocSubmissionMapper(
             creationTime = creationTime.toInstant(),
             submissionTime = submissionTime.toInstant(),
             modificationTime = modificationTime.toInstant(),
-            releaseTime = releaseTime?.toInstant(),
+            releaseTime = releaseTime.toInstant(),
             owner = owner,
             submitter = submitter,
             collections = collections.map { DocCollection(it.accNo) },

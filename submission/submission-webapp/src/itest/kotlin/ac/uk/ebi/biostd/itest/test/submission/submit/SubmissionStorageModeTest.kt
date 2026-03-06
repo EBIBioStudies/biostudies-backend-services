@@ -246,6 +246,7 @@ class SubmissionStorageModeTest(
             tsv {
                 line("Submission", accNo)
                 line("Title", "Storage mode submission")
+                line("ReleaseDate", "2099-09-21")
                 line()
 
                 line("Study")
