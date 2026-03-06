@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
@@ -203,9 +204,10 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
  * 4. Collections
  * 5. Creation time
  * 6. Modification time
- * 7. Files Size
- * 8. Directories
- * 9. Non Declared Files Directories
+ * 7. Release time
+ * 8. Files Size
+ * 9. Directories
+ * 10. Non Declared Files Directories
  */
 suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
@@ -217,6 +219,7 @@ suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
         createIndex(backgroundIndex().on(STATS_STORAGE_MODE, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_SUB_CREATION_TIME, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_SUB_MODIFICATION_TIME, ASC)).awaitSingleOrNull()
+        createIndex(backgroundIndex().on(STATS_SUB_RELEASE_TIME, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_FILE_SIZE, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_DIRECTORIES, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on(STATS_NON_DECLARED_FILES_DIRECTORIES, ASC)).awaitSingleOrNull()

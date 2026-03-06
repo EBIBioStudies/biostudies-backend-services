@@ -19,7 +19,6 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.Companion.ACTIVE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.DRAFT_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.EDITABLE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
@@ -115,14 +114,18 @@ class SubmissionRequestMongoPersistenceService(
 
     override suspend fun hasProcessingRequest(accNo: String): Boolean = requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STATUS)
 
-    override fun getActiveRequests(since: TemporalAmount?): Flow<SubmissionId> =
+    override fun getProcessingRequests(since: TemporalAmount?): Flow<SubmissionId> =
         when (since) {
-            null -> requestRepository.findByStatusIn(ACTIVE_STATUS)
-            else ->
+            null -> {
+                requestRepository.findByStatusIn(PROCESSING_STATUS)
+            }
+
+            else -> {
                 requestRepository.findByStatusInAndModificationTimeLessThan(
-                    ACTIVE_STATUS,
+                    PROCESSING_STATUS,
                     Instant.now().minus(since),
                 )
+            }
         }
 
     override suspend fun archiveRequest(

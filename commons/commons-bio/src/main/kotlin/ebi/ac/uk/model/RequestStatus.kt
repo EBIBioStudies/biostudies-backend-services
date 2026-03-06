@@ -43,7 +43,7 @@ enum class RequestStatus {
             )
 
         /**
-         * List of status as request are consider active to the user.
+         * The list of status as a request is considered active to the user.
          */
         val ACTIVE_STATUS: Set<RequestStatus> =
             buildSet {

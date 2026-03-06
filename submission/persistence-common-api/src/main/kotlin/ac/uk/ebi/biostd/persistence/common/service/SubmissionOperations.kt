@@ -168,7 +168,7 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun saveRequest(rqt: SubmissionRequest): SubmissionId
 
-    fun getActiveRequests(since: TemporalAmount? = null): Flow<SubmissionId>
+    fun getProcessingRequests(since: TemporalAmount? = null): Flow<SubmissionId>
 
     /**
      * Updates the given request files. The submission request index is updated based on the given number of elements.
