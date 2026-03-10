@@ -23,6 +23,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
@@ -260,17 +261,19 @@ class SubmissionRequestMongoPersistenceServiceTest(
             )
 
             requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
+            requestRepository.save(testRequest("def", 3, Instant.now().minusSeconds(10), INVALID))
+            requestRepository.save(testRequest("ghi", 4, Instant.now().minusSeconds(10), POST_PROCESSED))
             requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
-            assertThat(testInstance.getActiveRequests().toList()).containsExactly(
+            assertThat(testInstance.getProcessingRequests().toList()).containsExactly(
                 SubmissionId("abc", 1),
                 SubmissionId("zxy", 2),
             )
-            assertThat(testInstance.getActiveRequests(ofSeconds(5)).toList()).containsExactly(
+            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly(
                 SubmissionId("abc", 1),
                 SubmissionId("zxy", 2),
             )
-            assertThat(testInstance.getActiveRequests(ofSeconds(15)).toList()).containsExactly(SubmissionId("zxy", 2))
+            assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly(SubmissionId("zxy", 2))
         }
 
     @Test

@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -119,6 +120,7 @@ class StatsMongoDataService(
                             Updates.set(STATS_COLLECTIONS, collections),
                             Updates.set(STATS_STORAGE_MODE, sub.storageMode),
                             Updates.set(STATS_SUB_CREATION_TIME, sub.creationTime.toInstant()),
+                            Updates.set(STATS_SUB_RELEASE_TIME, sub.releaseTime.toInstant()),
                             Updates.set(STATS_SUB_MODIFICATION_TIME, sub.modificationTime.toInstant()),
                             Updates.set("$STATS_STATS_MAP.${it.type}", it.value),
                             Updates.set(STATS_LAST_UPDATED, Instant.now()),

@@ -25,7 +25,7 @@ enum class RequestStatus {
         val EDITABLE_STATUS: Set<RequestStatus> = setOf(DRAFT, INVALID)
 
         /**
-         * List of status consider as the system is processing or owns the submission.
+         * Requests with these statuses are considered to be processing
          */
         val PROCESSING_STATUS: Set<RequestStatus> =
             setOf(
@@ -43,7 +43,7 @@ enum class RequestStatus {
             )
 
         /**
-         * List of status as request are consider active to the user.
+         * Requests with these statuses are considered to be active (editable) for the user
          */
         val ACTIVE_STATUS: Set<RequestStatus> =
             buildSet {
