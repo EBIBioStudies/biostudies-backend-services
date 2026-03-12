@@ -50,13 +50,17 @@ class DoiService(
         submission: Submission,
         currentVersion: ExtSubmission?,
     ): String? {
-        val doi = submission.attributes.find { it.name == DOI.name } ?: return null
         val previousDoi = currentVersion?.doi
+        val doi = submission.attributes.find { it.name == DOI.name }
+
+        if (doi == null && previousDoi == null) return null
 
         if (previousDoi != null) {
+            requireNotNull(doi) { throw RemovedDoiException(previousDoi) }
+
             val value = doi.value
-            requireNotNull(value) { throw RemovedDoiException(previousDoi) }
-            require(value == previousDoi) { throw InvalidDoiException(value, previousDoi) }
+            if (value != null && value != previousDoi) throw InvalidDoiException(value, previousDoi)
+
             return previousDoi
         }
 
