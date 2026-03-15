@@ -11,25 +11,23 @@ class FileListDocFileDocDataRepository(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flow<FileListDocFile> {
-        return fileListDocFileRepository
+    ): Flow<FileListDocFile> =
+        fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListNameOrderByIndexAsc(
                 accNo,
                 version,
                 fileListName,
             )
-    }
 
     fun findByFileList(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flow<FileListDocFile> {
-        return fileListDocFileRepository
+    ): Flow<FileListDocFile> =
+        fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameOrderByIndexAsc(
                 accNo,
                 version,
                 fileListName,
             )
-    }
 }

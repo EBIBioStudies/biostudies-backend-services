@@ -12,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
+import ac.uk.ebi.biostd.persistence.doc.model.PmcDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.PmcSubmissionStatus
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.query.Meta.CursorOption
 import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
+import org.springframework.data.mongodb.repository.Update
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.time.Instant
 
@@ -184,6 +187,22 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
         owner: String,
         editableStatus: Set<RequestStatus>,
     ): DocSubmissionRequest
+}
+
+interface PmcSubmissionsRepository : CoroutineCrudRepository<PmcDocSubmission, ObjectId> {
+    fun findByStatus(
+        status: PmcSubmissionStatus,
+        pageable: Pageable,
+    ): Flow<PmcDocSubmission>
+
+    fun findByAccNoIn(accNos: List<String>): Flow<PmcDocSubmission>
+
+    @Query("{ '_id': { \$in: ?0 } }")
+    @Update("{ '\$set': { 'status': ?1 } }")
+    suspend fun updateStatusByIds(
+        ids: List<ObjectId>,
+        status: PmcSubmissionStatus,
+    ): Long
 }
 
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {

@@ -124,6 +124,25 @@ class ExtSubmissionService(
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
+    suspend fun submitExt(
+        user: String,
+        sub: List<ExtSubmission>,
+    ): List<ExtSubmission> {
+        val submissions =
+            sub
+                .map { processSubmission(user, it) }
+                .map { it.copy(version = persistenceService.getNextVersion(it.accNo)) }
+                .map {
+                    ExtSubmitRequest(
+                        owner = user,
+                        newSubmission = queryService.existByAccNo(it.accNo),
+                        submission = it,
+                    )
+                }
+                .map { submissionSubmitter.createRqt(it) }
+        return submissionSubmitter.handleMany(submissions)
+    }
+
     suspend fun submitExtAsync(
         user: String,
         sub: ExtSubmission,

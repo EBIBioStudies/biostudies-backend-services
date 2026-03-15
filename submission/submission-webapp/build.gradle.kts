@@ -14,7 +14,6 @@ import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
-import Projects.ClientPmcWebClient
 import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
@@ -24,11 +23,11 @@ import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.ExcelLibrary
 import Projects.FtpWebClient
+import Projects.SubmissionCore
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
 import Projects.SubmissionSecurity
-import Projects.SubmissionSubmitter
 import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterAmqp
@@ -90,7 +89,7 @@ dependencies {
     api(project(ClientFireWebClient))
     api(project(SubmissionPersistenceSql))
     api(project(SubmissionPersistenceMongo))
-    api(project(SubmissionSubmitter))
+    api(project(SubmissionCore))
     api(project(SubmissionSecurity))
     api(project(SubmissionNotification))
     api(project(ClusterClient))
@@ -100,7 +99,6 @@ dependencies {
     api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
-    api(project(ClientPmcWebClient))
 
     annotationProcessor(SpringBootConfigurationProcessor)
     implementation(SpringBootStarterWeb)

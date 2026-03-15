@@ -23,6 +23,14 @@ class ExtendedSubmissionSubmitter(
             localExtSubmissionSubmitter.handleRequest(accNo, version)
         }
 
+    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> {
+        return if (submissionTaskProperties.enabled) {
+            remoteExtSubmissionSubmitter.handleMany(submissions)
+        } else {
+            localExtSubmissionSubmitter.handleMany(submissions)
+        }
+    }
+
     override suspend fun handleRequestAsync(
         accNo: String,
         version: Int,

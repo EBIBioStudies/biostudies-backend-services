@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields
+import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.PMC_SUBMISSIONS
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES
 import com.mongodb.DBObject
@@ -88,3 +89,31 @@ data class DocSubmissionRequestFile(
     val status: RequestFileStatus,
     val previousSubFile: Boolean,
 )
+
+@Document(collection = PMC_SUBMISSIONS)
+data class PmcDocSubmission(
+    @Id
+    val id: ObjectId,
+    val accNo: String,
+    val version: Int,
+    val body: String,
+    val status: PmcSubmissionStatus,
+    val sourceFile: String,
+    val posInFile: Int,
+    val sourceTime: Long,
+    val files: List<ObjectId>,
+    val updated: Instant,
+)
+
+enum class PmcSubmissionStatus {
+    LOADED,
+    PROCESSING,
+    PROCESSED,
+    SUBMITTING,
+    SUBMITTED,
+    ERROR_LOAD,
+    ERROR_PROCESS,
+    ERROR_SUBMIT,
+    DISCARDED,
+    LINKS_EXTRACTED,
+}
