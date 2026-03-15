@@ -27,7 +27,16 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @Suppress("LongParameterList")
 @Configuration
-@Import(value = [FilePersistenceConfig::class, SecurityConfig::class, StatsConfig::class, SubmitterConfig::class, LockConfig::class])
+@Import(
+    value = [
+        FilePersistenceConfig::class,
+        SecurityConfig::class,
+        StatsConfig::class,
+        SubmitterConfig::class,
+        LockConfig::class,
+        PmcConfig::class,
+    ],
+)
 class SubmissionConfig {
     @Bean
     fun submissionQueryService(

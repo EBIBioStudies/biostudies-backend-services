@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.PmcSubmissionsDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -10,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRep
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.LinkListDocLinkRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.PmcSubmissionsRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
@@ -29,6 +31,10 @@ class MongoDbReposConfig {
         reactivateMongoTemplate: ReactiveMongoTemplate,
         submissionMongoRepository: SubmissionMongoRepository,
     ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionMongoRepository, reactivateMongoTemplate)
+
+    @Bean
+    internal fun pmcSubmissionsDocDataRepository(pmcRepository: PmcSubmissionsRepository): PmcSubmissionsDocDataRepository =
+        PmcSubmissionsDocDataRepository(pmcRepository)
 
     @Bean
     internal fun submissionStatsDataRepository(

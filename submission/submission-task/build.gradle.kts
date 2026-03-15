@@ -1,7 +1,7 @@
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.MySql
-import Projects.SubmissionSubmitter
+import Projects.SubmissionCore
 import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStarter
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
@@ -16,7 +16,7 @@ plugins {
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
 
-    api(project(SubmissionSubmitter))
+    api(project(SubmissionCore))
     annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(KotlinCoroutines)

@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.PmcSubmissionsDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRepository
@@ -17,6 +18,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
+import ac.uk.ebi.biostd.persistence.doc.service.PmcSubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoLinksPersistenceService
@@ -54,6 +56,10 @@ class MongoDbServicesConfig {
             serializationService,
             submissionRequestDocDataRepository,
         )
+
+    @Bean
+    internal fun pmcSubmissionQueryService(pmcSubmissionsRepository: PmcSubmissionsDocDataRepository): PmcSubmissionQueryService =
+        PmcSubmissionQueryService(pmcSubmissionsRepository)
 
     @Bean
     internal fun submissionFilesPersistenceService(

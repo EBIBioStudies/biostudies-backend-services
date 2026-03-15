@@ -87,6 +87,10 @@ class LocalExtSubmissionSubmitter(
         return submissionQueryService.getExtendedSubmission(accNo)
     }
 
+    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> {
+        return submissions.map { handleRequest(it.accNo, it.version) }
+    }
+
     override suspend fun handleRequestAsync(
         accNo: String,
         version: Int,

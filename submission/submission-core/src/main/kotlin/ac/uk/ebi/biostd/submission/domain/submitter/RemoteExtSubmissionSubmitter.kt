@@ -31,6 +31,15 @@ class RemoteExtSubmissionSubmitter(
         return submissionQueryService.getExtendedSubmission(accNo)
     }
 
+    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> {
+        remoteSubmitterExecutor.executeRemotely(asExecutionArgs(submissions), Mode.HANDLE_REQUEST)
+
+        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) {
+            submissions.all { requestService.isRequestCompleted(it.accNo, it.version) }
+        }
+        return submissions.map { submissionQueryService.getExtendedSubmission(it.accNo) }
+    }
+
     override suspend fun handleRequestAsync(
         accNo: String,
         version: Int,

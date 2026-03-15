@@ -13,6 +13,8 @@ interface ExtSubmissionSubmitter {
         version: Int,
     ): ExtSubmission
 
+    suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission>
+
     suspend fun handleRequestAsync(
         accNo: String,
         version: Int,

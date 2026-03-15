@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
 
@@ -19,7 +20,7 @@ class RemoteSubmitterExecutor(
     suspend fun executeRemotely(
         args: List<ExecutionArg>,
         mode: Mode,
-    ): Unit =
+    ): Job =
         withContext(Dispatchers.IO) {
             val command =
                 buildString {
@@ -50,6 +51,7 @@ class RemoteSubmitterExecutor(
                             "Job Id: ${it.id} | Logs: ${it.logsPath}. " +
                             "args: '${args.joinToString("\n")}'"
                     }
+                    it
                 },
                 { throw it },
             )

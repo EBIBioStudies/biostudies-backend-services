@@ -78,7 +78,11 @@ class SubmissionDocDataRepository(
         val docSubmissionRequestPipeline =
             newAggregation(
                 match(where(SUB_ACC_NO).`is`(accNo)),
-                project().and(SUB_ACC_NO).`as`(SUB_ACC_NO).and(absoluteValueOf(SUB_VERSION)).`as`("version"),
+                project()
+                    .and(SUB_ACC_NO)
+                    .`as`(SUB_ACC_NO)
+                    .and(absoluteValueOf(SUB_VERSION))
+                    .`as`("version"),
             ).pipeline
 
         val aggregation =
@@ -206,12 +210,16 @@ class SubmissionDocDataRepository(
                 val collections = filter.adminCollections
 
                 return when (collections) {
-                    null -> where(SUB_OWNER).`is`(user)
-                    else ->
+                    null -> {
+                        where(SUB_OWNER).`is`(user)
+                    }
+
+                    else -> {
                         Criteria().orOperator(
                             where(SUB_OWNER).`is`(user),
                             where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(collections),
                         )
+                    }
                 }
             }
 
