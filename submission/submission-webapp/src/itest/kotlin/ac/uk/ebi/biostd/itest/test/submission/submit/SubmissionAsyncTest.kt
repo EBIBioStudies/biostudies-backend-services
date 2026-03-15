@@ -138,7 +138,9 @@ class SubmissionAsyncTest(
             waitUntil(timeout = Duration.ofMinutes(1), checkInterval = ofMillis(100)) {
                 requestRepository.getRequest("SimpleAsync2", 2).status == POST_PROCESSED
             }
-            val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).process!!.statusChanges
+
+            val request = requestRepository.getRequest("SimpleAsync2", 2)
+            val requestStatus = request.process!!.statusChanges
             assertThat(requestStatus.map { it.status }).containsExactly(
                 REQUESTED.action,
                 FILES_VALIDATED.action,
