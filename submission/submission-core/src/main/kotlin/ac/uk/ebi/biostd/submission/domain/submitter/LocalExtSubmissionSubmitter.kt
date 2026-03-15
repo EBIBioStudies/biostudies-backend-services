@@ -66,7 +66,7 @@ class LocalExtSubmissionSubmitter(
                 version = sub.version,
                 owner = rqt.owner,
                 submission = sub,
-                notifyTo = rqt.owner,
+                notifyTo = rqt.onBehalfUser ?: rqt.owner,
                 silentMode = rqt.silentMode,
                 files = rqt.requestFiles,
                 previousVersion = rqt.previousVersion,
@@ -87,9 +87,10 @@ class LocalExtSubmissionSubmitter(
         return submissionQueryService.getExtendedSubmission(accNo)
     }
 
-    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> {
-        return submissions.map { handleRequest(it.accNo, it.version) }
-    }
+    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> =
+        submissions.map {
+            handleRequest(it.accNo, it.version)
+        }
 
     override suspend fun handleRequestAsync(
         accNo: String,

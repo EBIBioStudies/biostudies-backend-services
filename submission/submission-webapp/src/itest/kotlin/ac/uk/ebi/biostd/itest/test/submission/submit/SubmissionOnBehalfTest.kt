@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.OnBehalfParameters
@@ -48,6 +49,7 @@ import java.time.OffsetDateTime
 class SubmissionOnBehalfTest(
     @param:Autowired val securityTestService: SecurityTestService,
     @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
     @param:Autowired val userDataRepository: UserDataRepository,
     @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
     @param:LocalServerPort val serverPort: Int,
@@ -82,8 +84,11 @@ class SubmissionOnBehalfTest(
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            val submission = submissionRepository.getExtByAccNo(accNo)
 
+            val request = requestRepository.getRequest(accNo, 1)
+            assertThat(request.process?.notifyTo).isEqualTo(RegularUser.email)
+
+            val submission = submissionRepository.getExtByAccNo(accNo)
             assertThat(submission.owner).isEqualTo(RegularUser.email)
             assertThat(toSubmissionMapper.toSimpleSubmission(submission)).isEqualTo(
                 submission(accNo) {
