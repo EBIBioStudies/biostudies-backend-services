@@ -20,6 +20,7 @@ data class ApplicationProperties(
     val doi: DoiProperties,
     val submissionTask: SubmissionTaskProperties,
     val cluster: ClusterProperties,
+    val pmc: PmcProperties,
 )
 
 data class RetryProperties(
@@ -85,4 +86,9 @@ data class DoiProperties(
     val user: String,
     val password: String,
     val retry: RetryProperties,
+)
+
+data class PmcProperties(
+    val enableLinksExtraction: Boolean,
+    val authToken: String,
 )
