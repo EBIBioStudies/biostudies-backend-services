@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.config
 
+import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
 import ac.uk.ebi.biostd.persistence.doc.service.PmcSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
@@ -34,17 +35,19 @@ class PmcConfig {
         submissionService: ExtSubmissionService,
         securityQueryService: SecurityQueryService,
         pmcLinksLoader: PmcLinksLoader,
+        distributedLockService: DistributedLockService,
     ): PmcLinksProcessor =
         PmcLinksProcessor(
             pmcSubmissionsService,
             submissionService,
             securityQueryService,
             pmcLinksLoader,
+            distributedLockService,
         )
 
     @Bean
     fun pmcRemoteLinksLoader(remoteSubmitterExecutor: RemoteSubmitterExecutor): PmcRemoteLinksLoader =
         PmcRemoteLinksLoader(remoteSubmitterExecutor)
 
-    fun pmcWebClient(): PmcClient = PmcClient.Companion.createClient("Ymlvc3R1ZGllczI6dGVzdEJpb3N0dWRpZXM=")
+    fun pmcWebClient(): PmcClient = PmcClient.createClient("Ymlvc3R1ZGllczI6dGVzdEJpb3N0dWRpZXM=")
 }

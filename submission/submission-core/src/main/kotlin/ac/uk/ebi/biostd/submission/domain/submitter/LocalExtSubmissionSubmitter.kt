@@ -35,6 +35,10 @@ import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import ebi.ac.uk.model.SubmissionId
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration.ofMinutes
@@ -88,9 +92,22 @@ class LocalExtSubmissionSubmitter(
     }
 
     override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> =
-        submissions.map {
-            handleRequest(it.accNo, it.version)
+        coroutineScope {
+            submissions
+                .map { async { handleRequestSafely(it) } }
+                .awaitAll()
+                .filterNotNull()
         }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun handleRequestSafely(sub: SubmissionId): ExtSubmission? {
+        try {
+            return handleRequest(sub.accNo, sub.version)
+        } catch (e: Exception) {
+            logger.error(e) { "Error processing submission ${sub.accNo}, ${sub.version}" }
+            return null
+        }
+    }
 
     override suspend fun handleRequestAsync(
         accNo: String,
@@ -103,9 +120,12 @@ class LocalExtSubmissionSubmitter(
         }
     }
 
-    override suspend fun handleManyAsync(submissions: List<SubmissionId>) {
-        submissions.forEach { handleRequestAsync(it.accNo, it.version) }
-    }
+    override suspend fun handleManyAsync(submissions: List<SubmissionId>): Unit =
+        coroutineScope {
+            submissions
+                .map { async { handleRequestAsync(it.accNo, it.version) } }
+                .joinAll()
+        }
 
     @Suppress("CyclomaticComplexMethod")
     private suspend fun completeRqt(

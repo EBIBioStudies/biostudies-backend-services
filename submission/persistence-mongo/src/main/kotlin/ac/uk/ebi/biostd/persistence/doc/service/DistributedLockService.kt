@@ -24,6 +24,22 @@ class DistributedLockService internal constructor(
         }
     }
 
+    suspend fun <T> onLockProcess(
+        lockIdentifier: String,
+        lockOwner: String,
+        handler: suspend () -> T,
+    ): T {
+        try {
+            val locked = distributedLockExecutor.acquireLock(lockIdentifier, lockOwner, DEFAULT_LOCK_TIME)
+            return when {
+                locked -> handler()
+                else -> error("Could not adquire lock '$lockIdentifier'")
+            }
+        } finally {
+            distributedLockExecutor.releaseLock(lockIdentifier, lockOwner)
+        }
+    }
+
     private companion object {
         val DEFAULT_LOCK_TIME = Duration.ofDays(7)
     }
