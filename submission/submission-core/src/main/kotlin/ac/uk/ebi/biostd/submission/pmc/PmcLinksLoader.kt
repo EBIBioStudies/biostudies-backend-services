@@ -30,7 +30,6 @@ import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 import kotlin.io.path.outputStream
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
@@ -40,11 +39,14 @@ class PmcLinksLoader(
     val queryService: ExtSubmissionQueryService,
     val serializationService: ExtSerializationService,
 ) {
-    suspend fun loadSubmissionsLinks(accNoList: List<String>): List<PmcLinksResult> =
+    suspend fun loadSubmissionsLinks(
+        config: ProcessConfig,
+        accNoList: List<String>,
+    ): List<PmcLinksResult> =
         coroutineScope {
             suspend fun loadLinks(submission: ExtSubmission): PmcLinksResult {
                 val pmcId = PmcId(submission.accNo)
-                val linksGenerated = generateLinks(submission, pmcId)
+                val linksGenerated = generateLinks(config, submission, pmcId)
                 return when {
                     linksGenerated -> PmcLinksResult(attachLinks(pmcId, submission), FOUND_LINKS)
                     else -> PmcLinksResult(submission, NO_LINKS)
@@ -135,11 +137,12 @@ class PmcLinksLoader(
     }
 
     private suspend fun generateLinks(
+        config: ProcessConfig,
         submission: ExtSubmission,
         pmcId: PmcId,
     ): Boolean {
         suspend fun waitForResult() {
-            withTimeout(WAIT_MINUTES.minutes) {
+            withTimeout((config.waitSeconds ?: WAIT_SECONDS).seconds) {
                 var results = pmcWebClient.getStatus(pmcId.pmcId).files.map { it.status }
                 while (isActive && results.any { it == "pending" }) {
                     results = pmcWebClient.getStatus(pmcId.pmcId).files.map { it.status }
@@ -193,7 +196,7 @@ class PmcLinksLoader(
 
     companion object {
         const val LINKS_SECTION_TYPE = "ExtractedLinks"
-        const val WAIT_MINUTES = 10
+        const val WAIT_SECONDS = 5
         const val CHECK_INTERVAL_SECONDS = 10
         const val CHUNK_SIZE = 100
     }
