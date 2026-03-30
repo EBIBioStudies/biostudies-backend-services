@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
@@ -39,7 +39,7 @@ class ExtSubmissionClientTest(
         @MockK extPage: ExtPage,
     ) {
         val expectedUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2"
-        val query = ExtPageQuery(limit = 2, offset = 1)
+        val query = ExtSubPageQuery(limit = 2, offset = 1)
 
         every { client.getForObject<String>(expectedUrl) } returns "ExtPage"
         every { extSerializationService.deserializePage("ExtPage") } returns extPage
@@ -57,7 +57,7 @@ class ExtSubmissionClientTest(
     ) {
         val from = OffsetDateTime.of(2019, 9, 21, 15, 0, 0, 0, UTC)
         val to = OffsetDateTime.of(2020, 9, 21, 15, 0, 0, 0, UTC)
-        val query = ExtPageQuery(limit = 2, offset = 1, fromRTime = from, toRTime = to, released = true)
+        val query = ExtSubPageQuery(limit = 2, offset = 1, fromRTime = from, toRTime = to, released = true)
         val stringFrom = "2019-09-21T15:00:00Z"
         val stringTo = "2020-09-21T15:00:00Z"
         val expectedUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2&fromRTime=$stringFrom&toRTime=$stringTo&released=true"

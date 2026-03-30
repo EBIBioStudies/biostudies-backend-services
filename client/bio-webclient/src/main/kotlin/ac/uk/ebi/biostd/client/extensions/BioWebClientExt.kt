@@ -1,18 +1,18 @@
 package ac.uk.ebi.biostd.client.extensions
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 
-fun BioWebClient.getExtSubmissionsAsSequence(extPageQuery: ExtPageQuery): Sequence<ExtSubmission> =
+fun BioWebClient.getExtSubmissionsAsSequence(extPageQuery: ExtSubPageQuery): Sequence<ExtSubmission> =
     pageIterator(extPageQuery)
         .asSequence()
         .map { it.content }
         .flatten()
 
-private fun BioWebClient.pageIterator(query: ExtPageQuery): Iterator<ExtPage> =
+private fun BioWebClient.pageIterator(query: ExtSubPageQuery): Iterator<ExtPage> =
     object : Iterator<ExtPage> {
         var firstPage: ExtPage? = getExtSubmissions(query)
         var currentPage = firstPage!!

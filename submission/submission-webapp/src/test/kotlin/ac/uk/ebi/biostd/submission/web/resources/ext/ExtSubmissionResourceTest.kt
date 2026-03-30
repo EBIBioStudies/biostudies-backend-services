@@ -7,9 +7,10 @@ import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.ExtFileTableConverter
 import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
-import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -40,7 +41,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 class ExtSubmissionResourceTest(
     @MockK private val tempFileGenerator: TempFileGenerator,
     @MockK private val extSubmissionService: ExtSubmissionService,
-    @MockK private val extPageMapper: ExtendedPageMapper,
+    @MockK private val extPageMapper: ExtendedSubmissionPageMapper,
     @MockK private val extSerializationService: ExtSerializationService,
     @MockK private val extSubmissionQueryService: ExtSubmissionQueryService,
 ) {
@@ -57,7 +58,7 @@ class ExtSubmissionResourceTest(
             ).setMessageConverters(
                 ExtFileTableConverter(extSerializationService),
                 ExtSubmissionConverter(extSerializationService),
-                ExtPageSubmissionConverter(extSerializationService),
+                ExtPageSubmissionConverter<ExtSubmission>(extSerializationService),
                 MappingJackson2HttpMessageConverter(),
             ).setCustomArgumentResolvers(bioUserResolver, FileListPathDescriptorResolver())
             .build()
@@ -210,7 +211,7 @@ class ExtSubmissionResourceTest(
         @MockK extSubmission: ExtSubmission,
         @MockK pageable: Page<ExtSubmission>,
     ) {
-        val extPageRequestSlot = slot<ExtPageRequest>()
+        val extPageRequestSlot = slot<ExtSubPageRequest>()
         val webExtPage = WebExtPage(listOf(extSubmission), 1, 1, 0, null, null)
         val response =
             jsonObj {
@@ -241,7 +242,7 @@ class ExtSubmissionResourceTest(
         }
     }
 
-    private fun verifyExtPageRequest(query: ExtPageRequest) {
+    private fun verifyExtPageRequest(query: ExtSubPageRequest) {
         assertThat(query.offset).isEqualTo(0)
         assertThat(query.limit).isEqualTo(1)
         assertThat(query.fromRTime).isEqualTo("2019-09-21T15:03:45Z")

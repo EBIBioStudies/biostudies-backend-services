@@ -4,20 +4,24 @@ import ac.uk.ebi.biostd.client.exception.bioWebClientErrorHandler
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.http.codec.ClientCodecConfigurer
+import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
 import reactor.netty.http.client.HttpClient
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 internal fun webClientBuilder(baseUrl: String): WebClient.Builder {
+    val objectMapper = ExtSerializationService.createMapper()
+
     val exchangeStrategies =
         ExchangeStrategies
             .builder()
             .codecs { configurer ->
-                if (configurer is ClientCodecConfigurer) {
-                    configurer.defaultCodecs().maxInMemorySize(-1)
-                }
+                configurer
+                    .defaultCodecs()
+                    .jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper))
+                configurer.defaultCodecs().maxInMemorySize(-1)
             }.build()
 
     val httpClient =

@@ -74,7 +74,7 @@ class ExtSerializationService private constructor(
 
     fun serialize(table: ExtFileTable): String = serializeElement(table)
 
-    fun serialize(extPage: WebExtPage): String = serializeElement(extPage)
+    fun <T> serialize(extPage: WebExtPage<T>): String = serializeElement(extPage)
 
     suspend fun serialize(
         files: Flow<ExtFile>,
@@ -119,7 +119,7 @@ class ExtSerializationService private constructor(
         val mapper = createMapper()
         private val instance = ExtSerializationService(mapper)
 
-        private fun createMapper(): ObjectMapper {
+        fun createMapper(): ObjectMapper {
             val module =
                 SimpleModule().apply {
                     addDeserializer(ExtSection::class.java, ExtSectionDeserializer())

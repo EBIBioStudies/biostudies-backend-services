@@ -34,7 +34,9 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedFilePageMapper
+import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedLinkPageMapper
+import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -149,7 +151,16 @@ class SubmissionWebConfig {
     ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
 
     @Bean
-    fun extPageMapper(properties: ApplicationProperties): ExtendedPageMapper = ExtendedPageMapper(URI.create(properties.instanceBaseUrl))
+    fun extPageMapper(properties: ApplicationProperties): ExtendedSubmissionPageMapper =
+        ExtendedSubmissionPageMapper(URI.create(properties.instanceBaseUrl))
+
+    @Bean
+    fun extFilePageMapper(properties: ApplicationProperties): ExtendedFilePageMapper =
+        ExtendedFilePageMapper(URI.create(properties.instanceBaseUrl))
+
+    @Bean
+    fun extLinkPageMapper(properties: ApplicationProperties): ExtendedLinkPageMapper =
+        ExtendedLinkPageMapper(URI.create(properties.instanceBaseUrl))
 
     @Bean
     fun submitRequestBuilder(
