@@ -43,8 +43,8 @@ import java.time.temporal.ChronoUnit
 @SpringBootTest(classes = [MongoDbQueryConfig::class, TestConfig::class])
 @ContextConfiguration(initializers = [PropertyOverrideContextInitializer::class])
 internal class SubmissionMongoMetaQueryServiceTest(
-    @Autowired private val submissionMongoRepository: SubmissionDocDataRepository,
-    @Autowired private val testInstance: SubmissionMongoMetaQueryService,
+    @param:Autowired private val submissionMongoRepository: SubmissionDocDataRepository,
+    @param:Autowired private val testInstance: SubmissionMongoMetaQueryService,
 ) {
     @Test
     fun getBasicCollection() =

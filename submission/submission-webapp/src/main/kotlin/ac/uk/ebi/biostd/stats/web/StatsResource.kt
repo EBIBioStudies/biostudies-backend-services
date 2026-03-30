@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
+import ac.uk.ebi.biostd.submission.stats.service.SubmissionStatsService
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA

@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
-import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
+import ac.uk.ebi.biostd.submission.stats.service.SubmissionStatsService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils.cleanDirectory
 import ebi.ac.uk.model.SubmissionId

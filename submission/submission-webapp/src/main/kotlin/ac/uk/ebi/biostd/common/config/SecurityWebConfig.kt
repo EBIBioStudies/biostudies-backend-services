@@ -38,6 +38,8 @@ class SecurityWebConfig(
                     .permitAll()
                     .requestMatchers(GET, "/submissions/*")
                     .permitAll()
+                    .requestMatchers(GET, "/stats/report/**")
+                    .permitAll()
                     .requestMatchers("/submissions/ftp/*")
                     .permitAll()
                     .requestMatchers("/auth/**")
