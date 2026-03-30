@@ -51,8 +51,8 @@ import java.time.Duration.ofSeconds
 @SpringBootTest(classes = [MongoDbReposConfig::class, MongoDbServicesConfig::class, TestConfig::class, LockConfig::class])
 class SubmissionMongoFilesPersistenceServiceTest(
     tempFolder: TemporaryFolder,
-    @MockK private val submission: ExtSubmission,
-    @Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
+    @param:MockK private val submission: ExtSubmission,
+    @param:Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
 ) {
     private val testInstance = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
 

@@ -1,9 +1,10 @@
-package ac.uk.ebi.biostd.submission.stats
+package ac.uk.ebi.biostd.submission.stats.service
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.submission.stats.common.StatsFileHandler
 import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
 import java.io.File

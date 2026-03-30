@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
+import ac.uk.ebi.biostd.persistence.common.model.CollectionStats
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStats
@@ -40,4 +41,8 @@ interface StatsDataService {
     suspend fun lastUpdated(accNo: String): Instant?
 
     suspend fun deleteStatsByAccNo(accNo: String)
+
+    suspend fun calculateImagingStats(): CollectionStats
+
+    suspend fun calculateNonImagingStats(): CollectionStats
 }

@@ -61,9 +61,9 @@ import java.time.temporal.ChronoUnit
 @SpringBootTest(classes = [MongoDbReposConfig::class, LockConfig::class])
 class SubmissionRequestMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
-    @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
-    @Autowired private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
-    @Autowired private val lockService: DistributedLockService,
+    @param:Autowired private val requestRepository: SubmissionRequestDocDataRepository,
+    @param:Autowired private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
+    @param:Autowired private val lockService: DistributedLockService,
 ) {
     private val testInstance =
         SubmissionRequestMongoPersistenceService(

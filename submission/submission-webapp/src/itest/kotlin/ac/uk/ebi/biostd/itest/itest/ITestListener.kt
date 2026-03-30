@@ -172,6 +172,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.persistence.publicSubmissionFtpOutPath", PUBLIC_SUBMISSION_PATH)
         properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.persistence.requestFilesPath", requestFilesPath.absolutePath)
+        properties.addProperty("app.persistence.statsReportPath", statsDirPath.absolutePath)
     }
 
     private fun doiSetup() {
@@ -255,6 +256,7 @@ class ITestListener : TestExecutionListener {
         internal val publicNfsSubmissionPath = submissionsFtp.resolve(PUBLIC_SUBMISSION_PATH)
         internal val fireFtpPath = testAppFolder.createDirectory("fire-ftpPath")
 
+        internal val statsDirPath = testAppFolder.createDirectory("stats")
         internal val tempDirPath = testAppFolder.createDirectory("tempDirPath")
         internal val tempFolder = testAppFolder.createDirectory("testTempDir")
         internal val requestFilesPath = testAppFolder.createDirectory("requestFilesPath")
