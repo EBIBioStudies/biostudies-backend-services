@@ -87,8 +87,8 @@ class ExtSubPageRequest(
     val toRTime: String? = null,
     val released: Boolean? = null,
     val collection: String? = null,
-    val offset: Long,
-    val limit: Int,
+    val offset: Long = 0,
+    val limit: Int = 10,
 )
 
 data class ExtFileListFilesRequest(
@@ -104,6 +104,6 @@ data class ExtLinkListFilesRequest(
 )
 
 data class ExtPageRequest(
-    val offset: Long,
-    val limit: Int,
+    val offset: Long = 0L,
+    val limit: Int = 10,
 )
