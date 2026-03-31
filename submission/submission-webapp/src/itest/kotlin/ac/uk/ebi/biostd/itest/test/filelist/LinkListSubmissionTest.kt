@@ -61,6 +61,8 @@ class LinkListSubmissionTest(
     fun init(): Unit =
         runBlocking {
             securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureSequence("S-BSST")
+
             webClient = getWebClient(serverPort, SuperUser)
         }
 
@@ -332,7 +334,7 @@ class LinkListSubmissionTest(
                     line()
 
                     line("Study")
-                    line("Link List", "LinkList.tsv")
+                    line("Link List", "LinkList-32-5.tsv")
                     line()
                 }.toString()
 
@@ -346,7 +348,7 @@ class LinkListSubmissionTest(
 
             webClient.uploadFiles(
                 listOf(
-                    tempFolder.createFile("LinkList.tsv", linkList),
+                    tempFolder.createFile("LinkList-32-5.tsv", linkList),
                 ),
             )
 
@@ -354,14 +356,14 @@ class LinkListSubmissionTest(
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            val links = webClient.getLinkListLinks(accNo, "LinkList", ExtPageRequest(limit = 1, offset = 0))
+            val links = webClient.getLinkListLinks(accNo, "LinkList-32-5", ExtPageRequest(limit = 1, offset = 0))
             assertThat(links.content).hasSize(1)
             assertThat(links.content.first().url).isEqualTo("Link391")
 
-            val otherLinks = webClient.getFileListFiles(accNo, "LinkList", ExtPageRequest(limit = 2, offset = 1))
+            val otherLinks = webClient.getLinkListLinks(accNo, "LinkList-32-5", ExtPageRequest(limit = 2, offset = 1))
             assertThat(otherLinks.content).hasSize(2)
-            assertThat(otherLinks.content.first().filePath).isEqualTo("Link392")
-            assertThat(otherLinks.content.second().filePath).isEqualTo("Link393")
+            assertThat(otherLinks.content.first().url).isEqualTo("Link392")
+            assertThat(otherLinks.content.second().url).isEqualTo("Link393")
         }
 
     private suspend fun assertReferencedLinks(
