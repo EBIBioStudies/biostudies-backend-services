@@ -1,6 +1,8 @@
-package ac.uk.ebi.biostd.submission.pmc
+package ac.uk.ebi.biostd.pmc
 
 import ac.uk.ebi.biostd.common.properties.PmcProperties
+import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
+import ac.uk.ebi.biostd.submission.pmc.ProcessConfig
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled

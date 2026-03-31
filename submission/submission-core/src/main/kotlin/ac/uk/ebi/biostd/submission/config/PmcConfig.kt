@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksLoader
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
 import ac.uk.ebi.biostd.submission.pmc.PmcRemoteLinksLoader
-import ac.uk.ebi.biostd.submission.pmc.PmcScheduler
 import ebi.ac.uk.client.pmc.PmcClient
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
@@ -52,7 +51,4 @@ class PmcConfig(
     @Bean
     fun pmcRemoteLinksLoader(remoteSubmitterExecutor: RemoteSubmitterExecutor): PmcRemoteLinksLoader =
         PmcRemoteLinksLoader(remoteSubmitterExecutor)
-
-    @Bean
-    fun pmcScheduller(pmcLinksProcessor: PmcLinksProcessor): PmcScheduler = PmcScheduler(pmcLinksProcessor, applicationProperties.pmc)
 }
