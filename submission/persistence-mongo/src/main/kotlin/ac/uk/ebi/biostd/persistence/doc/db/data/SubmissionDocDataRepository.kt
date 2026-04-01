@@ -43,13 +43,15 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.project
 import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
-import org.springframework.data.mongodb.core.aggregation.AggregationOptions
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions.builder
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
 import org.springframework.data.mongodb.core.aggregation.UnionWithOperation.unionWith
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
+import org.springframework.data.mongodb.core.updateFirst
+import org.springframework.data.mongodb.core.updateMulti
 
 @Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
@@ -61,7 +63,7 @@ class SubmissionDocDataRepository(
         owner: String,
     ) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
-        mongoTemplate.updateFirst(query, update(SUB_OWNER, owner), DocSubmission::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmission>(query, update(SUB_OWNER, owner)).awaitSingleOrNull()
     }
 
     suspend fun getSubmissionsByOwner(
@@ -102,10 +104,9 @@ class SubmissionDocDataRepository(
 
     suspend fun expireVersions(submissions: List<String>) {
         mongoTemplate
-            .updateMulti(
+            .updateMulti<DocSubmission>(
                 Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
                 ExtendedUpdate().multiply(SUB_VERSION, -1),
-                DocSubmission::class.java,
             ).awaitSingleOrNull()
 
         val innerFilesQuery =
@@ -115,10 +116,9 @@ class SubmissionDocDataRepository(
                     .andOperator(where(DOC_SUB_FILE_SUBMISSION_VERSION).gt(0)),
             )
         mongoTemplate
-            .updateMulti(
+            .updateMulti<DocSubmissionFile>(
                 innerFilesQuery,
                 ExtendedUpdate().multiply(DOC_SUB_FILE_SUBMISSION_VERSION, -1),
-                DocSubmissionFile::class.java,
             ).awaitSingleOrNull()
 
         val fileListQuery =
@@ -128,10 +128,9 @@ class SubmissionDocDataRepository(
                     .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0)),
             )
         mongoTemplate
-            .updateMulti(
+            .updateMulti<FileListDocFile>(
                 fileListQuery,
                 ExtendedUpdate().multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1),
-                FileListDocFile::class.java,
             ).awaitSingleOrNull()
 
         val linkListQuery =
@@ -141,10 +140,9 @@ class SubmissionDocDataRepository(
                     .andOperator(where(LINK_LIST_DOC_LINK_SUBMISSION_VERSION).gt(0)),
             )
         mongoTemplate
-            .updateMulti(
+            .updateMulti<LinkListDocLink>(
                 linkListQuery,
                 ExtendedUpdate().multiply(LINK_LIST_DOC_LINK_SUBMISSION_VERSION, -1),
-                LinkListDocLink::class.java,
             ).awaitSingleOrNull()
     }
 
@@ -157,9 +155,9 @@ class SubmissionDocDataRepository(
             newAggregation(
                 DocSubmission::class.java,
                 *aggregations.toTypedArray(),
-            ).withOptions(aggregationOptions())
+            ).withOptions(builder().allowDiskUse(true).build())
 
-        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).asFlow()
+        return mongoTemplate.aggregate<DocSubmission>(aggregation).asFlow()
     }
 
     suspend fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
@@ -167,9 +165,9 @@ class SubmissionDocDataRepository(
             newAggregation(
                 DocSubmission::class.java,
                 *createCountAggregation(filter).toTypedArray(),
-            ).withOptions(aggregationOptions())
+            ).withOptions(builder().allowDiskUse(true).build())
 
-        val result = mongoTemplate.aggregate(aggregation, CountResult::class.java)
+        val result = mongoTemplate.aggregate<CountResult>(aggregation)
         return PageImpl(
             getSubmissions(filter).toList(),
             PageRequest.of(filter.pageNumber, filter.limit),
@@ -183,27 +181,20 @@ class SubmissionDocDataRepository(
     ): DocSubmission = submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
-        private fun createCountAggregation(filter: SubmissionFilter) = createAggregation(filter).plus(group().count().`as`("submissions"))
+        private fun createCountAggregation(filter: SubmissionFilter): List<AggregationOperation?> =
+            buildList<AggregationOperation> {
+                add(match(Criteria().andOperator(createQuery(filter))))
+                add(group().count().`as`("submissions"))
+            }
 
-        private fun createSubmissionAggregation(filter: SubmissionFilter) =
-            createAggregation(filter, filter.offset to filter.limit.toLong())
-
-        private fun aggregationOptions() = AggregationOptions.builder().allowDiskUse(true).build()
-
-        private fun createAggregation(
-            filter: SubmissionFilter,
-            offsetLimit: Pair<Long, Long>? = null,
-        ): List<AggregationOperation> =
+        private fun createSubmissionAggregation(filter: SubmissionFilter): List<AggregationOperation> =
             buildList {
                 add(match(Criteria().andOperator(createQuery(filter))))
                 add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
-                offsetLimit?.let {
-                    add(skip(it.first))
-                    add(limit(it.second))
-                }
+                add(skip(filter.offset))
+                add(limit(filter.limit.toLong()))
             }
 
-        @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<Criteria> {
             fun userFilter(filter: SubmissionListFilter): Criteria {
                 val user = filter.filterUser
@@ -235,7 +226,7 @@ class SubmissionDocDataRepository(
                     is SimpleFilter -> {
                         filter.rTimeFrom?.let { add(where(SUB_RELEASE_TIME).gte(it.toInstant())) }
                         filter.rTimeTo?.let { add(where(SUB_RELEASE_TIME).lte(it.toInstant())) }
-                        filter.collection?.let { add(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it)) }
+                        filter.collection?.let { add(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`is`(it)) }
                         filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
                     }
                 }

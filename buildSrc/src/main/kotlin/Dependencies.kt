@@ -141,6 +141,7 @@ object Dependencies {
     const val JSONOrg = "org.json:json:$JSONOrgVersion"
     const val JacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations"
     const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin"
+    const val JacksonJsr310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     const val JacksonDataBind = "com.fasterxml.jackson.core:jackson-databind:"
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"

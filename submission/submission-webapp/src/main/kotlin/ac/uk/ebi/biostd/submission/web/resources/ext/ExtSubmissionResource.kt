@@ -1,22 +1,17 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.model.FileListPath
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -30,7 +25,6 @@ import java.time.Instant
 @RequestMapping("/submissions/extended")
 @Suppress("TooManyFunctions")
 class ExtSubmissionResource(
-    private val extPageMapper: ExtendedPageMapper,
     private val extSubmissionService: ExtSubmissionService,
     private val extSubmissionQueryService: ExtSubmissionQueryService,
     private val extSerializationService: ExtSerializationService,
@@ -40,12 +34,6 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
         @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?,
     ): ExtSubmission = extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
-
-    @GetMapping("/{accNo}/referencedFiles/**")
-    suspend fun getReferencedFiles(
-        @PathVariable accNo: String,
-        fileListPath: FileListPath,
-    ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
 
     @PostMapping("/re-trigger/{accNo}/{version}")
     suspend fun reTriggerSubmission(
@@ -114,9 +102,4 @@ class ExtSubmissionResource(
             user.email,
             extSerializationService.deserialize(extSubmission),
         )
-
-    @GetMapping
-    suspend fun submissions(
-        @ModelAttribute request: ExtPageRequest,
-    ): WebExtPage = extPageMapper.asExtPage(extSubmissionQueryService.getExtendedSubmissions(request), request)
 }

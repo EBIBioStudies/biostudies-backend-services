@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
 import ac.uk.ebi.biostd.submission.converters.SubmitAttributeConverter
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.format.FormatterRegistry
@@ -52,8 +54,9 @@ internal class WebConfig(
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.add(0, JsonPagetabConverter(serializationService))
         converters.add(1, ExtSubmissionConverter(extSerializationService))
-        converters.add(2, ExtPageSubmissionConverter(extSerializationService))
-        converters.add(3, ExtFileTableConverter(extSerializationService))
+        converters.add(2, ExtPageSubmissionConverter<ExtSubmission>(extSerializationService))
+        converters.add(3, ExtPageSubmissionConverter<ExtFile>(extSerializationService))
+        converters.add(4, ExtFileTableConverter(extSerializationService))
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
