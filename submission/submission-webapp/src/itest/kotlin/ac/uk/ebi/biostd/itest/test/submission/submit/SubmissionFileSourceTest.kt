@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -16,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -509,6 +511,61 @@ class SubmissionFileSourceTest(
                     val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder/duplicated")
                     assertDirFile(dir.resolve("fileB.txt"), "another content")
                 }
+            }
+
+        @Test
+        fun `6-3-7 submission with directories circular reference`() =
+            runTest {
+                val submission =
+                    tsv {
+                        line("Submission", "S-FSTST37")
+                        line("Title", "Directories With Circular References")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+
+                        line("Study")
+                        line("File List", "data-fileList.tsv")
+                        line()
+
+                        line("File", "data/file1.txt")
+                        line("Type", "inner")
+                        line()
+
+                        line("File", "backup")
+                        line("Type", "dir")
+                        line()
+
+                        line("File", "extra")
+                        line("Type", "dir")
+                        line()
+                    }.toString()
+
+                val fileListContent =
+                    tsv {
+                        line("Files", "Type")
+                        line("file3.txt", "regular")
+                        line("backup/inner", "inner dir")
+                        line("extra/stats/file4.txt", "inner file")
+                        line("data", "dir")
+                    }.toString()
+
+                val file1 = tempFolder.createFile("file1.txt", "content-1")
+                val file2 = tempFolder.createFile("file2.txt", "content-2")
+                val file3 = tempFolder.createFile("file3.txt", "content-3")
+                val file4 = tempFolder.createFile("file4.txt", "content-4")
+                val file5 = tempFolder.createFile("file5.txt", "content-5")
+                val fileList = tempFolder.createFile("data-fileList.tsv", fileListContent)
+                webClient.uploadFiles(listOf(file1), "data")
+                webClient.uploadFiles(listOf(file2), "backup")
+                webClient.uploadFiles(listOf(file4), "extra/stats")
+                webClient.uploadFiles(listOf(file5), "backup/inner")
+                webClient.uploadFiles(listOf(file3, fileList))
+
+                val error = assertThrows<WebClientException> { webClient.submitAsync(submission, TSV) }
+                assertThat(error.message).contains("The following circular references were found:")
+                assertThat(error.message).contains("Directory 'data' contains: 'data/file1.txt'")
+                assertThat(error.message).contains("Directory 'backup' contains: 'backup/inner'")
+                assertThat(error.message).contains("Directory 'extra' contains: 'extra/stats/file4.txt'")
             }
 
         private fun assertDirFile(
