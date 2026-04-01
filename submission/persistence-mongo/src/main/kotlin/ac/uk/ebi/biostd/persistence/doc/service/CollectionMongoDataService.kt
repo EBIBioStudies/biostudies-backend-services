@@ -13,6 +13,10 @@ class CollectionMongoDataService(
 ) : CollectionDataService {
     override fun findCollectionsByAccessTags(tags: List<String>): Flow<BasicSubmission> =
         submissionDocDataRepository
-            .getByAccNoInAndVersionGreaterThan(tags, 0)
+            .getByAccNoInAndVersionGreaterThanAndSectionType(tags, 0, COLLECTION_SECTION_TYPE)
             .map { it.asBasicSubmission(PROCESSED) }
+
+    companion object {
+        const val COLLECTION_SECTION_TYPE = "Project"
+    }
 }
