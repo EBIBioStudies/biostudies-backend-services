@@ -423,7 +423,7 @@ class SubmissionFileSourceTest(
             runTest {
                 val submission =
                     tsv {
-                        line("Submission", "S-FSTST4")
+                        line("Submission", "S-FSTST635")
                         line("Title", "Simple Submission With directory on NFS")
                         line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
@@ -444,7 +444,7 @@ class SubmissionFileSourceTest(
 
                 assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
-                val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
+                val submitted = submissionRepository.getExtByAccNo("S-FSTST635")
                 assertThat(submitted.section.files).hasSize(1)
                 assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
                     require(it is PersistedExtFile)

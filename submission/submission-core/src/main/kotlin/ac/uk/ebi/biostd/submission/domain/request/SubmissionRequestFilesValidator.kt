@@ -20,12 +20,8 @@ import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.components.SecurityQueryService
-import ebi.ac.uk.util.collections.ifNotEmpty
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toSet
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
@@ -81,25 +77,39 @@ class SubmissionRequestFilesValidator(
         return request.withNewStatus(FILES_VALIDATED, withPageTab)
     }
 
-    private suspend fun validateCircularReferences(submission: ExtSubmission) =
+    private suspend fun validateCircularReferences(submission: ExtSubmission) {
+        val directories = mutableSetOf<String>()
         extSerializationService
             .filesFlow(submission)
             .filterIsInstance<PersistedExtFile>()
             .filter { it.type == ExtFileType.DIR }
-            .map { it.filePath }
-            .toSet()
-            .map { it to findCircularReference(it, submission)?.filePath.orEmpty() }
-            .filter { it.second.isNotBlank() }
-            .ifNotEmpty { throw CircularReferenceException(it) }
+            .collect { directories.add(it.filePath) }
 
-    private suspend fun findCircularReference(
-        directoryPath: String,
+        val circularReferences = findCircularReferences(submission, directories)
+        require(circularReferences.isEmpty()) { throw CircularReferenceException(circularReferences) }
+    }
+
+    private suspend fun findCircularReferences(
         submission: ExtSubmission,
-    ): PersistedExtFile? =
+        directories: Set<String>,
+    ): List<Pair<String, String>> {
+        val circularReferences = mutableListOf<Pair<String, String>>()
         extSerializationService
             .filesFlow(submission)
             .filterIsInstance<PersistedExtFile>()
-            .firstOrNull { it.filePath.contains("$directoryPath/") }
+            .collect { file ->
+                var parent = file.filePath.substringBeforeLast("/", missingDelimiterValue = "")
+                while (parent.isNotEmpty()) {
+                    if (directories.contains(parent)) {
+                        circularReferences.add(parent to file.filePath)
+                        break
+                    }
+                    parent = parent.substringBeforeLast("/", missingDelimiterValue = "")
+                }
+            }
+
+        return circularReferences
+    }
 
     private suspend fun sources(submissionRequest: SubmissionRequest): FileSourcesList {
         val request = submissionRequest.process!!
