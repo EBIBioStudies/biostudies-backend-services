@@ -39,7 +39,7 @@ class ExtendedFilePageMapper(
         request: ExtFileListFilesRequest,
     ): String =
         UriComponentsBuilder
-            .fromUriString("$instanceBase/submissions/extended/${request.accNo}/referencedFiles-page/${request.fileListPath}")
+            .fromUriString("$instanceBase/submissions/extended/${request.accNo}/fileList/${request.fileListPath}")
             .pathSegment()
             .queryParam("offset", pageable.offset)
             .queryParam("limit", pageable.pageSize)
