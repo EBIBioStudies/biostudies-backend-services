@@ -87,9 +87,10 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
         version: Int,
     ): Boolean
 
-    fun getByAccNoInAndVersionGreaterThan(
+    fun getByAccNoInAndVersionGreaterThanAndSectionType(
         accNo: List<String>,
         version: Int,
+        sectionType: String,
     ): Flow<DocSubmission>
 
     suspend fun findFirstByAccNoAndVersionLessThanOrderByVersion(
