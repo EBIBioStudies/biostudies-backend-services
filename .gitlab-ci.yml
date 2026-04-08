@@ -11,8 +11,8 @@ include:
   - local: '/ci/jobs.yml'
 
 stages:
-#  - build-test
-#  - nfs-itest
+  - build-test
+  - nfs-itest
   - fire-itest
   - fire-caos-itest
   - auto-deploy-dev
@@ -24,19 +24,19 @@ stages:
   - build-fat-jar
   - build-push-docker-image
 
-#build-test:
-#  stage: build-test
-#  script: gradle build test -x itest -x jacocoTestCoverageVerification
-#
-#nfs-itest:
-#  needs: [ "build-test" ]
-#  stage: nfs-itest
-#  script:
-#    - apt-get update && apt-get install -y rsync
-#    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
+build-test:
+  stage: build-test
+  script: gradle build test -x itest -x jacocoTestCoverageVerification
+
+nfs-itest:
+  needs: [ "build-test" ]
+  stage: nfs-itest
+  script:
+    - apt-get update && apt-get install -y rsync
+    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
 
 fire-itest:
-#  needs: [ "nfs-itest" ]
+  needs: [ "nfs-itest" ]
   stage: fire-itest
   script:
     - apt-get update && apt-get install -y rsync
