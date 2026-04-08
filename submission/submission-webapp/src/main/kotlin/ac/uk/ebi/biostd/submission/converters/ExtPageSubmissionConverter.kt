@@ -8,9 +8,9 @@ import org.springframework.http.converter.HttpMessageConverter
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.reflect.full.isSuperclassOf
 
-class ExtPageSubmissionConverter(
+class ExtPageSubmissionConverter<T>(
     private val extSerializationService: ExtSerializationService,
-) : HttpMessageConverter<WebExtPage> {
+) : HttpMessageConverter<WebExtPage<T>> {
     override fun canRead(
         clazz: Class<*>,
         mediaType: MediaType?,
@@ -24,7 +24,7 @@ class ExtPageSubmissionConverter(
     override fun getSupportedMediaTypes(): List<MediaType> = listOf(MediaType.APPLICATION_JSON)
 
     override fun write(
-        webExtPage: WebExtPage,
+        webExtPage: WebExtPage<T>,
         contentType: MediaType?,
         message: HttpOutputMessage,
     ) {
@@ -33,7 +33,7 @@ class ExtPageSubmissionConverter(
     }
 
     override fun read(
-        clazz: Class<out WebExtPage>,
+        clazz: Class<out WebExtPage<T>>,
         inputMessage: HttpInputMessage,
-    ): WebExtPage = throw NotImplementedError("ExtPage as input is not supported")
+    ): WebExtPage<T> = throw NotImplementedError("ExtPage as input is not supported")
 }

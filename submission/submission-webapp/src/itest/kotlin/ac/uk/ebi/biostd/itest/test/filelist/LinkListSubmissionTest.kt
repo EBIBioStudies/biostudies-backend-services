@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.filelist
 
+import ac.uk.ebi.biostd.client.dto.ExtPageRequest
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
@@ -60,6 +61,8 @@ class LinkListSubmissionTest(
     fun init(): Unit =
         runBlocking {
             securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureSequence("S-BSST")
+
             webClient = getWebClient(serverPort, SuperUser)
         }
 
@@ -318,6 +321,49 @@ class LinkListSubmissionTest(
             assertThat(extSubV2.version).isEqualTo(2)
             assertPageTabFiles(accNo = "S-LLT314", linkListName = "LinkList")
             assertReferencedLinks(accNo = "S-LLT314", linkListName = "LinkList")
+        }
+
+    @Test
+    fun `32-5 LinkList file Pagination API`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("Link List", "LinkList-32-5.tsv")
+                    line()
+                }.toString()
+
+            val linkList =
+                tsv {
+                    line("Links", "GEN")
+                    line("Link391", "391")
+                    line("Link392", "392")
+                    line("Link393", "393")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("LinkList-32-5.tsv", linkList),
+                ),
+            )
+
+            val response = webClient.submit(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            val accNo = response.body.accNo
+            val links = webClient.getLinkListLinks(accNo, "LinkList-32-5", ExtPageRequest(limit = 1, offset = 0))
+            assertThat(links.content).hasSize(1)
+            assertThat(links.content.first().url).isEqualTo("Link391")
+
+            val otherLinks = webClient.getLinkListLinks(accNo, "LinkList-32-5", ExtPageRequest(limit = 2, offset = 1))
+            assertThat(otherLinks.content).hasSize(2)
+            assertThat(otherLinks.content.first().url).isEqualTo("Link392")
+            assertThat(otherLinks.content.second().url).isEqualTo("Link393")
         }
 
     private suspend fun assertReferencedLinks(

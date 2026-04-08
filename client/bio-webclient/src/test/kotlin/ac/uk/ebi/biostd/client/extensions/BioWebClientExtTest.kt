@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.extensions
 
 import ac.uk.ebi.biostd.client.api.EXT_SUBMISSIONS_URL
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmitClient
 import ebi.ac.uk.extended.model.ExtPage
@@ -32,7 +32,7 @@ class BioWebClientExtTest(
 
         val firstExtPage = ExtPage(listOf(firstExtSubmission), 1, secondPageUrl, null)
         val secondExtPage = ExtPage(listOf(secondExtSubmission), 1, null, firstPageUrl)
-        val query = ExtPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
+        val query = ExtSubPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
 
         every { testInstance.getExtSubmissions(query) } returns firstExtPage
         every { testInstance.getExtSubmissionsPage(secondPageUrl) } returns secondExtPage
@@ -53,7 +53,7 @@ class BioWebClientExtTest(
         @MockK extSubmission: ExtSubmission,
     ) {
         val extPage = ExtPage(listOf(extSubmission), 1, null, null)
-        val query = ExtPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
+        val query = ExtSubPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
 
         every { testInstance.getExtSubmissions(query) } returns extPage
 
@@ -70,7 +70,7 @@ class BioWebClientExtTest(
     @Test
     fun `access non existing element`() {
         val extPage = ExtPage(listOf(), 1, null, null)
-        val query = ExtPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
+        val query = ExtSubPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
 
         every { testInstance.getExtSubmissions(query) } returns extPage
 

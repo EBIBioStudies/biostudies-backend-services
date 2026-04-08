@@ -40,6 +40,7 @@ class ListCollectionsTest(
     @BeforeAll
     fun init() =
         runBlocking {
+            securityTestService.ensureSequence("S-BSST")
             setUpUsers()
             registerCollections()
             setUpPermissions()
@@ -82,6 +83,26 @@ class ListCollectionsTest(
             assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
             assertThat(collections).anyMatch { it.accno == "SampleCollection" }
             assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+        }
+
+    @Test
+    fun `20-5 list collections does not include submissions`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                }.toString()
+
+            val response = superUserWebClient.submit(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            superUserWebClient.grantPermission(DefaultUser.email, response.body.accNo, ATTACH.name)
+
+            val collections = defaultUserWebClient.getCollections()
+            assertThat(collections.map { it.accno }).containsOnly("DefaultCollection")
         }
 
     private suspend fun registerCollections() {

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubPageRequest
+import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
 import io.mockk.clearAllMocks
@@ -18,8 +19,8 @@ import java.net.URI
 private const val BASE = "http://localhost:8080"
 
 @ExtendWith(MockKExtension::class)
-class ExtendedPageMapperTest {
-    private val testInstance = ExtendedPageMapper(URI(BASE))
+class ExtendedSubmissionPageMapperTest {
+    private val testInstance = ExtendedSubmissionPageMapper(URI(BASE))
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -31,7 +32,7 @@ class ExtendedPageMapperTest {
         @MockK currentPage: Page<ExtSubmission>,
         @MockK nextPageable: Pageable,
     ) {
-        val request = ExtPageRequest(offset = 1, limit = 1, released = true)
+        val request = ExtSubPageRequest(offset = 1, limit = 1, released = true)
 
         every { currentPage.hasNext() } returns true
         every { currentPage.hasPrevious() } returns false
@@ -54,7 +55,7 @@ class ExtendedPageMapperTest {
     ) {
         val from = "2019-09-21T15:03:45Z"
         val to = "2019-09-22T15:03:45Z"
-        val request = ExtPageRequest(fromRTime = from, toRTime = to, offset = 1, limit = 1)
+        val request = ExtSubPageRequest(fromRTime = from, toRTime = to, offset = 1, limit = 1)
 
         mockCurrentPage(currentPage, currentPageable, extSubmission)
         mockPreviousPage(currentPage, previousPageable)
@@ -67,7 +68,7 @@ class ExtendedPageMapperTest {
     }
 
     private fun assertBasicPageAttributes(
-        page: WebExtPage,
+        page: WebExtPage<ExtSubmission>,
         extSubmission: ExtSubmission,
     ) {
         assertThat(page.content).isEqualTo(listOf(extSubmission))

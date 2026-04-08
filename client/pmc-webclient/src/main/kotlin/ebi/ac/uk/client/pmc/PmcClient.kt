@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.awaitExchange
 import org.springframework.web.reactive.function.client.awaitExchangeOrNull
 import org.springframework.web.reactive.function.client.createExceptionAndAwait
 import java.net.URI
+import java.util.function.Consumer
 
 enum class SubmissionResult {
     PMC_DOES_NOT_EXIST,
@@ -100,7 +101,13 @@ class PmcClient(
                     .builder()
                     .baseUrl("https://www.textminingapi.europepmc.org")
                     .defaultHeader("Authorization", "Basic $basicToken")
-                    .build()
+                    .codecs(
+                        Consumer { configurer ->
+                            configurer
+                                .defaultCodecs()
+                                .maxInMemorySize(-1)
+                        },
+                    ).build()
             return PmcClient(client)
         }
     }

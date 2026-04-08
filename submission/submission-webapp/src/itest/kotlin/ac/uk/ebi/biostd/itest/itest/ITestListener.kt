@@ -128,6 +128,10 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.migration.user", "biostudies-dev@ebi.ac.uk")
         properties.addProperty("app.migration.limit", 10)
         properties.addProperty("app.migration.minModificationDays", 360)
+
+        // Pmc properties
+        properties.addProperty("app.pmc.enableLinksExtraction", false)
+        properties.addProperty("app.pmc.authToken", "abc-123")
     }
 
     private fun fireSetup() {

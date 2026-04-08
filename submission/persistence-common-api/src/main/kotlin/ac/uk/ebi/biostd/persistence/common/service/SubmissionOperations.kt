@@ -16,6 +16,7 @@ import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.query.Meta.CursorOption
 import org.springframework.data.mongodb.repository.Meta
 import java.time.Instant
@@ -109,6 +110,12 @@ interface SubmissionFilesPersistenceService {
         fileListName: String,
     ): Flow<ExtFile>
 
+    suspend fun getReferencedFiles(
+        sub: ExtSubmission,
+        fileListName: String,
+        pageable: Pageable,
+    ): Page<ExtFile>
+
     suspend fun findReferencedFile(
         sub: ExtSubmission,
         path: String,
@@ -120,6 +127,12 @@ interface SubmissionLinksPersistenceService {
         accNo: String,
         linkListName: String,
     ): Flow<ExtLink>
+
+    suspend fun getReferencedLinks(
+        sub: ExtSubmission,
+        linkListName: String,
+        pageable: Pageable,
+    ): Page<ExtLink>
 }
 
 @Suppress("TooManyFunctions")

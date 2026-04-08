@@ -1,6 +1,6 @@
-package ac.uk.ebi.biostd.submission.web.resources.ext
+package ac.uk.ebi.biostd.submission.web.resources.ext.mapping
 
-import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.util.web.optionalQueryParam
@@ -9,11 +9,13 @@ import org.springframework.data.domain.Pageable
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-class ExtendedPageMapper(private val instanceBase: URI) {
+class ExtendedSubmissionPageMapper(
+    private val instanceBase: URI,
+) {
     fun asExtPage(
         page: Page<ExtSubmission>,
-        request: ExtPageRequest,
-    ): WebExtPage =
+        request: ExtSubPageRequest,
+    ): WebExtPage<ExtSubmission> =
         WebExtPage(
             content = page.content,
             totalElements = page.totalElements,
@@ -25,24 +27,26 @@ class ExtendedPageMapper(private val instanceBase: URI) {
 
     private fun getPrevious(
         page: Page<ExtSubmission>,
-        request: ExtPageRequest,
+        request: ExtSubPageRequest,
     ): String? = if (page.hasPrevious()) instanceBase.resolve(asUrl(page.previousPageable(), request)).toString() else null
 
     private fun getNext(
         page: Page<ExtSubmission>,
-        request: ExtPageRequest,
+        request: ExtSubPageRequest,
     ): String? = if (page.hasNext()) instanceBase.resolve(asUrl(page.nextPageable(), request)).toString() else null
 
     private fun asUrl(
         pageable: Pageable,
-        request: ExtPageRequest,
+        request: ExtSubPageRequest,
     ): String =
-        UriComponentsBuilder.fromUriString("$instanceBase/submissions/extended")
+        UriComponentsBuilder
+            .fromUriString("$instanceBase/submissions/extended")
             .queryParam("offset", pageable.offset)
             .queryParam("limit", pageable.pageSize)
             .optionalQueryParam("fromRTime", request.fromRTime)
             .optionalQueryParam("toRTime", request.toRTime)
             .optionalQueryParam("released", request.released)
+            .optionalQueryParam("collection", request.collection)
             .build()
             .toUriString()
 }

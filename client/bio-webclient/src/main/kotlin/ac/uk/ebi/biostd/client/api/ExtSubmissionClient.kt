@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ExtPageRequest
+import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
@@ -8,16 +9,20 @@ import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -31,7 +36,7 @@ class ExtSubmissionClient(
     private val client: WebClient,
     private val extSerializationService: ExtSerializationService,
 ) : ExtSubmissionOperations {
-    override fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage {
+    override fun getExtSubmissions(extPageQuery: ExtSubPageQuery): ExtPage {
         val response = client.getForObject<String>(asUrl(extPageQuery))
         return extSerializationService.deserializePage(response)
     }
@@ -52,6 +57,44 @@ class ExtSubmissionClient(
     override fun getReferencedFiles(filesUrl: String): ExtFileTable {
         val response = client.getForObject<String>(decode(filesUrl, UTF_8))
         return extSerializationService.deserializeTable(response)
+    }
+
+    override suspend fun getFileListFiles(
+        accNo: String,
+        fileList: String,
+        page: ExtPageRequest,
+    ): WebExtPage<ExtFile> {
+        val url =
+            UriComponentsBuilder
+                .fromUriString("$EXT_SUBMISSIONS_URL/$accNo/fileList/$fileList")
+                .optionalQueryParam("offset", page.offset)
+                .optionalQueryParam("limit", page.limit)
+                .build()
+                .toUriString()
+        return client
+            .get()
+            .uri(url)
+            .retrieve()
+            .awaitBody<WebExtPage<ExtFile>>()
+    }
+
+    override suspend fun getLinkListLinks(
+        accNo: String,
+        linkList: String,
+        page: ExtPageRequest,
+    ): WebExtPage<ExtLink> {
+        val url =
+            UriComponentsBuilder
+                .fromUriString("$EXT_SUBMISSIONS_URL/$accNo/linkList/$linkList")
+                .optionalQueryParam("offset", page.offset)
+                .optionalQueryParam("limit", page.limit)
+                .build()
+                .toUriString()
+        return client
+            .get()
+            .uri(url)
+            .retrieve()
+            .awaitBody<WebExtPage<ExtLink>>()
     }
 
     override fun submitExt(extSubmission: ExtSubmission): ExtSubmission {
@@ -89,7 +132,7 @@ class ExtSubmissionClient(
     override suspend fun transferEmailUpdate(options: SubmissionTransferOptions) =
         client.postForObjectAsync<Unit>("$EXT_SUBMISSIONS_URL/transfer/email-update", RequestParams(body = options))
 
-    private fun asUrl(extPageQuery: ExtPageQuery): String =
+    private fun asUrl(extPageQuery: ExtSubPageQuery): String =
         UriComponentsBuilder
             .fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)

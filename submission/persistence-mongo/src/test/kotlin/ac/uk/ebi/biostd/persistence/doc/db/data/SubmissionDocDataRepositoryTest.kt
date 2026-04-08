@@ -85,7 +85,7 @@ internal class SubmissionDocDataRepositoryTest(
 
                 val r1 =
                     fileListDocFileRepo
-                        .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
+                        .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
                             "S-BSST4",
                             0,
                             "file-list",

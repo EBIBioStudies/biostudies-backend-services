@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
+import ac.uk.ebi.biostd.submission.pmc.ProcessConfig
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -62,11 +63,11 @@ class DynamicProperties(
             .orElseThrow { IllegalStateException("email property not found") }
     }
 
-    fun limit(): Int {
+    fun pmcConfig(): ProcessConfig {
         val binder = Binder.get(environment)
         return binder
-            .bind("limit", Int::class.java)
-            .orElseThrow { IllegalStateException("limit property not found") }
+            .bind("config", ProcessConfig::class.java)
+            .orElseThrow { IllegalStateException("config property not found") }
     }
 }
 
@@ -96,7 +97,7 @@ class Execute(
     }
 
     private suspend fun loadLinks() {
-        pmcLinksProcessor.loadFromDb(dynamicProperties.limit())
+        pmcLinksProcessor.loadFromDb(dynamicProperties.pmcConfig())
     }
 
     private suspend fun postProcessSingle() {

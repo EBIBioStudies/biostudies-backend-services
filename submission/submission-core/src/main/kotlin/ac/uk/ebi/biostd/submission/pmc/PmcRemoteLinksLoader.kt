@@ -8,6 +8,13 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 class PmcRemoteLinksLoader(
     private val remoteSubmitterExecutor: RemoteSubmitterExecutor,
 ) {
-    suspend fun loadLinks(limit: Int): Job =
-        remoteSubmitterExecutor.executeRemotely(listOf(ExecutionArg("limit", limit)), Mode.LOAD_PMC_LINKS)
+    suspend fun loadLinks(config: ProcessConfig): Job =
+        remoteSubmitterExecutor.executeRemotely(
+            buildList {
+                add(ExecutionArg("config.limit", config.limit))
+                config.chunkSize?.let { ExecutionArg("config.chunkSize", it) }
+                config.waitSeconds?.let { ExecutionArg("config.waitSeconds", it) }
+            },
+            Mode.LOAD_PMC_LINKS,
+        )
 }
