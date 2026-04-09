@@ -52,7 +52,7 @@ object TestVersions {
     const val JsonAssertVersion = "1.5.0"
     const val WiremockVersion = "3.13.2"
     const val TestContainersVersion = "1.21.4"
-    const val TestContainerS3mockVersion = "2.11.0"
+    const val TestContainerS3mockVersion = "4.12.4"
     const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
 }

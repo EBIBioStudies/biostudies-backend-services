@@ -291,6 +291,7 @@ class ITestListener : TestExecutionListener {
                 .withInitScript(MYSQL_SCHEMA)
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
+        // TODO TestVersions.TestContainerS3mockVersion should be used instead of a hard-coded value
         private fun createMockS3Container(): S3MockContainer =
             S3MockContainer("4.12.4")
                 .withInitialBuckets(DEFAULT_BUCKET)
