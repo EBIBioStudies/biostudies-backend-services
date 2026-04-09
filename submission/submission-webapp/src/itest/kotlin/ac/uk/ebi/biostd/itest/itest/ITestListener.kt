@@ -293,7 +293,7 @@ class ITestListener : TestExecutionListener {
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         private fun createMockS3Container(): S3MockContainer =
-            S3MockContainer("latest")
+            S3MockContainer("4.11.0")
                 .withInitialBuckets(DEFAULT_BUCKET)
 
         private fun createFtpServer(
