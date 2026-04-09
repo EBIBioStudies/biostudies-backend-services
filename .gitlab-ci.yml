@@ -26,22 +26,23 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle dependencies build -x test -x itest -x jacocoTestCoverageVerification
+  script: gradle build -x test -x itest -x jacocoTestCoverageVerification
 
 nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:dependencies --configuration testRuntimeClasspath 2>&1 | grep -E "netty|jackson" | grep "\->"
     - gradle :submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.submission.submit.SubmissionStorageModeTest -PenableFire=false --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
   stage: fire-itest
+  before_script:
+    - rm -rf ~/.gradle/caches/modules-2/files-2.1/org.wiremock
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:dependencies :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FIXED_DELAY: "50"
 
@@ -50,6 +51,6 @@ fire-caos-itest:
   stage: fire-caos-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:dependencies :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FAIL_FACTOR: "8"
