@@ -82,7 +82,6 @@ allOpen {
 
 configurations.all {
     exclude(group = "org.slf4j", module = "slf4j-reload4j")
-    resolutionStrategy.force("org.apache.hc.client5:httpclient5:5.3.1")
 }
 
 dependencies {
