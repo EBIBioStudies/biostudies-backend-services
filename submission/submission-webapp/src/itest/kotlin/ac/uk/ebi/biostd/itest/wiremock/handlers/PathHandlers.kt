@@ -30,7 +30,6 @@ class SetPathHandler(
     override fun handle(rqt: Request): ResponseDefinition {
         val fireId = urlPattern.getGroup(rqt.url, 1)
         val file = fireDB.setPath(fireId, rqt.getHeader("x-fire-path"))
-
         return ResponseDefinition.okForJson(file)
     }
 }
