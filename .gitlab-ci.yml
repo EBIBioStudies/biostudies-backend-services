@@ -33,7 +33,7 @@ nfs-itest:
   stage: nfs-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
+    - gradle :submission:submission-webapp:dependencies :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
