@@ -33,7 +33,7 @@ nfs-itest:
   stage: nfs-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:dependencies -configuration testRuntimeClasspath 2>&1 | grep -E "netty|jackson" | grep "\->"
+    - gradle :submission:submission-webapp:dependencies --configuration testRuntimeClasspath 2>&1 | grep -E "netty|jackson" | grep "\->"
     - gradle :submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.submission.submit.SubmissionStorageModeTest -PenableFire=false --rerun-tasks
 
 fire-itest:
