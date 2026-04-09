@@ -42,7 +42,6 @@ import java.io.File
 import java.time.Duration
 import java.time.OffsetDateTime
 
-@Disabled
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

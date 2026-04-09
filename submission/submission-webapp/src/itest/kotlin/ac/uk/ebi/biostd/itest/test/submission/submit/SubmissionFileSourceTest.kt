@@ -66,7 +66,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 
-@Disabled
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
