@@ -26,14 +26,14 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle build -x test -x itest -x jacocoTestCoverageVerification
+  script: gradle build test -x itest -x jacocoTestCoverageVerification
 
 nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.submission.submit.SubmissionStorageModeTest -PenableFire=false --rerun-tasks
+    - gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
