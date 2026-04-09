@@ -15,12 +15,12 @@ class FireS3Service(
         path: String,
     ) {
         logger.info {
-            "###########################################   Started Uploading file ${file.absolutePath} to path $path and bucket $s3Bucket ###########################################   "
+            "## Started Uploading file ${file.absolutePath} to path $path and bucket $s3Bucket ##"
         }
         logger.info { "Client config: $amazonS3" }
         amazonS3.putObject(s3Bucket, path, file)
         logger.info {
-            "###########################################   Finished Uploading file ${file.absolutePath} to path $path and bucket $s3Bucket ###########################################   "
+            "## Finished Uploading file ${file.absolutePath} to path $path and bucket $s3Bucket ## "
         }
     }
 
