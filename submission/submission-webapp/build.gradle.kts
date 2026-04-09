@@ -131,7 +131,10 @@ dependencies {
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 
     testImplementation(SpringBootStarterTest)
-    testImplementation(Wiremock)
+    testImplementation(Wiremock) {
+        exclude(group = "io.netty")
+        exclude(group = "com.fasterxml.jackson.core")
+    }
 
     testImplementation(slf4jApi)
     testImplementation(FtpServer)

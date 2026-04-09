@@ -40,7 +40,7 @@ fire-itest:
   stage: fire-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+    - gradle :submission:submission-webapp:dependencies :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FIXED_DELAY: "50"
 
@@ -49,6 +49,6 @@ fire-caos-itest:
   stage: fire-caos-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
+    - gradle :submission:submission-webapp:dependencies :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FAIL_FACTOR: "8"
