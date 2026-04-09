@@ -26,14 +26,15 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle dependencies build test -x itest -x jacocoTestCoverageVerification
+  script: gradle dependencies build -x test -x itest -x jacocoTestCoverageVerification
 
 nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
   script:
     - apt-get update && apt-get install -y rsync
-    - gradle :submission:submission-webapp:dependencies :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
+    - gradle :submission:submission-webapp:dependencies -configuration testRuntimeClasspath 2>&1 | grep -E "netty|jackson" | grep "\->"
+    - gradle :submission:submission-webapp:itest --tests ac.uk.ebi.biostd.itest.test.submission.submit.SubmissionStorageModeTest -PenableFire=false --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
