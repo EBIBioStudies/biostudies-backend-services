@@ -38,8 +38,6 @@ nfs-itest:
 fire-itest:
   needs: [ "nfs-itest" ]
   stage: fire-itest
-  before_script:
-    - rm -rf ~/.gradle/caches/modules-2/files-2.1/org.wiremock
   script:
     - apt-get update && apt-get install -y rsync
     - gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks

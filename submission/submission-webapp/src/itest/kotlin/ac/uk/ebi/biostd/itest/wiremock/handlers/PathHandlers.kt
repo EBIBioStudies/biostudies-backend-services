@@ -5,11 +5,8 @@ import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.RequestMethod
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import ebi.ac.uk.util.regex.getGroup
-import mu.KotlinLogging
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
-
-private val logger = KotlinLogging.logger {}
 
 class FindPathHandler(
     private val fireDB: FireMockDatabase,
@@ -31,19 +28,10 @@ class SetPathHandler(
     override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/firePath".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
-        try {
-            logger.info { "Started setting path" }
-            val fireId = urlPattern.getGroup(rqt.url, 1)
-            logger.info { "Setting path: $fireId" }
-            val file = fireDB.setPath(fireId, rqt.getHeader("x-fire-path"))
-            logger.info { "set path: $file" }
+        val fireId = urlPattern.getGroup(rqt.url, 1)
+        val file = fireDB.setPath(fireId, rqt.getHeader("x-fire-path"))
 
-            return ResponseDefinition.okForJson(file)
-        } catch (e: Exception) {
-            logger.error(e) { "Error setting path" }
-        }
-
-        return ResponseDefinition.ok()
+        return ResponseDefinition.okForJson(file)
     }
 }
 

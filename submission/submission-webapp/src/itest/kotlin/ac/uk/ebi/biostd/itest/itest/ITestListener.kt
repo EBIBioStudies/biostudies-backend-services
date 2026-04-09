@@ -14,7 +14,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.serverError
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -348,7 +347,7 @@ class ITestListener : TestExecutionListener {
                     httpEndpoint = s3Container.httpEndpoint,
                     defaultBucket = DEFAULT_BUCKET,
                 )
-            return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer).notifier(ConsoleNotifier(true)))
+            return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer))
         }
 
         private fun File.createDirectory(path: String): File {
