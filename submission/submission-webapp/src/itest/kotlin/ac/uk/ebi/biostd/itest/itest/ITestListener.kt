@@ -228,6 +228,8 @@ class ITestListener : TestExecutionListener {
         private val submissionsFtp = Files.createTempDirectory("submissions-ftp").toFile()
         private val userFilesFtp = Files.createTempDirectory("users-dir").toFile()
 
+        // TODO TestVersions.TestContainerS3mockVersion should be used instead of a hard-coded value
+        private const val S3_MOCK_CONTAINER_VERSION = "4.12.4"
         private const val DEFAULT_BUCKET = "bio-fire-bucket"
         private const val AWS_ACCESS_KEY = "anyKey"
         private const val AWS_SECRET_KEY = "anySecret"
@@ -291,9 +293,8 @@ class ITestListener : TestExecutionListener {
                 .withInitScript(MYSQL_SCHEMA)
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-        // TODO TestVersions.TestContainerS3mockVersion should be used instead of a hard-coded value
         private fun createMockS3Container(): S3MockContainer =
-            S3MockContainer("4.12.4")
+            S3MockContainer(S3_MOCK_CONTAINER_VERSION)
                 .withInitialBuckets(DEFAULT_BUCKET)
 
         private fun createFtpServer(
