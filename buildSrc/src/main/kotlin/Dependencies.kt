@@ -42,6 +42,18 @@ import Versions.XmlBuilderVersion
 import Versions.ZeroAllocationHashingVersion
 import Versions.ZipUtilVersion
 
+object PluginVersions {
+    const val BuildConfigVersion = "6.0.9"
+    const val DetektVersion = "1.23.6"
+    const val GradleRetryVersion = "1.5.5"
+    const val KotlinPluginVersion = Versions.KotlinVersion
+    const val KtLintVersion = "12.1.0"
+    const val ShadowPluginVersion = "8.1.1"
+    const val SshVersion = "2.12.0"
+    const val SpringBootPluginVersion = "3.5.5"
+    const val SpringDependencyManagementPluginVersion = "1.1.7"
+}
+
 object TestVersions {
     const val JunitExtensionsVersion = "2.6.0"
     const val Junit5PioneerVersion = "2.3.0"
@@ -208,6 +220,22 @@ object SpringBootDependencies {
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
     const val SpringBootStarterMail = "org.springframework.boot:spring-boot-starter-mail"
     const val SpringDataCommons = "org.springframework.data:spring-data-commons"
+}
+
+object Plugins {
+    const val BuildConfig = "com.github.gmazzo.buildconfig"
+    const val DetektPlugin = "io.gitlab.arturbosch.detekt"
+    const val GradleRetry = "org.gradle.test-retry"
+    const val JacocoPlugin = "jacoco"
+    const val KotlinPlugin = "org.jetbrains.kotlin.jvm"
+    const val KLintPlugin = "org.jlleitschuh.gradle.ktlint"
+    const val KotlinAllOpenPlugin = "org.jetbrains.kotlin.plugin.allopen"
+    const val KotlinJpaPlugin = "org.jetbrains.kotlin.plugin.jpa"
+    const val KotlinSpringPlugin = "org.jetbrains.kotlin.plugin.spring"
+    const val ShadowPlugin = "com.github.johnrengelman.shadow"
+    const val SshPlugin = "org.hidetake.ssh"
+    const val SpringBootPlugin = "org.springframework.boot"
+    const val SpringDependencyManagementPlugin = "io.spring.dependency-management"
 }
 
 object Projects {
