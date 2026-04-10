@@ -1,4 +1,5 @@
 object PluginVersions {
+    const val BuildConfigVersion = "6.0.9"
     const val DetektVersion = "1.23.6"
     const val KotlinPluginVersion = Versions.KotlinVersion
     const val KtLintVersion = "12.1.0"
@@ -10,6 +11,7 @@ object PluginVersions {
 }
 
 object Plugins {
+    const val BuildConfig = "com.github.gmazzo.buildconfig"
     const val JacocoPlugin = "jacoco"
     const val KotlinPlugin = "org.jetbrains.kotlin.jvm"
     const val DetektPlugin = "io.gitlab.arturbosch.detekt"
