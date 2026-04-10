@@ -135,16 +135,18 @@ class SubmissionPostProcessingTest(
                 tsv {
                     line("Files", "Type")
                     line("a/statsFile3.pdf", "inner")
-                    line("a", "folder")
+                    line("b", "folder")
                 }.toString()
 
             val fileList = tempFolder.createFile("file-list.tsv", fileListContent)
             val subFile1 = tempFolder.createFile("stats file 1.doc", "doc content")
             val subFile2 = tempFolder.createFile("statsFile2.txt", "content")
             val subFile3 = tempFolder.createFile("statsFile3.pdf", "pdf content")
+            val subFile4 = tempFolder.createFile("statsFile4.pdf", "pdf content")
             val storageMode = if (enableFire) FIRE else NFS
             webClient.uploadFiles(listOf(subFile1, subFile2, fileList))
             webClient.uploadFiles(listOf(subFile3), "a")
+            webClient.uploadFiles(listOf(subFile4), "b")
 
             assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
             waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
@@ -183,7 +185,7 @@ class SubmissionPostProcessingTest(
             assertThat(statsV2.stats).hasSize(3)
             assertThat(statsV2.stats[DIRECTORIES.name]).isEqualTo(1)
             assertThat(statsV2.stats[FILES_SIZE.name]).isEqualTo(tabFilesSize(subV2) + subFilesSize)
-            assertThat(statsV2.stats[NON_DECLARED_FILES_DIRECTORIES.name]).isEqualTo(1)
+            assertThat(statsV2.stats[NON_DECLARED_FILES_DIRECTORIES.name]).isEqualTo(0)
 
             // Verify submission inner files are persisted
             val innerFilesV2 = submissionFilesDocDataRepository.findByAccNoAndVersion("S-STTS1", 2).toList()
@@ -218,12 +220,12 @@ class SubmissionPostProcessingTest(
                         """
                         Files	Type
                         a/statsFile3.pdf	inner
-                        a.zip	folder
+                        b.zip	folder
                         """.trimIndent(),
                     )
                     assertThat(jsonFileList).hasContent(
                         """
-                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"a.zip","size":173,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
+                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"b.zip","size":173,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
                         """.trimIndent(),
                     )
                 } else {
@@ -231,12 +233,12 @@ class SubmissionPostProcessingTest(
                         """
                         Files	Type
                         a/statsFile3.pdf	inner
-                        a	folder
+                        b	folder
                         """.trimIndent(),
                     )
                     assertThat(jsonFileList).hasContent(
                         """
-                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"a","size":11,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
+                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"b","size":11,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
                         """.trimIndent(),
                     )
                 }

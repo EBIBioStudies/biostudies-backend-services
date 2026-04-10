@@ -8,21 +8,30 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
+import ebi.ac.uk.errors.CircularReferenceException
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.errors.InvalidPathException
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
+import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.components.SecurityQueryService
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class SubmissionRequestFilesValidator(
     private val requestService: SubmissionRequestPersistenceService,
+    private val extSerializationService: ExtSerializationService,
     private val fileSourcesService: FileSourcesService,
     private val securityService: SecurityQueryService,
     private val toExtSectionMapper: ToExtSectionMapper,
@@ -63,8 +72,43 @@ class SubmissionRequestFilesValidator(
         val newSection = toExtSectionMapper.convert(sub.accNo, sub.version, sub.section, sources)
         val withFiles = sub.copy(section = newSection)
         val withPageTab = pageTabService.generatePageTab(withFiles)
+        validateCircularReferences(withFiles)
 
         return request.withNewStatus(FILES_VALIDATED, withPageTab)
+    }
+
+    private suspend fun validateCircularReferences(submission: ExtSubmission) {
+        val directories = mutableSetOf<String>()
+        extSerializationService
+            .filesFlow(submission)
+            .filterIsInstance<PersistedExtFile>()
+            .filter { it.type == ExtFileType.DIR }
+            .collect { directories.add(it.filePath) }
+
+        val circularReferences = findCircularReferences(submission, directories)
+        require(circularReferences.isEmpty()) { throw CircularReferenceException(circularReferences) }
+    }
+
+    private suspend fun findCircularReferences(
+        submission: ExtSubmission,
+        directories: Set<String>,
+    ): List<Pair<String, String>> {
+        val circularReferences = mutableListOf<Pair<String, String>>()
+        extSerializationService
+            .filesFlow(submission)
+            .filterIsInstance<PersistedExtFile>()
+            .collect { file ->
+                var parent = file.filePath.substringBeforeLast("/", missingDelimiterValue = "")
+                while (parent.isNotEmpty()) {
+                    if (directories.contains(parent)) {
+                        circularReferences.add(parent to file.filePath)
+                        break
+                    }
+                    parent = parent.substringBeforeLast("/", missingDelimiterValue = "")
+                }
+            }
+
+        return circularReferences
     }
 
     private suspend fun sources(submissionRequest: SubmissionRequest): FileSourcesList {

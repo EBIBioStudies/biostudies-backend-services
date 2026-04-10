@@ -95,7 +95,6 @@ class ResubmissionApiTest(
                     tsv {
                         line("Files", "Type")
                         line("a/fileFileList.pdf", "inner")
-                        line("a", "folder")
                     }.toString()
 
                 webClient.uploadFiles(
@@ -164,7 +163,6 @@ class ResubmissionApiTest(
                     tsv {
                         line("Files", "Type")
                         line("a/fileFileList.pdf", "inner")
-                        line("a", "folder")
                     }.toString()
 
                 webClient.uploadFiles(

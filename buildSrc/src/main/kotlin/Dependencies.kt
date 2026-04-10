@@ -50,9 +50,9 @@ object TestVersions {
     const val JaxbApiVersion = "2.3.1"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
-    const val WiremockVersion = "3.13.1"
+    const val WiremockVersion = "3.13.2"
     const val TestContainersVersion = "1.21.4"
-    const val TestContainerS3mockVersion = "2.11.0"
+    const val TestContainerS3mockVersion = "4.12.4"
     const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
 }
@@ -66,7 +66,7 @@ object Versions {
 
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
-    const val CommonsIOVersion = "2.6"
+    const val CommonsIOVersion = "2.21.0"
     const val CommonsNetVersion = "3.11.1"
     const val CommonsPoolVersion = "2.12.0"
     const val CommonsCsvVersion = "1.8"
