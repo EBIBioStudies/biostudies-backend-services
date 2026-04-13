@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.itest.common.COLLATION
 import ac.uk.ebi.biostd.itest.common.FIRE_PASSWORD
 import ac.uk.ebi.biostd.itest.common.FIRE_USERNAME
 import ac.uk.ebi.biostd.itest.common.SpecificMySQLContainer
+import ac.uk.ebi.biostd.itest.config.BuildConfig.TEST_CONTAINERS_S3_MOCK_VERSION
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer.Companion.newTransformer
 import com.adobe.testing.s3mock.testcontainers.S3MockContainer
@@ -292,7 +293,7 @@ class ITestListener : TestExecutionListener {
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         private fun createMockS3Container(): S3MockContainer =
-            S3MockContainer("latest")
+            S3MockContainer(TEST_CONTAINERS_S3_MOCK_VERSION)
                 .withInitialBuckets(DEFAULT_BUCKET)
 
         private fun createFtpServer(
