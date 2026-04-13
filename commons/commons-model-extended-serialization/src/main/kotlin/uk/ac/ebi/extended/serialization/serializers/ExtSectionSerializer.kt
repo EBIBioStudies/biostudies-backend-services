@@ -7,6 +7,7 @@ import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSection
+import org.springframework.web.util.UriUtils.encodePath
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
@@ -21,6 +22,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
+import java.nio.charset.StandardCharsets.UTF_8
 
 const val FILE_LIST_URL = "submissions/extended"
 
@@ -56,7 +58,7 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     ) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.filePath)
-        gen.writeStringField(FILES_URL, "/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}")
+        gen.writeStringField(FILES_URL, fileUrl(fileList))
         gen.writeStringField(FILE, fileList.file.absolutePath)
         gen.writeObjectField(PAGE_TAB_FILES, fileList.pageTabFiles)
         gen.writeEndObject()
@@ -71,6 +73,11 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeStringField(FILE, linkList.file.absolutePath)
         gen.writeObjectField(PAGE_TAB_FILES, linkList.pageTabFiles)
         gen.writeEndObject()
+    }
+
+    private fun fileUrl(fileList: ExtFileList): String {
+        val url = "/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.filePath}"
+        return encodePath(url, UTF_8)
     }
 
     private fun writeEitherList(

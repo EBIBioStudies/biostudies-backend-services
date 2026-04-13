@@ -113,7 +113,7 @@ class ExtSubmissionClientTest(
         every { client.getForObject<String>(filesUrl) } returns "ExtFileTable"
         every { extSerializationService.deserializeTable("ExtFileTable") } returns extFileTable
 
-        testInstance.getReferencedFiles(filesUrl)
+        testInstance.getFileListFiles(filesUrl)
         verify(exactly = 1) {
             client.getForObject<String>(filesUrl)
             extSerializationService.deserializeTable("ExtFileTable")

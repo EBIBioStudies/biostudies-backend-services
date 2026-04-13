@@ -250,7 +250,7 @@ class FileListSubmissionTest(
             assertThat(webClient.submitMultipart(submission, TSV, params, listOf(referencedFile))).isSuccessful()
 
             val extSubmission = webClient.getExtByAccNo("S-TEST6")
-            val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
+            val referencedFiles = webClient.getFileListFiles(extSubmission.section.fileList!!.filesUrl!!).content
 
             assertThat(referencedFiles).hasSize(1)
             val referenced = referencedFiles.first()
