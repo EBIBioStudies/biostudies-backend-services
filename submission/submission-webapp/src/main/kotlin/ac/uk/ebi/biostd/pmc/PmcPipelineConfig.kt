@@ -4,8 +4,10 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.EnableScheduling
 
 @Configuration
+@EnableScheduling
 class PmcPipelineConfig {
     @Bean
     fun pmcScheduller(
