@@ -114,7 +114,7 @@ class PmcLinksProcessor(
         pmcSubmissionsService.updateStatus(completed, PmcSubmissionStatus.LINKS_EXTRACTED)
 
         val result = loadResult.map { ProcessingResult(it.sub.accNo, it.sub.version, it.result) }
-        logger.info("PMC links loaded $result")
+        logger.info("PMC links loaded ${result.groupingBy { it.result }.eachCount()}")
         return result
     }
 

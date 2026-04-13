@@ -18,7 +18,9 @@ import uk.ac.ebi.extended.serialization.service.createExtFileList
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
+class ExtSectionDeserializerTest(
+    private val tempFolder: TemporaryFolder,
+) {
     private val testInstance = ExtSerializationService.mapper
 
     @Test

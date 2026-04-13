@@ -10,7 +10,6 @@ import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -24,9 +23,7 @@ import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
-import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.nio.charset.StandardCharsets.UTF_8
 import java.time.Instant
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
@@ -54,10 +51,12 @@ class ExtSubmissionClient(
         return extSerializationService.deserialize(sub)
     }
 
-    override fun getReferencedFiles(filesUrl: String): ExtFileTable {
-        val response = client.getForObject<String>(decode(filesUrl, UTF_8))
-        return extSerializationService.deserializeTable(response)
-    }
+    override suspend fun getFileListFiles(filesUrl: String): WebExtPage<ExtFile> =
+        client
+            .get()
+            .uri(filesUrl)
+            .retrieve()
+            .awaitBody<WebExtPage<ExtFile>>()
 
     override suspend fun getFileListFiles(
         accNo: String,

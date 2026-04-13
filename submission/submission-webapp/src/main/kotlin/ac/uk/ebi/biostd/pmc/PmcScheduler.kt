@@ -14,18 +14,17 @@ class PmcScheduler(
     private val pmcProperties: PmcProperties,
 ) {
     // Execute every 4 hours
-    @Scheduled(cron = "0 0 */4 * * *")
-    fun onSchedule() {
-        if (!pmcProperties.enableLinksExtraction) {
-            runBlocking {
+    @Scheduled(cron = "0 0 */2 * * *")
+    fun onSchedule() =
+        runBlocking {
+            if (pmcProperties.enableLinksExtraction) {
                 logger.info { "Runninng scheduled PMC links loading limit = $LOAD_LIMIT, user = $USER_EMAIL" }
                 pmcLinksProcessor.loadFromDb(ProcessConfig(limit = LOAD_LIMIT))
             }
         }
-    }
 
     companion object {
-        private const val LOAD_LIMIT = 5000
+        private const val LOAD_LIMIT = 2000
         private const val USER_EMAIL = "biostudies-dev@ebi.ac.uk"
     }
 }
