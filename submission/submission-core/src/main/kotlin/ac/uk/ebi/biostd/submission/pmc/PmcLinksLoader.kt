@@ -130,7 +130,7 @@ class PmcLinksLoader(
 
             else -> {
                 val linkList = KFiles.createTempFile("pmc-$pmcId", ".pmc")
-                serializationService.serializeLinks(links.asFlow(), linkList.outputStream())
+                linkList.outputStream().use { serializationService.serializeLinks(links.asFlow(), it) }
                 ExtLinkList(filePath = "${pmcId.accNo}_extracted_links", linkList.toFile())
             }
         }
