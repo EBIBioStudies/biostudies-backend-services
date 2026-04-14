@@ -19,7 +19,7 @@ internal fun DocFile.toExtFile(
     subRelPath: String,
 ): ExtFile =
     when (this) {
-        is FireDocFile ->
+        is FireDocFile -> {
             FireFile(
                 fireId = fireId,
                 firePath = "$subRelPath/$relPath",
@@ -31,8 +31,9 @@ internal fun DocFile.toExtFile(
                 type = ExtFileType.fromString(fileType),
                 attributes = attributes.toExtAttributes(),
             )
+        }
 
-        is NfsDocFile ->
+        is NfsDocFile -> {
             NfsFile(
                 filePath = filePath,
                 relPath = relPath,
@@ -40,10 +41,14 @@ internal fun DocFile.toExtFile(
                 fullPath = fullPath,
                 md5 = md5,
                 size = fileSize,
+                type = ExtFileType.fromString(fileType),
                 attributes = attributes.toExtAttributes(),
             )
+        }
 
-        is RequestDocFile -> RequestFile(filePath, attributes.toExtAttributes(), type)
+        is RequestDocFile -> {
+            RequestFile(filePath, attributes.toExtAttributes(), type)
+        }
     }
 
 internal fun DocFileTable.toExtFileTable(

@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireTempFolder
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -105,7 +106,7 @@ class SubmissionPostProcessingTest(
 
                     line("Study")
                     line("Type", "Experiment")
-                    line("File List", "file-list.tsv")
+                    line("File List", "b-file-list.tsv")
                     line()
 
                     line("File", "stats file 1.doc")
@@ -134,11 +135,13 @@ class SubmissionPostProcessingTest(
             val fileListContent =
                 tsv {
                     line("Files", "Type")
+                    line("statsFile2.txt", "duplicated file")
                     line("a/statsFile3.pdf", "inner")
                     line("b", "folder")
+                    line("b", "duplicated folder")
                 }.toString()
 
-            val fileList = tempFolder.createFile("file-list.tsv", fileListContent)
+            val fileList = tempFolder.createFile("b-file-list.tsv", fileListContent)
             val subFile1 = tempFolder.createFile("stats file 1.doc", "doc content")
             val subFile2 = tempFolder.createFile("statsFile2.txt", "content")
             val subFile3 = tempFolder.createFile("statsFile3.pdf", "pdf content")
@@ -169,7 +172,10 @@ class SubmissionPostProcessingTest(
             waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
 
             val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
-            val subFilesSize = subFile1.size() + subFile2.size() + subFile3.size()
+            val subTempFolder = fireTempFolder.resolve("S-STTS1/2")
+            val fireCompressedFolderName = subTempFolder.list()?.firstOrNull { it.endsWith(".zip") }
+            val folderFile = if (enableFire) subTempFolder.resolve(fireCompressedFolderName!!) else subFile4
+            val subFilesSize = subFile1.size() + subFile2.size() + subFile3.size() + folderFile.size()
 
             // Verify doi is registered
             assertThat(subV2.doi).isEqualTo("$BS_DOI_ID/S-STTS1")
@@ -180,7 +186,7 @@ class SubmissionPostProcessingTest(
             assertThat(statsV2.released).isTrue()
             assertThat(statsV2.storageMode).isEqualTo(storageMode)
             assertThat(statsV2.subCreationTime).isEqualTo(subV2.creationTime.toInstant())
-            assertThat(statsV2.subReleaseTime).isEqualTo(subV2.releaseTime?.toInstant())
+            assertThat(statsV2.subReleaseTime).isEqualTo(subV2.releaseTime.toInstant())
             assertThat(statsV2.subModificationTime).isEqualTo(subV2.modificationTime.toInstant())
             assertThat(statsV2.stats).hasSize(3)
             assertThat(statsV2.stats[DIRECTORIES.name]).isEqualTo(1)
@@ -204,8 +210,8 @@ class SubmissionPostProcessingTest(
             val pageTabFallbackPath = pageTabFallbackPath.resolve(subV2.relPath)
             val jsonPageTab = pageTabFallbackPath.resolve("S-STTS1.json")
             val tsvPageTab = pageTabFallbackPath.resolve("S-STTS1.tsv")
-            val jsonFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.json")
-            val tsvFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.tsv")
+            val jsonFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("b-file-list.json")
+            val tsvFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("b-file-list.tsv")
 
             waitForCompletion(TEN_SECONDS) {
                 assertThat(jsonPageTab).hasSameTextualContentAs(pageTabPath.resolve("S-STTS1.json"))
@@ -219,26 +225,30 @@ class SubmissionPostProcessingTest(
                     assertThat(tsvFileList).hasContent(
                         """
                         Files	Type
+                        statsFile2.txt	duplicated file
                         a/statsFile3.pdf	inner
                         b.zip	folder
+                        b.zip	duplicated folder
                         """.trimIndent(),
                     )
                     assertThat(jsonFileList).hasContent(
                         """
-                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"b.zip","size":173,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
+                        [{"path":"statsFile2.txt","size":7,"attributes":[{"name":"Type","value":"duplicated file"}],"type":"file"},{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"b.zip","size":173,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"},{"path":"b.zip","size":173,"attributes":[{"name":"Type","value":"duplicated folder"}],"type":"directory"}]
                         """.trimIndent(),
                     )
                 } else {
                     assertThat(tsvFileList).hasContent(
                         """
                         Files	Type
+                        statsFile2.txt	duplicated file
                         a/statsFile3.pdf	inner
                         b	folder
+                        b	duplicated folder
                         """.trimIndent(),
                     )
                     assertThat(jsonFileList).hasContent(
                         """
-                        [{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"b","size":11,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"}]
+                        [{"path":"statsFile2.txt","size":7,"attributes":[{"name":"Type","value":"duplicated file"}],"type":"file"},{"path":"a/statsFile3.pdf","size":11,"attributes":[{"name":"Type","value":"inner"}],"type":"file"},{"path":"b","size":11,"attributes":[{"name":"Type","value":"folder"}],"type":"directory"},{"path":"b","size":11,"attributes":[{"name":"Type","value":"duplicated folder"}],"type":"directory"}]
                         """.trimIndent(),
                     )
                 }
