@@ -22,8 +22,8 @@ class DoiRequest(
     val doi: String
         get() = "$BS_DOI_ID/$accNo"
 
-    fun asXmlRequest(): String {
-        return xml("doi_batch") {
+    fun asXmlRequest(): String =
+        xml("doi_batch") {
             xmlns = XML_NAMESPACE
             attribute("xmlns:xsi", XML_SCHEMA_INSTANCE)
             attribute("version", XML_SCHEMA_VERSION)
@@ -76,7 +76,6 @@ class DoiRequest(
                 }
             }
         }.toString(PrintOptions(pretty = true, singleLineTextElements = true, indent = " "))
-    }
 
     companion object {
         const val BS_DOI_ID = "10.6019"

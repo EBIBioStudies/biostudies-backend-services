@@ -16,7 +16,6 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -231,7 +230,7 @@ interface ExtSubmissionOperations {
         includeFileList: Boolean = false,
     ): ExtSubmission
 
-    fun getReferencedFiles(filesUrl: String): ExtFileTable
+    suspend fun getFileListFiles(filesUrl: String): WebExtPage<ExtFile>
 
     fun submitExtAsync(extSubmission: ExtSubmission)
 

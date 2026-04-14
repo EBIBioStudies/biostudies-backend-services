@@ -55,6 +55,7 @@ import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.slf4jApi
+import TestVersions.TestContainerS3mockVersion
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -66,12 +67,19 @@ plugins {
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
     id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
+    id(Plugins.BuildConfig) version PluginVersions.BuildConfigVersion
 }
 
 dependencyManagement {
     dependencies {
         dependency(OkHttp3) // Required by Aws S3 Kotlin sdk
     }
+}
+
+buildConfig {
+    packageName("ac.uk.ebi.biostd.itest.config")
+    useKotlinOutput { internalVisibility = false }
+    buildConfigField("TEST_CONTAINERS_S3_MOCK_VERSION", provider { TestContainerS3mockVersion })
 }
 
 allOpen {
