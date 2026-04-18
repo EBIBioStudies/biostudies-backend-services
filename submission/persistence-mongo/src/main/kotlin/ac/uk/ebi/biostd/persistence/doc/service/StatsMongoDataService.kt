@@ -2,8 +2,11 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.StatsNotFoundException
+import ac.uk.ebi.biostd.persistence.common.model.CollectionStats
+import ac.uk.ebi.biostd.persistence.common.model.StatsReportResult
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStats
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
@@ -16,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import com.mongodb.bulk.BulkWriteResult
@@ -27,10 +31,17 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.Document
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.aggregate
+import org.springframework.data.mongodb.core.aggregation.Aggregation.group
+import org.springframework.data.mongodb.core.aggregation.Aggregation.match
+import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation
+import org.springframework.data.mongodb.core.aggregation.GroupOperation.GroupOperationBuilder
+import org.springframework.data.mongodb.core.findAndModify
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -54,11 +65,10 @@ class StatsMongoDataService(
                 ).limit(1)
             val update = Update().set(STATS_LAST_UPDATED, Instant.now())
             return mongoTemplate
-                .findAndModify(
+                .findAndModify<DocSubmissionStats>(
                     query,
                     update,
                     FindAndModifyOptions.options().returnNew(true),
-                    DocSubmissionStats::class.java,
                 ).awaitSingleOrNull()
         }
 
@@ -149,5 +159,49 @@ class StatsMongoDataService(
             }
 
         return statsDataRepository.bulkWrite(upserts)
+    }
+
+    override suspend fun calculateImagingStats(): CollectionStats {
+        val filter = where(SUB_COLLECTIONS).`in`(IMAGING_COLLECTION)
+        return calculateStats(filter)
+    }
+
+    override suspend fun calculateNonImagingStats(): CollectionStats {
+        val filter =
+            Criteria().orOperator(
+                where(STATS_COLLECTIONS).size(0),
+                where(STATS_COLLECTIONS).nin(IMAGING_COLLECTION),
+            )
+        return calculateStats(filter)
+    }
+
+    private suspend fun calculateStats(filter: Criteria): CollectionStats {
+        val count = calculateStat(filter) { group().count() }
+        val size = calculateStat(filter) { group().sum("\$$STATS_OBJECT_KEY.${FILES_SIZE.value}") }
+
+        return CollectionStats(count, size)
+    }
+
+    private suspend fun calculateStat(
+        filter: Criteria,
+        groupBuilder: () -> GroupOperationBuilder,
+    ): Long {
+        val aggregation =
+            newAggregation(
+                DocSubmissionStats::class.java,
+                match(filter),
+                groupBuilder().`as`(RESULT_KEY),
+            )
+
+        return mongoTemplate
+            .aggregate<StatsReportResult>(aggregation)
+            .awaitFirstOrNull()
+            ?.result ?: 0
+    }
+
+    companion object {
+        const val IMAGING_COLLECTION = "BioImages"
+        const val RESULT_KEY = "result"
+        const val STATS_OBJECT_KEY = "stats"
     }
 }

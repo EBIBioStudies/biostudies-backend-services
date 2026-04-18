@@ -14,15 +14,14 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import org.bson.types.ObjectId
@@ -109,37 +108,54 @@ class LocalPostProcessingService(
     private suspend fun calculateStats(sub: ExtSubmission) {
         logger.info { "Started calculating stats for submission ${sub.accNo}, version ${sub.version}" }
         var subFilesSize = 0L
-        var directories = mutableListOf<String>()
+        var files = mutableSetOf<String>()
+        var directories = mutableSetOf<String>()
 
         serializationService
             .filesFlow(sub)
             .filterIsInstance<PersistedExtFile>()
             .collect {
-                if (it.type == ExtFileType.FILE) subFilesSize += it.size
-                if (it.type == ExtFileType.DIR) directories.add(it.filePath.removeSuffix(".zip"))
+                val filePath = getFilePath(it)
+                if (directories.contains(filePath).not() && files.contains(filePath).not()) subFilesSize += it.size
+                if (it.type == FILE) files.add(filePath)
+                if (it.type == DIR) directories.add(filePath)
             }
 
-        val emptyDirectories = directories.count { hasFiles(it, sub) }
+        val circularRefs = if (directories.isNotEmpty()) findCircularReferences(sub, directories).size.toLong() else 0L
         val stats =
             listOf(
                 SubmissionStat(sub.accNo, subFilesSize, FILES_SIZE),
                 SubmissionStat(sub.accNo, directories.size.toLong(), DIRECTORIES),
-                SubmissionStat(sub.accNo, emptyDirectories.toLong(), NON_DECLARED_FILES_DIRECTORIES),
+                SubmissionStat(sub.accNo, circularRefs, NON_DECLARED_FILES_DIRECTORIES),
             )
 
         statsDataService.saveAll(sub, stats)
         logger.info { "Finished calculating stats for submission ${sub.accNo}, version ${sub.version}" }
     }
 
-    private suspend fun hasFiles(
-        directoryPath: String,
-        sub: ExtSubmission,
-    ): Boolean =
+    private fun getFilePath(file: PersistedExtFile): String = if (file.type == FILE) file.filePath else file.filePath.removeSuffix(".zip")
+
+    private suspend fun findCircularReferences(
+        submission: ExtSubmission,
+        directories: Set<String>,
+    ): List<Pair<String, String>> {
+        val circularReferences = mutableListOf<Pair<String, String>>()
         serializationService
-            .filesFlow(sub)
+            .filesFlow(submission)
             .filterIsInstance<PersistedExtFile>()
-            .filter { it.type == ExtFileType.FILE }
-            .firstOrNull { it.filePath.contains(directoryPath) } != null
+            .collect { file ->
+                var parent = file.filePath.substringBeforeLast("/", missingDelimiterValue = "")
+                while (parent.isNotEmpty()) {
+                    if (directories.contains(parent)) {
+                        circularReferences.add(parent to file.filePath)
+                        break
+                    }
+                    parent = parent.substringBeforeLast("/", missingDelimiterValue = "")
+                }
+            }
+
+        return circularReferences
+    }
 
     suspend fun postProcessAll() {
         val idx = AtomicInteger(0)

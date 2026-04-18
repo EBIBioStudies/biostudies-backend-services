@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.stats
+package ac.uk.ebi.biostd.submission.stats.common
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType

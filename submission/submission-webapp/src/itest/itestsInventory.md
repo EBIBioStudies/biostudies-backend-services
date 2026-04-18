@@ -81,7 +81,7 @@ Contains test related to file list.
 | FileListSubmissionTest | 3-1     | JSON submission with TSV file list                                |
 | FileListSubmissionTest | 3-2     | JSON submission with XLS file list                                |
 | FileListSubmissionTest | 3-3     | JSON submission with invalid file list format                     |
-| FileListSubmissionTest | 3-4     | Filelist Submission with files inside a folder                    |
+| FileListSubmissionTest | 3-4     | Filelist Submission with file list inside a folder            |
 | FileListSubmissionTest | 3-5     | Filelist Submission with files reusing previous version file list |
 | FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
 | FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
@@ -214,8 +214,8 @@ Contains test related to resubmission
 | MultipartFileSubmissionApiTest  | 9-3     | JSON submission                                                                  |                                                                                               |
 | MultipartFileSubmissionApiTest  | 9-4     | direct submission with overriden attributes                                      |                                                                                               |
 | MultipartFileSubmissionApiTest  | 9-5     | invalid format file                                                              |                                                                                               |
-| SubmissionStorageModeTest       | 10-1    | Fire to Nfs                                                                      | Submit in Fire storage mode, resubmit in Nfs mode, and vice versa.                            |
-| SubmissionStorageModeTest       | 10-2    | Nfs to Fire                                                                      |                                                                                               |
+| SubmissionStorageModeTest       | 10-1    | resubmit from FIRE to NFS                                                        | Submit in FIRE storage mode, resubmit in NFS mode                                             |
+| SubmissionStorageModeTest       | 10-2    | resubmit from NFS to FIRE                                                        | Submit in NFS storage mode, resubmit in FIRE mode                                             |
 | SubmissionStorageModeTest       | 10-3    | migrate from NFS to FIRE                                                         |                                                                                               |
 | SubmissionStorageModeTest       | 10-4    | migrate from FIRE to NFS                                                         |                                                                                               |
 | SubmissionStorageModeTest       | 10-5    | previous version keeps storage mode                                              |                                                                                               |
@@ -269,11 +269,11 @@ Contains test related to resubmission
 | SubmissionRefreshApiTest        | 25-2    | Refresh when submission release date is updated                                  |                                                                                               |
 | SubmissionRefreshApiTest        | 25-3    | Refresh when submission attribute is updated                                     |                                                                                               |
 | SubmissionRefreshApiTest        | 25-4    | Refresh when submission fileListFile attribute is updated                        |                                                                                               |
-| SubmissionReleaseTest           | 27-1    | public submission without secret key and HARD_LINKS release mode                 |                                                                                               |
-| SubmissionReleaseTest           | 27-2    | private submission without secret key and HARD_LINKS release mode                |                                                                                               |
-| SubmissionReleaseTest           | 27-3    | public submission with secret key and MOVE release mode                          |                                                                                               |
-| SubmissionReleaseTest           | 27-4    | private submission with secret key and MOVE release mode                         |                                                                                               |
-| SubmissionReleaseTest           | 27-5    | release already submitted submission using release operation                     |                                                                                               |
+| SubmissionReleaseNoSecretKeyTest| 27-1    | public submission without secret key and HARD_LINKS release mode                 |                                                                                               |
+| SubmissionReleaseNoSecretKeyTest| 27-2    | private submission without secret key and HARD_LINKS release mode                |                                                                                               |
+| SubmissionReleaseSecretKeyTest  | 27-3    | public submission with secret key and MOVE release mode                          |                                                                                               |
+| SubmissionReleaseSecretKeyTest  | 27-4    | release private submission with secret key and MOVE release mode                 |                                                                                               |
+| SubmissionReleaseSecretKeyTest  | 27-5    | release submission using the release operation.                                  |                                                                                               |
 | SubmissionDatesTest             | 28-1    | Creation date is not changed beetween re submissions                             |                                                                                               |
 | SubmissionDatesTest             | 28-2    | Modification date is changed beetween re submissions                             |                                                                                               |
 | SubmissionDatesTest             | 28-3    | Regular user submit with release date in the past                                |                                                                                               |

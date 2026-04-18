@@ -41,7 +41,7 @@ import java.time.OffsetDateTime
     properties = ["app.persistence.includeSecretKey=false", "app.persistence.nfsReleaseMode=HARD_LINKS"],
 )
 @DirtiesContext
-class SubmissionReleaseTestWithoutSecretKey(
+class SubmissionReleaseNoSecretKeyTest(
     @param:LocalServerPort val serverPort: Int,
     @param:Autowired val securityTestService: SecurityTestService,
     @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,

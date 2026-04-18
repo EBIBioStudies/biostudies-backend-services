@@ -71,6 +71,7 @@ data class PersistenceProperties(
     var publicSubmissionFtpOutPath: String,
     val requestFilesPath: String,
     val tempDirPath: String,
+    val statsReportPath: String,
 )
 
 data class SubmissionNotificationsProperties(

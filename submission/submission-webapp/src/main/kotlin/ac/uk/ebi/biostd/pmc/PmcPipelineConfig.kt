@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableScheduling
 class PmcPipelineConfig {
     @Bean
-    fun pmcScheduller(
+    fun pmcScheduler(
         applicationProperties: ApplicationProperties,
         pmcLinksProcessor: PmcLinksProcessor,
     ): PmcScheduler = PmcScheduler(pmcLinksProcessor, applicationProperties.pmc)

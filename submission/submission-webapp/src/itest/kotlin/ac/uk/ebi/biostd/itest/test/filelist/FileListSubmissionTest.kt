@@ -221,7 +221,7 @@ class FileListSubmissionTest(
         }
 
     @Test
-    fun `3-4 Filelist Submission with files inside a folder`() {
+    fun `3-4 Filelist Submission with file list inside a folder`() =
         runTest {
             val referencedFile = tempFolder.createFile("referenced.txt")
             val submission =
@@ -260,7 +260,6 @@ class FileListSubmissionTest(
             assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
             assertThat(referenced.md5).isEqualTo(referencedFile.md5())
         }
-    }
 
     @Test
     fun `3-5 Filelist Submission with files reusing previous version file list`() =
