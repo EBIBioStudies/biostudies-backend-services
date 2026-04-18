@@ -121,8 +121,6 @@ class LocalPostProcessingService(
                 if (it.type == DIR) directories.add(filePath)
             }
 
-        // TODO what's the purpose of this stat? -> directories containing at least one file referenced in the submission somehow
-        // TODO once the stats are reloaded we should remove this stat since no circular references will be allowed hence, it would lose its meaning
         val circularRefs = if (directories.isNotEmpty()) findCircularReferences(sub, directories).size.toLong() else 0L
         val stats =
             listOf(
