@@ -18,7 +18,7 @@ class PmcScheduler(
     fun onSchedule() =
         runBlocking {
             if (pmcProperties.enableLinksExtraction) {
-                logger.info { "Runninng scheduled PMC links loading limit = $LOAD_LIMIT, user = $USER_EMAIL" }
+                logger.info { "Running scheduled PMC links loading limit = $LOAD_LIMIT, user = $USER_EMAIL" }
                 pmcLinksProcessor.loadFromDb(ProcessConfig(limit = LOAD_LIMIT))
             }
         }

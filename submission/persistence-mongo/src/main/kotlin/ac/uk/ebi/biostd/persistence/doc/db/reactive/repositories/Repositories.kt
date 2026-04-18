@@ -45,8 +45,9 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
 
     fun deleteAllByAccNo(accNo: String)
 
+    @Suppress("ktlint:standard:max-line-length")
     @Query(
-        value = "{ accNo: { \$not: /^S-E/ }, storageMode: 'NFS', subReleaseTime: {\$lte: ?0}, released: true }",
+        value = "{accNo: { \$not: /^S-E/ }, accNo: { \$ne: 'BIAD2258' }, 'stats.NON_DECLARED_FILES_DIRECTORIES': 0, storageMode: 'NFS', subReleaseTime: {\$lte: ?0}, released: true }",
         sort = "{ 'stats.FILES_SIZE': -1 }",
     )
     suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>
