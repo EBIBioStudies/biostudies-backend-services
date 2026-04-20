@@ -12,6 +12,7 @@ data class ApplicationProperties(
     val consumers: Int,
     val maxConsumers: Int,
     val enableTmpCleaning: Boolean,
+    val enableStatsReport: Boolean,
     val migration: MigrationProperties,
     val security: SecurityProperties,
     val fire: FireProperties,
