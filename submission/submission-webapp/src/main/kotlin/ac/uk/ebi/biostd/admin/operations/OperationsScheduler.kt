@@ -38,5 +38,7 @@ class OperationsScheduler(
      * Generate stats report on the 4th day of every month at 3:00 AM
      */
     @Scheduled(cron = "0 0 3 4 * *")
-    fun publishSubmissionStatsReport() = runBlocking { statsReporterService.reportStats() }
+    fun publishSubmissionStatsReport() {
+        runBlocking { if (applicationProperties.enableStatsReport) statsReporterService.reportStats() }
+    }
 }

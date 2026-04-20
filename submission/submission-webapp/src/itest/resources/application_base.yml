@@ -38,6 +38,7 @@ app:
   consumers: 1
   maxConsumers: 2
   enableTmpCleaning: false
+  enableStatsReport: false
   fire:
     host:
     username:

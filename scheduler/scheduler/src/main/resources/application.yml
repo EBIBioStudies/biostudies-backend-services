@@ -9,7 +9,6 @@ app:
     pmc-import: # Indicates whether the PMC import pipeline be daily triggered
     pmc-export: # Indicates whether the PMC links export should be daily triggered
     notifier: # Indicates whether the Submission Release Notifier should be daily triggered
-    releaser: # Indicates whether the Submission Releaser should be daily triggered
     exporter: # Indicates whether the Exporter should be daily triggered
     statsReporter: # Indicates whether the Stats Reporter task should be triggered
 
@@ -23,7 +22,7 @@ app:
 pmc:
   import:
     temp: # Temporary folder to place PMC imported files
-    mongoUri: # URI to mongo database used by the PMC import process
+    mongoUri: # URI to the mongo database used by the PMC import process
     loadFolder: # Folder to load .gz pmc files from
     mongoDatabase: # The database name to access the data
     bio-studies-url: # BioStudies backend URL
@@ -72,15 +71,9 @@ releaser:
     port: # RabbitMQ Port
 
   notification-times:
-    first-warning-days: # Number of days beforehand for the first warning to the users about upcoming release
-    second-warning-days: # Number of days beforehand for the second warning to the users about upcoming release
-    third-warning-days: # Number of days beforehand for the third warning to the users about upcoming release
-
-stats:
-  publishPath: # Path where the stats report files should be published
-  persistence:
-    database: # The name of the database to access the data
-    uri: # The database connection URI
+    first-warning-days: # Number of days beforehand for the first warning to the users about the upcoming release
+    second-warning-days: # Number of days beforehand for the second warning to the users about the upcoming release
+    third-warning-days: # Number of days beforehand for the third warning to the users about the upcoming release
 
 management:
   endpoints:

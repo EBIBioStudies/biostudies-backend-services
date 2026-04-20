@@ -123,17 +123,6 @@ task updateReleaserArtifact {
     finalizedBy "deployArtifact"
 }
 
-task updateStatsReporterArtifact {
-    dependsOn(":scheduler:tasks:stats-reporter-task:bootJar")
-
-    doFirst {
-        project.ext.artifactPath = "scheduler/tasks/stats-reporter-task/build/libs"
-        project.ext.artifactName = "stats-reporter-task-1.0.0.jar"
-    }
-
-    finalizedBy "deployArtifact"
-}
-
 task updateSubmissionTaskArtifact {
     dependsOn(":submission:submission-task:bootJar")
 
