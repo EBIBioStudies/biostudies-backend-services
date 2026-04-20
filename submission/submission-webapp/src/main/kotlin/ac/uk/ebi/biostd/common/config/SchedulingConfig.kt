@@ -22,7 +22,8 @@ class SchedulingConfig {
 
     @Bean
     fun operationsScheduler(
-        operationsService: OperationsService,
+        applicationProperties: ApplicationProperties,
         statsReporterService: StatsReporterService,
-    ): OperationsScheduler = OperationsScheduler(operationsService, statsReporterService)
+        operationsService: OperationsService,
+    ): OperationsScheduler = OperationsScheduler(applicationProperties, operationsService, statsReporterService)
 }
