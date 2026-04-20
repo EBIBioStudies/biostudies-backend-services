@@ -37,6 +37,7 @@ app:
   instanceBaseUrl: http://localhost:8080
   consumers: 1
   maxConsumers: 2
+  enableTmpCleaning: false
   fire:
     host:
     username:

@@ -82,7 +82,7 @@ object FileUtils {
     fun deleteFile(file: File) {
         when {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
-            exists(file.toPath()) -> Files.delete(file.toPath())
+            else -> Files.deleteIfExists(file.toPath())
         }
     }
 
