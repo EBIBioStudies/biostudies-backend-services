@@ -48,8 +48,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
-import java.time.Duration.ofSeconds
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -147,7 +147,7 @@ class SubmissionStorageModeTest(
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
             webClient.migrateSubmission("S-STR-MODE-3", FIRE)
-            waitUntil(timeout = ofSeconds(10)) {
+            waitUntil(timeout = 10.seconds) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == POST_PROCESSED
             }
 
@@ -178,7 +178,7 @@ class SubmissionStorageModeTest(
 
             webClient.migrateSubmission("S-STR-MODE-4", NFS)
 
-            waitUntil(timeout = ofSeconds(10)) {
+            waitUntil(timeout = 10.seconds) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == POST_PROCESSED
             }
 

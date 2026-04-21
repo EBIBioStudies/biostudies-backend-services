@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -38,8 +37,8 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
-import java.time.Duration
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -399,11 +398,11 @@ class ResubmissionApiTest(
             val (accNo, version) = webClient.submitAsync(version2, TSV)
 
             waitUntil(
-                timeout = Duration.ofSeconds(10),
+                timeout = 10.seconds,
             ) { requestRepository.getRequest(accNo, version).status == RequestStatus.INVALID }
 
             val response = webClient.submitAsync(version2, TSV)
-            waitForCompletion(timeout = FIVE_SECONDS) {
+            waitForCompletion(timeout = 5.seconds) {
                 val result = webClient.getSubmission(response.accNo)
                 assertThat(result?.status).isEqualTo("INVALID")
                 assertThat(result?.errors).containsExactly(

@@ -8,8 +8,10 @@ import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.io.use
 import ebi.ac.uk.model.LinkList
 import ebi.ac.uk.model.canonicalName
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -52,8 +54,6 @@ class ToExtLinkListMapper(
         linkList: ExtLinkList,
         target: File,
     ): File {
-        val extLinks = mutableListOf<ExtLink>()
-
         suspend fun copy(
             input: InputStream,
             target: OutputStream,
@@ -63,10 +63,6 @@ class ToExtLinkListMapper(
                 extSerializationService
                     .deserializeLinkListAsFlow(input)
                     .onEach { link -> logger.info { "$accNo, Mapping link ${idx.getAndIncrement()}, path='${link.url}'" } }
-                    .map {
-                        extLinks.add(it)
-                        return@map it
-                    }
 
             val serialized = extSerializationService.serializeLinks(links, target)
             if (serialized < 1) throw InvalidFileListException.emptyFileList(linkList.fileName)
@@ -85,30 +81,27 @@ class ToExtLinkListMapper(
         format: SubFormat,
         target: File,
     ): Pair<File, List<ExtLink>> {
-        val extLinks = mutableListOf<ExtLink>()
-
         suspend fun copy(
             input: InputStream,
             format: SubFormat,
             target: OutputStream,
-        ) {
+        ): List<ExtLink> {
             val idx = AtomicInteger(0)
             val links =
                 serializationService
                     .deserializeLinkListAsFlow(input, format)
                     .onEach { link -> logger.info { "$accNo, Mapping link ${idx.getAndIncrement()}, path='${link.url}'" } }
                     .map {
-                        val link = ExtLink(it.url, it.attributes.toExtAttributes())
-                        extLinks.add(link)
-                        return@map link
-                    }
+                        ExtLink(it.url, it.attributes.toExtAttributes())
+                    }.toList()
 
-            val serialized = extSerializationService.serializeLinks(links, target)
+            val serialized = extSerializationService.serializeLinks(links.asFlow(), target)
             if (serialized < 1) throw InvalidFileListException.emptyFileList(source.name)
+            return links
         }
 
         logger.info { "$accNo, Started mapping/check link list ${source.name} of submission '$accNo'" }
-        use(source.inputStream(), target.outputStream()) { input, output -> copy(input, format, output) }
+        val extLinks = use(source.inputStream(), target.outputStream()) { input, output -> copy(input, format, output) }
         logger.info { "$accNo, Finished mapping/check link list ${source.name} of submission '$accNo'" }
         return target to extLinks
     }

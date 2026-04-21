@@ -25,6 +25,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Instant
 import java.time.OffsetDateTime
+import kotlin.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -127,6 +128,7 @@ class ExtSubmissionService(
     suspend fun submitExt(
         user: String,
         sub: List<ExtSubmission>,
+        waitTime: Duration,
     ): List<ExtSubmission> {
         val submissions =
             sub
@@ -138,9 +140,8 @@ class ExtSubmissionService(
                         newSubmission = queryService.existByAccNo(it.accNo),
                         submission = it,
                     )
-                }
-                .map { submissionSubmitter.createRqt(it) }
-        return submissionSubmitter.handleMany(submissions)
+                }.map { submissionSubmitter.createRqt(it) }
+        return submissionSubmitter.handleMany(submissions, waitTime)
     }
 
     suspend fun submitExtAsync(
