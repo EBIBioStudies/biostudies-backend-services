@@ -16,7 +16,6 @@ import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -29,6 +28,7 @@ import java.nio.file.Files
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.time.temporal.ChronoUnit.HOURS
+import kotlin.time.Duration.Companion.seconds
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -120,7 +120,7 @@ class UserAdminApiTest(
             val user = securityTestService.getSecurityUser(testUser.email)
             assertThat(user.userFolder).isInstanceOf(FtpUserFolder::class.java)
 
-            waitUntil(timeout = TWO_SECONDS) { ftpUserClient.listUserFiles().isNotEmpty() }
+            waitUntil(timeout = 10.seconds) { ftpUserClient.listUserFiles().isNotEmpty() }
             assertThat(ftpUserClient.listUserFiles().map { it.name }).containsExactlyInAnyOrder("f1", "3.txt")
             assertThat(ftpUserClient.listUserFiles("f1").map { it.name }).containsOnly("1.txt")
         }

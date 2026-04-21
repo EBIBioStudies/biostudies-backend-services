@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
@@ -41,7 +40,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.Duration.ofMinutes
+import kotlin.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -85,24 +84,31 @@ class LocalExtSubmissionSubmitter(
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
+        waitTime: Duration,
     ): ExtSubmission {
         handleRequestAsync(accNo, version)
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        waitUntil(timeout = waitTime) { requestService.isRequestCompleted(accNo, version) }
         return submissionQueryService.getExtendedSubmission(accNo)
     }
 
-    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> =
+    override suspend fun handleMany(
+        submissions: List<SubmissionId>,
+        waitTime: Duration,
+    ): List<ExtSubmission> =
         coroutineScope {
             submissions
-                .map { async { handleRequestSafely(it) } }
+                .map { async { handleRequestSafely(waitTime, it) } }
                 .awaitAll()
                 .filterNotNull()
         }
 
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun handleRequestSafely(sub: SubmissionId): ExtSubmission? {
+    private suspend fun handleRequestSafely(
+        waitTime: Duration,
+        sub: SubmissionId,
+    ): ExtSubmission? {
         try {
-            return handleRequest(sub.accNo, sub.version)
+            return handleRequest(sub.accNo, sub.version, waitTime)
         } catch (e: Exception) {
             logger.error(e) { "Error processing submission ${sub.accNo}, ${sub.version}" }
             return null

@@ -20,7 +20,6 @@ import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -32,6 +31,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -101,7 +101,7 @@ class DeleteFilesPermissionTest(
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-6-2.txt", "5-6-2 file updated content"))
             webClient.submitAsync(version2, TSV)
 
-            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest(accNo, 2).status == INVALID }
+            waitUntil(timeout = 2.seconds) { requestRepository.getRequest(accNo, 2).status == INVALID }
         }
 
     @Test
@@ -185,7 +185,7 @@ class DeleteFilesPermissionTest(
 
             webClient.submitAsync(version2, TSV)
 
-            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequest(accNo, 2).status == INVALID }
+            waitUntil(timeout = 2.seconds) { requestRepository.getRequest(accNo, 2).status == INVALID }
         }
 
     @Test

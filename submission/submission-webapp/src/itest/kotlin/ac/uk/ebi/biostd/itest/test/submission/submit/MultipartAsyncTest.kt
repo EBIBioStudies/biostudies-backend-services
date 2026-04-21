@@ -19,7 +19,6 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -29,6 +28,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -86,7 +86,11 @@ class MultipartAsyncTest(
                 webClient.submitMultipartAsync(
                     format = TSV_EXTENSION,
                     submissions = mapOf("S-MULTIPART-ASYNC-001" to submission, "S-MULTIPART-ASYNC-002" to submission2),
-                    files = mapOf("S-MULTIPART-ASYNC-001" to listOf(file), "S-MULTIPART-ASYNC-002" to listOf(file2, file3)),
+                    files =
+                        mapOf(
+                            "S-MULTIPART-ASYNC-001" to listOf(file),
+                            "S-MULTIPART-ASYNC-002" to listOf(file2, file3),
+                        ),
                     parameters = SubmitParameters(storageMode = storageMode),
                 )
 
@@ -99,8 +103,8 @@ class MultipartAsyncTest(
             assertThat(sub2.accNo).isEqualTo("S-MULTIPART-ASYNC-002")
             assertThat(sub2.version).isEqualTo(1)
 
-            waitUntil(timeout = FIVE_SECONDS) { submissionRepository.existByAccNoAndVersion(sub1.accNo, sub1.version) }
-            waitUntil(timeout = FIVE_SECONDS) { submissionRepository.existByAccNoAndVersion(sub2.accNo, sub2.version) }
+            waitUntil(timeout = 5.seconds) { submissionRepository.existByAccNoAndVersion(sub1.accNo, sub1.version) }
+            waitUntil(timeout = 5.seconds) { submissionRepository.existByAccNoAndVersion(sub2.accNo, sub2.version) }
 
             val storedSub1 = submissionRepository.getExtByAccNoAndVersion(sub1.accNo, sub1.version)
             assertThat(storedSub1.section.files).hasSize(1)

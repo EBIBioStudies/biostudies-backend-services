@@ -7,9 +7,9 @@ import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
 import uk.ac.ebi.biostd.client.cluster.common.toSlurmJob
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
-import java.time.Duration.ofSeconds
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -83,8 +83,8 @@ class SlurmClusterClient(
     ) {
         return sshClient.runInSession {
             waitUntil(
-                checkInterval = ofSeconds(checkJobInterval),
-                timeout = ofSeconds(maxSecondsDuration),
+                checkInterval = checkJobInterval.seconds,
+                timeout = maxSecondsDuration.seconds,
             ) {
                 val status = jobStatus(job.id)
                 val completed = status == "COMPLETED"

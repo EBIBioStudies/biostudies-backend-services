@@ -14,6 +14,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
+import kotlin.time.Duration.Companion.minutes
 
 data class PmcId(
     val accNo: String,
@@ -105,7 +106,7 @@ class PmcLinksProcessor(
         logger.info { "Loaded ${loadResult.size} submissions links" }
 
         val updated = loadResult.filter { it.result == FOUND_LINKS }.map { it.sub }
-        if (updated.isNotEmpty()) submissionService.submitExt(user.email, updated)
+        if (updated.isNotEmpty()) submissionService.submitExt(user.email, updated, (updated.size * 10).minutes)
         logger.info { "Submitted ${updated.size} submissions" }
 
         val loadResultByAccNo = loadResult.associate { it.sub.accNo to it.result }

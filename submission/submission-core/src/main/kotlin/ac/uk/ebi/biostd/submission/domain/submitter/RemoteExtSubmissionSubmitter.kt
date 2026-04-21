@@ -4,12 +4,10 @@ import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
@@ -22,9 +20,9 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun handleRequest(
-        waitTime: Duration = SYNC_SUBMIT_TIMEOUT.minutes,
         accNo: String,
         version: Int,
+        waitTime: Duration,
     ): ExtSubmission {
         val args = listOf(SubmissionId(accNo, version))
         remoteSubmitterExecutor.executeRemotely(asExecutionArgs(args), Mode.HANDLE_REQUEST)
@@ -34,8 +32,8 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun handleMany(
-        waitTime: Duration,
         submissions: List<SubmissionId>,
+        waitTime: Duration,
     ): List<ExtSubmission> {
         remoteSubmitterExecutor.executeRemotely(asExecutionArgs(submissions), Mode.HANDLE_REQUEST)
 

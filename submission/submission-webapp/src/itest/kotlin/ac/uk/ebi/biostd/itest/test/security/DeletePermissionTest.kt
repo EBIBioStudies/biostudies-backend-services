@@ -38,9 +38,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.Duration.ofMillis
-import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -69,8 +69,8 @@ class DeletePermissionTest(
 
     private suspend fun verifyDeleted(accNo: String) {
         waitUntil(
-            timeout = ofSeconds(60),
-            checkInterval = ofMillis(200),
+            timeout = 60.seconds,
+            checkInterval = 200.milliseconds,
         ) {
             submissionRepository.existActiveByAccNo(accNo).not()
             statsDataService.findStatsByAccNo(accNo).isEmpty()

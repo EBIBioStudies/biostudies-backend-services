@@ -34,9 +34,9 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
-import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -202,7 +202,7 @@ class SubmissionReleaseSecretKeyTest(
 
             val (rqtAccNo, rqtVersion) = webClient.releaseSubmission(accNo, newRelease.toInstant())
 
-            waitUntil(timeout = Duration.ofSeconds(10)) {
+            waitUntil(timeout = 10.seconds) {
                 submissionRepository.existByAccNoAndVersion(
                     rqtAccNo,
                     rqtVersion,

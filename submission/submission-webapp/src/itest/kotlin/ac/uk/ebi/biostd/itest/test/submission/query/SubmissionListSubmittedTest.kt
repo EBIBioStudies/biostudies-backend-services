@@ -31,9 +31,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -85,7 +85,7 @@ class SubmissionListSubmittedTest(
 
             launch(UnconfinedTestDispatcher(testScheduler)) {
                 waitUntil(
-                    timeout = Duration.ofSeconds(30),
+                    timeout = 30.seconds,
                 ) { requestRepository.getRequest("S-DELAY1", 0).status == SUBMITTED }
 
                 val submissionList = webClient.getSubmissions()

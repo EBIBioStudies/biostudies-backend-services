@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.TEN_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -51,6 +50,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -152,7 +152,7 @@ class SubmissionPostProcessingTest(
             webClient.uploadFiles(listOf(subFile4), "b")
 
             assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
+            waitUntil(10.seconds) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
 
             val subV1 = submissionRepository.getExtByAccNo("S-STTS1")
             val statsV1 = statsDataRepository.getByAccNo("S-STTS1")
@@ -169,7 +169,7 @@ class SubmissionPostProcessingTest(
             assertThat(statsV1.stats[NON_DECLARED_FILES_DIRECTORIES.name]).isEqualTo(0)
 
             assertThat(webClient.submit(version2, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
+            waitUntil(10.seconds) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
 
             val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
             val subTempFolder = fireTempFolder.resolve("S-STTS1/2")
@@ -213,7 +213,7 @@ class SubmissionPostProcessingTest(
             val jsonFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("b-file-list.json")
             val tsvFileList = pageTabFallbackPath.resolve(FILES_PATH).resolve("b-file-list.tsv")
 
-            waitForCompletion(TEN_SECONDS) {
+            waitForCompletion(10.seconds) {
                 assertThat(jsonPageTab).hasSameTextualContentAs(pageTabPath.resolve("S-STTS1.json"))
                 assertThat(tsvPageTab).hasSameTextualContentAs(pageTabPath.resolve("S-STTS1.tsv"))
 
@@ -329,7 +329,7 @@ class SubmissionPostProcessingTest(
             val tsvFileListTab = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.tsv")
             val jsonFileListTab = pageTabFallbackPath.resolve(FILES_PATH).resolve("file-list.json")
 
-            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
+            waitForCompletion(10.seconds) { assertThat(jsonPageTabFallback).exists() }
             tsvPageTabFallback.delete()
             jsonPageTabFallback.delete()
             tsvFileListTab.delete()
@@ -340,7 +340,7 @@ class SubmissionPostProcessingTest(
             assertThat(jsonFileListTab).doesNotExist()
 
             webClient.copyPageTab(accNo)
-            waitForCompletion(TEN_SECONDS) { assertThat(jsonPageTabFallback).exists() }
+            waitForCompletion(10.seconds) { assertThat(jsonPageTabFallback).exists() }
             assertThat(tsvPageTabFallback).hasSameTextualContentAs(pageTabPath.resolve("$accNo.tsv"))
             assertThat(jsonPageTabFallback).hasSameTextualContentAs(pageTabPath.resolve("$accNo.json"))
             assertThat(tsvFileListTab).hasSameTextualContentAs(subFiles.resolve("file-list.tsv"))
@@ -368,7 +368,7 @@ class SubmissionPostProcessingTest(
             webClient.uploadFile(tempFolder.createFile("inner_file.txt", "file content"), "a-Dir")
             webClient.submit(submission, TSV, params)
 
-            waitForCompletion(TEN_SECONDS) {
+            waitForCompletion(10.seconds) {
                 submissionFilesDocDataRepository.findByAccNoAndVersion(accNo, 1).toList().isNotEmpty()
             }
 
@@ -410,7 +410,7 @@ class SubmissionPostProcessingTest(
 
             webClient.generateDoi(accNo)
 
-            waitForCompletion(TEN_SECONDS) {
+            waitForCompletion(10.seconds) {
                 submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
             }
         }
@@ -442,7 +442,7 @@ class SubmissionPostProcessingTest(
                 }.toString()
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
-            waitForCompletion(TEN_SECONDS) {
+            waitForCompletion(10.seconds) {
                 submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
             }
 
