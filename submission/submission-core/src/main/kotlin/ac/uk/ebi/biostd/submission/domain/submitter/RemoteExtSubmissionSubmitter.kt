@@ -8,7 +8,8 @@ import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
-import java.time.Duration.ofMinutes
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
@@ -21,20 +22,24 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun handleRequest(
+        waitTime: Duration = SYNC_SUBMIT_TIMEOUT.minutes,
         accNo: String,
         version: Int,
     ): ExtSubmission {
         val args = listOf(SubmissionId(accNo, version))
         remoteSubmitterExecutor.executeRemotely(asExecutionArgs(args), Mode.HANDLE_REQUEST)
 
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        waitUntil(timeout = waitTime) { requestService.isRequestCompleted(accNo, version) }
         return submissionQueryService.getExtendedSubmission(accNo)
     }
 
-    override suspend fun handleMany(submissions: List<SubmissionId>): List<ExtSubmission> {
+    override suspend fun handleMany(
+        waitTime: Duration,
+        submissions: List<SubmissionId>,
+    ): List<ExtSubmission> {
         remoteSubmitterExecutor.executeRemotely(asExecutionArgs(submissions), Mode.HANDLE_REQUEST)
 
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) {
+        waitUntil(timeout = waitTime) {
             submissions.all { requestService.isRequestCompleted(it.accNo, it.version) }
         }
         return submissions.map { submissionQueryService.getExtendedSubmission(it.accNo) }

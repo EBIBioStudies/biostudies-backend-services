@@ -4,13 +4,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import java.time.Duration
-import java.time.Duration.ofMillis
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
-private const val DEFAULT_INTERVAL = 300L
 private val logger = KotlinLogging.logger {}
 
-val FOREVER: Duration = ofMillis(Long.MAX_VALUE)
+val DEFAULT_INTERVAL = 300.milliseconds
+val FOREVER: Duration = Duration.INFINITE
 
 /**
  * Wait until the given condition is met. It will succeed if the given function returns true and will fail either if the
@@ -18,7 +18,7 @@ val FOREVER: Duration = ofMillis(Long.MAX_VALUE)
  */
 suspend fun waitUntil(
     timeout: Duration,
-    checkInterval: Duration = ofMillis(DEFAULT_INTERVAL),
+    checkInterval: Duration = DEFAULT_INTERVAL,
     conditionEvaluator: suspend () -> Boolean,
 ) {
     /**
@@ -34,13 +34,13 @@ suspend fun waitUntil(
             require(available >= interval) { "Await condition expired" }
             val result = runCatching { conditionEvaluator() }.getOrElse { false }
             if (result.not()) {
-                delay(interval)
+                delay(interval.milliseconds)
                 waitUntil(conditionEvaluator, available - interval, interval)
             }
         }
     }
 
-    waitUntil(conditionEvaluator, available = timeout.toMillis(), checkInterval.toMillis())
+    waitUntil(conditionEvaluator, available = timeout.inWholeMilliseconds, checkInterval.inWholeMilliseconds)
 }
 
 /**
@@ -49,7 +49,7 @@ suspend fun waitUntil(
  */
 suspend fun waitForCompletion(
     timeout: Duration,
-    checkInterval: Duration = ofMillis(DEFAULT_INTERVAL),
+    checkInterval: Duration = DEFAULT_INTERVAL,
     function: suspend () -> Unit,
 ) {
     /**
@@ -68,11 +68,11 @@ suspend fun waitForCompletion(
                 var exception = result.exceptionOrNull()
                 logger.error(exception) { "exception evaluating condition {${exception?.message}}" }
 
-                delay(interval)
+                delay(interval.milliseconds)
                 waitUntil(function, available - interval, interval)
             }
         }
     }
 
-    waitUntil(function, available = timeout.toMillis(), checkInterval.toMillis())
+    waitUntil(function, available = timeout.inWholeMilliseconds, checkInterval.inWholeMilliseconds)
 }
