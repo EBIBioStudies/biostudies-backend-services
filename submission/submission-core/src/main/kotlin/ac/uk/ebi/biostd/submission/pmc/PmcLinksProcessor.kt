@@ -106,7 +106,10 @@ class PmcLinksProcessor(
         logger.info { "Loaded ${loadResult.size} submissions links" }
 
         val updated = loadResult.filter { it.result == FOUND_LINKS }.map { it.sub }
-        if (updated.isNotEmpty()) submissionService.submitExt(user.email, updated, (updated.size * 10).minutes)
+        if (updated.isNotEmpty()) {
+            val waitTime = updated.size * PER_SUBMISSION_WAIT_MINUTES
+            submissionService.submitExt(user.email, updated, waitTime.minutes)
+        }
         logger.info { "Submitted ${updated.size} submissions" }
 
         val loadResultByAccNo = loadResult.associate { it.sub.accNo to it.result }
@@ -120,6 +123,7 @@ class PmcLinksProcessor(
     }
 
     companion object {
+        const val PER_SUBMISSION_WAIT_MINUTES = 10
         const val CHUNK_SIZE = 100
         const val USER_EMAIL = "biostudies-dev@ebi.ac.uk"
         const val PMC_EXTRACT_LINKS = "PMC_EXTRACT_LINKS"

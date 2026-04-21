@@ -58,6 +58,7 @@ class PmcLinksLoader(
                 try {
                     loadLinks(submission)
                 } catch (e: TimeoutCancellationException) {
+                    logger.debug("Error loading links for submission ${submission.accNo}", e)
                     PmcLinksResult(submission, LinksExtractionResult.TIME_OUT)
                 } catch (e: RuntimeException) {
                     logger.error("Error loading links for submission ${submission.accNo}", e)
