@@ -20,15 +20,20 @@ class StatsReporterService(
     suspend fun reportStats() {
         val month = OffsetDateTime.now().asPreviousMonth(1)
 
-        logger.info { "Started calculating 'imaging' stats for month '$month'" }
-        val stats = statsDataService.calculateImagingStats()
-        createReport(month, IMAGING_REPORT_NAME, stats)
-        logger.info { "Finished calculating 'imaging' stats for month '$month'" }
+        logger.info { "Started calculating 'Array Express' stats for month '$month'" }
+        val aeStats = statsDataService.calculateAEStats()
+        createReport(month, AE_REPORT_NAME, aeStats)
+        logger.info { "Finished calculating 'Array Express' stats for month '$month'" }
 
-        logger.info { "Started calculating 'non-imaging' stats for month '$month'" }
+        logger.info { "Started calculating 'Imaging' stats for month '$month'" }
+        val imagingStats = statsDataService.calculateImagingStats()
+        createReport(month, IMAGING_REPORT_NAME, imagingStats)
+        logger.info { "Finished calculating 'Imaging' stats for month '$month'" }
+
+        logger.info { "Started calculating 'Non Imaging' stats for month '$month'" }
         val nonImagingStats = statsDataService.calculateNonImagingStats()
         createReport(month, NON_IMAGING_REPORT_NAME, nonImagingStats)
-        logger.info { "Finished calculating 'non-imaging' stats for month '$month'" }
+        logger.info { "Finished calculating 'Non Imaging' stats for month '$month'" }
     }
 
     private fun createReport(
@@ -96,6 +101,7 @@ class StatsReporterService(
         const val DELTA_REPORT_DIR = "delta"
         const val TOTAL_REPORT_DIR = "total"
         const val COUNT_REPORT_DIR = "count"
+        const val AE_REPORT_NAME = "arrayexpress.txt"
         const val IMAGING_REPORT_NAME = "imaging.txt"
         const val NON_IMAGING_REPORT_NAME = "non_imaging.txt"
     }

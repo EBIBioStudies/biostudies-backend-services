@@ -78,8 +78,11 @@ dependencyManagement {
 
 buildConfig {
     packageName("ac.uk.ebi.biostd.itest.config")
-    useKotlinOutput { internalVisibility = false }
     buildConfigField("TEST_CONTAINERS_S3_MOCK_VERSION", provider { TestContainerS3mockVersion })
+    useKotlinOutput {
+        topLevelConstants = true
+        internalVisibility = false
+    }
 }
 
 allOpen {
