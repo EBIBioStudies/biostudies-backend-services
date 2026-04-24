@@ -42,6 +42,8 @@ interface StatsDataService {
 
     suspend fun deleteStatsByAccNo(accNo: String)
 
+    suspend fun calculateAEStats(): CollectionStats
+
     suspend fun calculateImagingStats(): CollectionStats
 
     suspend fun calculateNonImagingStats(): CollectionStats

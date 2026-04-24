@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.AE_REPORT_NAME
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.COUNT_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.DELTA_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.IMAGING_REPORT_NAME
@@ -34,6 +35,15 @@ class StatsReportResource(
 
     @GetMapping("/non-imaging/count", produces = [TEXT_PLAIN])
     suspend fun getNonImagingCount(): String = getReport("$COUNT_REPORT_DIR/$NON_IMAGING_REPORT_NAME")
+
+    @GetMapping("/arrayexpress/size/total", produces = [TEXT_PLAIN])
+    suspend fun getAETotalSize(): String = getReport("$TOTAL_REPORT_DIR/$AE_REPORT_NAME")
+
+    @GetMapping("/arrayexpress/size/delta", produces = [TEXT_PLAIN])
+    suspend fun getAEDeltaSize(): String = getReport("$DELTA_REPORT_DIR/$AE_REPORT_NAME")
+
+    @GetMapping("/arrayexpress/count", produces = [TEXT_PLAIN])
+    suspend fun getAECount(): String = getReport("$COUNT_REPORT_DIR/$AE_REPORT_NAME")
 
     private fun getReport(reportPath: String): String =
         Paths

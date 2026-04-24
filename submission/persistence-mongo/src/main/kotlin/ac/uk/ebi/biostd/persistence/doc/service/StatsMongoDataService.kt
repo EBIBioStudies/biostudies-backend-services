@@ -161,6 +161,11 @@ class StatsMongoDataService(
         return statsDataRepository.bulkWrite(upserts)
     }
 
+    override suspend fun calculateAEStats(): CollectionStats {
+        val filter = where(SUB_COLLECTIONS).`in`(AE_COLLECTION)
+        return calculateStats(filter)
+    }
+
     override suspend fun calculateImagingStats(): CollectionStats {
         val filter = where(SUB_COLLECTIONS).`in`(IMAGING_COLLECTION)
         return calculateStats(filter)
@@ -200,6 +205,7 @@ class StatsMongoDataService(
     }
 
     companion object {
+        const val AE_COLLECTION = "ArrayExpress"
         const val IMAGING_COLLECTION = "BioImages"
         const val RESULT_KEY = "result"
         const val STATS_OBJECT_KEY = "stats"
