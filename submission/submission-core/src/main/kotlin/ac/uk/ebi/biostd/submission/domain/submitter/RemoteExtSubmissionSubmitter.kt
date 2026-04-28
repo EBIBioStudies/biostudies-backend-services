@@ -7,7 +7,10 @@ import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
+import mu.KotlinLogging
 import kotlin.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
@@ -35,12 +38,12 @@ class RemoteExtSubmissionSubmitter(
         submissions: List<SubmissionId>,
         waitTime: Duration,
     ): List<ExtSubmission> {
-        remoteSubmitterExecutor.executeRemotely(asExecutionArgs(submissions), Mode.HANDLE_REQUEST)
-
-        waitUntil(timeout = waitTime) {
-            submissions.all { requestService.isRequestCompleted(it.accNo, it.version) }
-        }
-        return submissions.map { submissionQueryService.getExtendedSubmission(it.accNo) }
+        if (submissions.isEmpty()) return emptyList()
+        val job = remoteSubmitterExecutor.executeRemotely(asExecutionArgs(submissions), Mode.HANDLE_REQUEST)
+        remoteSubmitterExecutor.waitForJob(job, waitTime.times(submissions.size))
+        return submissions
+            .filter { requestService.isRequestCompleted(it.accNo, it.version) }
+            .map { submissionQueryService.getExtendedSubmission(it.accNo) }
     }
 
     override suspend fun handleRequestAsync(

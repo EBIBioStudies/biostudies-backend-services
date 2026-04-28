@@ -7,6 +7,9 @@ import ac.uk.ebi.biostd.persistence.doc.service.PmcSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.FOUND_LINKS
 import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.NO_LINKS
+import ac.uk.ebi.biostd.submission.pmc.LinksProcessingResult.ERROR
+import ac.uk.ebi.biostd.submission.pmc.LinksProcessingResult.SUCCESS
+import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor.Companion.CHUNK_SIZE
 import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -14,7 +17,8 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
-import kotlin.time.Duration.Companion.minutes
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 data class PmcId(
     val accNo: String,
@@ -40,15 +44,21 @@ data class PmcLinksResult(
     val result: LinksExtractionResult,
 )
 
+enum class LinksProcessingResult {
+    SUCCESS,
+    ERROR,
+    TIMEOUT,
+}
+
 data class ProcessingResult(
     val accNo: String,
     val version: Int,
-    val result: LinksExtractionResult,
+    val result: LinksProcessingResult,
 )
 
 data class ProcessConfig(
     val limit: Int,
-    val chunkSize: Int? = null,
+    val chunkSize: Int = CHUNK_SIZE,
     val waitSeconds: Int? = null,
 )
 
@@ -79,12 +89,15 @@ class PmcLinksProcessor(
         config: ProcessConfig,
     ): List<ProcessingResult> {
         logger.info("Loading PMC links from DB config = $config")
+        val index = AtomicInteger(1)
         val submissions =
             pmcSubmissionsService
                 .findByStatus(PmcSubmissionStatus.SUBMITTED, config.limit)
-                .chunked(config.chunkSize ?: CHUNK_SIZE)
-                .map { chunk -> loadDocSubmissions(config, user, chunk) }
-                .toList()
+                .chunked(config.chunkSize)
+                .map { chunk ->
+                    logger.info("Loading chunk ${index.getAndIncrement()} of ${chunk.size}")
+                    loadDocSubmissions(config, user, chunk)
+                }.toList()
         return submissions.flatten()
     }
 
@@ -105,25 +118,43 @@ class PmcLinksProcessor(
         val loadResult = pmcLinksLoader.loadSubmissionsLinks(config, submissions.map { it.accNo })
         logger.info { "Loaded ${loadResult.size} submissions links" }
 
-        val updated = loadResult.filter { it.result == FOUND_LINKS }.map { it.sub }
-        if (updated.isNotEmpty()) {
-            val waitTime = updated.size * PER_SUBMISSION_WAIT_MINUTES
-            submissionService.submitExt(user.email, updated, waitTime.minutes)
-        }
-        logger.info { "Submitted ${updated.size} submissions" }
+        val processingResult = processSubmissions(user, loadResult)
+        logger.info { "Processed ${processingResult.size} submissions" }
 
-        val loadResultByAccNo = loadResult.associate { it.sub.accNo to it.result }
-        val completed =
-            submissions.filter { loadResultByAccNo[it.accNo] == FOUND_LINKS || loadResultByAccNo[it.accNo] == NO_LINKS }
+        val completed = submissions.filter { processingResult.get(it.accNo)?.result == LinksProcessingResult.SUCCESS }
         pmcSubmissionsService.updateStatus(completed, PmcSubmissionStatus.LINKS_EXTRACTED)
 
-        val result = loadResult.map { ProcessingResult(it.sub.accNo, it.sub.version, it.result) }
-        logger.info("PMC links loaded ${result.groupingBy { it.result }.eachCount()}")
-        return result
+        val failed = submissions.filter { processingResult.get(it.accNo)?.result == LinksProcessingResult.ERROR }
+        pmcSubmissionsService.updateStatus(failed, PmcSubmissionStatus.ERROR_LINKS_EXTRACTION)
+
+        logger.info("PMC links loaded ${processingResult.values.groupingBy { it.result }.eachCount()}")
+        return processingResult.values.toList()
+    }
+
+    private suspend fun processSubmissions(
+        user: SecurityUser,
+        loadResult: List<PmcLinksResult>,
+    ): Map<String, ProcessingResult> {
+        val updated = loadResult.filter { it.result == FOUND_LINKS }.map { it.sub }
+        val submitted = submissionService.submitExt(user.email, updated, PER_SUBMISSION_WAIT_TIME)
+        logger.info { "Submitted ${submitted.size} of ${updated.size} submissions correctly" }
+
+        val subbmitedByAccNo = submitted.associateBy { it.accNo }
+
+        val processed =
+            submitted
+                .plus(loadResult.filter { it.result == NO_LINKS }.map { it.sub })
+                .map { ProcessingResult(it.accNo, it.version, SUCCESS) }
+        val errors =
+            updated
+                .filter { subbmitedByAccNo.contains(it.accNo).not() }
+                .map { ProcessingResult(it.accNo, it.version, ERROR) }
+
+        return processed.plus(errors).associateBy { it.accNo }
     }
 
     companion object {
-        const val PER_SUBMISSION_WAIT_MINUTES = 10
+        val PER_SUBMISSION_WAIT_TIME = 25.seconds
         const val CHUNK_SIZE = 100
         const val USER_EMAIL = "biostudies-dev@ebi.ac.uk"
         const val PMC_EXTRACT_LINKS = "PMC_EXTRACT_LINKS"

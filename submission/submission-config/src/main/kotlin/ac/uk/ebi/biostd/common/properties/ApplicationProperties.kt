@@ -94,4 +94,5 @@ data class DoiProperties(
 data class PmcProperties(
     val enableLinksExtraction: Boolean,
     val authToken: String,
+    val loadLimit: Int = 1,
 )

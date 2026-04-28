@@ -47,6 +47,7 @@ class ExtendedSubmissionPageMapper(
             .optionalQueryParam("toRTime", request.toRTime)
             .optionalQueryParam("released", request.released)
             .optionalQueryParam("collection", request.collection)
+            .encode()
             .build()
             .toUriString()
 }

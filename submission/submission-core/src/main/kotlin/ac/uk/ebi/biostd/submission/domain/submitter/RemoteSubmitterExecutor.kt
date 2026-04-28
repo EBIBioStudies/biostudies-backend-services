@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
+import ebi.ac.uk.coroutines.waitUntil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -10,6 +11,8 @@ import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -17,6 +20,17 @@ class RemoteSubmitterExecutor(
     private val properties: SubmissionTaskProperties,
     private val clusterClient: ClusterClient,
 ) {
+    suspend fun waitForJob(
+        job: Job,
+        waitTime: Duration,
+    ) {
+        waitUntil(timeout = waitTime, checkInterval = 10.seconds) {
+            val status = clusterClient.jobStatus(job.id)
+            logger.info { "Job Id='${job.id}' status ='$status'. Waiting for Job to complete." }
+            status == "COMPLETED" || status == "FAILED" || status == "CANCELLED"
+        }
+    }
+
     suspend fun executeRemotely(
         args: List<ExecutionArg>,
         mode: Mode,
