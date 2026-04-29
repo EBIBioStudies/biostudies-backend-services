@@ -93,6 +93,7 @@ class ExtSerializationService private constructor(
 
     fun deserializePage(value: String): ExtPage = mapper.readValue(value)
 
+    // TODO unused
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
 
     fun deserializeFileListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)

@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 class ToDocSubmissionConfig {
@@ -20,10 +19,8 @@ class ToDocSubmissionConfig {
     ): ToDocSectionMapper = ToDocSectionMapper(toDocFileListMapper, toDocLinkListMapper)
 
     @Bean
-    internal fun toDocFileList(serializationService: ExtSerializationService): ToDocFileListMapper =
-        ToDocFileListMapper(serializationService)
+    internal fun toDocFileList(): ToDocFileListMapper = ToDocFileListMapper()
 
     @Bean
-    internal fun toDocLinkList(serializationService: ExtSerializationService): ToDocLinkListMapper =
-        ToDocLinkListMapper(serializationService)
+    internal fun toDocLinkList(): ToDocLinkListMapper = ToDocLinkListMapper()
 }

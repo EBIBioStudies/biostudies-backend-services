@@ -127,13 +127,13 @@ class SlurmClusterClient(
             wrapperPath: String,
             logsPath: String,
         ): List<String> {
-            val scapedCommand = command.replace("\"", "\\\"")
+            val escapedCommand = command.replace("\"", "\\\"")
             return buildList {
                 add("--cores=$cores")
                 add("--time=${convertMinutesToTimeFormat(minutes)}")
                 add("--mem=$ram")
                 add("--partition=${queue.name}")
-                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$scapedCommand\"")
+                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$escapedCommand\"")
             }
         }
 

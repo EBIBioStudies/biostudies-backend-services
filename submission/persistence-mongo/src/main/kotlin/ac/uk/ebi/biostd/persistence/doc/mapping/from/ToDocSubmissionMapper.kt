@@ -12,11 +12,11 @@ import org.bson.types.ObjectId
 class ToDocSubmissionMapper(
     private val toDocSectionMapper: ToDocSectionMapper,
 ) {
-    fun convert(sub: ExtSubmission): DocSubmissionData {
+    fun convert(sub: ExtSubmission): DocSubmission {
         val subId = ObjectId()
-        val (docSection, fileList, linkList) = toDocSectionMapper.convert(sub.section, sub.accNo, sub.version, subId)
+        val docSection = toDocSectionMapper.convert(sub.section, sub.accNo, sub.version, subId)
         val docSubmission = sub.convert(subId, docSection)
-        return DocSubmissionData(docSubmission, fileList, linkList)
+        return docSubmission
     }
 
     private fun ExtSubmission.convert(
