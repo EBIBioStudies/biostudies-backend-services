@@ -25,7 +25,7 @@ class SlurmClusterClient(
         val parameters = mutableListOf("sbatch --output=/dev/null")
         parameters.addAll(jobSpec.asParameter(wrapperPath, logsPath))
         val command = parameters.joinToString(separator = " ")
-        logger.info { "Executing command '$command'" }
+        logger.debug { "Executing command '$command'" }
 
         return sshClient.runInSession {
             val (exitStatus, response) = executeCommand(command)

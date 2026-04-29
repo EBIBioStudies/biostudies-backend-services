@@ -133,6 +133,7 @@ class ITestListener : TestExecutionListener {
         // Pmc properties
         properties.addProperty("app.pmc.enableLinksExtraction", false)
         properties.addProperty("app.pmc.authToken", "abc-123")
+        properties.addProperty("app.pmc.rateMiliseconds", 3600_000)
     }
 
     private fun fireSetup() {

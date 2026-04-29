@@ -43,6 +43,7 @@ class ExtendedLinkPageMapper(
             .pathSegment()
             .queryParam("offset", pageable.offset)
             .queryParam("limit", pageable.pageSize)
+            .encode()
             .build()
             .toUriString()
 }

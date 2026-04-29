@@ -141,7 +141,9 @@ class ExtSubmissionService(
                         submission = it,
                     )
                 }.map { submissionSubmitter.createRqt(it) }
-        return submissionSubmitter.handleMany(submissions, waitTime)
+        val result = submissionSubmitter.handleMany(submissions, waitTime)
+        logger.info { "Submitted ${result.size} submissions" }
+        return result
     }
 
     suspend fun submitExtAsync(

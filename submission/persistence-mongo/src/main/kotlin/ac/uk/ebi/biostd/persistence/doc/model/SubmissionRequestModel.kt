@@ -116,4 +116,5 @@ enum class PmcSubmissionStatus {
     ERROR_SUBMIT,
     DISCARDED,
     LINKS_EXTRACTED,
+    ERROR_LINKS_EXTRACTION,
 }
