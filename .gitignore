@@ -3,6 +3,7 @@ build/
 out/
 reports/
 .idea/
+.ai/
 *.iml
 ~$*.xlsx
 .DS_Store

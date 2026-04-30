@@ -53,8 +53,8 @@ class ExtSubmissionRepositoryTest(
     private val toFileListMapper = ToExtFileListMapper(fileListDocFileRepo, extSerializationService, filesResolver)
     private val toLinkListMapper = ToExtLinkListMapper(filesResolver, extSerializationService, linkListDocLinkRepo)
     private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper, toLinkListMapper)
-    private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
-    private val toDocLinkListMapper = ToDocLinkListMapper(extSerializationService)
+    private val toDocFileListMapper = ToDocFileListMapper()
+    private val toDocLinkListMapper = ToDocLinkListMapper()
     private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper, toDocLinkListMapper)
     private val testInstance =
         ExtSubmissionRepository(
@@ -63,6 +63,9 @@ class ExtSubmissionRepositoryTest(
             linkListDocLinkRepo,
             ToExtSubmissionMapper(toExtSectionMapper),
             ToDocSubmissionMapper(toDocSectionMapper),
+            toDocFileListMapper,
+            toDocLinkListMapper,
+            extSerializationService,
         )
 
     @BeforeEach

@@ -15,43 +15,39 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
 import org.bson.types.ObjectId
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.io.InputStream
 
 internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFile, ExtFileTable::toDocFileTable)
 
-class ToDocFileListMapper(
-    private val serializationService: ExtSerializationService,
-) {
-    internal fun convert(
-        extFileList: ExtFileList,
-        subId: ObjectId,
-        accNo: String,
-        version: Int,
-    ): Pair<DocFileList, List<FileListDocFile>> {
-        val listFiles = extFileList.file.inputStream().use { getFiles(it, extFileList.filePath, subId, accNo, version) }
+class ToDocFileListMapper {
+    internal fun convert(extFileList: ExtFileList): DocFileList {
         val pageTabFiles = extFileList.pageTabFiles.map { it.toDocFile() }
-        return Pair(DocFileList(extFileList.filePath, pageTabFiles), listFiles)
+        return DocFileList(extFileList.filePath, pageTabFiles)
     }
 
-    private fun getFiles(
-        stream: InputStream,
-        path: String,
-        subId: ObjectId,
-        accNo: String,
-        version: Int,
-    ): List<FileListDocFile> =
-        serializationService
-            .deserializeFileListAsSequence(stream)
-            .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, accNo, version) }
-            .toList()
+    internal fun toDocFile(
+        file: ExtFile,
+        fileListName: String,
+        index: Int,
+        submissionId: ObjectId,
+        submissionAccNo: String,
+        submissionVersion: Int,
+    ): FileListDocFile =
+        FileListDocFile(
+            id = ObjectId(),
+            submissionId = submissionId,
+            file = file.toDocFile(),
+            fileListName = fileListName,
+            index = index,
+            submissionAccNo = submissionAccNo,
+            submissionVersion = submissionVersion,
+        )
 }
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 
 fun ExtFile.toDocFile(): DocFile =
     when (this) {
-        is FireFile ->
+        is FireFile -> {
             FireDocFile(
                 fileName = fileName,
                 filePath = filePath,
@@ -62,8 +58,9 @@ fun ExtFile.toDocFile(): DocFile =
                 fileSize = size,
                 fileType = type.value,
             )
+        }
 
-        is NfsFile ->
+        is NfsFile -> {
             NfsDocFile(
                 fileName = fileName,
                 filePath = filePath,
@@ -74,6 +71,9 @@ fun ExtFile.toDocFile(): DocFile =
                 md5 = md5,
                 fileSize = size,
             )
+        }
 
-        is RequestFile -> RequestDocFile(filePath, attributes.map { it.toDocAttribute() }, type)
+        is RequestFile -> {
+            RequestDocFile(filePath, attributes.map { it.toDocAttribute() }, type)
+        }
     }

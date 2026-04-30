@@ -5,14 +5,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.util.collections.component1
-import ebi.ac.uk.util.collections.component2
-import ebi.ac.uk.util.collections.reduceLeft
 import org.bson.types.ObjectId
 
 typealias EitherList<A, B> = List<Either<A, B>>
@@ -26,28 +21,13 @@ class ToDocSectionMapper(
         accNo: String,
         version: Int,
         subId: ObjectId,
-    ): DocSectionData {
+    ): DocSection {
         val sections = section.sections.map { it.toDocSections(accNo, version, subId) }
-        val (sectionFileList, sectionFiles) =
-            section.fileList?.let { toDocFileListMapper.convert(it, subId, accNo, version) }
-        val (sectionLinkList, sectionLinks) =
-            section.linkList?.let { toDocLinkListMapper.convert(it, subId, accNo, version) }
+        val sectionFileList = section.fileList?.let { toDocFileListMapper.convert(it) }
+        val sectionLinkList = section.linkList?.let { toDocLinkListMapper.convert(it) }
 
-        return DocSectionData(
-            section = section.convert(sectionFileList, sectionLinkList, sections.subSections()),
-            fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles(),
-            linkListLinks = sectionLinks.orEmpty() + sections.subSectionsLinks(),
-        )
+        return section.convert(sectionFileList, sectionLinkList, sections)
     }
-
-    private fun EitherList<DocSectionData, DocSectionTable>.subSections(): EitherList<DocSection, DocSectionTable> =
-        map { either -> either.mapLeft { it.section } }
-
-    private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List<FileListDocFile> =
-        reduceLeft { it.fileListFiles }.flatten()
-
-    private fun EitherList<DocSectionData, DocSectionTable>.subSectionsLinks(): List<LinkListDocLink> =
-        reduceLeft { it.linkListLinks }.flatten()
 
     private fun ExtSection.convert(
         fileList: DocFileList?,
@@ -73,5 +53,5 @@ class ToDocSectionMapper(
         accNo: String,
         version: Int,
         submissionId: ObjectId,
-    ): Either<DocSectionData, DocSectionTable> = bimap({ convert(it, accNo, version, submissionId) }) { it.toDocSectionTable() }
+    ): Either<DocSection, DocSectionTable> = bimap({ convert(it, accNo, version, submissionId) }) { it.toDocSectionTable() }
 }
