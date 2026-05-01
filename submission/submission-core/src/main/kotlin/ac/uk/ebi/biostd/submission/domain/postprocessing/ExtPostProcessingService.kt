@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
+import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
@@ -8,6 +9,7 @@ import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 import ac.uk.ebi.biostd.submission.domain.submitter.ExecutionArg
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 
+@Suppress("CyclomaticComplexMethod")
 class ExtPostProcessingService(
     private val localPostProcessingService: LocalPostProcessingService,
     private val remoteSubmitterExecutor: RemoteSubmitterExecutor,
@@ -49,11 +51,20 @@ class ExtPostProcessingService(
             }
         }
 
+        suspend fun doi() {
+            if (remote.not()) {
+                localPostProcessingService.generateDoi(accNo)
+            } else {
+                remoteSubmitterExecutor.executeRemotely(asArgs(accNo), POST_PROCESS_DOI)
+            }
+        }
+
         when (mode) {
             PostProcessMode.ALL -> postProcess()
             PostProcessMode.STATS -> stats()
             PostProcessMode.INNER_FILES -> innerFiles()
             PostProcessMode.PAGETAB -> pagetabFiles()
+            PostProcessMode.DOI -> doi()
         }
     }
 
@@ -76,5 +87,6 @@ class ExtPostProcessingService(
         STATS,
         INNER_FILES,
         PAGETAB,
+        DOI,
     }
 }

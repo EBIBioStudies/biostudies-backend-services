@@ -64,23 +64,27 @@ class LocalPostProcessingService(
         indexSubmissionInnerFiles(sub)
     }
 
-    suspend fun postProcess(
-        accNo: String,
-        registerDoi: Boolean = false,
-    ) {
+    suspend fun generateDoi(accNo: String) {
+        logger.info { "Generating DOI for submission '$accNo'" }
+        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+        registerDoi(sub)
+    }
+
+    suspend fun postProcess(accNo: String) {
         logger.info { "Started post-processing submission '$accNo'" }
+        val previousVersion = extSubQueryService.findLatestInactiveByAccNo(accNo)
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
+
         generateFallbackPageTabFiles(sub)
-        if (registerDoi) registerDoi(sub)
         indexSubmissionInnerFiles(sub)
         calculateStats(sub)
+        if (sub.doi != null && previousVersion?.doi == null) registerDoi(sub)
+
         logger.info { "Finished post-processing submission '$accNo'" }
     }
 
     private suspend fun registerDoi(sub: ExtSubmission) {
-        if (sub.doi != null && extSubQueryService.findLatestInactiveByAccNo(sub.accNo)?.doi == null) {
-            doiService.registerDoi(sub.accNo, sub.owner, toSimpleSubmissionMapper.toSimpleSubmission(sub))
-        }
+        doiService.registerDoi(sub.accNo, sub.owner, toSimpleSubmissionMapper.toSimpleSubmission(sub))
     }
 
     private suspend fun indexSubmissionInnerFiles(submission: ExtSubmission) {

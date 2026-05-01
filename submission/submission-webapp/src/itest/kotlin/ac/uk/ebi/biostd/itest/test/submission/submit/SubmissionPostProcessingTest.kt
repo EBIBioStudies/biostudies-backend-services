@@ -416,6 +416,41 @@ class SubmissionPostProcessingTest(
         }
 
     @Test
+    fun `31-7 post process DOI`() =
+        runTest {
+            val accNo = "DOI-GEN-0001-A"
+            val submission =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "DOI Generation standalone")
+                    line("ReleaseDate", "2099-09-21")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("Author")
+                    line("Name", "Jane Doe")
+                    line("ORCID", "1234-5678-9101-1121")
+                    line("Affiliation", "o1")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "EMBL")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(submissionRepository.getExtByAccNo(accNo).doi).isNull()
+
+            webClient.postProcessDoi(accNo)
+
+            waitForCompletion(10.seconds) {
+                submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
+            }
+        }
+
+    @Test
     fun `31-6 generate already existing doi`() =
         runTest {
             val accNo = "DOI-GEN-0002"

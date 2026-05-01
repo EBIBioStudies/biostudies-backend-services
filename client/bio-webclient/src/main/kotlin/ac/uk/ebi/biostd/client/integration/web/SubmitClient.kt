@@ -275,6 +275,8 @@ interface PostProcessOperations {
     suspend fun copyPageTab(accNo: String)
 
     suspend fun indexInnerFiles(accNo: String)
+
+    suspend fun postProcessDoi(accNo: String)
 }
 
 interface PermissionOperations {
