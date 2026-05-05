@@ -12,7 +12,7 @@ class PmcRemoteLinksLoader(
         remoteSubmitterExecutor.executeRemotely(
             buildList {
                 add(ExecutionArg("config.limit", config.limit))
-                config.chunkSize?.let { ExecutionArg("config.chunkSize", it) }
+                ExecutionArg("config.chunkSize", config.chunkSize)
                 config.waitSeconds?.let { ExecutionArg("config.waitSeconds", it) }
             },
             Mode.LOAD_PMC_LINKS,

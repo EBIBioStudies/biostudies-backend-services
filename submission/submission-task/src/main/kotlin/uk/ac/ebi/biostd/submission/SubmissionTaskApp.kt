@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.Mode.LOAD_PMC_LINKS
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
+import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
@@ -90,6 +91,7 @@ class Execute(
                 POST_PROCESS_STATS -> postProcessStats()
                 POST_PROCESS_INNER_FILES -> postProcessInnerFiles()
                 POST_PROCESS_PAGETAB_FILES -> postProcessPagetabFiles()
+                POST_PROCESS_DOI -> postProcessDoi()
                 LOAD_PMC_LINKS -> loadLinks()
             }
             exitProcess(SpringApplication.exit(context))
@@ -116,6 +118,10 @@ class Execute(
         dynamicProperties
             .submissions()
             .forEach { submissionPostProcessingService.generateFallbackPageTabFiles(it.accNo) }
+    }
+
+    private suspend fun postProcessDoi() {
+        dynamicProperties.submissions().forEach { submissionPostProcessingService.generateDoi(it.accNo) }
     }
 
     private suspend fun handleRequest() {

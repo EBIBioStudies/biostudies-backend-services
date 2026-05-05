@@ -45,4 +45,10 @@ class ExtSubmissionPostProcessResource(
         @PathVariable accNo: String,
         @RequestParam remote: Boolean = false,
     ) = extPostProcessingService.postProcess(accNo, PostProcessMode.PAGETAB, remote)
+
+    @PostMapping("/{accNo}/post-process/doi")
+    suspend fun generateDoi(
+        @PathVariable accNo: String,
+        @RequestParam remote: Boolean = false,
+    ) = extPostProcessingService.postProcess(accNo, PostProcessMode.DOI, remote)
 }
