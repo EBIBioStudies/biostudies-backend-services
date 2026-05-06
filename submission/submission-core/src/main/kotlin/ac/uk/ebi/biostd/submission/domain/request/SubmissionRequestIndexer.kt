@@ -1,11 +1,14 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.USER_FILE_TO_DELETE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileSourceType.USER
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
@@ -48,15 +51,30 @@ class SubmissionRequestIndexer(
         val elements = AtomicInteger(0)
         val paths = mutableSetOf<String>()
 
+        suspend fun saveRequestFile(
+            index: Int,
+            rqtFile: SubmissionRequestFile,
+        ) {
+            logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${rqtFile.path}'" }
+            filesRequestService.saveSubmissionRequestFile(rqtFile)
+            elements.incrementAndGet()
+        }
+
+        suspend fun saveToDeleteFile(rqtFile: SubmissionRequestFile) {
+            val extFile = rqtFile.file
+            if (extFile is NfsFile && extFile.source == USER) {
+                filesRequestService.saveSubmissionRequestFile(rqtFile.copy(status = USER_FILE_TO_DELETE))
+            }
+        }
+
         extSerializationService
             .filesFlow(sub)
             .filterNot { paths.contains(it.filePath) }
             .onEach { paths.add(it.filePath) }
             .map { file -> SubmissionRequestFile(sub, file, INDEXED) }
             .collectIndexed { index, file ->
-                logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${file.path}'" }
-                filesRequestService.saveSubmissionRequestFile(file)
-                elements.incrementAndGet()
+                saveRequestFile(index, file)
+                saveToDeleteFile(file)
             }
         return elements.get()
     }

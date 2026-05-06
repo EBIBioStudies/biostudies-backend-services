@@ -74,7 +74,7 @@ data class FireFile(
     override val md5: String,
     override val size: Long,
     override val type: ExtFileType,
-    override val attributes: List<ExtAttribute>,
+    override val attributes: List<ExtAttribute> = listOf(),
 ) : PersistedExtFile
 
 data class NfsFile(
@@ -84,9 +84,15 @@ data class NfsFile(
     val fullPath: String,
     override val md5: String,
     override val size: Long,
+    val source: FileSourceType? = null,
     override val attributes: List<ExtAttribute> = listOf(),
     override val type: ExtFileType = if (file.isDirectory) DIR else FILE,
 ) : PersistedExtFile
+
+enum class FileSourceType {
+    USER,
+    SUBMISSION,
+}
 
 data class ExtFileList(
     val filePath: String,

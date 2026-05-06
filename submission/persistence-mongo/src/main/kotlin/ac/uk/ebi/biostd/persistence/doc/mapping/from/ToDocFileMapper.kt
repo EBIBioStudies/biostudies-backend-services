@@ -70,6 +70,7 @@ fun ExtFile.toDocFile(): DocFile =
                 attributes = attributes.map { it.toDocAttribute() },
                 md5 = md5,
                 fileSize = size,
+                source = source,
             )
         }
 

@@ -31,4 +31,5 @@ enum class RequestFileStatus {
     DEPRECATED,
     DEPRECATED_PAGE_TAB,
     REUSED,
+    USER_FILE_TO_DELETE,
 }
