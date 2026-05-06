@@ -23,7 +23,6 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun handleRequest(
-        waitTime: Duration = SYNC_SUBMIT_TIMEOUT.minutes,
         accNo: String,
         version: Int,
         waitTime: Duration,
