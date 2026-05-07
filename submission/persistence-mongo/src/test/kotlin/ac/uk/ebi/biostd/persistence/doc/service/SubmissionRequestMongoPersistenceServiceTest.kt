@@ -18,6 +18,7 @@ import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus
@@ -212,6 +213,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     path = "file-path",
                     status = LOADED,
                     previousSubFile = false,
+                    sourceType = FileSourceType.SUBMISSION,
                     file = BasicDBObject("property", "value"),
                 )
 
@@ -273,7 +275,12 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 SubmissionId("abc", 1),
                 SubmissionId("zxy", 2),
             )
-            assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly(SubmissionId("zxy", 2))
+            assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly(
+                SubmissionId(
+                    "zxy",
+                    2,
+                ),
+            )
         }
 
     @Test
@@ -281,8 +288,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
         runTest {
             val extFile1 = createNfsFile("rqt1.txt", "Files/rqt1.txt", tempFolder.createFile("rqt1.txt"))
             val extFile2 = createNfsFile("rqt2.txt", "Files/rqt2.txt", tempFolder.createFile("rqt2.txt"))
-            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, "rqt1.txt", extFile1, INDEXED)
-            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, "rqt2.txt", extFile2, INDEXED)
+            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, "rqt1.txt", extFile1, INDEXED, FileSourceType.USER)
+            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, "rqt2.txt", extFile2, INDEXED, FileSourceType.USER)
 
             requestRepository.upsertSubRqtFile(rqtFile1)
             requestRepository.upsertSubRqtFile(rqtFile2)

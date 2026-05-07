@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -26,6 +25,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
 import java.util.concurrent.atomic.AtomicInteger
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile as SubRqtFile
 
 private val logger = KotlinLogging.logger {}
 
@@ -81,33 +81,33 @@ class SubmissionRequestCleanIndexer(
         fun indexRequestFile(
             file: PersistedExtFile,
             isPageTab: Boolean,
-        ): SubmissionRequestFile =
+        ): SubRqtFile =
             when (newFiles.findMatch(file, isPageTab)) {
                 MatchType.CONFLICTING -> {
                     conflictIdx.incrementAndGet()
-                    SubmissionRequestFile(new, file, CONFLICTING, true)
+                    SubRqtFile(new, file, CONFLICTING, file.sourcetype, true)
                 }
 
                 MatchType.CONFLICTING_PAGE_TAB -> {
                     conflictPageTabIdx.incrementAndGet()
-                    SubmissionRequestFile(new, file, CONFLICTING_PAGE_TAB, true)
+                    SubRqtFile(new, file, CONFLICTING_PAGE_TAB, file.sourcetype, true)
                 }
 
                 MatchType.DEPRECATED -> {
                     deprecatedIdx.incrementAndGet()
-                    SubmissionRequestFile(new, file, DEPRECATED, true)
+                    SubRqtFile(new, file, DEPRECATED, file.sourcetype, true)
                 }
 
                 MatchType.DEPRECATED_PAGE_TAB -> {
                     deprecatedPageTabIdx.incrementAndGet()
-                    SubmissionRequestFile(new, file, DEPRECATED_PAGE_TAB, true)
+                    SubRqtFile(new, file, DEPRECATED_PAGE_TAB, file.sourcetype, true)
                 }
 
                 MatchType.REUSED -> {
                     when {
-                        current.released && new.released -> SubmissionRequestFile(new, file, RELEASED, false)
-                        current.released.not() -> SubmissionRequestFile(new, file, COPIED, false)
-                        else -> SubmissionRequestFile(new, file, REUSED, true)
+                        current.released && new.released -> SubRqtFile(new, file, RELEASED, file.sourcetype, false)
+                        current.released.not() -> SubRqtFile(new, file, COPIED, file.sourcetype, false)
+                        else -> SubRqtFile(new, file, REUSED, file.sourcetype, true)
                     }
                 }
             }

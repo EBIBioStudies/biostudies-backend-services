@@ -47,7 +47,7 @@ internal class UserPathSource(
     ): ExtFile? {
         val filePath = if (type == DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         val file = pathSource.getExtFile(filePath, type, attributes)
-        return file?.copy(source = USER)
+        return file?.copy(sourcetype = USER)
     }
 
     override suspend fun getFileList(path: String): File? = pathSource.getFileList(path)

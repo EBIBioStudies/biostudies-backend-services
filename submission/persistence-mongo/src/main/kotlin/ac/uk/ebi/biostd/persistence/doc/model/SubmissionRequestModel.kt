@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.PMC_SUBMISSIONS
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES
 import com.mongodb.DBObject
+import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.model.RequestStatus
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -87,6 +88,7 @@ data class DocSubmissionRequestFile(
     val path: String,
     val file: DBObject,
     val status: RequestFileStatus,
+    val sourceType: FileSourceType,
     val previousSubFile: Boolean,
 )
 
