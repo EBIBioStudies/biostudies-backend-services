@@ -88,7 +88,7 @@ data class DocSubmissionRequestFile(
     val path: String,
     val file: DBObject,
     val status: RequestFileStatus,
-    val sourceType: FileSourceType,
+    val sourceType: FileSourceType?,
     val previousSubFile: Boolean,
 )
 
