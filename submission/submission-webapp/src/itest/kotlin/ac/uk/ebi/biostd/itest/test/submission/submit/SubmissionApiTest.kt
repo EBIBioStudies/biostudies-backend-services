@@ -39,7 +39,6 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.FIVE_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -58,6 +57,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermission
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -535,7 +535,7 @@ class SubmissionApiTest(
 
                 val response = webClient.submitAsync(submission, TSV)
 
-                waitForCompletion(timeout = FIVE_SECONDS) {
+                waitForCompletion(timeout = 5.seconds) {
                     val result = webClient.getSubmission(response.accNo)
                     assertThat(result?.status).isEqualTo("INVALID")
                     assertThat(result?.errors).containsExactly(
@@ -552,7 +552,7 @@ class SubmissionApiTest(
 
                 webClient.uploadFile(tempFolder.createFile("missing_file.txt", "content"))
                 assertThat(webClient.submitFromDraft(accNo)).isSuccessful()
-                waitForCompletion(timeout = FIVE_SECONDS) {
+                waitForCompletion(timeout = 5.seconds) {
                     val result = webClient.getSubmission(response.accNo)
                     assertThat(result?.status).isEqualTo("PROCESSED")
                     assertThat(result?.errors).isEmpty()

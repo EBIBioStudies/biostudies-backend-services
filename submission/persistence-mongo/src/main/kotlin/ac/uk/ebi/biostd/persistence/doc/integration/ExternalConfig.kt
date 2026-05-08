@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.LinkListDocLinkRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileListMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocLinkListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
@@ -11,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceServic
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(MongoDbServicesConfig::class, ToDocSubmissionConfig::class)
@@ -29,6 +32,9 @@ class ExternalConfig {
         linkListDocLinkRepository: LinkListDocLinkRepository,
         toExtSubmissionMapper: ToExtSubmissionMapper,
         toDocSubmissionMapper: ToDocSubmissionMapper,
+        toDocFileListMapper: ToDocFileListMapper,
+        toDocLinkListMapper: ToDocLinkListMapper,
+        serializationService: ExtSerializationService,
     ): ExtSubmissionRepository =
         ExtSubmissionRepository(
             subDataRepository,
@@ -36,5 +42,8 @@ class ExternalConfig {
             linkListDocLinkRepository,
             toExtSubmissionMapper,
             toDocSubmissionMapper,
+            toDocFileListMapper,
+            toDocLinkListMapper,
+            serializationService,
         )
 }

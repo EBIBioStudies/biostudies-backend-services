@@ -11,6 +11,8 @@ data class ApplicationProperties(
     val subBasePath: String?,
     val consumers: Int,
     val maxConsumers: Int,
+    val enableTmpCleaning: Boolean,
+    val enableStatsReport: Boolean,
     val migration: MigrationProperties,
     val security: SecurityProperties,
     val fire: FireProperties,
@@ -20,6 +22,7 @@ data class ApplicationProperties(
     val doi: DoiProperties,
     val submissionTask: SubmissionTaskProperties,
     val cluster: ClusterProperties,
+    val pmc: PmcProperties,
 )
 
 data class RetryProperties(
@@ -70,6 +73,7 @@ data class PersistenceProperties(
     var publicSubmissionFtpOutPath: String,
     val requestFilesPath: String,
     val tempDirPath: String,
+    val statsReportPath: String,
 )
 
 data class SubmissionNotificationsProperties(
@@ -85,4 +89,10 @@ data class DoiProperties(
     val user: String,
     val password: String,
     val retry: RetryProperties,
+)
+
+data class PmcProperties(
+    val enableLinksExtraction: Boolean,
+    val authToken: String,
+    val loadLimit: Int = 1,
 )

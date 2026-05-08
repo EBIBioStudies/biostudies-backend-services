@@ -18,7 +18,6 @@ deploy-dev:
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle deployScheduler -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev
-    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle deployHandlers -Penv=dev -PdeployPath=$APPS_PATH/handlers/dev
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
     - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/dev
@@ -45,7 +44,6 @@ deploy-beta:
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle deployScheduler -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta
-    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle deployHandlers -Penv=beta -PdeployPath=$APPS_PATH/handlers/beta
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
     - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/beta
@@ -73,7 +71,6 @@ deploy-prod:
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
-    - gradle updateStatsReporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle deployHandlers -Penv=prod -PdeployPath=$APPS_PATH/handlers/prod
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle updateClusterWrapper -Penv=codon -PdeployPath=$CODON_WRAPPER_PATH/prod

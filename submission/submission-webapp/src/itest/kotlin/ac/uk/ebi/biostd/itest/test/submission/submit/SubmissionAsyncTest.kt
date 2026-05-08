@@ -43,8 +43,6 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.FIVE_SECONDS
-import org.awaitility.Durations.ONE_SECOND
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -53,9 +51,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.Duration
-import java.time.Duration.ofMillis
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -92,7 +91,7 @@ class SubmissionAsyncTest(
                 }.toString()
 
             val (accNo, version) = webClient.submitAsync(submission, TSV)
-            waitUntil(timeout = ONE_SECOND) { submissionRepository.existByAccNoAndVersion(accNo, version) }
+            waitUntil(timeout = 1.seconds) { submissionRepository.existByAccNoAndVersion(accNo, version) }
 
             val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
             assertThat(saved).isEqualTo(
@@ -135,10 +134,12 @@ class SubmissionAsyncTest(
             assertThat(statusAfterCreation.status).isEqualTo(REQUESTED)
 
             extSubmissionSubmitter.handleRequestAsync("SimpleAsync2", 2)
-            waitUntil(timeout = Duration.ofMinutes(1), checkInterval = ofMillis(100)) {
+            waitUntil(timeout = 1.minutes, checkInterval = 100.milliseconds) {
                 requestRepository.getRequest("SimpleAsync2", 2).status == POST_PROCESSED
             }
-            val requestStatus = requestRepository.getRequest("SimpleAsync2", 2).process!!.statusChanges
+
+            val request = requestRepository.getRequest("SimpleAsync2", 2)
+            val requestStatus = request.process!!.statusChanges
             assertThat(requestStatus.map { it.status }).containsExactly(
                 REQUESTED.action,
                 FILES_VALIDATED.action,
@@ -210,8 +211,8 @@ class SubmissionAsyncTest(
             assertThat(sub2.accNo).isEqualTo("SMulti-002")
             assertThat(sub2.version).isEqualTo(1)
 
-            waitUntil(timeout = FIVE_SECONDS) { submissionRepository.existByAccNoAndVersion(sub1.accNo, sub1.version) }
-            waitUntil(timeout = FIVE_SECONDS) { submissionRepository.existByAccNoAndVersion(sub2.accNo, sub2.version) }
+            waitUntil(timeout = 5.seconds) { submissionRepository.existByAccNoAndVersion(sub1.accNo, sub1.version) }
+            waitUntil(timeout = 5.seconds) { submissionRepository.existByAccNoAndVersion(sub2.accNo, sub2.version) }
 
             val storedSub1 = submissionRepository.getExtByAccNoAndVersion(sub1.accNo, sub1.version)
             assertThat(storedSub1.section.files).hasSize(1)

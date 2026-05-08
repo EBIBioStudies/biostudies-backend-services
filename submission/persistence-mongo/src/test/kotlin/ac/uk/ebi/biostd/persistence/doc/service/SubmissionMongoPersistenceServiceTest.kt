@@ -31,8 +31,8 @@ import java.time.Duration
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class SubmissionMongoPersistenceServiceTest(
-    @MockK private val submissionRepository: ExtSubmissionRepository,
-    @Autowired private val subDataRepository: SubmissionDocDataRepository,
+    @param:MockK private val submissionRepository: ExtSubmissionRepository,
+    @param:Autowired private val subDataRepository: SubmissionDocDataRepository,
 ) {
     private val testInstance = SubmissionMongoPersistenceService(submissionRepository, subDataRepository)
 

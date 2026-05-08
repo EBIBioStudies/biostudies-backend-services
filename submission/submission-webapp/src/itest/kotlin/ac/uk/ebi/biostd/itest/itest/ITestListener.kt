@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.itest.common.COLLATION
 import ac.uk.ebi.biostd.itest.common.FIRE_PASSWORD
 import ac.uk.ebi.biostd.itest.common.FIRE_USERNAME
 import ac.uk.ebi.biostd.itest.common.SpecificMySQLContainer
+import ac.uk.ebi.biostd.itest.config.TEST_CONTAINERS_S3_MOCK_VERSION
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer.Companion.newTransformer
 import com.adobe.testing.s3mock.testcontainers.S3MockContainer
@@ -128,6 +129,11 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.migration.user", "biostudies-dev@ebi.ac.uk")
         properties.addProperty("app.migration.limit", 10)
         properties.addProperty("app.migration.minModificationDays", 360)
+
+        // Pmc properties
+        properties.addProperty("app.pmc.enableLinksExtraction", false)
+        properties.addProperty("app.pmc.authToken", "abc-123")
+        properties.addProperty("app.pmc.rateMiliseconds", 3600_000)
     }
 
     private fun fireSetup() {
@@ -168,6 +174,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.persistence.publicSubmissionFtpOutPath", PUBLIC_SUBMISSION_PATH)
         properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.persistence.requestFilesPath", requestFilesPath.absolutePath)
+        properties.addProperty("app.persistence.statsReportPath", statsDirPath.absolutePath)
     }
 
     private fun doiSetup() {
@@ -251,6 +258,7 @@ class ITestListener : TestExecutionListener {
         internal val publicNfsSubmissionPath = submissionsFtp.resolve(PUBLIC_SUBMISSION_PATH)
         internal val fireFtpPath = testAppFolder.createDirectory("fire-ftpPath")
 
+        internal val statsDirPath = testAppFolder.createDirectory("stats")
         internal val tempDirPath = testAppFolder.createDirectory("tempDirPath")
         internal val tempFolder = testAppFolder.createDirectory("testTempDir")
         internal val requestFilesPath = testAppFolder.createDirectory("requestFilesPath")
@@ -288,7 +296,7 @@ class ITestListener : TestExecutionListener {
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         private fun createMockS3Container(): S3MockContainer =
-            S3MockContainer("latest")
+            S3MockContainer(TEST_CONTAINERS_S3_MOCK_VERSION)
                 .withInitialBuckets(DEFAULT_BUCKET)
 
         private fun createFtpServer(

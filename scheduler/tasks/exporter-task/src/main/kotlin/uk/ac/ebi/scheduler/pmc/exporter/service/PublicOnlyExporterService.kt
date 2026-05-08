@@ -1,6 +1,6 @@
 package uk.ac.ebi.scheduler.pmc.exporter.service
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -45,7 +45,7 @@ class PublicOnlyExporterService(
 
     private fun writeSubmissions() {
         bioWebClient
-            .getExtSubmissionsAsSequence(ExtPageQuery(released = true, limit = 1))
+            .getExtSubmissionsAsSequence(ExtSubPageQuery(released = true, limit = 1))
             .filter { it.isCollection.not() }
             .forEach(::writeSubmission)
     }

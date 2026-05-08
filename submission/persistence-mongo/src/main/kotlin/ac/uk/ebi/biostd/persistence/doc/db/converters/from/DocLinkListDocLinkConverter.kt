@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
+// TODO unused?
 class DocLinkListDocLinkConverter(
     private val docLinkConvert: DocLinkConverter,
 ) : Converter<Document, LinkListDocLink> {

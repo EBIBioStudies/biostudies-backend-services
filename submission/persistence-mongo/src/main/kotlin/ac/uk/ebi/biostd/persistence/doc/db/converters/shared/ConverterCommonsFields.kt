@@ -198,6 +198,7 @@ object DocStatsFields {
     const val STATS_COLLECTIONS = "collections"
     const val STATS_LAST_UPDATED = "lastUpdated"
     const val STATS_STORAGE_MODE = "storageMode"
+    const val STATS_SUB_RELEASE_TIME = "subReleaseTime"
     const val STATS_SUB_CREATION_TIME = "subCreationTime"
     const val STATS_SUB_MODIFICATION_TIME = "subModificationTime"
     const val STATS_FILE_SIZE = "FILES_SIZE"

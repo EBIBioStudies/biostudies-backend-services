@@ -84,6 +84,7 @@ class SubmitterConfig(
     @Bean
     fun requestFileValidator(
         requestService: SubmissionRequestPersistenceService,
+        extSerializationService: ExtSerializationService,
         fileSourcesService: FileSourcesService,
         securityService: SecurityQueryService,
         toExtSectionMapper: ToExtSectionMapper,
@@ -93,6 +94,7 @@ class SubmitterConfig(
     ): SubmissionRequestFilesValidator =
         SubmissionRequestFilesValidator(
             requestService,
+            extSerializationService,
             fileSourcesService,
             securityService,
             toExtSectionMapper,

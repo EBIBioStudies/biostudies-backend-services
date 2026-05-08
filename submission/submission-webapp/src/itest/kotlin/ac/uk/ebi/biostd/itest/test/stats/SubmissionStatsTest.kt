@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.TEN_SECONDS
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -39,6 +38,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -77,7 +77,7 @@ class SubmissionStatsTest(
                 }.toString()
 
             webClient.submit(submission, TSV)
-            waitUntil(TEN_SECONDS) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
+            waitUntil(10.seconds) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
 
             val stats = webClient.findByAccNo(accNo).toList()
             assertThat(stats).hasSize(3)
@@ -109,7 +109,7 @@ class SubmissionStatsTest(
                 }.toString()
             val statsFile = tempFolder.createFile("stats.txt", statsRecords)
 
-            waitUntil(TEN_SECONDS) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
+            waitUntil(10.seconds) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
 
             val result = webClient.incrementStats(VIEWS.value, statsFile)
             val stats = webClient.findByTypeAndAccNo(VIEWS.value, accNo)
@@ -138,7 +138,7 @@ class SubmissionStatsTest(
                 }.toString()
             val statsFile = tempFolder.createFile("stats.txt", statsRecords)
 
-            waitUntil(TEN_SECONDS) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
+            waitUntil(10.seconds) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
 
             val result = webClient.incrementStats(VIEWS.value, statsFile)
             val stats = webClient.findByTypeAndAccNo(VIEWS.value, accNo)

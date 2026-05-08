@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.filelist
 
+import ac.uk.ebi.biostd.client.dto.ExtPageRequest
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
@@ -220,7 +221,7 @@ class FileListSubmissionTest(
         }
 
     @Test
-    fun `3-4 Filelist Submission with files inside a folder`() =
+    fun `3-4 Filelist Submission with file list inside a folder`() =
         runTest {
             val referencedFile = tempFolder.createFile("referenced.txt")
             val submission =
@@ -249,7 +250,7 @@ class FileListSubmissionTest(
             assertThat(webClient.submitMultipart(submission, TSV, params, listOf(referencedFile))).isSuccessful()
 
             val extSubmission = webClient.getExtByAccNo("S-TEST6")
-            val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
+            val referencedFiles = webClient.getFileListFiles(extSubmission.section.fileList!!.filesUrl!!).content
 
             assertThat(referencedFiles).hasSize(1)
             val referenced = referencedFiles.first()
@@ -337,6 +338,52 @@ class FileListSubmissionTest(
             assertSubmissionFiles(extSub.accNo, "File8.txt", "empty-accNo-file-list")
             assertThat(requestFiles).exists()
             assertThat(requestFiles.listFiles()).anyMatch { it.name.startsWith("empty-accNo-file-list") }
+        }
+
+    @Test
+    fun `3-9 Filelist file Pagination API`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "file-list-3-9.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tsv {
+                    line("Files", "GEN")
+                    line("File391.txt", "391")
+                    line("File392.txt", "392")
+                    line("File393.txt", "393")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("File391.txt", "file 391 content"),
+                    tempFolder.createFile("File392.txt", "file 392 content"),
+                    tempFolder.createFile("File393.txt", "file 393 content"),
+                    tempFolder.createFile("file-list-3-9.tsv", fileList),
+                ),
+            )
+
+            val response = webClient.submit(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            val accNo = response.body.accNo
+            val files = webClient.getFileListFiles(accNo, "file-list-3-9", ExtPageRequest(limit = 1, offset = 0))
+            assertThat(files.content).hasSize(1)
+            assertThat(files.content.first().filePath).isEqualTo("File391.txt")
+
+            val otherFiles = webClient.getFileListFiles(accNo, "file-list-3-9", ExtPageRequest(limit = 2, offset = 1))
+            assertThat(otherFiles.content).hasSize(2)
+            assertThat(otherFiles.content.first().filePath).isEqualTo("File392.txt")
+            assertThat(otherFiles.content.second().filePath).isEqualTo("File393.txt")
         }
 
     @Nested

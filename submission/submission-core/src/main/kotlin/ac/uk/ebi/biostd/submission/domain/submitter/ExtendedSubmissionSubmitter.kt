@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
+import kotlin.time.Duration
 
 @Suppress("TooManyFunctions")
 class ExtendedSubmissionSubmitter(
@@ -16,11 +17,22 @@ class ExtendedSubmissionSubmitter(
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
+        waitTime: Duration,
     ): ExtSubmission =
         if (submissionTaskProperties.enabled) {
-            remoteExtSubmissionSubmitter.handleRequest(accNo, version)
+            remoteExtSubmissionSubmitter.handleRequest(accNo, version, waitTime)
         } else {
-            localExtSubmissionSubmitter.handleRequest(accNo, version)
+            localExtSubmissionSubmitter.handleRequest(accNo, version, waitTime)
+        }
+
+    override suspend fun handleMany(
+        submissions: List<SubmissionId>,
+        waitTime: Duration,
+    ): List<ExtSubmission> =
+        if (submissionTaskProperties.enabled) {
+            remoteExtSubmissionSubmitter.handleMany(submissions, waitTime)
+        } else {
+            localExtSubmissionSubmitter.handleMany(submissions, waitTime)
         }
 
     override suspend fun handleRequestAsync(

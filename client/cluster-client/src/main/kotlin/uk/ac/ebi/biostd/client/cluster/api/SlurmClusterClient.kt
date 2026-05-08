@@ -7,9 +7,9 @@ import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
 import uk.ac.ebi.biostd.client.cluster.common.toSlurmJob
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
-import java.time.Duration.ofSeconds
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -25,7 +25,7 @@ class SlurmClusterClient(
         val parameters = mutableListOf("sbatch --output=/dev/null")
         parameters.addAll(jobSpec.asParameter(wrapperPath, logsPath))
         val command = parameters.joinToString(separator = " ")
-        logger.info { "Executing command '$command'" }
+        logger.debug { "Executing command '$command'" }
 
         return sshClient.runInSession {
             val (exitStatus, response) = executeCommand(command)
@@ -83,8 +83,8 @@ class SlurmClusterClient(
     ) {
         return sshClient.runInSession {
             waitUntil(
-                checkInterval = ofSeconds(checkJobInterval),
-                timeout = ofSeconds(maxSecondsDuration),
+                checkInterval = checkJobInterval.seconds,
+                timeout = maxSecondsDuration.seconds,
             ) {
                 val status = jobStatus(job.id)
                 val completed = status == "COMPLETED"
@@ -127,13 +127,13 @@ class SlurmClusterClient(
             wrapperPath: String,
             logsPath: String,
         ): List<String> {
-            val scapedCommand = command.replace("\"", "\\\"")
+            val escapedCommand = command.replace("\"", "\\\"")
             return buildList {
                 add("--cores=$cores")
                 add("--time=${convertMinutesToTimeFormat(minutes)}")
                 add("--mem=$ram")
                 add("--partition=${queue.name}")
-                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$scapedCommand\"")
+                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$escapedCommand\"")
             }
         }
 

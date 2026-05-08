@@ -42,6 +42,18 @@ import Versions.XmlBuilderVersion
 import Versions.ZeroAllocationHashingVersion
 import Versions.ZipUtilVersion
 
+object PluginVersions {
+    const val BuildConfigVersion = "6.0.9"
+    const val DetektVersion = "1.23.6"
+    const val GradleRetryVersion = "1.5.5"
+    const val KotlinPluginVersion = Versions.KotlinVersion
+    const val KtLintVersion = "12.1.0"
+    const val ShadowPluginVersion = "8.1.1"
+    const val SshVersion = "2.12.0"
+    const val SpringBootPluginVersion = "3.5.5"
+    const val SpringDependencyManagementPluginVersion = "1.1.7"
+}
+
 object TestVersions {
     const val JunitExtensionsVersion = "2.6.0"
     const val Junit5PioneerVersion = "2.3.0"
@@ -50,9 +62,9 @@ object TestVersions {
     const val JaxbApiVersion = "2.3.1"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
-    const val WiremockVersion = "3.13.1"
+    const val WiremockVersion = "3.13.2"
     const val TestContainersVersion = "1.21.4"
-    const val TestContainerS3mockVersion = "2.11.0"
+    const val TestContainerS3mockVersion = "4.12.4"
     const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
 }
@@ -66,7 +78,7 @@ object Versions {
 
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
-    const val CommonsIOVersion = "2.6"
+    const val CommonsIOVersion = "2.21.0"
     const val CommonsNetVersion = "3.11.1"
     const val CommonsPoolVersion = "2.12.0"
     const val CommonsCsvVersion = "1.8"
@@ -141,6 +153,7 @@ object Dependencies {
     const val JSONOrg = "org.json:json:$JSONOrgVersion"
     const val JacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations"
     const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin"
+    const val JacksonJsr310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     const val JacksonDataBind = "com.fasterxml.jackson.core:jackson-databind:"
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
@@ -209,6 +222,22 @@ object SpringBootDependencies {
     const val SpringDataCommons = "org.springframework.data:spring-data-commons"
 }
 
+object Plugins {
+    const val BuildConfig = "com.github.gmazzo.buildconfig"
+    const val DetektPlugin = "io.gitlab.arturbosch.detekt"
+    const val GradleRetry = "org.gradle.test-retry"
+    const val JacocoPlugin = "jacoco"
+    const val KotlinPlugin = "org.jetbrains.kotlin.jvm"
+    const val KLintPlugin = "org.jlleitschuh.gradle.ktlint"
+    const val KotlinAllOpenPlugin = "org.jetbrains.kotlin.plugin.allopen"
+    const val KotlinJpaPlugin = "org.jetbrains.kotlin.plugin.jpa"
+    const val KotlinSpringPlugin = "org.jetbrains.kotlin.plugin.spring"
+    const val ShadowPlugin = "com.github.johnrengelman.shadow"
+    const val SshPlugin = "org.hidetake.ssh"
+    const val SpringBootPlugin = "org.springframework.boot"
+    const val SpringDependencyManagementPlugin = "io.spring.dependency-management"
+}
+
 object Projects {
     const val JsonLibrary = ":commons:commons-json-util"
     const val TsvLibrary = ":commons:commons-tsv-util"
@@ -241,7 +270,7 @@ object Projects {
     const val SubmissionPersistenceMongo = ":submission:persistence-mongo"
     const val SubmissionNotification = ":submission:notifications"
     const val SubmissionSecurity = ":submission:submission-security"
-    const val SubmissionSubmitter = ":submission:submission-core"
+    const val SubmissionCore = ":submission:submission-core"
 
     const val SchedulerTaskProperties = ":scheduler:common:task-properties"
     const val EventsPublisher = ":events:events-publisher"

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ExtPageRequest
+import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
@@ -14,11 +15,13 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.FolderStats
@@ -218,7 +221,7 @@ interface DraftSubmissionOperations {
 
 @Suppress("TooManyFunctions")
 interface ExtSubmissionOperations {
-    fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
+    fun getExtSubmissions(extPageQuery: ExtSubPageQuery): ExtPage
 
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
 
@@ -227,7 +230,7 @@ interface ExtSubmissionOperations {
         includeFileList: Boolean = false,
     ): ExtSubmission
 
-    fun getReferencedFiles(filesUrl: String): ExtFileTable
+    suspend fun getFileListFiles(filesUrl: String): WebExtPage<ExtFile>
 
     fun submitExtAsync(extSubmission: ExtSubmission)
 
@@ -250,6 +253,18 @@ interface ExtSubmissionOperations {
     suspend fun transferSubmissions(options: SubmissionTransferOptions)
 
     suspend fun transferEmailUpdate(options: SubmissionTransferOptions)
+
+    suspend fun getFileListFiles(
+        accNo: String,
+        fileList: String,
+        page: ExtPageRequest,
+    ): WebExtPage<ExtFile>
+
+    suspend fun getLinkListLinks(
+        accNo: String,
+        linkList: String,
+        page: ExtPageRequest,
+    ): WebExtPage<ExtLink>
 }
 
 interface PostProcessOperations {
@@ -260,6 +275,8 @@ interface PostProcessOperations {
     suspend fun copyPageTab(accNo: String)
 
     suspend fun indexInnerFiles(accNo: String)
+
+    suspend fun postProcessDoi(accNo: String)
 }
 
 interface PermissionOperations {

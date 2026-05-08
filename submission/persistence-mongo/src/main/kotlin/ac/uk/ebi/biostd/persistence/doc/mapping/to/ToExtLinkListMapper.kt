@@ -57,10 +57,10 @@ class ToExtLinkListMapper(
                 items = 500,
             ) { logger.info { "accNo:'$accNo' version: '$version', serialized link ${it.index}, link list '$name'" } }
 
-        logger.info { "accNo:'$accNo' version: '$version', serializing link list '$name'" }
+        logger.debug { "accNo:'$accNo' version: '$version', serializing link list '$name'" }
         val file = extFilesResolver.createRequestTempFile(accNo, version, name)
         file.outputStream().use { serializationService.serializeLinks(asLoggableFlow(links), it) }
-        logger.info { "accNo:'$accNo' version: '$version', completed link list '$name' serialization" }
+        logger.debug { "accNo:'$accNo' version: '$version', completed link list '$name' serialization" }
         return file
     }
 }

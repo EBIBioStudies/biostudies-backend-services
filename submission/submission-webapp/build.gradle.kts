@@ -14,7 +14,6 @@ import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
-import Projects.ClientPmcWebClient
 import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
@@ -24,11 +23,11 @@ import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.ExcelLibrary
 import Projects.FtpWebClient
+import Projects.SubmissionCore
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
 import Projects.SubmissionSecurity
-import Projects.SubmissionSubmitter
 import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterAmqp
@@ -56,6 +55,7 @@ import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.slf4jApi
+import TestVersions.TestContainerS3mockVersion
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -67,11 +67,21 @@ plugins {
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
     id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
+    id(Plugins.BuildConfig) version PluginVersions.BuildConfigVersion
 }
 
 dependencyManagement {
     dependencies {
         dependency(OkHttp3) // Required by Aws S3 Kotlin sdk
+    }
+}
+
+buildConfig {
+    packageName("ac.uk.ebi.biostd.itest.config")
+    buildConfigField("TEST_CONTAINERS_S3_MOCK_VERSION", provider { TestContainerS3mockVersion })
+    useKotlinOutput {
+        topLevelConstants = true
+        internalVisibility = false
     }
 }
 
@@ -90,7 +100,7 @@ dependencies {
     api(project(ClientFireWebClient))
     api(project(SubmissionPersistenceSql))
     api(project(SubmissionPersistenceMongo))
-    api(project(SubmissionSubmitter))
+    api(project(SubmissionCore))
     api(project(SubmissionSecurity))
     api(project(SubmissionNotification))
     api(project(ClusterClient))
@@ -100,7 +110,6 @@ dependencies {
     api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
-    api(project(ClientPmcWebClient))
 
     annotationProcessor(SpringBootConfigurationProcessor)
     implementation(SpringBootStarterWeb)

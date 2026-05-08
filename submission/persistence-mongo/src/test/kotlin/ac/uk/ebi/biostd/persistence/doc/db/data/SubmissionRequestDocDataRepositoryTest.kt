@@ -30,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -120,12 +121,12 @@ class SubmissionRequestDocDataRepositoryTest(
             val query = Query().addCriteria(where(RQT_ACC_NO).`is`("abc-123").andOperator(where(RQT_VERSION).`is`(2)))
             val files =
                 template
-                    .find(query, DocSubmissionRequestFile::class.java, SUB_RQT_FILES_ARCHIVE)
+                    .find<DocSubmissionRequestFile>(query, SUB_RQT_FILES_ARCHIVE)
                     .asFlow()
                     .toList()
             assertThat(files).containsExactlyInAnyOrder(rqtF1, rqtF2)
 
-            val requests = template.find(query, DocSubmissionRequest::class.java, SUB_RQT_ARCHIVE).asFlow().toList()
+            val requests = template.find<DocSubmissionRequest>(query, SUB_RQT_ARCHIVE).asFlow().toList()
             assertThat(requests).containsExactly(request)
         }
 

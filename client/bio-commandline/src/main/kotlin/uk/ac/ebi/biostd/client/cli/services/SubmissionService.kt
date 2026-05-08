@@ -14,14 +14,19 @@ import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.SubmissionTransferOptions
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
-import java.time.Duration.ofSeconds
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
     suspend fun submit(request: SubmissionRequest): Unit =
         performRequest {
             val client = bioWebClient(request.securityConfig)
-            val (accNo, version) = client.submitMultipartAsync(request.submissionFile, request.parameters, request.files)
+            val (accNo, version) =
+                client.submitMultipartAsync(
+                    request.submissionFile,
+                    request.parameters,
+                    request.files,
+                )
             echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
 
             if (request.await) client.waitForSubmission(accNo, version)
@@ -84,7 +89,7 @@ internal class SubmissionService {
     ) {
         var status: RequestStatus = REQUESTED
         waitUntil(
-            checkInterval = ofSeconds(CHECK_INTERVAL),
+            checkInterval = CHECK_INTERVAL.seconds,
             timeout = FOREVER,
         ) {
             status = getSubmissionRequestStatus(accNo, version)

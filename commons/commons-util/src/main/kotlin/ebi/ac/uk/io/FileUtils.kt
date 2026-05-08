@@ -82,7 +82,7 @@ object FileUtils {
     fun deleteFile(file: File) {
         when {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
-            exists(file.toPath()) -> Files.delete(file.toPath())
+            else -> Files.deleteIfExists(file.toPath())
         }
     }
 
@@ -153,7 +153,7 @@ object FileUtils {
         iterateDirectories: Boolean = true,
     ): Long = if (file.isDirectory && iterateDirectories) calculateDirectorySize(file) else Files.size(file.toPath())
 
-    fun md5(file: File): String = if (file.isFile) calculateMd5(file) else hashFolder(file).toString()
+    fun md5(file: File): String = if (Files.isDirectory(file.toPath())) hashFolder(file).toString() else calculateMd5(file)
 
     fun md5(value: String): String = DigestUtils.md5Hex(value).uppercase()
 
@@ -368,7 +368,7 @@ fun hashFolder(folder: File): Long {
         }
     }
 
-    require(folder.isDirectory)
+    require(folder.isDirectory) { "Folder '${folder.absolutePath}' is not a directory" }
     logger.info { "Calculating folder '${folder.absolutePath}' hash" }
     val hash =
         listFiles(folder)

@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
@@ -99,7 +98,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -144,17 +142,15 @@ class ToDocSubmissionMapperTest(
             section = newRootSection,
             pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile),
         )
-    private val serializationService = ExtSerializationService()
-    private val linkListMapper = ToDocLinkListMapper(serializationService)
-    private val fileListMapper = ToDocFileListMapper(serializationService)
+    private val linkListMapper = ToDocLinkListMapper()
+    private val fileListMapper = ToDocFileListMapper()
     private val testInstance = ToDocSubmissionMapper(ToDocSectionMapper(fileListMapper, linkListMapper))
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
-        val (docSubmission, listFiles) = testInstance.convert(submission)
+        val docSubmission = testInstance.convert(submission)
 
         assertDocSubmission(docSubmission)
-        assertListFiles(listFiles, docSubmission)
         assertThat(docSubmission.storageMode).isEqualTo(StorageMode.NFS)
     }
 
@@ -212,29 +208,6 @@ class ToDocSubmissionMapperTest(
                 "file",
             ),
         )
-    }
-
-    private fun assertListFiles(
-        listFiles: List<FileListDocFile>,
-        docSubmission: DocSubmission,
-    ) {
-        assertThat(listFiles).hasSize(2)
-
-        val listFile = listFiles.first()
-        assertThat(listFile.submissionId).isEqualTo(docSubmission.id)
-        assertThat(listFile.file).isEqualTo(newRootSectionFileListFile.toDocFile())
-        assertThat(listFile.fileListName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_PATH)
-        assertThat(listFile.index).isEqualTo(0)
-        assertThat(listFile.submissionVersion).isEqualTo(docSubmission.version)
-        assertThat(listFile.submissionAccNo).isEqualTo(docSubmission.accNo)
-
-        val sublistFile = listFiles[1]
-        assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
-        assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
-        assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_PATH)
-        assertThat(sublistFile.index).isEqualTo(0)
-        assertThat(sublistFile.submissionVersion).isEqualTo(docSubmission.version)
-        assertThat(sublistFile.submissionAccNo).isEqualTo(docSubmission.accNo)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {

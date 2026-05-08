@@ -5,6 +5,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
 import Dependencies.SpringWebFlux
+import Projects.ClientPmcWebClient
 import Projects.CommonsBio
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
@@ -39,6 +40,7 @@ dependencies {
     api(project(SubmissionFileSources))
     api(project(SubmissionSecurity))
     api(project(SubmissionPersistenceMongo))
+    api(project(ClientPmcWebClient))
 
     implementation(CommonsIO)
     implementation(RxJava2)

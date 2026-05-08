@@ -56,12 +56,16 @@ import org.bson.Document
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.aggregate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.Aggregation.match
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.Fields
 import org.springframework.data.mongodb.core.aggregation.MergeOperation.WhenDocumentsDontMatch
 import org.springframework.data.mongodb.core.aggregation.MergeOperation.WhenDocumentsMatch
+import org.springframework.data.mongodb.core.count
+import org.springframework.data.mongodb.core.find
+import org.springframework.data.mongodb.core.findAndModify
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -130,7 +134,7 @@ class SubmissionRequestDocDataRepository(
                             .build(),
                     )
             mongoTemplate
-                .aggregate(aggregation, SUB_RQT_FILES, Document::class.java)
+                .aggregate<Document>(aggregation, SUB_RQT_FILES)
                 .awaitFirstOrNull()
             return mongoTemplate.count(Query().addCriteria(criteria), SUB_RQT_FILES_ARCHIVE).awaitSingle()
         }
@@ -158,7 +162,7 @@ class SubmissionRequestDocDataRepository(
                             .build(),
                     )
             mongoTemplate
-                .aggregate(aggregation, SUB_RQT, Document::class.java)
+                .aggregate<Document>(aggregation, SUB_RQT)
                 .awaitFirstOrNull()
         }
 
@@ -169,7 +173,7 @@ class SubmissionRequestDocDataRepository(
 
     suspend fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter))
-        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).awaitSingle()
+        val requestCount = mongoTemplate.count<DocSubmissionRequest>(query).awaitSingle()
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
             else -> findActiveRequests(query, filter.offset, filter.limit)
@@ -212,11 +216,10 @@ class SubmissionRequestDocDataRepository(
             )
         val result =
             mongoTemplate
-                .findAndModify(
+                .findAndModify<DocSubmissionRequest>(
                     query,
                     update,
                     FindAndModifyOptions.options().returnNew(true),
-                    DocSubmissionRequest::class.java,
                 ).awaitSingle()
         return statusId.toString() to result
     }
@@ -228,7 +231,7 @@ class SubmissionRequestDocDataRepository(
     ): Pair<Int, List<DocSubmissionRequest>> {
         val result =
             mongoTemplate
-                .find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
+                .find<DocSubmissionRequest>(query.skip(skip).limit(limit))
                 .asFlow()
                 .toList()
         return result.count() to result
@@ -236,7 +239,7 @@ class SubmissionRequestDocDataRepository(
 
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionListFilter): Criteria {
-        val criterias =
+        val criteria =
             buildList<Criteria> {
                 add(where(RQT_OWNER).`is`(filter.filterUser))
                 add(where(RQT_STATUS).`in`(ACTIVE_STATUS))
@@ -244,7 +247,7 @@ class SubmissionRequestDocDataRepository(
                     add(where(RQT_ACC_NO).`is`(filter.accNo))
                 }
             }
-        return Criteria().andOperator(criterias)
+        return Criteria().andOperator(criteria)
     }
 
     suspend fun increaseIndex(
@@ -254,7 +257,7 @@ class SubmissionRequestDocDataRepository(
     ) {
         val update = Update().inc("$RQT_PROCESS.$RQT_IDX", increase).currentDate(RQT_MODIFICATION_TIME)
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmissionRequest>(query, update).awaitSingleOrNull()
     }
 
     suspend fun upsertSubRqtFile(file: SubmissionRequestFile) {
@@ -269,7 +272,7 @@ class SubmissionRequestDocDataRepository(
                     where(RQT_PREVIOUS_SUB_FILE).`is`(file.previousSubFile),
                 )
 
-        mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
+        mongoTemplate.upsert<DocSubmissionRequestFile>(Query(where), update).awaitSingleOrNull()
     }
 
     suspend fun updateSubRqtFiles(files: List<SubmissionRequestFile>) {
@@ -310,20 +313,6 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst<DocSubmissionRequest>(Query(where), update).awaitSingleOrNull()
     }
 
-    suspend fun setSubRequestAccNo(
-        accNo: String,
-        owner: String,
-        modificationTime: Instant,
-    ) {
-        val update = update(RQT_MODIFICATION_TIME, modificationTime)
-        val where =
-            where(RQT_ACC_NO)
-                .`is`(accNo)
-                .andOperator(where(RQT_OWNER).`is`(owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
-
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
-    }
-
     suspend fun setSubRequestErrors(
         accNo: String,
         owner: String,
@@ -336,7 +325,7 @@ class SubmissionRequestDocDataRepository(
                 .`is`(accNo)
                 .andOperator(where(RQT_OWNER).`is`(owner), where(RQT_STATUS).nin(PROCESSED_STATUS))
 
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmissionRequest>(Query(where), update).awaitSingleOrNull()
     }
 
     suspend fun setRequestDraftStatus(
@@ -353,7 +342,7 @@ class SubmissionRequestDocDataRepository(
                     where(RQT_OWNER).`is`(owner),
                     where(RQT_STATUS).nin(PROCESSED_STATUS),
                 )
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmissionRequest>(Query(where), update).awaitSingleOrNull()
     }
 
     suspend fun updateSubmissionRequest(
@@ -384,7 +373,7 @@ class SubmissionRequestDocDataRepository(
                 .set("$RQT_PROCESS.$RQT_PREV_SUB_VERSION", rqt.process?.previousVersion)
                 .set("$RQT_PROCESS.$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_END_TIME", processEndTime)
                 .set("$RQT_PROCESS.$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processResult.toString())
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+        mongoTemplate.updateFirst<DocSubmissionRequest>(query, update).awaitSingleOrNull()
     }
 }
 

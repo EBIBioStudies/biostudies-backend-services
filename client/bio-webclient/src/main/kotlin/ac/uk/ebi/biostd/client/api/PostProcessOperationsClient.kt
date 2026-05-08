@@ -38,4 +38,12 @@ class PostProcessOperationsClient(
             .retrieve()
             .awaitBodilessEntity()
     }
+
+    override suspend fun postProcessDoi(accNo: String) {
+        client
+            .post()
+            .uri("$EXT_SUBMISSIONS_URL/$accNo/post-process/doi")
+            .retrieve()
+            .awaitBodilessEntity()
+    }
 }

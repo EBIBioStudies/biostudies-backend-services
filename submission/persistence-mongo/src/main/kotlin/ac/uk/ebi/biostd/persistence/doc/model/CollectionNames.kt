@@ -11,4 +11,6 @@ object CollectionNames {
     const val SUB_RQT_ARCHIVE = "submission_requests_archive"
     const val SUB_RQT_FILES = "submission_request_files"
     const val SUB_RQT_FILES_ARCHIVE = "submission_request_files_archive"
+
+    const val PMC_SUBMISSIONS = "pmc_submissions"
 }

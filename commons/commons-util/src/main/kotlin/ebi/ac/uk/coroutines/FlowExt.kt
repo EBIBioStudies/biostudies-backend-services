@@ -28,7 +28,7 @@ fun <T, R> Flow<T>.concurrently(
 ): Flow<R> = flatMapMerge(concurrency) { flow { emit(function(it)) } }
 
 /**
- * Copy implementation of Kotlin coroutines function until migration 1.9
+ * Copy implementation of the Kotlin coroutines function until migration 1.9
  */
 fun <T> Flow<T>.chunked(size: Int): Flow<List<T>> {
     require(size >= 1) { "Expected positive chunk size, but got $size" }

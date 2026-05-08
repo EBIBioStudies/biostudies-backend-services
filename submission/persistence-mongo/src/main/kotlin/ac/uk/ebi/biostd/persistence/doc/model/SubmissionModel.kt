@@ -209,6 +209,7 @@ data class DocSubmissionStats(
     val released: Boolean,
     val stats: Map<String, Long>,
     val subCreationTime: Instant,
+    val subReleaseTime: Instant,
     val subModificationTime: Instant,
     val storageMode: StorageMode,
     val collections: List<String> = emptyList(),

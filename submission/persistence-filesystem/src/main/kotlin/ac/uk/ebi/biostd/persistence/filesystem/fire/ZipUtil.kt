@@ -37,7 +37,7 @@ object ZipUtil {
                 }
         }
 
-        logger.info { "Finished zip folder creation for ${sourceDir.name}" }
+        logger.info { "Finished zip folder creation for ${sourceDir.name} at ${zipFile.absolutePath}" }
     }
 
     fun unpack(

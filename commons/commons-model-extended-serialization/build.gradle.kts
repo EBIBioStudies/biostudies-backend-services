@@ -1,3 +1,4 @@
+import Dependencies.JacksonJsr310
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinCoroutines
@@ -28,6 +29,7 @@ dependencies {
     api(project(CommonsSerializationUtil))
     api(project(JsonLibrary))
 
+    implementation(JacksonJsr310)
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(KotlinReflect)

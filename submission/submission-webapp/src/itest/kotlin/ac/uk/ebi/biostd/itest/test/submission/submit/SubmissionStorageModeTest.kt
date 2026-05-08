@@ -27,10 +27,12 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
+import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -46,8 +48,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
-import java.time.Duration.ofSeconds
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -71,10 +73,11 @@ class SubmissionStorageModeTest(
         }
 
     @Test
-    fun `10-1 Fire to Nfs`() =
+    fun `10-1 resubmit from FIRE to NFS`() =
         runTest {
-            val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-1")
-            webClient.uploadFiles(listOf(file, fileListFile, fileList))
+            val (submission, file, fileList, fileListDir, fileListFiles) = createSubmission("S-STR-MODE-1")
+            webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
+            webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
@@ -83,7 +86,7 @@ class SubmissionStorageModeTest(
 
             assertThat(fireSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, FireFile::class) }
             assertThat(fireSub.section.fileList).isNotNull()
-            assertFileListFile(fireSub.section.fileList!!, FireFile::class)
+            assertFileListFile(fireSub.section.fileList!!, "file-list-dir.zip", FireFile::class)
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
@@ -92,7 +95,7 @@ class SubmissionStorageModeTest(
 
             assertThat(nfsSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, NfsFile::class) }
             assertThat(nfsSub.section.fileList).isNotNull()
-            assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
+            assertFileListFile(nfsSub.section.fileList!!, "file-list-dir", NfsFile::class)
 
             // No Files in FIRE submit folder/ftp folder
             assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
@@ -100,10 +103,11 @@ class SubmissionStorageModeTest(
         }
 
     @Test
-    fun `10-2 Nfs to Fire`() =
+    fun `10-2 resubmit from NFS to FIRE`() =
         runTest {
-            val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-2")
-            webClient.uploadFiles(listOf(file, fileListFile, fileList))
+            val (submission, file, fileList, fileListDir, fileListFiles) = createSubmission("S-STR-MODE-2")
+            webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
+            webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
@@ -112,7 +116,7 @@ class SubmissionStorageModeTest(
 
             assertThat(nfsSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, NfsFile::class) }
             assertThat(nfsSub.section.fileList).isNotNull()
-            assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
+            assertFileListFile(nfsSub.section.fileList!!, "file-list-dir", NfsFile::class)
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
@@ -121,7 +125,7 @@ class SubmissionStorageModeTest(
 
             assertThat(fireSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, FireFile::class) }
             assertThat(fireSub.section.fileList).isNotNull()
-            assertFileListFile(fireSub.section.fileList!!, FireFile::class)
+            assertFileListFile(fireSub.section.fileList!!, "file-list-dir.zip", FireFile::class)
 
             // No Files in NFS submit folder/ftp
             assertThat(
@@ -135,14 +139,15 @@ class SubmissionStorageModeTest(
     @Test
     fun `10-3 migrate from NFS to FIRE`() =
         runTest {
-            val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-3")
-            webClient.uploadFiles(listOf(file, fileListFile, fileList))
+            val (submission, file, fileList, fileListDir, fileListFiles) = createSubmission("S-STR-MODE-3")
+            webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
+            webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
             webClient.migrateSubmission("S-STR-MODE-3", FIRE)
-            waitUntil(timeout = ofSeconds(10)) {
+            waitUntil(timeout = 10.seconds) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == POST_PROCESSED
             }
 
@@ -152,7 +157,7 @@ class SubmissionStorageModeTest(
 
             assertThat(fireSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, FireFile::class) }
             assertThat(fireSub.section.fileList).isNotNull()
-            assertFileListFile(fireSub.section.fileList!!, FireFile::class)
+            assertFileListFile(fireSub.section.fileList!!, "file-list-dir.zip", FireFile::class)
 
             assertThat(
                 privateNfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile },
@@ -165,14 +170,15 @@ class SubmissionStorageModeTest(
     @Test
     fun `10-4 migrate from FIRE to NFS`() =
         runTest {
-            val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-4")
-            webClient.uploadFiles(listOf(file, fileListFile, fileList))
+            val (submission, file, fileList, fileListDir, fileListFiles) = createSubmission("S-STR-MODE-4")
+            webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
+            webClient.uploadFile(fileListFiles.second(), fileListDir.name)
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
             webClient.migrateSubmission("S-STR-MODE-4", NFS)
 
-            waitUntil(timeout = ofSeconds(10)) {
+            waitUntil(timeout = 10.seconds) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == POST_PROCESSED
             }
 
@@ -183,7 +189,7 @@ class SubmissionStorageModeTest(
 
             assertThat(nfsSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, NfsFile::class) }
             assertThat(nfsSub.section.fileList).isNotNull()
-            assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
+            assertFileListFile(nfsSub.section.fileList!!, "file-list-dir.zip", NfsFile::class)
 
             assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
             assertThat(fireFtpPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
@@ -193,8 +199,9 @@ class SubmissionStorageModeTest(
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `10-5 previous version keeps storage mode`() =
         runTest {
-            val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-5")
-            webClient.uploadFiles(listOf(file, fileListFile, fileList))
+            val (submission, file, fileList, fileListDir, fileListFiles) = createSubmission("S-STR-MODE-5")
+            webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
+            webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
             assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val subV1 = submissionRepository.getExtByAccNo("S-STR-MODE-5")
@@ -219,29 +226,40 @@ class SubmissionStorageModeTest(
 
     private suspend fun assertFileListFile(
         fileList: ExtFileList,
-        expectType: KClass<*>,
+        expectedDirName: String,
+        expectedType: KClass<*>,
     ) {
         assertThat(fileList.fileName).isEqualTo("file-list")
 
         val files = fileList.file.inputStream().use { serializationService.deserializeFileListAsFlow(it).toList() }
-        assertThat(files).hasSize(1)
+        assertThat(files).hasSize(2)
 
         val file = files.first()
         assertThat(file.fileName).isEqualTo("file-list-file.txt")
-        assertThat(file.attributes.first()).isEqualTo(ExtAttribute("Type2", "file-list-test"))
-        assertThat(file).isInstanceOf(expectType.java)
+        assertThat(file.attributes.first()).isEqualTo(ExtAttribute("Type2", "file list test"))
+        assertThat(file).isInstanceOf(expectedType.java)
+
+        val dir = files.second()
+        assertThat(dir.fileName).isEqualTo(expectedDirName)
+        assertThat(dir.attributes.first()).isEqualTo(ExtAttribute("Type2", "file list dir"))
+        assertThat(dir).isInstanceOf(expectedType.java)
     }
 
     private fun createSubmission(accNo: String): Submission {
+        val fileListFiles =
+            listOf(
+                tempFolder.createFile("file-list-file.txt", "another content"),
+                tempFolder.createFile("file-list-inner-file.txt", "inner content"),
+            )
         val fileList =
             tempFolder.createFile(
                 "file-list.tsv",
                 tsv {
                     line("Files", "Type2")
-                    line("file-list-file.txt", "file-list-test")
+                    line("file-list-file.txt", "file list test")
+                    line("file-list-dir", "file list dir")
                 }.toString(),
             )
-
         val submission =
             tsv {
                 line("Submission", accNo)
@@ -260,9 +278,10 @@ class SubmissionStorageModeTest(
 
         return Submission(
             submission = submission,
-            file = tempFolder.createFile("one_file.txt", "content"),
             fileList = fileList,
-            fileListFile = tempFolder.createFile("file-list-file.txt", "another content"),
+            fileListFiles = fileListFiles,
+            file = tempFolder.createFile("one_file.txt", "content"),
+            fileListDir = tempFolder.createDirectory("file-list-dir"),
         )
     }
 
@@ -270,6 +289,7 @@ class SubmissionStorageModeTest(
         val submission: String,
         val file: File,
         val fileList: File,
-        val fileListFile: File,
+        val fileListDir: File,
+        val fileListFiles: List<File>,
     )
 }

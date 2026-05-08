@@ -1,6 +1,6 @@
 package ebi.ac.uk.extended.model
 
-const val PROJECT_TYPE = "Project"
+const val COLLECTION_TYPE = "Project"
 
 val ExtSubmission.allSections
     get(): List<ExtSection> = section.allSections + section
@@ -21,7 +21,7 @@ val ExtSubmission.allInnerSubmissionFiles
     get(): List<ExtFile> = allSectionsFiles + allPageTabFiles
 
 val ExtSubmission.isCollection
-    get(): Boolean = section.type == PROJECT_TYPE
+    get(): Boolean = section.type == COLLECTION_TYPE
 
 val ExtSubmission.computedTitle
     get(): String? = title ?: section.title

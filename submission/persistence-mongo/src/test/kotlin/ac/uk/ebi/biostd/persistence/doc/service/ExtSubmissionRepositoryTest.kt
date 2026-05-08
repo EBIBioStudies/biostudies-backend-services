@@ -44,17 +44,17 @@ import java.time.Duration
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class, TestConfig::class])
 class ExtSubmissionRepositoryTest(
-    @Autowired private val filesResolver: FilesResolver,
-    @Autowired private val subDataRepository: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
-    @Autowired private val linkListDocLinkRepo: LinkListDocLinkDocDataRepository,
+    @param:Autowired private val filesResolver: FilesResolver,
+    @param:Autowired private val subDataRepository: SubmissionDocDataRepository,
+    @param:Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
+    @param:Autowired private val linkListDocLinkRepo: LinkListDocLinkDocDataRepository,
 ) {
     private val extSerializationService = extSerializationService()
     private val toFileListMapper = ToExtFileListMapper(fileListDocFileRepo, extSerializationService, filesResolver)
     private val toLinkListMapper = ToExtLinkListMapper(filesResolver, extSerializationService, linkListDocLinkRepo)
     private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper, toLinkListMapper)
-    private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
-    private val toDocLinkListMapper = ToDocLinkListMapper(extSerializationService)
+    private val toDocFileListMapper = ToDocFileListMapper()
+    private val toDocLinkListMapper = ToDocLinkListMapper()
     private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper, toDocLinkListMapper)
     private val testInstance =
         ExtSubmissionRepository(
@@ -63,6 +63,9 @@ class ExtSubmissionRepositoryTest(
             linkListDocLinkRepo,
             ToExtSubmissionMapper(toExtSectionMapper),
             ToDocSubmissionMapper(toDocSectionMapper),
+            toDocFileListMapper,
+            toDocLinkListMapper,
+            extSerializationService,
         )
 
     @BeforeEach

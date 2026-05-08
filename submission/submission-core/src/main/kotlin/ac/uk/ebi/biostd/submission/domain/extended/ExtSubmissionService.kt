@@ -25,6 +25,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Instant
 import java.time.OffsetDateTime
+import kotlin.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -122,6 +123,27 @@ class ExtSubmissionService(
             )
         val (accNo, version) = submissionSubmitter.createRqt(request)
         return submissionSubmitter.handleRequest(accNo, version)
+    }
+
+    suspend fun submitExt(
+        user: String,
+        sub: List<ExtSubmission>,
+        waitTime: Duration,
+    ): List<ExtSubmission> {
+        val submissions =
+            sub
+                .map { processSubmission(user, it) }
+                .map { it.copy(version = persistenceService.getNextVersion(it.accNo)) }
+                .map {
+                    ExtSubmitRequest(
+                        owner = user,
+                        newSubmission = queryService.existByAccNo(it.accNo),
+                        submission = it,
+                    )
+                }.map { submissionSubmitter.createRqt(it) }
+        val result = submissionSubmitter.handleMany(submissions, waitTime)
+        logger.info { "Submitted ${result.size} submissions" }
+        return result
     }
 
     suspend fun submitExtAsync(

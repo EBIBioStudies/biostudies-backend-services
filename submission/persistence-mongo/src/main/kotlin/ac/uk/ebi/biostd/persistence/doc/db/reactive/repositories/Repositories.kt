@@ -12,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
+import ac.uk.ebi.biostd.persistence.doc.model.PmcDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.PmcSubmissionStatus
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.query.Meta.CursorOption
 import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
+import org.springframework.data.mongodb.repository.Update
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.time.Instant
 
@@ -42,8 +45,9 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
 
     fun deleteAllByAccNo(accNo: String)
 
+    @Suppress("ktlint:standard:max-line-length")
     @Query(
-        value = "{ accNo: { \$not: /^S-E/ }, storageMode: 'NFS', subModificationTime: {\$lte: ?0}, released: true }",
+        value = "{accNo: { \$not: /^S-E/ }, accNo: { \$ne: 'BIAD2258' }, 'stats.NON_DECLARED_FILES_DIRECTORIES': 0, storageMode: 'NFS', subReleaseTime: {\$lte: ?0}, released: true }",
         sort = "{ 'stats.FILES_SIZE': -1 }",
     )
     suspend fun findReadyToMigrate(before: Instant): Flow<MigrationData>
@@ -84,9 +88,10 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
         version: Int,
     ): Boolean
 
-    fun getByAccNoInAndVersionGreaterThan(
+    fun getByAccNoInAndVersionGreaterThanAndSectionType(
         accNo: List<String>,
         version: Int,
+        sectionType: String,
     ): Flow<DocSubmission>
 
     suspend fun findFirstByAccNoAndVersionLessThanOrderByVersion(
@@ -186,6 +191,22 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     ): DocSubmissionRequest
 }
 
+interface PmcSubmissionsRepository : CoroutineCrudRepository<PmcDocSubmission, ObjectId> {
+    fun findByStatus(
+        status: PmcSubmissionStatus,
+        pageable: Pageable,
+    ): Flow<PmcDocSubmission>
+
+    fun findByAccNoIn(accNos: List<String>): Flow<PmcDocSubmission>
+
+    @Query("{ '_id': { \$in: ?0 } }")
+    @Update("{ '\$set': { 'status': ?1 } }")
+    suspend fun updateStatusByIds(
+        ids: List<ObjectId>,
+        status: PmcSubmissionStatus,
+    ): Long
+}
+
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
     /**
      * Get the submission request files. Note that as some operation may take signifcant amoount of time
@@ -232,7 +253,7 @@ interface SubmissionDocFileRepository : CoroutineCrudRepository<DocSubmissionFil
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {
-    fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListNameOrderByIndexAsc(
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameOrderByIndexAsc(
         accNo: String,
         version: Int,
         fileListName: String,
@@ -242,7 +263,14 @@ interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, O
         accNo: String,
         version: Int,
         fileListName: String,
+        pageable: Pageable,
     ): Flow<FileListDocFile>
+
+    suspend fun countBySubmissionAccNoAndSubmissionVersionAndFileListName(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+    ): Long
 
     @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
     suspend fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
@@ -264,4 +292,17 @@ interface LinkListDocLinkRepository : CoroutineCrudRepository<LinkListDocLink, O
         version: Int,
         linkListName: String,
     ): Flow<LinkListDocLink>
+
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndLinkListNameOrderByIndexAsc(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+        pageable: Pageable,
+    ): Flow<LinkListDocLink>
+
+    suspend fun countBySubmissionAccNoAndSubmissionVersionAndLinkListName(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+    ): Long
 }

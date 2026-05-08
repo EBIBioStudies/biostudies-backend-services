@@ -75,8 +75,10 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeEndObject()
     }
 
-    private fun fileUrl(fileList: ExtFileList): String =
-        encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
+    private fun fileUrl(fileList: ExtFileList): String {
+        val url = "/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.filePath}"
+        return encodePath(url, UTF_8)
+    }
 
     private fun writeEitherList(
         fieldName: String,

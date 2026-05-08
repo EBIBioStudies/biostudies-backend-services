@@ -4,11 +4,13 @@ import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
-import java.time.Duration.ofMinutes
+import mu.KotlinLogging
+import kotlin.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
@@ -23,12 +25,25 @@ class RemoteExtSubmissionSubmitter(
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
+        waitTime: Duration,
     ): ExtSubmission {
         val args = listOf(SubmissionId(accNo, version))
         remoteSubmitterExecutor.executeRemotely(asExecutionArgs(args), Mode.HANDLE_REQUEST)
 
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        waitUntil(timeout = waitTime) { requestService.isRequestCompleted(accNo, version) }
         return submissionQueryService.getExtendedSubmission(accNo)
+    }
+
+    override suspend fun handleMany(
+        submissions: List<SubmissionId>,
+        waitTime: Duration,
+    ): List<ExtSubmission> {
+        if (submissions.isEmpty()) return emptyList()
+        val job = remoteSubmitterExecutor.executeRemotely(asExecutionArgs(submissions), Mode.HANDLE_REQUEST)
+        remoteSubmitterExecutor.waitForJob(job, waitTime.times(submissions.size))
+        return submissions
+            .filter { requestService.isRequestCompleted(it.accNo, it.version) }
+            .map { submissionQueryService.getExtendedSubmission(it.accNo) }
     }
 
     override suspend fun handleRequestAsync(

@@ -277,12 +277,31 @@ class DoiServiceTest(
     }
 
     @Test
-    fun `already existing DOI`() {
+    fun `already existing DOI with the same value`() {
         val previousVersionDoi = "$BS_DOI_ID/$TEST_ACC_NO"
         val submission =
             submission {
                 title = "Test Submission"
                 attribute("DOI", "$BS_DOI_ID/$TEST_ACC_NO")
+
+                section("Study") {
+                    attribute("Type", "Experiment")
+                }
+            }
+
+        every { previousVersion.doi } returns previousVersionDoi
+
+        val doi = testInstance.calculateDoi(TEST_ACC_NO, submission, previousVersion)
+        assertThat(doi).isEqualTo(previousVersionDoi)
+    }
+
+    @Test
+    fun `already existing DOI with null value`() {
+        val previousVersionDoi = "$BS_DOI_ID/$TEST_ACC_NO"
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", null)
 
                 section("Study") {
                     attribute("Type", "Experiment")
@@ -324,7 +343,6 @@ class DoiServiceTest(
         val submission =
             submission {
                 title = "Test Submission"
-                attribute("DOI", null)
 
                 section("Study") {
                     attribute("Type", "Experiment")

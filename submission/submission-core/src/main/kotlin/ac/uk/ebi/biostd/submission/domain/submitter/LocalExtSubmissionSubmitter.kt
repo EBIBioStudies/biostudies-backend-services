@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
-import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
@@ -35,9 +34,13 @@ import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.RequestStatus.VALIDATED
 import ebi.ac.uk.model.SubmissionId
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.Duration.ofMinutes
+import kotlin.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -66,7 +69,7 @@ class LocalExtSubmissionSubmitter(
                 version = sub.version,
                 owner = rqt.owner,
                 submission = sub,
-                notifyTo = rqt.owner,
+                notifyTo = rqt.onBehalfUser ?: rqt.owner,
                 silentMode = rqt.silentMode,
                 files = rqt.requestFiles,
                 previousVersion = rqt.previousVersion,
@@ -81,10 +84,35 @@ class LocalExtSubmissionSubmitter(
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
+        waitTime: Duration,
     ): ExtSubmission {
         handleRequestAsync(accNo, version)
-        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        waitUntil(timeout = waitTime) { requestService.isRequestCompleted(accNo, version) }
         return submissionQueryService.getExtendedSubmission(accNo)
+    }
+
+    override suspend fun handleMany(
+        submissions: List<SubmissionId>,
+        waitTime: Duration,
+    ): List<ExtSubmission> =
+        coroutineScope {
+            submissions
+                .map { async { handleRequestSafely(waitTime, it) } }
+                .awaitAll()
+                .filterNotNull()
+        }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun handleRequestSafely(
+        waitTime: Duration,
+        sub: SubmissionId,
+    ): ExtSubmission? {
+        try {
+            return handleRequest(sub.accNo, sub.version, waitTime)
+        } catch (e: Exception) {
+            logger.error(e) { "Error processing submission ${sub.accNo}, ${sub.version}" }
+            return null
+        }
     }
 
     override suspend fun handleRequestAsync(
@@ -98,9 +126,12 @@ class LocalExtSubmissionSubmitter(
         }
     }
 
-    override suspend fun handleManyAsync(submissions: List<SubmissionId>) {
-        submissions.forEach { handleRequestAsync(it.accNo, it.version) }
-    }
+    override suspend fun handleManyAsync(submissions: List<SubmissionId>): Unit =
+        coroutineScope {
+            submissions
+                .map { async { handleRequestAsync(it.accNo, it.version) } }
+                .joinAll()
+        }
 
     @Suppress("CyclomaticComplexMethod")
     private suspend fun completeRqt(
