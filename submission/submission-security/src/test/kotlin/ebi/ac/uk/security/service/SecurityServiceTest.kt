@@ -188,7 +188,7 @@ internal class SecurityServiceTest(
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
             every { securityProps.filesProperties } returns filesProperties
-            coEvery { clusterClient.triggerJobSync(capture(jobSpecSlots)) } returns job
+            coEvery { clusterClient.triggerJobSync(capture(jobSpecSlots), any(), any()) } returns job
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
             every { filesProperties.magicDirPath } returns magicFolderRoot.absolutePath
             every { filesProperties.defaultMode } returns StorageMode.FTP
@@ -213,23 +213,18 @@ internal class SecurityServiceTest(
 
             val userFolder = (securityUser.userFolder as FtpUserFolder).path
             val parentFolder = userFolder.parent
-            val parentFolderJobSpec = jobSpecSlots.first()
-            assertThat(parentFolderJobSpec.queue).isEqualTo(DataMoverQueue)
-            assertThat(parentFolderJobSpec.command)
-                .isEqualTo(
-                    "mkdir -p $parentFolder && " +
-                        "chmod 710 $parentFolder && " +
-                        "find $parentFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
-                )
-
-            val userFolderJobSpec = jobSpecSlots.second()
-            assertThat(userFolderJobSpec.queue).isEqualTo(DataMoverQueue)
-            assertThat(userFolderJobSpec.command)
-                .isEqualTo(
-                    "mkdir -p $userFolder && " +
-                        "chmod 770 $userFolder && " +
-                        "find $userFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
-                )
+            val commands = jobSpecSlots.map { it.command }.toSet()
+            assertThat(jobSpecSlots).allMatch { it.queue == DataMoverQueue }
+            assertThat(commands).contains(
+                "mkdir -p $parentFolder && " +
+                    "chmod 710 $parentFolder && " +
+                    "find $parentFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
+            )
+            assertThat(commands).contains(
+                "mkdir -p $userFolder && " +
+                    "chmod 770 $userFolder && " +
+                    "find $userFolder -group biostudies -prune -o -exec chgrp biostudies {} +",
+            )
         }
 
         private fun assertSymbolicLink(
