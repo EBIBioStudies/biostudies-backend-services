@@ -36,6 +36,8 @@ import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
@@ -121,8 +123,7 @@ open class SecurityService(
 
     override suspend fun changePassword(request: ChangePasswordRequest): User {
         val user = userRepository.getByActivationKey(request.activationKey)
-        activate(user)
-
+        if (!user.active) activate(user)
         return setPassword(user, request.password)
     }
 
@@ -233,8 +234,10 @@ open class SecurityService(
     }
 
     private suspend fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
-        createClusterFolder(ftpFolder.path.parent, UNIX_RWX__X___)
-        createClusterFolder(ftpFolder.path, UNIX_RWXRWX___)
+        coroutineScope {
+            launch { createClusterFolder(ftpFolder.path.parent, UNIX_RWX__X___) }
+            launch { createClusterFolder(ftpFolder.path, UNIX_RWXRWX___) }
+        }
     }
 
     private suspend fun createClusterFolder(
@@ -250,7 +253,7 @@ open class SecurityService(
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
         logger.info { "Started creating the cluster FTP folder $path" }
-        clusterClient.triggerJobSync(job)
+        clusterClient.triggerJobSync(job, 2L)
         logger.info { "Finished creating the cluster FTP folder $path" }
     }
 
