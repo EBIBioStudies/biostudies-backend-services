@@ -14,6 +14,8 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.FileListPath
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/submissions/extended")
+@Tag(name = "Extended Submissions", description = "Query extended submission documents, file lists, and link lists.")
 @Suppress("TooManyFunctions")
 class ExtQuerySubmissionResource(
     private val extendedFilePageMapper: ExtendedFilePageMapper,
@@ -30,12 +33,20 @@ class ExtQuerySubmissionResource(
     private val extSubmissionQueryService: ExtSubmissionQueryService,
 ) {
     @GetMapping("/{accNo}/referencedFiles/**")
+    @Operation(
+        summary = "Get Referenced Files",
+        description = "Return files referenced by a path inside an extended submission file list.",
+    )
     suspend fun getReferencedFiles(
         @PathVariable accNo: String,
         fileListPath: FileListPath,
     ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
 
     @GetMapping("/{accNo}/fileList/{*path}")
+    @Operation(
+        summary = "Page Extended File List",
+        description = "Return a paginated view of files in one extended submission file list.",
+    )
     suspend fun fileListFiles(
         @PathVariable accNo: String,
         @PathVariable path: String,
@@ -47,6 +58,10 @@ class ExtQuerySubmissionResource(
     }
 
     @GetMapping("/{accNo}/linkList/{*linkListName}")
+    @Operation(
+        summary = "Page Extended Link List",
+        description = "Return a paginated view of links in one extended submission link list.",
+    )
     suspend fun linkListLinks(
         @PathVariable accNo: String,
         @PathVariable linkListName: String,
@@ -58,6 +73,10 @@ class ExtQuerySubmissionResource(
     }
 
     @GetMapping
+    @Operation(
+        summary = "Search Extended Submissions",
+        description = "Search extended submission documents using paging and filtering parameters.",
+    )
     suspend fun submissions(
         @ModelAttribute request: ExtSubPageRequest,
     ): WebExtPage<ExtSubmission> {

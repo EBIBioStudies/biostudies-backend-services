@@ -34,11 +34,6 @@ server:
 springdoc:
   api-docs:
     enabled: true
-  paths-to-match:
-    - /auth/**
-    - /collections
-    - /files/**
-    - /submissions/**
   swagger-ui:
     enabled: true
     path: /swagger-ui.html

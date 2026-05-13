@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.submission.stats.service.SubmissionStatsService
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -23,16 +25,19 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/stats")
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Statistics", description = "Submission statistics lookup and ingestion operations.")
 class StatsResource(
     private val submissionStatsService: SubmissionStatsService,
     private val tmpFileGenerator: TempFileGenerator,
 ) {
+    @Operation(summary = "Get all statistics for a submission")
     @GetMapping("/submission/{accNo}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     suspend fun findByAccNo(
         @PathVariable accNo: String,
     ): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
 
+    @Operation(summary = "List statistics by type")
     @GetMapping("/{type}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun findByType(
@@ -40,6 +45,7 @@ class StatsResource(
         @ModelAttribute filter: PageRequest,
     ): Flow<SubmissionStat> = submissionStatsService.findByType(type, filter).map { it.toStatDto() }
 
+    @Operation(summary = "Get one statistic for a submission")
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     suspend fun findByTypeAndAccNo(
@@ -47,6 +53,7 @@ class StatsResource(
         @PathVariable accNo: String,
     ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
 
+    @Operation(summary = "Increment statistics from an uploaded file")
     @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
     suspend fun increment(

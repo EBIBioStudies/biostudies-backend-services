@@ -12,6 +12,8 @@ import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 import org.springframework.http.MediaType
@@ -25,34 +27,57 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/submissions")
+@Tag(name = "Submissions", description = "Search submissions and retrieve released or user-visible submission content.")
 class SubmissionQueryResource(
     private val submissionService: SubmissionQueryService,
     private val submissionsWebHandler: SubmissionsWebHandler,
 ) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
+    @Operation(
+        summary = "Get Submission JSON",
+        description = "Retrieve a released submission by accession number in BioStudies JSON format.",
+    )
     suspend fun asJson(
         @PathVariable accNo: String,
     ) = submissionService.getSubmission(accNo, SubFormat.JSON)
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
+    @Operation(
+        summary = "Get Submission PageTab",
+        description = "Retrieve a released submission by accession number in PageTab TSV format.",
+    )
     suspend fun asTsv(
         @PathVariable accNo: String,
     ) = submissionService.getSubmission(accNo, SubFormat.TSV)
 
     @GetMapping("/{accNo}/{fileList}.tsv")
+    @Operation(
+        summary = "Download File List TSV",
+        description = "Download one named file list from a released submission in TSV format.",
+    )
     suspend fun asTsv(
         @PathVariable accNo: String,
         @PathVariable fileList: String,
     ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.TSV)
 
     @GetMapping("/{accNo}/{fileList}.json")
+    @Operation(
+        summary = "Download File List JSON",
+        description = "Download one named file list from a released submission in JSON format.",
+    )
     suspend fun asJson(
         @PathVariable accNo: String,
         @PathVariable fileList: String,
     ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.JSON)
 
     @GetMapping
+    @Operation(
+        summary = "Search My Submissions",
+        description =
+            "Search submissions visible to the authenticated user. Results are filtered by ownership, " +
+                "superuser permissions, and administrated collections.",
+    )
     suspend fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute request: SubmissionFilterRequest,
@@ -62,6 +87,12 @@ class SubmissionQueryResource(
     }
 
     @GetMapping("/{accNo}")
+    @Operation(
+        summary = "Get User-Visible Submission Summary",
+        description =
+            "Return summary metadata for a submission if it is visible to the authenticated user. " +
+                "Use the format-specific endpoints to retrieve released submission content.",
+    )
     suspend fun getSubmission(
         @PathVariable accNo: String,
         @BioUser user: SecurityUser,

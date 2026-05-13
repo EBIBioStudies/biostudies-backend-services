@@ -8,6 +8,8 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.file.ExcelReader
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -25,6 +27,7 @@ import java.nio.charset.Charset
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Submission Utilities", description = "Authenticated helper operations for validating, converting, and managing submissions.")
 class SubmissionOperationsResource(
     private val submissionsWebHandler: SubmissionsWebHandler,
     private val submissionReleaser: SubmissionRequestReleaser,
@@ -32,6 +35,10 @@ class SubmissionOperationsResource(
     private val tempFileGenerator: TempFileGenerator,
 ) {
     @PostMapping("/check-pagetab")
+    @Operation(
+        summary = "Convert Submission Content",
+        description = "Validate and convert submission content between supported formats such as PageTab TSV and JSON.",
+    )
     suspend fun checkSubmission(
         @RequestBody body: String,
         @RequestParam(name = "source") source: String,
@@ -42,6 +49,10 @@ class SubmissionOperationsResource(
     }
 
     @PostMapping("/check-pagetab-file-list")
+    @Operation(
+        summary = "Convert File List Content",
+        description = "Validate and convert file-list content between supported formats.",
+    )
     suspend fun checkFileList(
         @RequestBody body: String,
         @RequestParam(name = "source") source: String,
@@ -57,6 +68,10 @@ class SubmissionOperationsResource(
     }
 
     @PostMapping("/check-pagetab-file-list-xlsx")
+    @Operation(
+        summary = "Convert Excel File List",
+        description = "Read an uploaded Excel file list and return it in the requested serialized format.",
+    )
     suspend fun checkFileListXlsx(
         @RequestParam(name = "source") source: MultipartFile,
         @RequestParam(name = "target") target: String,
@@ -77,6 +92,10 @@ class SubmissionOperationsResource(
     }
 
     @PostMapping("/ftp/generate")
+    @Operation(
+        summary = "Generate FTP Links",
+        description = "Generate FTP links for a submission after its files have been prepared for release.",
+    )
     suspend fun generateFtpLinks(
         @RequestParam("accNo", required = true) accNo: String,
     ) {
@@ -84,12 +103,20 @@ class SubmissionOperationsResource(
     }
 
     @DeleteMapping("/{accNo}")
+    @Operation(
+        summary = "Delete Submission",
+        description = "Delete a submission the authenticated user is allowed to manage.",
+    )
     suspend fun deleteSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
     ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
 
     @DeleteMapping
+    @Operation(
+        summary = "Delete Submissions",
+        description = "Delete multiple submissions the authenticated user is allowed to manage.",
+    )
     suspend fun deleteSubmissions(
         @BioUser user: SecurityUser,
         @RequestParam submissions: List<String>,

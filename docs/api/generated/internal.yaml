@@ -13,10 +13,57 @@ servers:
 - url: http://biostudies-dev.ebi.ac.uk:8788
   description: DEV
 tags:
-- name: Submission Drafts
-  description: "Create, list, update and submit submission drafts."
 - name: Security
   description: "User registration, authentication and account management."
+- name: Collections
+  description: Collections the authenticated user can submit to or attach files under.
+- name: Submissions
+  description: Search submissions and retrieve released or user-visible submission
+    content.
+- name: Synchronous Submission
+  description: Submit content and wait for validation and persistence to complete
+    before returning.
+- name: Asynchronous Submission
+  description: Submit content for background validation and processing.
+- name: Submission Drafts
+  description: "Create, list, update and submit submission drafts."
+- name: Submission Requests
+  description: Track asynchronous submission processing requests and their validation
+    results.
+- name: Submission Utilities
+  description: "Authenticated helper operations for validating, converting, and managing\
+    \ submissions."
+- name: File Lists
+  description: Validation helpers for submission file-list metadata before submission.
+- name: User Files
+  description: Browse and manage files in the authenticated user's submission workspace.
+- name: Group Files
+  description: Browse and manage files in workspaces shared through security groups.
+- name: Groups
+  description: Browse and administer security groups used for shared submission workspaces.
+- name: Permissions
+  description: Administrative access-control operations for submission permissions.
+- name: Extended Submissions
+  description: "Query extended submission documents, file lists, and link lists."
+- name: Extended Submission Operations
+  description: Operational actions for extended submissions and backend maintenance
+    workflows.
+- name: Post Processing
+  description: Run post-processing tasks that enrich extended submissions after ingest.
+- name: User Administration
+  description: Internal user inspection and home-folder maintenance operations.
+- name: Cluster Operations
+  description: "Internal cluster job submission, status and log operations."
+- name: Administration
+  description: Internal maintenance jobs for submission request files and temporary
+    storage.
+- name: PMC Links
+  description: Internal processing endpoints for loading Europe PMC links onto submissions.
+- name: Statistics
+  description: Submission statistics lookup and ingestion operations.
+- name: Statistics Reports
+  description: Read generated public report files for submission counts and storage
+    sizes.
 paths:
   /submissions/drafts/{accNo}:
     get:
@@ -165,10 +212,183 @@ paths:
                 $ref: "#/components/schemas/Unit"
       security:
       - sessionToken: []
+  /permissions:
+    put:
+      tags:
+      - Permissions
+      summary: Grant access to a submission
+      operationId: grantPermission
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PermissionRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /groups:
+    get:
+      tags:
+      - Groups
+      summary: List the authenticated user's groups
+      operationId: getGroups
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+      security:
+      - sessionToken: []
+    put:
+      tags:
+      - Groups
+      summary: Add a user to a group
+      operationId: addUserInGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+      security:
+      - sessionToken: []
+    post:
+      tags:
+      - Groups
+      summary: Create a group
+      operationId: createGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserGroupDto"
+      security:
+      - sessionToken: []
   /submissions:
     get:
       tags:
-      - submission-query-resource
+      - Submissions
+      summary: Search My Submissions
+      description: "Search submissions visible to the authenticated user. Results\
+        \ are filtered by ownership, superuser permissions, and administrated collections."
       operationId: getSubmissions
       parameters:
       - name: request
@@ -213,7 +433,10 @@ paths:
       - sessionToken: []
     post:
       tags:
-      - submit-resource
+      - Synchronous Submission
+      summary: Submit Multipart JSON Synchronously
+      description: Submit BioStudies JSON content together with optional files as
+        multipart form data and wait for processing to complete.
       operationId: submitTsv
       parameters:
       - name: parameters
@@ -311,7 +534,10 @@ paths:
       - sessionToken: []
     delete:
       tags:
-      - submission-operations-resource
+      - Submission Utilities
+      summary: Delete Submissions
+      description: Delete multiple submissions the authenticated user is allowed to
+        manage.
       operationId: deleteSubmissions
       parameters:
       - name: submissions
@@ -357,7 +583,10 @@ paths:
   /submissions/requests/{accNo}/{version}/archive:
     post:
       tags:
-      - submission-request-resource
+      - Submission Requests
+      summary: Archive Submission Request
+      description: Archive an old processing request once it no longer needs to appear
+        in active request views.
       operationId: archiveSubmissionRequest
       parameters:
       - name: accNo
@@ -407,7 +636,10 @@ paths:
   /submissions/ftp/generate:
     post:
       tags:
-      - submission-operations-resource
+      - Submission Utilities
+      summary: Generate FTP Links
+      description: Generate FTP links for a submission after its files have been prepared
+        for release.
       operationId: generateFtpLinks
       parameters:
       - name: accNo
@@ -451,7 +683,11 @@ paths:
   /submissions/fileLists/validate:
     post:
       tags:
-      - file-list-resource
+      - File Lists
+      summary: Validate File List
+      description: Validate a file list against the files available to the current
+        user or the requested on-behalf user. Use this before submitting PageTab content
+        that references an uploaded file list.
       operationId: validateFileList
       parameters:
       - name: accNo
@@ -523,7 +759,10 @@ paths:
   /submissions/extended:
     get:
       tags:
-      - ext-query-submission-resource
+      - Extended Submissions
+      summary: Search Extended Submissions
+      description: Search extended submission documents using paging and filtering
+        parameters.
       operationId: submissions
       parameters:
       - name: request
@@ -564,7 +803,10 @@ paths:
                 $ref: "#/components/schemas/WebExtPageExtSubmission"
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Submit Extended Submission
+      description: Submit an already serialized extended submission and return the
+        stored extended document.
       operationId: submitExtended
       parameters:
       - name: submission
@@ -608,7 +850,9 @@ paths:
   /submissions/extended/{accNo}/post-process:
     post:
       tags:
-      - ext-submission-post-process-resource
+      - Post Processing
+      summary: Post-process Submission
+      description: Run all post-processing tasks for one submission accession.
       operationId: postProcessSubmission
       parameters:
       - name: accNo
@@ -657,7 +901,9 @@ paths:
   /submissions/extended/{accNo}/post-process/stats:
     post:
       tags:
-      - ext-submission-post-process-resource
+      - Post Processing
+      summary: Calculate Submission Statistics
+      description: Calculate derived statistics for one extended submission.
       operationId: calculateSubmissionStats
       parameters:
       - name: accNo
@@ -706,7 +952,9 @@ paths:
   /submissions/extended/{accNo}/post-process/inner-files:
     post:
       tags:
-      - ext-submission-post-process-resource
+      - Post Processing
+      summary: Generate Inner Files
+      description: Generate inner-file metadata for one extended submission.
       operationId: generateInnerSubmissionFiles
       parameters:
       - name: accNo
@@ -755,7 +1003,9 @@ paths:
   /submissions/extended/{accNo}/post-process/fallback-pagetab:
     post:
       tags:
-      - ext-submission-post-process-resource
+      - Post Processing
+      summary: Generate Fallback PageTab
+      description: Generate fallback PageTab content for one extended submission.
       operationId: generateFallbackSubmissionPageTab
       parameters:
       - name: accNo
@@ -804,7 +1054,9 @@ paths:
   /submissions/extended/{accNo}/post-process/doi:
     post:
       tags:
-      - ext-submission-post-process-resource
+      - Post Processing
+      summary: Post-process DOI
+      description: Run DOI-related post-processing for one extended submission.
       operationId: generateDoi
       parameters:
       - name: accNo
@@ -853,7 +1105,9 @@ paths:
   /submissions/extended/{accNo}/migrate/{target}:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Migrate Submission Storage
+      description: Move a submission to the requested storage mode.
       operationId: migrateSubmission
       parameters:
       - name: accNo
@@ -905,7 +1159,9 @@ paths:
   /submissions/extended/{accNo}/generate-doi:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Generate DOI
+      description: Generate or request a DOI for a submission accession.
       operationId: generateDoi_1
       parameters:
       - name: accNo
@@ -949,7 +1205,9 @@ paths:
   /submissions/extended/transfer:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Transfer Submissions
+      description: Transfer ownership or collection context for a group of submissions.
       operationId: transferSubmissions
       requestBody:
         content:
@@ -993,7 +1251,9 @@ paths:
   /submissions/extended/transfer/email-update:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Update Transfer Emails
+      description: Update email metadata as part of a submission transfer operation.
       operationId: update
       requestBody:
         content:
@@ -1037,7 +1297,9 @@ paths:
   /submissions/extended/release/{accNo}/{releaseDate}:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Release Submission
+      description: Set a submission release date and trigger release handling.
       operationId: releaseSubmission
       parameters:
       - name: accNo
@@ -1086,7 +1348,9 @@ paths:
   /submissions/extended/refresh/{accNo}:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Refresh Submission
+      description: Refresh persisted extended submission data for an accession number.
       operationId: refreshSubmission
       parameters:
       - name: accNo
@@ -1130,7 +1394,9 @@ paths:
   /submissions/extended/re-trigger/{accNo}/{version}:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Re-trigger Submission Processing
+      description: Re-run processing for a specific submission accession and version.
       operationId: reTriggerSubmission
       parameters:
       - name: accNo
@@ -1180,7 +1446,10 @@ paths:
   /submissions/extended/post-process:
     post:
       tags:
-      - ext-submission-post-process-resource
+      - Post Processing
+      summary: Post-process All Submissions
+      description: Run all configured post-processing tasks for all eligible extended
+        submissions.
       operationId: postProcessAll
       responses:
         "500":
@@ -1218,7 +1487,10 @@ paths:
   /submissions/extended/async:
     post:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Submit Extended Submission Asynchronously
+      description: Submit an already serialized extended submission for background
+        processing.
       operationId: submitExtendedAsync
       parameters:
       - name: submission
@@ -1504,7 +1776,10 @@ paths:
   /submissions/direct:
     post:
       tags:
-      - multipart-submit-resource
+      - Synchronous Submission
+      summary: Submit PageTab File Synchronously
+      description: "Submit an uploaded PageTab file, plus optional associated data\
+        \ files, and wait for processing to complete."
       operationId: submitFile
       parameters:
       - name: Content-Type
@@ -1587,7 +1862,10 @@ paths:
   /submissions/check-pagetab:
     post:
       tags:
-      - submission-operations-resource
+      - Submission Utilities
+      summary: Convert Submission Content
+      description: Validate and convert submission content between supported formats
+        such as PageTab TSV and JSON.
       operationId: checkSubmission
       parameters:
       - name: source
@@ -1642,7 +1920,9 @@ paths:
   /submissions/check-pagetab-file-list:
     post:
       tags:
-      - submission-operations-resource
+      - Submission Utilities
+      summary: Convert File List Content
+      description: Validate and convert file-list content between supported formats.
       operationId: checkFileList
       parameters:
       - name: source
@@ -1697,7 +1977,10 @@ paths:
   /submissions/check-pagetab-file-list-xlsx:
     post:
       tags:
-      - submission-operations-resource
+      - Submission Utilities
+      summary: Convert Excel File List
+      description: Read an uploaded Excel file list and return it in the requested
+        serialized format.
       operationId: checkFileListXlsx
       parameters:
       - name: target
@@ -1752,7 +2035,10 @@ paths:
   /submissions/async:
     post:
       tags:
-      - submit-async-resource
+      - Asynchronous Submission
+      summary: Submit Multipart JSON Asynchronously
+      description: Submit BioStudies JSON content together with optional files as
+        multipart form data and return a request identifier immediately.
       operationId: submitTsv_1
       parameters:
       - name: parameters
@@ -1851,7 +2137,10 @@ paths:
   /submissions/async/multiple:
     post:
       tags:
-      - multipart-async-submit-resource
+      - Asynchronous Submission
+      summary: Submit Multiple Files Asynchronously
+      description: Submit multiple PageTab or JSON payloads from one multipart request.
+        Each payload is processed asynchronously.
       operationId: submitManyMultipart
       parameters:
       - name: Content-Type
@@ -1933,7 +2222,10 @@ paths:
   /submissions/async/direct:
     post:
       tags:
-      - multipart-async-submit-resource
+      - Asynchronous Submission
+      summary: Submit PageTab File Asynchronously
+      description: "Submit an uploaded PageTab file, plus optional associated data\
+        \ files, and return a request identifier immediately."
       operationId: submitFile_1
       parameters:
       - name: Content-Type
@@ -2013,10 +2305,406 @@ paths:
                 $ref: "#/components/schemas/SubmissionId"
       security:
       - sessionToken: []
+  /stats/{type}/increment:
+    post:
+      tags:
+      - Statistics
+      summary: Increment statistics from an uploaded file
+      operationId: increment
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Content-Type
+        in: header
+        schema:
+          type: string
+          enum:
+          - multipart/form-data
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - stats
+              type: object
+              properties:
+                stats:
+                  type: string
+                  format: binary
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UpdateResult"
+      security:
+      - sessionToken: []
+  /security/users/{email}/migrate:
+    post:
+      tags:
+      - User Administration
+      summary: Migrate a user's home folder
+      operationId: migrateUser
+      parameters:
+      - name: email
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MigrateHomeOptions"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /pmc/loadLinks:
+    post:
+      tags:
+      - PMC Links
+      summary: Load PMC links for selected submissions
+      operationId: loadLinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoadRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProcessingResult"
+      security:
+      - sessionToken: []
+  /pmc/loadLinksRemotly:
+    post:
+      tags:
+      - PMC Links
+      summary: Run PMC link loading on the cluster
+      operationId: loadLinksRemotly
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoadFromDbRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Job"
+  /pmc/loadDbLinks:
+    post:
+      tags:
+      - PMC Links
+      summary: Load PMC links from database-selected submissions
+      operationId: loadDbLinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoadFromDbRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProcessingResult"
+      security:
+      - sessionToken: []
+  /permissions/revoke:
+    post:
+      tags:
+      - Permissions
+      summary: Revoke access to a submission
+      operationId: revokePermission
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PermissionRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /folder/user/create:
+    post:
+      tags:
+      - User Files
+      summary: Create User Folder By Body
+      description: Create a folder using a request body path and folder name.
+      operationId: createFolder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DirFilePath"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /folder/groups/{groupName}/create:
+    post:
+      tags:
+      - Group Files
+      summary: Create Group Folder
+      description: Create a folder in a group workspace.
+      operationId: createFolder_1
+      parameters:
+      - name: groupName
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DirFilePath"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
   /files/user/upload:
     post:
       tags:
-      - user-files-resource
+      - User Files
+      summary: Upload User Files By Body Path
+      description: Upload files using the request parameter variant expected by the
+        submission tool.
       operationId: uploadFile
       parameters:
       - name: filePath
@@ -2068,7 +2756,9 @@ paths:
   /files/user/rename:
     post:
       tags:
-      - user-files-resource
+      - User Files
+      summary: Rename User File
+      description: Rename or move a file within the authenticated user's workspace.
       operationId: renameFile
       requestBody:
         content:
@@ -2112,7 +2802,10 @@ paths:
   /files/user/query:
     post:
       tags:
-      - user-files-resource
+      - User Files
+      summary: Query User Files
+      description: List files and folders using a request body path. This is the body-based
+        variant of the listing API.
       operationId: listFiles
       requestBody:
         content:
@@ -2158,7 +2851,10 @@ paths:
   /files/user/download:
     get:
       tags:
-      - user-files-resource
+      - User Files
+      summary: Download User File
+      description: Download one file from the authenticated user's workspace using
+        query parameters.
       operationId: downloadFile
       parameters:
       - name: fileName
@@ -2207,7 +2903,9 @@ paths:
       - sessionToken: []
     post:
       tags:
-      - user-files-resource
+      - User Files
+      summary: Download User File By Body
+      description: Download one file using a request body path and file name.
       operationId: downloadFile_1
       requestBody:
         content:
@@ -2252,7 +2950,9 @@ paths:
   /files/user/delete:
     post:
       tags:
-      - user-files-resource
+      - User Files
+      summary: Delete User File By Body
+      description: Delete one file using a request body path and file name.
       operationId: deleteFile
       requestBody:
         content:
@@ -2296,7 +2996,9 @@ paths:
   /files/groups/{groupName}/upload:
     post:
       tags:
-      - group-files-resource
+      - Group Files
+      summary: Upload Group Files
+      description: Upload one or more files into a group workspace.
       operationId: uploadGroupFile
       parameters:
       - name: groupName
@@ -2353,7 +3055,9 @@ paths:
   /files/groups/{groupName}/rename:
     post:
       tags:
-      - group-files-resource
+      - Group Files
+      summary: Rename Group File
+      description: Rename or move a file within a group workspace.
       operationId: renameFile_1
       parameters:
       - name: groupName
@@ -2403,7 +3107,10 @@ paths:
   /files/groups/{groupName}/query:
     post:
       tags:
-      - group-files-resource
+      - Group Files
+      summary: Query Group Files
+      description: List files and folders in a group workspace the authenticated user
+        can access.
       operationId: listGroupFiles
       parameters:
       - name: groupName
@@ -2455,7 +3162,9 @@ paths:
   /files/groups/{groupName}/download:
     post:
       tags:
-      - group-files-resource
+      - Group Files
+      summary: Download Group File
+      description: Download one file from a group workspace.
       operationId: downloadFile_2
       parameters:
       - name: groupName
@@ -2506,7 +3215,9 @@ paths:
   /files/groups/{groupName}/delete:
     post:
       tags:
-      - group-files-resource
+      - Group Files
+      summary: Delete Group File
+      description: Delete one file from a group workspace.
       operationId: deleteFile_1
       parameters:
       - name: groupName
@@ -2551,6 +3262,90 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /cluster/submit:
+    post:
+      tags:
+      - Cluster Operations
+      summary: Submit a cluster job
+      operationId: submitJob
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobSpecDto"
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Job"
+      security:
+      - sessionToken: []
+  /cluster/health:
+    post:
+      tags:
+      - Cluster Operations
+      summary: Submit a cluster health-check job
+      operationId: clusterHealthCheck
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Job"
       security:
       - sessionToken: []
   /auth/logout:
@@ -2725,7 +3520,10 @@ paths:
   /auth/refresh-user:
     post:
       tags:
-      - user-resource
+      - Security
+      summary: Refresh User
+      description: Refresh cached security details for a registered user and return
+        the updated security profile.
       operationId: refreshUser
       requestBody:
         content:
@@ -3025,10 +3823,182 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Unit"
+  /admin/operations/deleteTmpFiles:
+    post:
+      tags:
+      - Administration
+      summary: Delete old temporary files
+      operationId: deleteTempFiles
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /admin/operations/deleteRequestFiles:
+    post:
+      tags:
+      - Administration
+      summary: Delete completed request files
+      operationId: deleteRequestFiles
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /admin/operations/archive-requests:
+    post:
+      tags:
+      - Administration
+      summary: Archive completed submission requests
+      operationId: archiveRequest
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
+  /admin/operations/archive-requests/{accNo}/{version}:
+    post:
+      tags:
+      - Administration
+      summary: Archive one submission request
+      operationId: archiveRequest_1
+      parameters:
+      - name: accNo
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: version
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+      security:
+      - sessionToken: []
   /submissions/{accNo}:
     get:
       tags:
-      - submission-query-resource
+      - Submissions
+      summary: Get User-Visible Submission Summary
+      description: Return summary metadata for a submission if it is visible to the
+        authenticated user. Use the format-specific endpoints to retrieve released
+        submission content.
       operationId: getSubmission
       parameters:
       - name: accNo
@@ -3071,7 +4041,9 @@ paths:
       - sessionToken: []
     delete:
       tags:
-      - submission-operations-resource
+      - Submission Utilities
+      summary: Delete Submission
+      description: Delete a submission the authenticated user is allowed to manage.
       operationId: deleteSubmission
       parameters:
       - name: accNo
@@ -3115,7 +4087,10 @@ paths:
   /submissions/{accNo}/{fileList}.tsv:
     get:
       tags:
-      - submission-query-resource
+      - Submissions
+      summary: Download File List TSV
+      description: Download one named file list from a released submission in TSV
+        format.
       operationId: asTsv
       parameters:
       - name: accNo
@@ -3165,7 +4140,10 @@ paths:
   /submissions/{accNo}/{fileList}.json:
     get:
       tags:
-      - submission-query-resource
+      - Submissions
+      summary: Download File List JSON
+      description: Download one named file list from a released submission in JSON
+        format.
       operationId: asJson
       parameters:
       - name: accNo
@@ -3215,7 +4193,10 @@ paths:
   /submissions/{accNo}.tsv:
     get:
       tags:
-      - submission-query-resource
+      - Submissions
+      summary: Get Submission PageTab
+      description: Retrieve a released submission by accession number in PageTab TSV
+        format.
       operationId: asTsv_1
       parameters:
       - name: accNo
@@ -3257,7 +4238,10 @@ paths:
   /submissions/{accNo}.json:
     get:
       tags:
-      - submission-query-resource
+      - Submissions
+      summary: Get Submission JSON
+      description: Retrieve a released submission by accession number in BioStudies
+        JSON format.
       operationId: asJson_1
       parameters:
       - name: accNo
@@ -3299,7 +4283,10 @@ paths:
   /submissions/requests/{accNo}/{version}:
     get:
       tags:
-      - submission-request-resource
+      - Submission Requests
+      summary: Get Submission Request
+      description: Return the stored processing request for a submission accession
+        and version.
       operationId: getSubmissionRequest
       parameters:
       - name: accNo
@@ -3349,7 +4336,9 @@ paths:
   /submissions/requests/{accNo}/{version}/status:
     get:
       tags:
-      - submission-request-resource
+      - Submission Requests
+      summary: Get Request Status
+      description: Return the current processing status for a submission request.
       operationId: getSubmissionRequestStatus
       parameters:
       - name: accNo
@@ -3415,7 +4404,10 @@ paths:
   /submissions/requests/{accNo}/{version}/errors:
     get:
       tags:
-      - submission-request-resource
+      - Submission Requests
+      summary: Get Request Errors
+      description: Return validation or processing errors recorded for a submission
+        request.
       operationId: getSubmissionRequestErrors
       parameters:
       - name: accNo
@@ -3467,7 +4459,10 @@ paths:
   /submissions/extended/{accNo}:
     get:
       tags:
-      - ext-submission-resource
+      - Extended Submission Operations
+      summary: Get Extended Submission
+      description: "Return the extended submission document for an accession number,\
+        \ optionally including file-list details."
       operationId: getExtended
       parameters:
       - name: accNo
@@ -3514,7 +4509,10 @@ paths:
   /submissions/extended/{accNo}/linkList/{linkListName}:
     get:
       tags:
-      - ext-query-submission-resource
+      - Extended Submissions
+      summary: Page Extended Link List
+      description: Return a paginated view of links in one extended submission link
+        list.
       operationId: linkListLinks
       parameters:
       - name: accNo
@@ -3566,7 +4564,10 @@ paths:
   /submissions/extended/{accNo}/fileList/{path}:
     get:
       tags:
-      - ext-query-submission-resource
+      - Extended Submissions
+      summary: Page Extended File List
+      description: Return a paginated view of files in one extended submission file
+        list.
       operationId: fileListFiles
       parameters:
       - name: accNo
@@ -3663,10 +4664,583 @@ paths:
                 type: string
       security:
       - sessionToken: []
-  /collections:
+  /stats/{type}:
     get:
       tags:
-      - collection-resource
+      - Statistics
+      summary: List statistics by type
+      operationId: findByType
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: filter
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/PageRequest"
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubmissionStat"
+      security:
+      - sessionToken: []
+  /stats/{type}/{accNo}:
+    get:
+      tags:
+      - Statistics
+      summary: Get one statistic for a submission
+      operationId: findByTypeAndAccNo
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: accNo
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SubmissionStat"
+      security:
+      - sessionToken: []
+  /stats/submission/{accNo}:
+    get:
+      tags:
+      - Statistics
+      summary: Get all statistics for a submission
+      operationId: findByAccNo
+      parameters:
+      - name: accNo
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubmissionStat"
+      security:
+      - sessionToken: []
+  /stats/report/non-imaging/size/total:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get total non-imaging storage size
+      operationId: getNonImagingTotalSize
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/non-imaging/size/delta:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get non-imaging storage size delta
+      operationId: getNonImagingDeltaSize
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/non-imaging/count:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get non-imaging submission count
+      operationId: getNonImagingCount
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/imaging/size/total:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get total imaging storage size
+      operationId: getImagingTotalSize
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/imaging/size/delta:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get imaging storage size delta
+      operationId: getImagingDeltaSize
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/imaging/count:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get imaging submission count
+      operationId: getImagingCount
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/arrayexpress/size/total:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get total ArrayExpress storage size
+      operationId: getAETotalSize
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/arrayexpress/size/delta:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get ArrayExpress storage size delta
+      operationId: getAEDeltaSize
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /stats/report/arrayexpress/count:
+    get:
+      tags:
+      - Statistics Reports
+      summary: Get ArrayExpress submission count
+      operationId: getAECount
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /security/users/{email}/home-stats:
+    get:
+      tags:
+      - User Administration
+      summary: Get user home-folder statistics
+      operationId: getExtUserHomeStats
+      parameters:
+      - name: email
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FolderStats"
+      security:
+      - sessionToken: []
+  /security/users/extended/{email}:
+    get:
+      tags:
+      - User Administration
+      summary: Get extended user details
+      operationId: getExtUser
+      parameters:
+      - name: email
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ExtUser"
+  /projects:
+    get:
+      tags:
+      - Collections
+      summary: List Available Collections
+      description: Return the collections where the authenticated user has permission
+        to attach or submit content.
       operationId: getUserCollections
       responses:
         "500":
@@ -3701,6 +5275,139 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Collection"
+      security:
+      - sessionToken: []
+  /collections:
+    get:
+      tags:
+      - Collections
+      summary: List Available Collections
+      description: Return the collections where the authenticated user has permission
+        to attach or submit content.
+      operationId: getUserCollections_1
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Collection"
+      security:
+      - sessionToken: []
+  /cluster/jobs/{jobId}/status:
+    get:
+      tags:
+      - Cluster Operations
+      summary: Get cluster job status
+      operationId: jobStatus
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JobStatus"
+      security:
+      - sessionToken: []
+  /cluster/jobs/{jobId}/logs:
+    get:
+      tags:
+      - Cluster Operations
+      summary: Get cluster job logs
+      operationId: jobLogs
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "415":
+          description: Unsupported Media Type
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidationTree"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
       security:
       - sessionToken: []
   /auth/profile:
@@ -3805,6 +5512,37 @@ components:
           format: date-time
           example: 2024-09-21T10:12:00.002Z
       description: Submission draft summary.
+    PermissionRequest:
+      required:
+      - accNo
+      - accessType
+      - userEmail
+      type: object
+      properties:
+        userEmail:
+          type: string
+        accessType:
+          type: string
+          enum:
+          - READ
+          - ATTACH
+          - UPDATE
+          - DELETE
+          - DELETE_FILES
+          - ADMIN
+        accNo:
+          type: string
+    Unit:
+      type: object
+    GroupRequest:
+      type: object
+      properties:
+        groupName:
+          type: string
+        description:
+          type: string
+        userName:
+          type: string
     OnBehalfParameters:
       required:
       - userEmail
@@ -4046,8 +5784,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Attribute"
-    Unit:
-      type: object
     EitherExtFileExtFileTable:
       required:
       - isLeft
@@ -4394,9 +6130,9 @@ components:
       - $ref: "#/components/schemas/ExtFile"
       - type: object
         properties:
-          md5:
-            type: string
           relPath:
+            type: string
+          md5:
             type: string
           type:
             type: string
@@ -4447,6 +6183,116 @@ components:
           type: array
           items:
             type: string
+    UpdateResult:
+      required:
+      - insertedRecords
+      - modifiedRecords
+      type: object
+      properties:
+        insertedRecords:
+          type: integer
+          format: int32
+        modifiedRecords:
+          type: integer
+          format: int32
+    MigrateHomeOptions:
+      required:
+      - copyFilesSinceDays
+      - onlyIfEmptyFolder
+      - storageMode
+      type: object
+      properties:
+        storageMode:
+          type: string
+        onlyIfEmptyFolder:
+          type: boolean
+        copyFilesSinceDays:
+          type: integer
+          format: int32
+    LoadRequest:
+      required:
+      - accNos
+      - config
+      type: object
+      properties:
+        accNos:
+          type: array
+          items:
+            type: string
+        config:
+          $ref: "#/components/schemas/ProcessConfig"
+    ProcessConfig:
+      required:
+      - chunkSize
+      - limit
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+        chunkSize:
+          type: integer
+          format: int32
+        waitSeconds:
+          type: integer
+          format: int32
+    ProcessingResult:
+      required:
+      - accNo
+      - result
+      - version
+      type: object
+      properties:
+        accNo:
+          type: string
+        version:
+          type: integer
+          format: int32
+        result:
+          type: string
+          enum:
+          - SUCCESS
+          - ERROR
+          - TIMEOUT
+    LoadFromDbRequest:
+      required:
+      - config
+      type: object
+      properties:
+        config:
+          $ref: "#/components/schemas/ProcessConfig"
+    Job:
+      required:
+      - id
+      - logsPath
+      - queue
+      type: object
+      properties:
+        id:
+          type: string
+        queue:
+          type: string
+        logsPath:
+          type: string
+    UserGroupDto:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    DirFilePath:
+      required:
+      - fileName
+      - path
+      type: object
+      properties:
+        path:
+          type: string
+        fileName:
+          type: string
     FilePath:
       required:
       - path
@@ -4487,16 +6333,20 @@ components:
           enum:
           - FILE
           - DIR
-    DirFilePath:
+    JobSpecDto:
       required:
-      - fileName
-      - path
+      - command
+      - queue
+      - ramMegaBytes
       type: object
       properties:
-        path:
+        command:
           type: string
-        fileName:
+        queue:
           type: string
+        ramMegaBytes:
+          type: integer
+          format: int32
     LogoutRequest:
       required:
       - sessid
@@ -5221,6 +7071,64 @@ components:
         pageNumber:
           type: integer
           format: int32
+    SubmissionStat:
+      required:
+      - accNo
+      - type
+      - value
+      type: object
+      properties:
+        accNo:
+          type: string
+        value:
+          type: integer
+          format: int64
+        type:
+          type: string
+    FolderStats:
+      required:
+      - lastModification
+      - totalDirectories
+      - totalFiles
+      - totalFilesSize
+      type: object
+      properties:
+        totalFiles:
+          type: integer
+          format: int32
+        totalDirectories:
+          type: integer
+          format: int32
+        totalFilesSize:
+          type: integer
+          format: int64
+        lastModification:
+          type: string
+          format: date-time
+    ExtUser:
+      required:
+      - email
+      - fullName
+      - notificationsEnabled
+      type: object
+      properties:
+        email:
+          type: string
+        fullName:
+          type: string
+        login:
+          type: string
+        notificationsEnabled:
+          type: boolean
+    Group:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
     Collection:
       required:
       - accno
@@ -5229,6 +7137,13 @@ components:
         accno:
           type: string
         title:
+          type: string
+    JobStatus:
+      required:
+      - status
+      type: object
+      properties:
+        status:
           type: string
   securitySchemes:
     sessionToken:

@@ -9,6 +9,8 @@ import ebi.ac.uk.model.FilePath
 import ebi.ac.uk.model.RenameFilePath
 import ebi.ac.uk.model.UserPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.core.io.FileSystemResource
@@ -31,12 +33,17 @@ import java.nio.file.Files
 @Suppress("TooManyFunctions")
 @RestController
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "User Files", description = "Browse and manage files in the authenticated user's submission workspace.")
 class UserFilesResource(
     private val filesMapper: FilesMapper,
     private val fileServiceFactory: FileServiceFactory,
 ) {
     @GetMapping("/files/user/**")
     @ResponseBody
+    @Operation(
+        summary = "List User Files",
+        description = "List files and folders at a path in the authenticated user's workspace.",
+    )
     suspend fun listFiles(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
@@ -47,6 +54,10 @@ class UserFilesResource(
 
     @DeleteMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Delete User File",
+        description = "Delete one file from a path in the authenticated user's workspace.",
+    )
     suspend fun deleteFile(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
@@ -58,6 +69,10 @@ class UserFilesResource(
 
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Upload User Files",
+        description = "Upload one or more files into a path in the authenticated user's workspace.",
+    )
     suspend fun uploadFile(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
@@ -69,6 +84,10 @@ class UserFilesResource(
 
     @PostMapping("/folder/user/**")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Create User Folder",
+        description = "Create a folder at a path in the authenticated user's workspace.",
+    )
     suspend fun createFolder(
         @BioUser user: SecurityUser,
         @RequestParam(name = "folder") folder: String,
@@ -80,6 +99,10 @@ class UserFilesResource(
 
     @GetMapping("/files/user/download", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody
+    @Operation(
+        summary = "Download User File",
+        description = "Download one file from the authenticated user's workspace using query parameters.",
+    )
     suspend fun downloadFile(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
@@ -98,6 +121,10 @@ class UserFilesResource(
 
     @PostMapping("/files/user/query")
     @ResponseBody
+    @Operation(
+        summary = "Query User Files",
+        description = "List files and folders using a request body path. This is the body-based variant of the listing API.",
+    )
     suspend fun listFiles(
         @BioUser user: SecurityUser,
         @RequestBody filePath: FilePath,
@@ -108,6 +135,10 @@ class UserFilesResource(
 
     @PostMapping("/files/user/download", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @ResponseBody
+    @Operation(
+        summary = "Download User File By Body",
+        description = "Download one file using a request body path and file name.",
+    )
     suspend fun downloadFile(
         @BioUser user: SecurityUser,
         @RequestBody fileDirPath: DirFilePath,
@@ -125,6 +156,10 @@ class UserFilesResource(
 
     @PostMapping("/files/user/upload")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Upload User Files By Body Path",
+        description = "Upload files using the request parameter variant expected by the submission tool.",
+    )
     suspend fun uploadFile(
         @BioUser user: SecurityUser,
         @RequestParam("filePath") filePath: FilePath,
@@ -136,6 +171,10 @@ class UserFilesResource(
 
     @PostMapping("/files/user/delete")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Delete User File By Body",
+        description = "Delete one file using a request body path and file name.",
+    )
     suspend fun deleteFile(
         @BioUser user: SecurityUser,
         @RequestBody filePath: DirFilePath,
@@ -146,6 +185,10 @@ class UserFilesResource(
 
     @PostMapping("/files/user/rename")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Rename User File",
+        description = "Rename or move a file within the authenticated user's workspace.",
+    )
     suspend fun renameFile(
         @BioUser user: SecurityUser,
         @RequestBody filePath: RenameFilePath,
@@ -156,6 +199,10 @@ class UserFilesResource(
 
     @PostMapping("/folder/user/create")
     @ResponseStatus(value = HttpStatus.OK)
+    @Operation(
+        summary = "Create User Folder By Body",
+        description = "Create a folder using a request body path and folder name.",
+    )
     suspend fun createFolder(
         @BioUser user: SecurityUser,
         @RequestBody dirFilePath: DirFilePath,
