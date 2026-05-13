@@ -6,8 +6,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
 @Configuration
+@Profile("!openapi-gen")
 class MigrationConfig {
     @Bean
     fun migrationService(

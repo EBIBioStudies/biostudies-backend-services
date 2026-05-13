@@ -9,9 +9,8 @@ import Dependencies.KotlinStdLib
 import Dependencies.MySql
 import Dependencies.OkHttp3
 import Dependencies.RxJava2
+import Dependencies.SpringDocOpenApiStarter
 import Dependencies.SpringWebFlux
-import Dependencies.SpringfoxSwagger
-import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
 import Projects.ClusterClient
@@ -65,6 +64,7 @@ plugins {
     id(Plugins.KotlinJpaPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
+    id(Plugins.SpringDocOpenApiPlugin) version PluginVersions.SpringDocOpenApiPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
     id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
     id(Plugins.BuildConfig) version PluginVersions.BuildConfigVersion
@@ -129,8 +129,7 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinCoroutines)
     implementation(RxJava2)
-    implementation(SpringfoxSwagger)
-    implementation(SpringfoxSwaggerUI)
+    implementation(SpringDocOpenApiStarter)
     implementation(SpringWebFlux)
     implementation(KotlinLogging)
 
@@ -167,6 +166,20 @@ dependencies {
 tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("submission-webapp")
     archiveVersion.set("1.0.0")
+}
+
+openApi {
+    outputDir.set(file("$rootDir/docs/api/generated"))
+    waitTimeInSeconds.set(60)
+    groupedApiMappings.set(
+        mapOf(
+            "http://localhost:8080/v3/api-docs.yaml/internal" to "internal.yaml",
+            "http://localhost:8080/v3/api-docs.yaml/public" to "public.yaml",
+        ),
+    )
+    customBootRun {
+        args.set(listOf("--spring.profiles.active=openapi-gen"))
+    }
 }
 
 sourceSets {

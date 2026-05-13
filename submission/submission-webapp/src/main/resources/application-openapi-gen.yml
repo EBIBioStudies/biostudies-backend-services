@@ -1,0 +1,180 @@
+# Spring profile used by the `generateOpenApiDocs` Gradle task to boot the app just far enough to
+# expose `/v3/api-docs/{internal,public}`. It MUST NOT require any external infrastructure
+# (MySQL, Mongo, RabbitMQ, S3, FIRE, cluster SSH, etc.) since the task runs in CI on a clean
+# checkout.
+#
+# Strategy: exclude every auto-config that opens a network connection on startup, and stub every
+# `@ConfigurationProperties`/`@Value` binding with a placeholder so the context wires successfully.
+# Infrastructure-bound `@Configuration` classes (JpaRepositoryConfig, MongoDbReactiveConfig,
+# JmsConfig, SchedulingConfig) are guarded with `@Profile("!openapi-gen")` and therefore skipped.
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+      - org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
+  main:
+    allow-bean-definition-overriding: true
+    lazy-initialization: true
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    enabled: true
+  paths-to-match:
+    - /auth/**
+    - /collections
+    - /files/**
+    - /submissions/**
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    query-config-enabled: true
+    urls:
+      - name: internal
+        url: /v3/api-docs/internal
+      - name: public
+        url: /v3/api-docs/public
+    urls-primary-name: public
+
+app:
+  processId: openapi-gen
+  retrySubmission: false
+  asyncMode: false
+  enableTmpCleaning: false
+  enableStatsReport: false
+  enablePropertiesLog: false
+  consumers: 1
+  maxConsumers: 1
+  instanceBaseUrl: http://localhost:8080
+  migration:
+    enabled: false
+    user: openapi
+    limit: 0
+    minModificationDays: 0
+  submissionTask:
+    enabled: false
+    jarLocation: /tmp/noop.jar
+    javaLocation: /usr/bin/java
+    javaMemoryAllocation: "1g"
+    tmpFilesDirPath: /tmp
+    singleJobMode: false
+    configFileLocation: /tmp/noop.yml
+    taskMemoryMgb: 1
+    taskCores: 1
+    taskMinutes: 1
+  cluster:
+    enabled: false
+    user: openapi
+    key: /tmp/noop.key
+    slurmServer: localhost
+    logsPath: /tmp
+    wrapperPath: /tmp
+  fire:
+    host: http://localhost
+    username: openapi
+    password: openapi
+    version: v1
+    tempDirPath: /tmp
+    s3:
+      accessKey: openapi
+      secretKey: openapi
+      region: us-east-1
+      endpoint: http://localhost
+      bucket: openapi
+    retry:
+      maxAttempts: 0
+      initialInterval: 0
+      multiplier: 1
+      maxInterval: 0
+  security:
+    captchaKey: openapi
+    checkCaptcha: false
+    tokenHash: openapi-token-hash
+    environment: openapi-gen
+    requireActivation: false
+    preventFileDeletion: false
+    instanceKeys:
+      dev: openapi
+      beta: openapi
+      prod: openapi
+    filesProperties:
+      defaultMode: NFS
+      filesDirPath: /tmp/openapi/files
+      magicDirPath: /tmp/openapi/magic
+      userFtpDirPath: /tmp/openapi/ftp
+      userFtpRootPath: /openapi
+      ftpIn:
+        ftpUser: openapi
+        ftpPassword: openapi
+        ftpUrl: localhost
+        ftpPort: 21
+        defaultTimeout: 1000
+        connectionTimeout: 1000
+        retry:
+          maxAttempts: 0
+          initialInterval: 0
+          multiplier: 1.0
+          maxInterval: 0
+      ftpOut:
+        ftpUser: openapi
+        ftpPassword: openapi
+        ftpUrl: localhost
+        ftpPort: 21
+        defaultTimeout: 1000
+        connectionTimeout: 1000
+        retry:
+          maxAttempts: 0
+          initialInterval: 0
+          multiplier: 1.0
+          maxInterval: 0
+  persistence:
+    enableFire: false
+    concurrency: 1
+    includeSecretKey: false
+    nfsReleaseMode: HARD_LINKS
+    pageTabFallbackPath: /tmp/openapi/pagetab
+    privateSubmissionsPath: /tmp/openapi/private
+    privateSubmissionFtpOutPath: /openapi/private
+    publicSubmissionsPath: /tmp/openapi/public
+    publicSubmissionFtpOutPath: /openapi/public
+    requestFilesPath: /tmp/openapi/requests
+    tempDirPath: /tmp/openapi/temp
+    statsReportPath: /tmp/openapi/stats
+  mongo:
+    execute-migrations: false
+    migration-package: openapi.noop
+  validator:
+    euToxRiskValidationApi: http://localhost/noop
+  notifications:
+    requestQueue: openapi-queue
+    requestRoutingKey: openapi
+    errorNotificationsEnabled: false
+  doi:
+    endpoint: http://localhost/noop
+    uiUrl: http://localhost
+    email: openapi@localhost
+    user: openapi
+    password: openapi
+    retry:
+      maxAttempts: 0
+      initialInterval: 0
+      multiplier: 1.0
+      maxInterval: 0
+  pmc:
+    enableLinksExtraction: false
+    authToken: openapi
+    loadLimit: 1

@@ -44,6 +44,7 @@ spring:
       location: ${app.tempDirPath}
 
 server:
+  forward-headers-strategy: framework
   tomcat:
     max-http-form-post-size: 50MB
     max-swallow-size: 50MB
@@ -54,6 +55,20 @@ logging:
     name: logs/application_logs.txt
   level:
     org.springframework.data.mongodb.core.convert.QueryMapper: ERROR # Disable to avoid mapping log population.
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    query-config-enabled: true
+    urls:
+      - name: internal
+        url: /v3/api-docs/internal
+      - name: public
+        url: /v3/api-docs/public
+    urls-primary-name: public
 
 app:
   processId: # Id to register the submission task

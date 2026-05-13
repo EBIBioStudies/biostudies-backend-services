@@ -43,7 +43,9 @@ dependencies {
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(KotlinCoroutines)
-    implementation(Guava)
+    // Exposed on the public API of SerializationException.errors (com.google.common.collect.Multimap),
+    // so it must transit to consumers. Previously Guava was provided transitively via Springfox.
+    api(Guava)
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(Woodstox)

@@ -16,10 +16,12 @@ import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(value = [FilePersistenceConfig::class, JmsPublishingConfig::class])
 @Suppress("TooManyFunctions")
 class SecurityConfig(

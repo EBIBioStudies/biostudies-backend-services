@@ -7,12 +7,14 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.EventsPublisherConfig
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
+@Profile("!openapi-gen")
 class JmsPublishingConfig(
     private val applicationProperties: ApplicationProperties,
 ) {

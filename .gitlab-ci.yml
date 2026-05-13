@@ -12,6 +12,7 @@ include:
 
 stages:
   - build-test
+  - verify-openapi
   - nfs-itest
   - fire-itest
   - fire-caos-itest
@@ -27,6 +28,22 @@ stages:
 build-test:
   stage: build-test
   script: gradle build test -x itest -x jacocoTestCoverageVerification
+
+verify-openapi:
+  needs: [ "build-test" ]
+  stage: verify-openapi
+  script:
+    # Regenerate the OpenAPI specs from the annotated code (boots the app under the
+    # `openapi-gen` Spring profile, hits /v3/api-docs.yaml/{internal,public}, writes YAML to
+    # docs/api/generated/) and fail if the committed baseline drifts from the result.
+    - gradle :submission:submission-webapp:generateOpenApiDocs
+    - git diff --exit-code -- docs/api/generated/internal.yaml docs/api/generated/public.yaml ||
+      (echo "OpenAPI baseline drifted — commit the regenerated docs/api/generated/*.yaml" && exit 1)
+  artifacts:
+    when: on_failure
+    paths:
+      - docs/api/generated/internal.yaml
+      - docs/api/generated/public.yaml
 
 nfs-itest:
   needs: [ "build-test" ]

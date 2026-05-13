@@ -6,8 +6,10 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionRtRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(JpaRepositoryConfig::class)
 open class NotificationPersistenceConfig {
     @Bean

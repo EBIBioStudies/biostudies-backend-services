@@ -3,6 +3,7 @@ import Dependencies.JavaValidationApi
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Dependencies.SwaggerAnnotations
 import Projects.CommonsModelExtended
 import Projects.CommonsTest
 import Projects.CommonsUtil
@@ -23,6 +24,7 @@ dependencies {
 
     implementation(JacksonDataBind)
     implementation(JavaValidationApi)
+    implementation(SwaggerAnnotations)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(KotlinCoroutines)
