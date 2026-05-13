@@ -18,7 +18,7 @@ import ebi.ac.uk.model.extensions.doi
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
@@ -214,7 +214,7 @@ class ExtSubmissionService(
         options: SubmissionTransferOptions,
     ) {
         require(securityService.existsByEmail(options.newOwner, onlyActive = false).not()) {
-            throw UserAlreadyRegister(options.newOwner)
+            throw UserAlreadyRegisteredException(options.newOwner)
         }
 
         val owner = securityService.getUser(options.owner)

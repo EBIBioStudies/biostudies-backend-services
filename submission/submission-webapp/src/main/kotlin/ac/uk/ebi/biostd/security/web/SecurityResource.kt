@@ -65,7 +65,7 @@ class SecurityResource(
     @ResponseBody
     fun activate(
         @RequestBody request: ActivateByEmailRequest,
-    ): Unit = securityService.activateByEmail(request)
+    ): Unit = securityService.generateActivationKey(request)
 
     @PostMapping(value = ["/activate/{activationKey}"])
     @ResponseBody
@@ -92,12 +92,6 @@ class SecurityResource(
     suspend fun changePassword(
         @RequestBody request: ChangePasswordRequest,
     ): User = securityService.changePassword(request)
-
-    @PostMapping(value = ["/password/setup"])
-    @ResponseBody
-    suspend fun setUpPassword(
-        @RequestBody request: ChangePasswordRequest,
-    ): User = securityService.activateAndSetupPassword(request)
 
     @GetMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")

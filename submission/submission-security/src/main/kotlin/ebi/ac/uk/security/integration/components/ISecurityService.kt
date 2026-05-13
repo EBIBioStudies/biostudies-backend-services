@@ -21,9 +21,7 @@ interface ISecurityService {
 
     suspend fun activate(activationKey: String)
 
-    fun activateByEmail(request: ActivateByEmailRequest)
-
-    suspend fun activateAndSetupPassword(request: ChangePasswordRequest): User
+    fun generateActivationKey(request: ActivateByEmailRequest)
 
     fun retryRegistration(request: RetryActivationRequest)
 

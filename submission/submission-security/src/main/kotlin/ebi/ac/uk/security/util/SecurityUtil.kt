@@ -62,19 +62,27 @@ class SecurityUtil(
         instanceKey: String,
         path: String,
         userKey: String,
-    ): String {
-        return when (instanceKey) {
-            instanceKeys.dev -> getUrl(DEV_INSTANCE, path, userKey)
-            instanceKeys.beta -> getUrl(BETA_INSTANCE, path, userKey)
-            instanceKeys.prod -> getUrl(PROD_INSTANCE, path, userKey)
+    ): String =
+        when (instanceKey) {
+            instanceKeys.dev -> {
+                getUrl(DEV_INSTANCE, path, userKey)
+            }
+
+            instanceKeys.beta -> {
+                getUrl(BETA_INSTANCE, path, userKey)
+            }
+
+            instanceKeys.prod -> {
+                getUrl(PROD_INSTANCE, path, userKey)
+            }
+
             else -> {
                 when {
-                    isLocalEnvironment(instanceKey) -> return getUrl(instanceKey, path, userKey)
+                    isLocalEnvironment(instanceKey) -> getUrl(instanceKey, path, userKey)
                     else -> throw IllegalArgumentException("invalid instance key '$instanceKey'")
                 }
             }
         }
-    }
 
     private fun getUrl(
         instance: String,

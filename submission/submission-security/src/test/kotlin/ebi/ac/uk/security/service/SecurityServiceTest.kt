@@ -18,7 +18,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
@@ -39,7 +39,6 @@ import ebi.ac.uk.security.test.SecurityTestEntities.Companion.resetPasswordReque
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.retryActivation
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
 import ebi.ac.uk.security.util.SecurityUtil
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -98,6 +97,9 @@ internal class SecurityServiceTest(
             securityQueryService,
             clusterClient,
         )
+
+    @AfterEach
+    fun afterEach() = clearAllMocks()
 
     @Nested
     inner class Login {
@@ -259,6 +261,7 @@ internal class SecurityServiceTest(
             every { eventsPublisherService.securityNotification(capture(activationSlot)) } answers { nothing }
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
             every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
+            every { filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
 
@@ -278,7 +281,7 @@ internal class SecurityServiceTest(
             runTest {
                 every { userRepository.existsByEmail(EMAIL) } returns true
 
-                val error = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
+                val error = assertThrows<UserAlreadyRegisteredException> { testInstance.registerUser(registrationRequest) }
                 assertThat(error.message).isEqualTo("There is a user already registered with the email address '$EMAIL'.")
             }
     }
@@ -431,21 +434,18 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class ActivateByEmail {
-        @AfterEach
-        fun afterEach() = clearAllMocks()
-
         @Test
         fun `activate by email when user not found`() {
             every { userRepository.findByEmailAndActive(EMAIL, false) } returns null
 
-            assertThrows<UserNotFoundByEmailException> { testInstance.activateByEmail(activateByEmailRequest) }
+            assertThrows<UserNotFoundByEmailException> { testInstance.generateActivationKey(activateByEmailRequest) }
         }
 
         @Test
         fun `activate by email user without activation key`() {
             every { userRepository.findByEmailAndActive(EMAIL, false) } returns simpleUser
 
-            assertThrows<ActKeyNotFoundException> { testInstance.activateByEmail(activateByEmailRequest) }
+            assertThrows<ActKeyNotFoundException> { testInstance.generateActivationKey(activateByEmailRequest) }
         }
 
         @Test
@@ -458,7 +458,7 @@ internal class SecurityServiceTest(
             every { securityUtil.getActivationUrl(INSTANCE_KEY, PATH, "activation-key") } returns activationUrl
             every { eventsPublisherService.securityNotification(capture(activateByEmailSlot)) } answers { nothing }
 
-            testInstance.activateByEmail(activateByEmailRequest)
+            testInstance.generateActivationKey(activateByEmailRequest)
 
             val notification = activateByEmailSlot.captured
             assertThat(notification.email).isEqualTo(user.email)
@@ -466,46 +466,5 @@ internal class SecurityServiceTest(
             assertThat(notification.activationLink).isEqualTo(activationUrl)
             assertThat(notification.type).isEqualTo(ACTIVATION_BY_EMAIL)
         }
-    }
-
-    @Nested
-    inner class ActivateAndSetUpPassword {
-        @AfterEach
-        fun afterEach() = clearAllMocks()
-
-        @Test
-        fun `activate with invalid activation key`() =
-            runTest {
-                val request = ChangePasswordRequest("key", "password")
-
-                every { userRepository.findByActivationKeyAndActive("key", false) } returns null
-
-                assertThrows<UserWithActivationKeyNotFoundException> { testInstance.activateAndSetupPassword(request) }
-            }
-
-        @Test
-        fun `activate and setup password`() =
-            runTest {
-                val userSlots = mutableListOf<DbUser>()
-                val user = simpleUser.apply { activationKey = "key" }
-                val request = ChangePasswordRequest("key", "password")
-
-                every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
-                every { userRepository.save(capture(userSlots)) } returns user
-                every { userRepository.findByActivationKeyAndActive("key", true) } returns user
-                every { userRepository.findByActivationKeyAndActive("key", false) } returns user
-                every { securityUtil.getPasswordDigest("password") } returns "diggested-password".toByteArray()
-                every { securityProps.filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
-
-                testInstance.activateAndSetupPassword(request)
-
-                val activated = userSlots.first()
-                assertThat(activated.activationKey).isNull()
-                assertThat(activated.active).isTrue
-
-                val passwordSetup = userSlots.second()
-                assertThat(passwordSetup.activationKey).isNull()
-                assertThat(passwordSetup.passwordDigest).isEqualTo("diggested-password".toByteArray())
-            }
     }
 }
