@@ -48,15 +48,22 @@ class SubmissionRequestIndexer(
         val elements = AtomicInteger(0)
         val paths = mutableSetOf<String>()
 
+        suspend fun saveRequestFile(
+            index: Int,
+            rqtFile: SubmissionRequestFile,
+        ) {
+            logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${rqtFile.path}'" }
+            filesRequestService.saveSubmissionRequestFile(rqtFile)
+            elements.incrementAndGet()
+        }
+
         extSerializationService
             .filesFlow(sub)
             .filterNot { paths.contains(it.filePath) }
             .onEach { paths.add(it.filePath) }
-            .map { file -> SubmissionRequestFile(sub, file, INDEXED) }
+            .map { file -> SubmissionRequestFile(sub, file, INDEXED, file.sourcetype) }
             .collectIndexed { index, file ->
-                logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${file.path}'" }
-                filesRequestService.saveSubmissionRequestFile(file)
-                elements.incrementAndGet()
+                saveRequestFile(index, file)
             }
         return elements.get()
     }

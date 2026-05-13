@@ -3,6 +3,8 @@ package uk.ac.ebi.io.sources
 import ebi.ac.uk.base.remove
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FileSourceType.USER
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.constants.FileFields.DIRECTORY_TYPE
 import uk.ac.ebi.io.builder.createFile
@@ -18,7 +20,7 @@ internal class PathSource(
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
-    ): ExtFile? = findFile(path)?.let { createFile(path, it, attributes) }
+    ): NfsFile? = findFile(path)?.let { createFile(path, it, attributes) }
 
     override suspend fun getFileList(path: String): File? = findFile(path)
 
@@ -44,7 +46,8 @@ internal class UserPathSource(
         attributes: List<ExtAttribute>,
     ): ExtFile? {
         val filePath = if (type == DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
-        return pathSource.getExtFile(filePath, type, attributes)
+        val file = pathSource.getExtFile(filePath, type, attributes)
+        return file?.copy(sourcetype = USER)
     }
 
     override suspend fun getFileList(path: String): File? = pathSource.getFileList(path)

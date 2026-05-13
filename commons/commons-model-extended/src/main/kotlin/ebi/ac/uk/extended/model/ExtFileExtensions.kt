@@ -47,6 +47,6 @@ fun FireFile.asNfsFile(file: File): NfsFile =
         file.absolutePath,
         md5,
         size,
-        attributes,
-        type,
+        attributes = attributes,
+        type = type,
     )

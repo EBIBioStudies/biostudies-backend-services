@@ -26,6 +26,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SOURCE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
@@ -262,7 +263,10 @@ class SubmissionRequestDocDataRepository(
 
     suspend fun upsertSubRqtFile(file: SubmissionRequestFile) {
         val serializedFile = BasicDBObject.parse(extSerializationService.serialize(file.file))
-        val update = update(RQT_FILE_FILE, serializedFile).set(RQT_FILE_STATUS, file.status)
+        val update =
+            update(RQT_FILE_FILE, serializedFile)
+                .set(RQT_FILE_STATUS, file.status)
+                .set(RQT_FILE_SOURCE_TYPE, file.sourceType)
         val where =
             where(RQT_FILE_SUB_ACC_NO)
                 .`is`(file.accNo)

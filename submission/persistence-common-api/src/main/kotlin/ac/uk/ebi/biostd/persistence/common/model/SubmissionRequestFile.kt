@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.common.model
 
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileSourceType
 
 data class SubmissionRequestFile(
     val accNo: String,
@@ -9,14 +10,16 @@ data class SubmissionRequestFile(
     val path: String,
     val file: ExtFile,
     val status: RequestFileStatus,
+    val sourceType: FileSourceType?,
     val previousSubFile: Boolean = false,
 ) {
     constructor(
         sub: ExtSubmission,
         file: ExtFile,
         status: RequestFileStatus,
+        sourceType: FileSourceType?,
         previousSubFile: Boolean = false,
-    ) : this(sub.accNo, sub.version, file.filePath, file, status, previousSubFile)
+    ) : this(sub.accNo, sub.version, file.filePath, file, status, sourceType, previousSubFile)
 }
 
 enum class RequestFileStatus {

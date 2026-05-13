@@ -16,7 +16,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
+class ExtFileTest(
+    private val temporaryFolder: TemporaryFolder,
+) {
     @Test
     fun `extFile with file inside folder`() {
         val file = temporaryFolder.createDirectory("Files").createDirectory("my-folder").newFile("file.txt")
@@ -28,7 +30,7 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
                 file.absolutePath,
                 file.md5(),
                 file.size(),
-                listOf(),
+                attributes = listOf(),
             )
 
         assertThat(extFile.fileName).isEqualTo("file.txt")
@@ -48,7 +50,7 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
                 file.absolutePath,
                 file.md5(),
                 file.size(),
-                listOf(),
+                attributes = listOf(),
             )
 
         assertThat(extFile.fileName).isEqualTo("file.txt")
@@ -67,7 +69,7 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
                 file.absolutePath,
                 file.md5(),
                 file.size(),
-                listOf(),
+                attributes = listOf(),
             )
 
         assertThat(extFile.fileName).isEqualTo("folder")

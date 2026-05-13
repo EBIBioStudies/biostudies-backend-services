@@ -15,6 +15,7 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import kotlinx.coroutines.flow.toList
@@ -99,6 +100,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     status = RequestFileStatus.LOADED,
                     previousSubFile = false,
                     file = BasicDBObject("property", "value"),
+                    sourceType = FileSourceType.SUBMISSION,
                 )
             val rqtF2 =
                 DocSubmissionRequestFile(
@@ -109,6 +111,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     status = RequestFileStatus.CLEANED,
                     previousSubFile = false,
                     file = BasicDBObject("property", "value-2"),
+                    sourceType = FileSourceType.SUBMISSION,
                 )
 
             filesRepository.save(rqtF1)
