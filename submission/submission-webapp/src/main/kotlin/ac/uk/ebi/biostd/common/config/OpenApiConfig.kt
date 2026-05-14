@@ -96,18 +96,6 @@ private val OPENAPI_TAGS =
 @Configuration
 @Suppress("TooManyFunctions")
 internal class OpenApiConfig {
-    @Bean
-    fun openApiSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { it.disable() }
-            .sessionManagement { session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }.authorizeHttpRequests { auth ->
-                auth.anyRequest().permitAll()
-            }
-
-        return http.build()
-    }
 
     @Bean
     fun bioStudiesOpenApi(): OpenAPI =
