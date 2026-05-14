@@ -23,7 +23,7 @@ class MigrationService(
     private val submissionRequestRepository: SubmissionRequestDocDataRepository,
     private val extSubmissionService: ExtSubmissionService,
 ) {
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     fun migrateSubmission() {
         runBlocking {
             if (properties.enabled) {

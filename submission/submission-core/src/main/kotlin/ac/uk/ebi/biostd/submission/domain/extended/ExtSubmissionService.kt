@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
@@ -39,6 +41,7 @@ class ExtSubmissionService(
     private val privilegesService: IUserPrivilegesService,
     private val securityService: SecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
+    private val requestService: SubmissionRequestPersistenceService,
 ) {
     suspend fun reTriggerSubmission(
         accNo: String,
@@ -199,6 +202,7 @@ class ExtSubmissionService(
         sub: ExtSubmission,
         user: String,
     ) {
+        if (requestService.hasProcessingRequest(sub.accNo)) throw ConcurrentSubException(sub.accNo)
         if (privilegesService.canSubmitExtended(user).not()) throw UnauthorizedOperation(user)
         if (securityService.existsByEmail(sub.owner, false).not()) throw UserNotFoundException(sub.owner)
 
