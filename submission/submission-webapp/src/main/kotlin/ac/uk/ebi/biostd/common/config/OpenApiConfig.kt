@@ -93,7 +93,6 @@ private val OPENAPI_TAGS =
             .description("Read generated public report files for submission counts and storage sizes."),
     )
 
-
 @Configuration
 @Suppress("TooManyFunctions")
 internal class OpenApiConfig {
@@ -118,8 +117,8 @@ internal class OpenApiConfig {
                     .title("BioStudies API")
                     .description(
                         "BioStudies submission backend. The `internal` group documents every endpoint " +
-                                "(operational tooling, refresh, FTP, releaser). The `public` group is the subset " +
-                                "intended for external submitters.",
+                            "(operational tooling, refresh, FTP, releaser). The `public` group is the subset " +
+                            "intended for external submitters.",
                     )
                     .version("1.0.0"),
             )
@@ -146,7 +145,6 @@ internal class OpenApiConfig {
             }
         }
 
-
     @Bean
     fun publicServersCustomizer(): OpenApiCustomizer =
         OpenApiCustomizer { openApi ->
@@ -164,7 +162,6 @@ internal class OpenApiConfig {
 
             openApi.tags = orderedTags + unknownTags
         }
-
 
     @Bean
     fun authenticatedHandlerCustomizer(): OperationCustomizer =
@@ -213,15 +210,13 @@ internal class OpenApiConfig {
             .build()
 }
 
-
 private fun HandlerMethod.requiresSessionTokenSecurity(): Boolean =
     AnnotatedElementUtils.hasAnnotation(method, PreAuthorize::class.java) ||
-            AnnotatedElementUtils.hasAnnotation(beanType, PreAuthorize::class.java) ||
-            methodParameters.any { it.hasParameterAnnotation(BioUser::class.java) } ||
-            methodParameters.any { Authentication::class.java.isAssignableFrom(it.parameterType) }
+        AnnotatedElementUtils.hasAnnotation(beanType, PreAuthorize::class.java) ||
+        methodParameters.any { it.hasParameterAnnotation(BioUser::class.java) } ||
+        methodParameters.any { Authentication::class.java.isAssignableFrom(it.parameterType) }
 
-private fun HandlerMethod.hasOnBehalfParameters(): Boolean =
-    methodParameters.any { OnBehalfParameters::class.java == it.parameterType }
+private fun HandlerMethod.hasOnBehalfParameters(): Boolean = methodParameters.any { OnBehalfParameters::class.java == it.parameterType }
 
 private fun Operation.replaceOnBehalfParameters(): Operation {
     parameters = parameters.orEmpty().filterNot { it.isOnBehalfResolverParameter() }.toMutableList()
@@ -234,7 +229,7 @@ private fun Operation.replaceOnBehalfParameters(): Operation {
 
 private fun Parameter.isOnBehalfResolverParameter(): Boolean =
     name == "onBehalfRequest" ||
-            schema?.`$ref`?.endsWith("/OnBehalfParameters").orFalse()
+        schema?.`$ref`?.endsWith("/OnBehalfParameters").orFalse()
 
 private fun Operation.addQueryParameter(
     name: String,
