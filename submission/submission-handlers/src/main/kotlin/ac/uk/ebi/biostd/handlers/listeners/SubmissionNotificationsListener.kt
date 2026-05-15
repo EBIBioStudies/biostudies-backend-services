@@ -29,10 +29,11 @@ class SubmissionNotificationsListener(
 ) {
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
-        logger.info { "Submission Notification for ${message.accNo}" }
+        logger.info { "Submission Notification for submission: ${message.accNo}" }
 
         notifySafely(message, SUCCESSFUL_SUBMISSION_NOTIFICATION) {
             val owner = webConsumer.getExtUser(message.extUserUrl)
+            logger.info { "Notifying user: ${owner.email}. Notifications enabled: ${owner.notificationsEnabled}" }
             if (owner.notificationsEnabled) {
                 val sub = webConsumer.getExtSubmission(message.extTabUrl)
                 val uiUrl = getUiUrl(sub)
@@ -74,6 +75,7 @@ class SubmissionNotificationsListener(
             onError(message)
             val errorMsg = "Error processing notification of type '$notificationType' for submission '${message.accNo}"
             logger.error(it) { "$errorMsg': ${it.message ?: it.localizedMessage}" }
+            logger.error { "Failed notification payload: $message" }
         }
     }
 
@@ -82,12 +84,11 @@ class SubmissionNotificationsListener(
         notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, String.format(ERROR_MESSAGE, message.accNo)))
     }
 
-    private fun getUiUrl(submission: ExtSubmission): String {
-        return when (val col = submission.collections.firstOrNull()) {
+    private fun getUiUrl(submission: ExtSubmission): String =
+        when (val col = submission.collections.firstOrNull()) {
             null -> notificationProps.uiUrl
             else -> "${notificationProps.uiUrl}/${col.accNo.lowercase()}"
         }
-    }
 
     companion object {
         private val logger = KotlinLogging.logger {}
