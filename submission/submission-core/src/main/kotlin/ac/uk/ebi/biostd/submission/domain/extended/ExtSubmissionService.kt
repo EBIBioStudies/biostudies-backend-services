@@ -50,6 +50,11 @@ class ExtSubmissionService(
 
     suspend fun reTriggerSubmissionAsync(submissions: List<SubmissionId>): Unit = submissionSubmitter.handleManyAsync(submissions)
 
+    suspend fun reindexSubmission(accNo: String) {
+        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+        eventsPublisherService.submissionsRefresh(sub.accNo, sub.owner)
+    }
+
     suspend fun refreshSubmission(
         user: String,
         accNo: String,
@@ -244,6 +249,7 @@ class ExtSubmissionService(
             logger.info { "Transferring submission $accNo from $owner to $newOwner" }
             require(privilegesService.canTransferSubmission(user, accNo)) { throw UnauthorizedOperation(user) }
             persistenceService.setOwner(accNo, newOwner)
+            eventsPublisherService.submissionsRefresh(accNo, newOwner)
         }
 
         validateUsers()

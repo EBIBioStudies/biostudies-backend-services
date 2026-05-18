@@ -47,6 +47,11 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
     ): SubmissionId = extSubmissionService.refreshSubmission(user.email, accNo)
 
+    @PostMapping("/reindex/{accNo}")
+    suspend fun reindexSubmission(
+        @PathVariable accNo: String,
+    ) = extSubmissionService.reindexSubmission(accNo)
+
     @PostMapping("/release/{accNo}/{releaseDate}")
     suspend fun releaseSubmission(
         @BioUser user: SecurityUser,
