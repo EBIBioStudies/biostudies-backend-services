@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.SystemNotification
 import ebi.ac.uk.extended.events.FailedRequestMessage

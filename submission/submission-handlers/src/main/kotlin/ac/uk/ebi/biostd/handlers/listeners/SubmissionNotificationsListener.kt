@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.handlers.config.FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender

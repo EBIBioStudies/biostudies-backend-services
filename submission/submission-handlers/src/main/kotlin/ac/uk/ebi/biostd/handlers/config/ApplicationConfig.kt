@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.handlers.exception.CustomErrorHandler
 import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionListener
 import ac.uk.ebi.biostd.handlers.listeners.SecurityNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorMongoDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorMongoDataService
 import ac.uk.ebi.biostd.persistence.integration.config.NotificationPersistenceConfig
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.common.service
+package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationError
