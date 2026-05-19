@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.WebSubmissionDraft
 import ebi.ac.uk.util.collections.second
@@ -102,7 +101,5 @@ class SubmissionDraftListApiTest(
         override val password = "12345"
         override val superUser = true
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
 }
