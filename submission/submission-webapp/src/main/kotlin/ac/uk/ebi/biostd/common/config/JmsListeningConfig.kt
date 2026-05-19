@@ -13,11 +13,13 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import uk.ac.ebi.events.service.EventsPublisherService
 
 internal const val LISTENER_FACTORY_NAME = "processingListenerFactory"
 
 @Configuration
+@Profile("!openapi-gen")
 class JmsConfig(
     private val properties: ApplicationProperties,
 ) {

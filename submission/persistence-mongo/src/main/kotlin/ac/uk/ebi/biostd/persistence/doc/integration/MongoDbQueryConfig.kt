@@ -5,8 +5,10 @@ import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(MongoDbReposConfig::class)
 class MongoDbQueryConfig {
     @Bean

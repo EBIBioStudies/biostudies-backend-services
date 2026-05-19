@@ -13,9 +13,11 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(JpaRepositoryConfig::class)
 @Suppress("TooManyFunctions", "LongParameterList")
 open class SqlPersistenceConfig {

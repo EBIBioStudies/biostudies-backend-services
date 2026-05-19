@@ -20,11 +20,13 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(value = [SqlPersistenceConfig::class, GeneralConfig::class, ToSubmissionConfig::class])
 class FilePersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,

@@ -6,9 +6,11 @@ import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(MongoDbReactiveConfig::class)
 class LockConfig {
     @Bean

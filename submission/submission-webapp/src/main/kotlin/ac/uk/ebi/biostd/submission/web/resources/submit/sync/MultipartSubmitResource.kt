@@ -15,6 +15,8 @@ import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -29,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Synchronous Submission", description = "Submit content and wait for validation and persistence to complete before returning.")
 @Suppress("LongParameterList")
 class MultipartSubmitResource(
     private val submitWebHandler: SubmitWebHandler,
@@ -40,6 +43,11 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
+    @Operation(
+        summary = "Submit Multipart JSON Synchronously",
+        description =
+            "Submit BioStudies JSON content together with optional files as multipart form data and wait for processing to complete.",
+    )
     suspend fun submitMultipartJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
@@ -59,6 +67,11 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
+    @Operation(
+        summary = "Submit Multipart PageTab Synchronously",
+        description =
+            "Submit PageTab TSV content together with optional files as multipart form data and wait for processing to complete.",
+    )
     suspend fun submitMultipartTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
@@ -79,6 +92,11 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
+    @Operation(
+        summary = "Submit PageTab File Synchronously",
+        description =
+            "Submit an uploaded PageTab file, plus optional associated data files, and wait for processing to complete.",
+    )
     suspend fun submitFile(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,

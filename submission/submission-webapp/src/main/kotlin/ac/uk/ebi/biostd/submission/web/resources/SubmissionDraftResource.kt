@@ -14,6 +14,10 @@ import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -34,64 +38,91 @@ import java.time.OffsetDateTime
 @RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Submission Drafts", description = "Create, list, update and submit submission drafts.")
 @Suppress("LongParameterList")
-internal class SubmissionDraftResource(
+class SubmissionDraftResource(
     private val submitWebHandler: SubmitWebHandler,
     private val submitRequestBuilder: SubmitRequestBuilder,
     private val requestDraftService: SubmissionRequestDraftService,
 ) {
     @GetMapping
     @ResponseBody
+    @Operation(
+        summary = "Search Submission Drafts",
+        description = "Search for submission drafts belonging to the authenticated user.",
+    )
     suspend fun getSubmissionDrafts(
-        @BioUser user: SecurityUser,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
     ): Flow<ResponseSubmissionDraft> = requestDraftService.findActiveRequestDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{accNo}")
     @ResponseBody
+    @Operation(
+        summary = "Get Submission Draft",
+        description = "Get the submission draft with the specified accNo, creating one if it does not exist.",
+    )
     suspend fun getOrCreateSubmissionDraft(
-        @BioUser user: SecurityUser,
-        @PathVariable accNo: String,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
+        @Parameter(description = "Submission accNo", required = true) @PathVariable accNo: String,
     ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
 
     @GetMapping("/{accNo}/content")
     @ResponseBody
+    @Operation(
+        summary = "Get Submission Draft Content",
+        description = "Get the raw content of the submission draft with the specified accNo.",
+    )
     suspend fun getSubmissionDraftContent(
-        @BioUser user: SecurityUser,
-        @PathVariable accNo: String,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
+        @Parameter(description = "Submission accNo", required = true) @PathVariable accNo: String,
     ): ResponseSubmissionDraftContent {
         val requestDraft = requestDraftService.getRequestDraft(accNo, user.email)
         return ResponseSubmissionDraftContent(requestDraft.draft!!)
     }
 
     @DeleteMapping("/{accNo}")
+    @Operation(
+        summary = "Delete Submission Draft",
+        description = "Delete the submission draft with the specified accNo.",
+    )
     suspend fun deleteSubmissionDraft(
-        @BioUser user: SecurityUser,
-        @PathVariable accNo: String,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
+        @Parameter(description = "Submission accNo", required = true) @PathVariable accNo: String,
     ) {
         requestDraftService.deleteRequestDraft(accNo, user.email)
     }
 
     @PutMapping("/{accNo}")
     @ResponseBody
+    @Operation(
+        summary = "Update Submission Draft",
+        description = "Replace the content of the submission draft with the specified accNo.",
+    )
     suspend fun updateSubmissionDraft(
-        @BioUser user: SecurityUser,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
         @RequestBody content: String,
-        @PathVariable accNo: String,
+        @Parameter(description = "Submission accNo", required = true) @PathVariable accNo: String,
     ): ResponseSubmissionDraft = requestDraftService.updateRequestDraft(accNo, user.email, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
+    @Operation(summary = "Create Submission Draft", description = "Create a new submission draft.")
     suspend fun createSubmissionDraft(
-        @BioUser user: SecurityUser,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
         @RequestBody content: String,
-        @RequestParam attachTo: String?,
+        @Parameter(description = "Existing submission accNo to attach the draft to") @RequestParam attachTo: String?,
     ): ResponseSubmissionDraft = requestDraftService.createRequestDraft(content, user.email, attachTo).asResponseDraft()
 
     @PostMapping("/{accNo}/submit")
+    @Operation(
+        summary = "Submit Draft (Async)",
+        description =
+            "Submit the draft with the given accNo asynchronously. The draft is deleted once the submission completes.",
+    )
     suspend fun submitDraft(
-        @PathVariable accNo: String,
-        @BioUser user: SecurityUser,
+        @Parameter(description = "Submission accNo", required = true) @PathVariable accNo: String,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
     ) {
@@ -101,9 +132,13 @@ internal class SubmissionDraftResource(
     }
 
     @PostMapping("/{accNo}/submit/sync")
+    @Operation(
+        summary = "Submit Draft (Sync)",
+        description = "Submit the draft with the given accNo synchronously and return the resulting submission.",
+    )
     suspend fun submitDraftSync(
-        @PathVariable accNo: String,
-        @BioUser user: SecurityUser,
+        @Parameter(description = "Submission accNo", required = true) @PathVariable accNo: String,
+        @Parameter(hidden = true) @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
     ): Submission {
@@ -122,14 +157,32 @@ internal class SubmissionDraftResource(
         )
 }
 
-internal class ResponseSubmissionDraft(
+@Schema(description = "Submission draft summary.")
+class ResponseSubmissionDraft(
+    @field:Schema(description = "Draft accession number", example = "TMP_2024-09-21T10:12:00.002Z")
     val key: String,
+    @field:Schema(description = "Human-readable identifier for the draft", example = "S-BSST123")
     val displayKey: String,
+    @field:Schema(description = "True if the draft is for a new submission, false if it edits an existing one")
     val newSubmission: Boolean,
-    @JsonRawValue val content: String,
+    @field:Schema(
+        description = "Raw page-tab JSON content of the draft",
+        example = "{ \"type\": \"Submission\", \"section\": { \"type\": \"Study\" } }",
+        type = "object",
+    )
+    @JsonRawValue
+    val content: String,
+    @field:Schema(description = "Last modification time", example = "2024-09-21T10:12:00.002Z")
     val modificationTime: OffsetDateTime,
 )
 
-internal class ResponseSubmissionDraftContent(
-    @JsonRawValue @JsonValue val value: String,
+@Schema(
+    description = "Raw page-tab JSON content of a submission draft.",
+    type = "object",
+    example = "{ \"type\": \"Submission\", \"section\": { \"type\": \"Study\" } }",
+)
+class ResponseSubmissionDraftContent(
+    @JsonRawValue
+    @JsonValue
+    val value: String,
 )

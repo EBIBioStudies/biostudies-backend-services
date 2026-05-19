@@ -12,6 +12,8 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions/async")
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Asynchronous Submission", description = "Submit content for background validation and processing.")
 @Suppress("LongParameterList")
 class SubmitAsyncResource(
     private val submitWebHandler: SubmitWebHandler,
@@ -34,6 +37,12 @@ class SubmitAsyncResource(
         produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
+    @Operation(
+        summary = "Submit PageTab Asynchronously",
+        description =
+            "Submit PageTab TSV content in the request body and return a request identifier immediately. " +
+                "Poll the submission request endpoints to track processing.",
+    )
     suspend fun submitTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
@@ -50,6 +59,12 @@ class SubmitAsyncResource(
         produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
+    @Operation(
+        summary = "Submit JSON Asynchronously",
+        description =
+            "Submit BioStudies JSON content in the request body and return a request identifier immediately. " +
+                "Poll the submission request endpoints to track processing.",
+    )
     suspend fun submitJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,

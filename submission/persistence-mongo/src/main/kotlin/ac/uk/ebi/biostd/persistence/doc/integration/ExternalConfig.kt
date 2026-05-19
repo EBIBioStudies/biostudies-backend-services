@@ -13,9 +13,11 @@ import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceServic
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(MongoDbServicesConfig::class, ToDocSubmissionConfig::class)
 class ExternalConfig {
     @Bean

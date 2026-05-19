@@ -8,10 +8,12 @@ import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.EnableScheduling
 
 @Configuration
 @EnableScheduling
+@Profile("!openapi-gen")
 class SchedulingConfig {
     @Bean
     fun operationsService(

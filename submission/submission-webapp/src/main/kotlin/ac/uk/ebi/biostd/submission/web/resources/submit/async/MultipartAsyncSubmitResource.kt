@@ -18,6 +18,8 @@ import ebi.ac.uk.model.constants.SUBMISSIONS
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -33,6 +35,7 @@ import org.springframework.web.multipart.MultipartRequest
 @RestController
 @RequestMapping("/submissions/async")
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Asynchronous Submission", description = "Submit content for background validation and processing.")
 @Suppress("LongParameterList")
 class MultipartAsyncSubmitResource(
     private val submitWebHandler: SubmitWebHandler,
@@ -42,6 +45,12 @@ class MultipartAsyncSubmitResource(
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
         produces = [APPLICATION_JSON_VALUE],
+    )
+    @Operation(
+        summary = "Submit Multipart JSON Asynchronously",
+        description =
+            "Submit BioStudies JSON content together with optional files as multipart form data " +
+                "and return a request identifier immediately.",
     )
     suspend fun submitMultipartJson(
         @BioUser user: SecurityUser,
@@ -60,6 +69,11 @@ class MultipartAsyncSubmitResource(
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
         produces = [APPLICATION_JSON_VALUE],
+    )
+    @Operation(
+        summary = "Submit Multipart PageTab Asynchronously",
+        description =
+            "Submit PageTab TSV content together with optional files as multipart form data and return a request identifier immediately.",
     )
     suspend fun submitMultipartTsv(
         @BioUser user: SecurityUser,
@@ -80,6 +94,11 @@ class MultipartAsyncSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
         produces = [APPLICATION_JSON_VALUE],
     )
+    @Operation(
+        summary = "Submit PageTab File Asynchronously",
+        description =
+            "Submit an uploaded PageTab file, plus optional associated data files, and return a request identifier immediately.",
+    )
     suspend fun submitFile(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
@@ -98,6 +117,11 @@ class MultipartAsyncSubmitResource(
         value = ["/multiple"],
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
         produces = [APPLICATION_JSON_VALUE],
+    )
+    @Operation(
+        summary = "Submit Multiple Files Asynchronously",
+        description =
+            "Submit multiple PageTab or JSON payloads from one multipart request. Each payload is processed asynchronously.",
     )
     suspend fun submitManyMultipart(
         @BioUser user: SecurityUser,

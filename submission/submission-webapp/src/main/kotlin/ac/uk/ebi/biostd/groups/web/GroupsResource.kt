@@ -9,6 +9,8 @@ import ebi.ac.uk.security.exception.GroupsGroupNameMustNotBeNullException
 import ebi.ac.uk.security.exception.GroupsUserNameMustNotBeNullException
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -19,13 +21,16 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Groups", description = "Security groups that control access to shared submission workspaces.")
 class GroupsResource(private val groupService: IGroupService) {
+    @Operation(summary = "List the authenticated user's groups")
     @GetMapping("/groups")
     @ResponseBody
     fun getGroups(
         @BioUser user: SecurityUser,
     ): List<Group> = user.groupsFolders.map { Group(it.groupName, it.description) }
 
+    @Operation(summary = "Create a group")
     @PostMapping("/groups")
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -37,6 +42,7 @@ class GroupsResource(private val groupService: IGroupService) {
         return groupService.createGroup(request.groupName, request.description).toUserGroupDto()
     }
 
+    @Operation(summary = "Add a user to a group")
     @PutMapping("/groups")
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")

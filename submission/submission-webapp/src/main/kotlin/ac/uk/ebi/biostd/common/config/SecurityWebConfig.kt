@@ -8,6 +8,7 @@ import ebi.ac.uk.security.integration.components.SecurityFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpMethod.GET
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration
 @EnableWebSecurity
+@Profile("!openapi-gen")
 @Import(value = [SecurityConfig::class, FilePersistenceConfig::class])
 class SecurityWebConfig(
     private val securityFilter: SecurityFilter,
@@ -43,6 +45,8 @@ class SecurityWebConfig(
                     .requestMatchers("/submissions/ftp/*")
                     .permitAll()
                     .requestMatchers("/auth/**")
+                    .permitAll()
+                    .requestMatchers("/docs/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml")
                     .permitAll()
                     .requestMatchers("/v2/**")
                     .permitAll()

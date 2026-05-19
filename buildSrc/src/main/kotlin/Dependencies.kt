@@ -35,7 +35,7 @@ import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3KVersion
 import Versions.S3Version
-import Versions.SpringfoxSwaggerVersion
+import Versions.SpringDocOpenApiVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
@@ -51,6 +51,7 @@ object PluginVersions {
     const val ShadowPluginVersion = "8.1.1"
     const val SshVersion = "2.12.0"
     const val SpringBootPluginVersion = "3.5.5"
+    const val SpringDocOpenApiPluginVersion = "1.9.0"
     const val SpringDependencyManagementPluginVersion = "1.1.7"
 }
 
@@ -98,7 +99,7 @@ object Versions {
     const val RxJava2Version = "2.2.8"
     const val PoiVersion = "4.1.0"
     const val XlsxStreamerVersion = "2.1.0"
-    const val SpringfoxSwaggerVersion = "2.9.2"
+    const val SpringDocOpenApiVersion = "2.7.0"
     const val Log4JVersion = "1.7.29"
     const val ZipUtilVersion = "1.15"
     const val ZeroAllocationHashingVersion = "0.16"
@@ -177,8 +178,8 @@ object Dependencies {
     const val CliKt = "com.github.ajalt:clikt:$CliKtVersion"
     const val RxJava2 = "io.reactivex.rxjava2:rxjava:$RxJava2Version"
     const val XlsxStreamer = "com.monitorjbl:xlsx-streamer:$XlsxStreamerVersion"
-    const val SpringfoxSwagger = "io.springfox:springfox-swagger2:$SpringfoxSwaggerVersion"
-    const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
+    const val SpringDocOpenApiStarter = "org.springdoc:springdoc-openapi-starter-webmvc-ui:$SpringDocOpenApiVersion"
+    const val SwaggerAnnotations = "io.swagger.core.v3:swagger-annotations:2.2.25"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
     const val JavaValidationApi = "jakarta.validation:jakarta.validation-api"
     const val ZipUtil = "org.zeroturnaround:zt-zip:$ZipUtilVersion"
@@ -236,6 +237,7 @@ object Plugins {
     const val SshPlugin = "org.hidetake.ssh"
     const val SpringBootPlugin = "org.springframework.boot"
     const val SpringDependencyManagementPlugin = "io.spring.dependency-management"
+    const val SpringDocOpenApiPlugin = "org.springdoc.openapi-gradle-plugin"
 }
 
 object Projects {

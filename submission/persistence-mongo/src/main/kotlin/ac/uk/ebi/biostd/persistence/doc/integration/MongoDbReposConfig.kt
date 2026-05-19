@@ -20,10 +20,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionStats
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
+@Profile("!openapi-gen")
 @Import(MongoDbReactiveConfig::class, SerializationConfiguration::class)
 class MongoDbReposConfig {
     @Bean
