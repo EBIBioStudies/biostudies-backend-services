@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
@@ -93,6 +94,7 @@ class SubmissionConfig {
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: SecurityQueryService,
         eventsPublisherService: EventsPublisherService,
+        requestService: SubmissionRequestPersistenceService,
     ): ExtSubmissionService =
         ExtSubmissionService(
             doiService,
@@ -103,5 +105,6 @@ class SubmissionConfig {
             userPrivilegeService,
             securityQueryService,
             eventsPublisherService,
+            requestService,
         )
 }

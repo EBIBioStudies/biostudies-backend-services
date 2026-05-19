@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_FILE_LIST_FILE
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_LINK_LIST_LINKS
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_STATS
 import ebi.ac.uk.base.Either
+import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -106,6 +107,7 @@ data class NfsDocFile(
     val md5: String,
     val fileSize: Long,
     val fileType: String,
+    val source: FileSourceType? = null,
 ) : DocFile
 
 data class FireDocFile(

@@ -43,8 +43,8 @@ class ExtFileExtensionsTest {
                 "full-path",
                 "md5",
                 1L,
-                listOf(ExtAttribute("Attribute", "Old")),
-                FILE,
+                attributes = listOf(ExtAttribute("Attribute", "Old")),
+                type = FILE,
             )
         val newAttributes = listOf(ExtAttribute("Override", "New"))
         val copied = nfsFile.copyWithAttributes(newAttributes)

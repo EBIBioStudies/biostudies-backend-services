@@ -9,6 +9,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRep
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.FileSourceType.SUBMISSION
+import ebi.ac.uk.extended.model.FileSourceType.USER
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -66,7 +68,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             runTest {
                 val extFile =
                     createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-                val requestFile = SubmissionRequestFile("S-BSST0", 1, "requested.txt", extFile, INDEXED)
+                val requestFile = SubmissionRequestFile("S-BSST0", 1, "requested.txt", extFile, INDEXED, SUBMISSION)
 
                 testInstance.saveSubmissionRequestFile(requestFile)
 
@@ -80,10 +82,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
                 val first = createNfsFile("first.txt", "Files/first.txt", tempFolder.createFile("first.txt"))
                 val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
 
-                val requestFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", first, INDEXED)
+                val requestFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", first, INDEXED, SUBMISSION)
                 testInstance.saveSubmissionRequestFile(requestFile)
 
-                val updatedFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", second, INDEXED)
+                val updatedFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", second, INDEXED, SUBMISSION)
                 testInstance.saveSubmissionRequestFile(updatedFile)
 
                 val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
@@ -101,10 +103,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         @BeforeEach
         fun beforeEach() =
             runBlocking {
-                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, "file1.txt", extFile1, INDEXED)
-                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, "file2.txt", extFile2, LOADED)
-                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, "file3.txt", extFile3, COPIED)
-                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, "file4.txt", extFile4, COPIED)
+                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, "file1.txt", extFile1, INDEXED, USER)
+                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, "file2.txt", extFile2, LOADED, USER)
+                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, "file3.txt", extFile3, COPIED, USER)
+                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, "file4.txt", extFile4, COPIED, USER)
 
                 testInstance.saveSubmissionRequestFile(requestFile1)
                 testInstance.saveSubmissionRequestFile(requestFile2)
