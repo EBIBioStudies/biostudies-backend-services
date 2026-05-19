@@ -38,7 +38,8 @@ CREATE TABLE SubmissionRT
 (
     id       BIGINT AUTO_INCREMENT PRIMARY KEY,
     accNo    LONGTEXT NOT NULL,
-    ticketId LONGTEXT NOT NULL
+    ticketId LONGTEXT NOT NULL,
+    lastModified DATETIME NOT NULL
 );
 
 -- Security

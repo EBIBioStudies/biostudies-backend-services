@@ -96,4 +96,6 @@ interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
 
 interface SubmissionRtRepository : JpaRepository<DbSubmissionRT, Long> {
     fun findByAccNo(accNo: String): DbSubmissionRT?
+
+    fun getByAccNo(accNo: String): DbSubmissionRT
 }

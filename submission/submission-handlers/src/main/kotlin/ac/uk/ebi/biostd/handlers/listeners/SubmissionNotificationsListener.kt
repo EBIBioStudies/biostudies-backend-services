@@ -9,6 +9,8 @@ import ac.uk.ebi.biostd.handlers.config.FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
+import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.FailedRequestMessage
@@ -26,6 +28,7 @@ class SubmissionNotificationsListener(
     private val notificationsSender: NotificationsSender,
     private val rtNotificationService: RtNotificationService,
     private val notificationProps: NotificationProperties,
+    private val notificationErrorDataService: NotificationErrorDataService,
 ) {
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
@@ -74,8 +77,18 @@ class SubmissionNotificationsListener(
         }.onFailure {
             onError(message)
             val errorMsg = "Error processing notification of type '$notificationType' for submission '${message.accNo}"
+            val payload = jacksonObjectMapper().writeValueAsString(message)
             logger.error(it) { "$errorMsg': ${it.message ?: it.localizedMessage}" }
             logger.error { "Failed notification payload: $message" }
+
+            if (notificationProps.persistErrors) {
+                notificationErrorDataService.saveNotificationError(
+                    accNo = message.accNo,
+                    notificationType = notificationType,
+                    messagePayload = payload,
+                    errorMessage = it.message ?: it.localizedMessage,
+                )
+            }
         }
     }
 

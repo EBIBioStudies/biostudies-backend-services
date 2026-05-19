@@ -12,6 +12,7 @@ import Projects.CommonsUtil
 import Projects.SubmissionConfig
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterAmqp
@@ -35,6 +36,7 @@ dependencies {
     api(project(SubmissionNotification))
     api(project(SubmissionConfig))
     api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceMongo))
     api(project(SubmissionPersistenceSql))
 
     implementation(KotlinCoroutines)

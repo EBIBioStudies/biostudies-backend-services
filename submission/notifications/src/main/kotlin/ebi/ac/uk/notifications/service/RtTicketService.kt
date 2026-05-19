@@ -19,15 +19,17 @@ class RtTicketService(
         content: String,
     ) = when (val ticketId = notificationsDataService.findTicketId(accNo)) {
         null -> createTicket(accNo, subject, owner, content)
-        else -> commentTicket(ticketId, content)
+        else -> commentTicket(accNo, ticketId, content)
     }
 
     private fun commentTicket(
+        accNo: String,
         ticketId: String,
         content: String,
     ) {
         logger.info { "Commenting RT ticket $ticketId with content: '$content'" }
         rtClient.commentTicket(ticketId, properties.bccEmail, content)
+        notificationsDataService.updateRtNotification(accNo)
     }
 
     private fun createTicket(

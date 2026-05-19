@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
+import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationError
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -306,3 +307,5 @@ interface LinkListDocLinkRepository : CoroutineCrudRepository<LinkListDocLink, O
         fileListName: String,
     ): Long
 }
+
+interface NotificationErrorMongoRepository : CoroutineCrudRepository<DocNotificationError, ObjectId>

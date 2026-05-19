@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.Instant
 
 @Entity
 @Table(name = "SubmissionRT")
@@ -15,10 +16,12 @@ class DbSubmissionRT(
     override val accNo: String,
     @Column
     override val ticketId: String,
+    @Column
+    override var lastModified: Instant,
 ) : SubmissionRT {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
 
-    constructor() : this("", "")
+    constructor() : this("", "", Instant.now())
 }

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
+import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.SystemNotification
 import ebi.ac.uk.extended.events.FailedRequestMessage
@@ -30,15 +31,23 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 @ExtendWith(MockKExtension::class)
 class SubmissionNotificationsListenerTest(
-    @MockK private val submitter: ExtUser,
-    @MockK private val submission: ExtSubmission,
-    @MockK private val message: SubmissionMessage,
-    @MockK private val rabbitTemplate: RabbitTemplate,
-    @MockK private val webConsumer: BioStudiesWebConsumer,
-    @MockK private val notificationsSender: NotificationsSender,
-    @MockK private val rtNotificationService: RtNotificationService,
-    @MockK private val notificationProperties: NotificationProperties,
+    @param:MockK private val submitter: ExtUser,
+    @param:MockK private val submission: ExtSubmission,
+    @param:MockK private val rabbitTemplate: RabbitTemplate,
+    @param:MockK private val webConsumer: BioStudiesWebConsumer,
+    @param:MockK private val notificationsSender: NotificationsSender,
+    @param:MockK private val rtNotificationService: RtNotificationService,
+    @param:MockK private val notificationProperties: NotificationProperties,
+    @param:MockK private val notificationErrorDataService: NotificationErrorDataService,
 ) {
+    private val message: SubmissionMessage =
+        SubmissionMessage(
+            accNo = "S-BSST1",
+            pagetabUrl = "pagetab-url",
+            extTabUrl = "ext-tab-url",
+            extUserUrl = "ext-user-url",
+            eventTime = "2026-05-19T14:01:00Z",
+        )
     private val testInstance =
         SubmissionNotificationsListener(
             rabbitTemplate,
@@ -46,16 +55,17 @@ class SubmissionNotificationsListenerTest(
             notificationsSender,
             rtNotificationService,
             notificationProperties,
+            notificationErrorDataService,
         )
 
     @BeforeEach
     fun beforeEach() {
         mockRabbit()
-        mockMessage()
         mockSubmitter()
         every { submission.collections } returns emptyList()
         every { notificationProperties.uiUrl } returns "ui-url"
         every { notificationProperties.stUrl } returns "st-url"
+        every { notificationProperties.persistErrors } returns true
         every { webConsumer.getExtUser("ext-user-url") } returns submitter
         every { webConsumer.getExtSubmission("ext-tab-url") } returns submission
         every {
@@ -150,7 +160,39 @@ class SubmissionNotificationsListenerTest(
     fun `notification failed`() {
         val errorNotificationSlot = slot<SystemNotification>()
 
-        every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception()
+        every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception("error message")
+        coEvery { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
+        coEvery {
+            notificationErrorDataService.saveNotificationError(
+                "S-BSST1",
+                any(),
+                "Release Notification",
+                "error message",
+            )
+        } returns Unit
+
+        testInstance.receiveSubmissionReleaseMessage(message)
+
+        verify { rtNotificationService wasNot called }
+        coVerify(exactly = 1) {
+            webConsumer.getExtSubmission("ext-tab-url")
+            notificationsSender.send(errorNotificationSlot.captured)
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+            notificationErrorDataService.saveNotificationError(
+                "S-BSST1",
+                any(),
+                "Release Notification",
+                "error message",
+            )
+        }
+    }
+
+    @Test
+    fun `notification failed when persistence is disabled`() {
+        val errorNotificationSlot = slot<SystemNotification>()
+
+        every { notificationProperties.persistErrors } returns false
+        every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception("error message")
         coEvery { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
 
         testInstance.receiveSubmissionReleaseMessage(message)
@@ -161,12 +203,9 @@ class SubmissionNotificationsListenerTest(
             notificationsSender.send(errorNotificationSlot.captured)
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
         }
-    }
-
-    private fun mockMessage() {
-        every { message.accNo } returns "S-BSST1"
-        every { message.extTabUrl } returns "ext-tab-url"
-        every { message.extUserUrl } returns "ext-user-url"
+        coVerify(exactly = 0) {
+            notificationErrorDataService.saveNotificationError(any(), any(), any(), any())
+        }
     }
 
     private fun mockSubmitter() {
