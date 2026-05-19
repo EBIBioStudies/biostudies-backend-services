@@ -10,7 +10,7 @@ import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.SecurityException
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
@@ -36,11 +36,13 @@ class SecurityExceptionHandler {
             is ActKeyNotFoundException,
             is UserPendingRegistrationException,
             is UserWithActivationKeyNotFoundException,
-            is UserAlreadyRegister,
+            is UserAlreadyRegisteredException,
             -> badRequest(exception)
 
             is UnauthorizedOperation -> unauthorized(exception)
+
             is InvalidSseConfiguration -> badRequest(exception)
+
             is InvalidCaptchaException -> badRequest(exception)
         }
 

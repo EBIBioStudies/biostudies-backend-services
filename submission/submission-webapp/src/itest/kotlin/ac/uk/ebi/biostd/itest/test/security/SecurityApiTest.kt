@@ -108,8 +108,6 @@ class SecurityApiTest(
         override val password = "12345"
         override val superUser = true
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
 
     object NewUser : TestUser {
@@ -118,8 +116,6 @@ class SecurityApiTest(
         override val password = "12345"
         override val superUser = true
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
 
     object InactiveUser : TestUser {
@@ -128,7 +124,5 @@ class SecurityApiTest(
         override val password = "12345"
         override val superUser = false
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
 }

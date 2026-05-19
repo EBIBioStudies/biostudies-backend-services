@@ -23,7 +23,7 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
@@ -76,12 +76,15 @@ open class SecurityService(
     override suspend fun registerUser(request: RegisterRequest): SecurityUser {
         if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
         val userExists = withContext(Dispatchers.IO) { userRepository.existsByEmail(request.email) }
+        val user =
+            when {
+                userExists -> throw UserAlreadyRegisteredException(request.email)
+                props.requireActivation -> register(request)
+                else -> activate(asUser(request))
+            }
 
-        return when {
-            userExists -> throw UserAlreadyRegister(request.email)
-            props.requireActivation -> register(request)
-            else -> activate(asUser(request))
-        }
+        createMagicFolder(user)
+        return user
     }
 
     override suspend fun refreshUser(email: String): SecurityUser {
@@ -96,7 +99,7 @@ open class SecurityService(
         activate(user)
     }
 
-    override fun activateByEmail(request: ActivateByEmailRequest) {
+    override fun generateActivationKey(request: ActivateByEmailRequest) {
         val (email, instanceKey, path) = request
         val user = userRepository.getInactiveByEmail(email)
 
@@ -113,16 +116,8 @@ open class SecurityService(
         register(user, request.instanceKey, request.path)
     }
 
-    override suspend fun activateAndSetupPassword(request: ChangePasswordRequest): User {
-        val user = userRepository.getInactiveByActivationKey(request.activationKey)
-        activate(user)
-        return setPassword(user, request.password)
-    }
-
     override suspend fun changePassword(request: ChangePasswordRequest): User {
         val user = userRepository.getByActivationKey(request.activationKey)
-        activate(user)
-
         return setPassword(user, request.password)
     }
 
@@ -221,7 +216,6 @@ open class SecurityService(
             toActivate.active = true
             val dbUser = userRepository.save(toActivate)
             val securityUser = profileService.asSecurityUser(dbUser)
-            createMagicFolder(securityUser)
             securityUser
         }
 
@@ -250,7 +244,7 @@ open class SecurityService(
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
         logger.info { "Started creating the cluster FTP folder $path" }
-        clusterClient.triggerJobSync(job)
+        clusterClient.triggerJobSync(job, checkJobInterval = 2)
         logger.info { "Finished creating the cluster FTP folder $path" }
     }
 

@@ -10,5 +10,13 @@ interface TestUser {
     val superUser: Boolean
     val storageMode: StorageMode
 
-    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password, storageMode = storageMode.name)
+    fun asRegisterRequest(): RegisterRequest =
+        RegisterRequest(
+            username,
+            email,
+            password,
+            path = "/activate",
+            storageMode = storageMode.name,
+            instanceKey = "http://localhost:8080",
+        )
 }

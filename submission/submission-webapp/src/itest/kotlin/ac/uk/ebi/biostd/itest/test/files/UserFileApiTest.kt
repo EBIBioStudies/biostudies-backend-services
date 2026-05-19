@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.UserFileType.FILE
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import kotlinx.coroutines.test.runTest
@@ -265,8 +264,6 @@ class UserFileApiTest(
         override val password = "12345"
         override val superUser = true
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "NFS")
     }
 
     object FilesFtpUser : TestUser {
@@ -275,7 +272,5 @@ class UserFileApiTest(
         override val password = "12345"
         override val superUser = true
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "FTP")
     }
 }

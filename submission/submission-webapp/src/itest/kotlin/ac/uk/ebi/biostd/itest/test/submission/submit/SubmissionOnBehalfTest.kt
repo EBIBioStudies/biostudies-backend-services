@@ -18,7 +18,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -242,7 +241,5 @@ class SubmissionOnBehalfTest(
         override val password = "678910"
         override val superUser = false
         override val storageMode = StorageMode.NFS
-
-        override fun asRegisterRequest() = RegisterRequest(username, email, password, notificationsEnabled = true)
     }
 }
