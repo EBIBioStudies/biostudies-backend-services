@@ -27,7 +27,7 @@ class RtTicketService(
         ticketId: String,
         content: String,
     ) {
-        logger.info { "Commenting RT ticket $ticketId with content: '$content'" }
+        logger.info { "Commenting RT ticket $ticketId for submission $accNo" }
         rtClient.commentTicket(ticketId, properties.bccEmail, content)
         notificationsDataService.updateRtNotification(accNo)
     }
