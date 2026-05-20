@@ -6,6 +6,11 @@ import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionListener
 import ac.uk.ebi.biostd.handlers.listeners.SecurityNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorMongoDataService
 import ac.uk.ebi.biostd.persistence.integration.config.NotificationPersistenceConfig
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig
@@ -26,11 +31,10 @@ import org.springframework.core.io.ResourceLoader
 import org.springframework.http.codec.ClientCodecConfigurer
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
-@Import(NotificationPersistenceConfig::class)
+@Import(NotificationPersistenceConfig::class, MongoDbReposConfig::class)
 @EnableConfigurationProperties(ApplicationProperties::class)
 class Listeners {
     @Bean
@@ -59,6 +63,7 @@ class Listeners {
         notificationsSender: NotificationsSender,
         applicationProperties: ApplicationProperties,
         rtNotificationService: RtNotificationService,
+        notificationErrorDataService: NotificationErrorDataService,
     ): SubmissionNotificationsListener =
         SubmissionNotificationsListener(
             rabbitTemplate,
@@ -66,7 +71,12 @@ class Listeners {
             notificationsSender,
             rtNotificationService,
             applicationProperties.notifications,
+            notificationErrorDataService,
         )
+
+    @Bean
+    fun notificationErrorDataService(notificationErrorMongoRepository: NotificationErrorMongoRepository): NotificationErrorDataService =
+        NotificationErrorMongoDataService(notificationErrorMongoRepository)
 
     @Bean
     fun securityNotificationsListener(
@@ -82,6 +92,7 @@ class Listeners {
 }
 
 @Configuration
+@Import(SerializationConfiguration::class)
 class WebConfig {
     @Bean
     fun jsonMessageConverter(): MessageConverter = Jackson2JsonMessageConverter()
@@ -89,11 +100,14 @@ class WebConfig {
     @Bean
     fun webClient(): WebClient {
         val exchangeStrategies =
-            ExchangeStrategies.builder().codecs { configurer ->
-                if (configurer is ClientCodecConfigurer) configurer.defaultCodecs().maxInMemorySize(-1)
-            }.build()
+            ExchangeStrategies
+                .builder()
+                .codecs { configurer ->
+                    if (configurer is ClientCodecConfigurer) configurer.defaultCodecs().maxInMemorySize(-1)
+                }.build()
 
-        return WebClient.builder()
+        return WebClient
+            .builder()
             .exchangeStrategies(exchangeStrategies)
             .build()
     }
@@ -113,9 +127,6 @@ class WebConfig {
 
 @Configuration
 class Services {
-    @Bean
-    fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
-
     @Bean
     fun rtNotificationService(notificationConfig: NotificationConfig) = notificationConfig.rtNotificationService()
 

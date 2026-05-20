@@ -1,4 +1,5 @@
 import Dependencies.CommonsIO
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
@@ -37,6 +38,7 @@ dependencies {
     implementation(SpringWebFlux)
 
     implementation(CommonsIO)
+    implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(RxJava2)

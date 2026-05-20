@@ -9,6 +9,8 @@ import ac.uk.ebi.biostd.handlers.config.FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.FailedRequestMessage
@@ -26,13 +28,15 @@ class SubmissionNotificationsListener(
     private val notificationsSender: NotificationsSender,
     private val rtNotificationService: RtNotificationService,
     private val notificationProps: NotificationProperties,
+    private val notificationErrorDataService: NotificationErrorDataService,
 ) {
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
-        logger.info { "Submission Notification for ${message.accNo}" }
+        logger.info { "Submission Notification for submission: ${message.accNo}" }
 
         notifySafely(message, SUCCESSFUL_SUBMISSION_NOTIFICATION) {
             val owner = webConsumer.getExtUser(message.extUserUrl)
+            logger.info { "Notifying user: ${owner.email}. Notifications enabled: ${owner.notificationsEnabled}" }
             if (owner.notificationsEnabled) {
                 val sub = webConsumer.getExtSubmission(message.extTabUrl)
                 val uiUrl = getUiUrl(sub)
@@ -73,7 +77,18 @@ class SubmissionNotificationsListener(
         }.onFailure {
             onError(message)
             val errorMsg = "Error processing notification of type '$notificationType' for submission '${message.accNo}"
+            val payload = jacksonObjectMapper().writeValueAsString(message)
             logger.error(it) { "$errorMsg': ${it.message ?: it.localizedMessage}" }
+            logger.error { "Failed notification payload: $message" }
+
+            if (notificationProps.persistErrors) {
+                notificationErrorDataService.saveNotificationError(
+                    accNo = message.accNo,
+                    notificationType = notificationType,
+                    messagePayload = payload,
+                    errorMessage = it.message ?: it.localizedMessage,
+                )
+            }
         }
     }
 
@@ -82,12 +97,11 @@ class SubmissionNotificationsListener(
         notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, String.format(ERROR_MESSAGE, message.accNo)))
     }
 
-    private fun getUiUrl(submission: ExtSubmission): String {
-        return when (val col = submission.collections.firstOrNull()) {
+    private fun getUiUrl(submission: ExtSubmission): String =
+        when (val col = submission.collections.firstOrNull()) {
             null -> notificationProps.uiUrl
             else -> "${notificationProps.uiUrl}/${col.accNo.lowercase()}"
         }
-    }
 
     companion object {
         private val logger = KotlinLogging.logger {}

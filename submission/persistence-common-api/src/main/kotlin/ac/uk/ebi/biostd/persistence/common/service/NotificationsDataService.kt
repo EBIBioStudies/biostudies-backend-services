@@ -8,5 +8,7 @@ interface NotificationsDataService {
         ticketId: String,
     ): SubmissionRT
 
+    fun updateRtNotification(accNo: String): SubmissionRT
+
     fun findTicketId(accNo: String): String?
 }
