@@ -1,5 +1,6 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtils.validatePath
 import ebi.ac.uk.io.FileUtilsHelper.createDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
 import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
@@ -82,7 +83,7 @@ object FileUtils {
     fun deleteFile(file: File) {
         when {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
-            else -> Files.deleteIfExists(file.toPath())
+            else -> deleteIfExists(file.toPath())
         }
     }
 
@@ -174,14 +175,22 @@ object FileUtils {
             emptyList()
         }
 
+    internal fun validatePath(path: Path) = require(path.none { it.toString() == ".." }) { "Path must not contain '..' segments: '$path'" }
+
+    internal fun validateRelPath(path: String) {
+        val normalizedPath = Path.of(path).normalize()
+        require(normalizedPath.isAbsolute.not() && normalizedPath.none { it.toString() == ".." }) {
+            "Path must be a relative path and must not contain '..' segments: '$path'"
+        }
+    }
+
     private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
 
     private fun calculateDirectorySize(dir: File) =
         dir
             .walkTopDown()
             .filter { it.isFile }
-            .map { it.size() }
-            .sum()
+            .sumOf { it.size() }
 }
 
 private val logger = KotlinLogging.logger {}
@@ -208,6 +217,8 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
+        validatePath(filePath)
+        validatePath(target)
         runSafely {
             logger.info { "Processing Hardlink for file $filePath into target $target" }
             deleteIfExists(target)
@@ -223,6 +234,8 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Set<PosixFilePermission>,
     ) {
+        validatePath(link)
+        validatePath(target)
         if (exists(link)) Files.delete(link)
         Files.createSymbolicLink(createParentDirectories(link, permissions), target)
     }
@@ -259,6 +272,7 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
+        validatePath(target)
         runSafely {
             Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
             Files.setPosixFilePermissions(target, permissions.file)
@@ -300,6 +314,7 @@ internal object FileUtilsHelper {
         path: Path,
         permissions: Set<PosixFilePermission>,
     ) {
+        validatePath(path)
         runSafely {
             Files.createDirectory(path)
             Files.setPosixFilePermissions(path, permissions)
@@ -307,8 +322,8 @@ internal object FileUtilsHelper {
     }
 
     /*
-     * Some methods require ignoring exceptions of the type FileAlreadyExistsException in order to become thread safe.
-     * See this discussion for more details:
+     * Some methods require ignoring exceptions of the type FileAlreadyExistsException to become thread safe. See this
+     * discussion for more details:
      * https://github.com/EBIBioStudies/biostudies-backend-services/pull/733#discussion_r1280085979
      */
     private fun runSafely(func: () -> Unit) {

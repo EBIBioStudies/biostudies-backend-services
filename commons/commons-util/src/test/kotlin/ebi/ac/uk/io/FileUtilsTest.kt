@@ -11,6 +11,7 @@ import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -521,6 +522,34 @@ internal class FileUtilsTest(
 
             assertThat(folder).exists()
             assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RW_______)
+        }
+    }
+
+    @Nested
+    inner class PathValidation {
+        @Test
+        fun `new file rejects path traversal`() {
+            assertThatThrownBy { temporaryFolder.root.newFile("../escaped.txt") }
+                .isInstanceOf(IllegalArgumentException::class.java)
+                .hasMessageContaining("Path must be a relative path")
+        }
+
+        @Test
+        fun `create directory rejects absolute path`() {
+            assertThatThrownBy { temporaryFolder.root.createDirectory("/tmp/unsafe-folder") }
+                .isInstanceOf(IllegalArgumentException::class.java)
+                .hasMessageContaining("Path must be a relative path")
+        }
+
+        @Test
+        fun `create symbolic link rejects parent traversal`() {
+            val target = temporaryFolder.createFile("target.txt")
+            val unsafeLink = temporaryFolder.root.toPath().resolve("../unsafe-link")
+
+            assertThatThrownBy {
+                FileUtils.createSymbolicLink(unsafeLink, target.toPath(), RWXRWX___)
+            }.isInstanceOf(IllegalArgumentException::class.java)
+                .hasMessageContaining("Path must not contain '..'")
         }
     }
 }

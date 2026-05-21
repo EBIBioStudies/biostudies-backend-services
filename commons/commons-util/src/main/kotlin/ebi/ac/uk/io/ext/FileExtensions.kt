@@ -25,9 +25,13 @@ fun File.size(calculateDirectories: Boolean = true) = FileUtils.size(this, calcu
 
 fun File.md5() = FileUtils.md5(this)
 
-fun File.createDirectory(name: String): File = FileUtils.getOrCreateFolder(toPath().resolve(name), RWXRWX___).toFile()
+fun File.createDirectory(name: String): File {
+    FileUtils.validateRelPath(name)
+    return FileUtils.getOrCreateFolder(toPath().resolve(name), RWXRWX___).toFile()
+}
 
 fun File.newFile(name: String): File {
+    FileUtils.validateRelPath(name)
     val file = resolve(name)
     file.parentFile.mkdirs()
     file.createNewFile()
@@ -43,6 +47,7 @@ fun File.createNewFile(
     name: String,
     text: String,
 ): File {
+    FileUtils.validateRelPath(name)
     val file = resolve(name)
     file.createNewFile()
     file.writeText(text)
@@ -75,6 +80,7 @@ fun File.createFile(fileName: String): File = newFile(fileName)
  * Creates a file with the given name or replaces it if already exists.
  */
 fun File.createOrReplaceFile(fileName: String): File {
+    FileUtils.validateRelPath(fileName)
     val file = resolve(fileName)
     if (file.exists()) file.delete()
     return newFile(fileName)
