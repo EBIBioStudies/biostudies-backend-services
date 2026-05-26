@@ -15,6 +15,7 @@ include:
   - template: Jobs/SAST.gitlab-ci.yml
 
 stages:
+  - test
   - build-test
   - nfs-itest
   - fire-itest
