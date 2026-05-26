@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.admin.operations
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
@@ -8,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled
 class OperationsScheduler(
     private val applicationProperties: ApplicationProperties,
     private val operationsService: OperationsService,
+    private val migrationService: MigrationService,
     private val statsReporterService: StatsReporterService,
 ) {
     /**
@@ -35,10 +37,19 @@ class OperationsScheduler(
     }
 
     /**
-     * Generate stats report on the 4th day of every month at 3:00 AM
+     * Generate the submission stats report on the 4th day of every month at 3:00 AM
      */
     @Scheduled(cron = "0 0 3 4 * *")
     fun publishSubmissionStatsReport() {
         runBlocking { if (applicationProperties.enableStatsReport) statsReporterService.reportStats() }
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    fun migrateSubmission() {
+        runBlocking {
+            if (applicationProperties.migration.enabled) {
+                migrationService.migrateSubmissions()
+            }
+        }
     }
 }
