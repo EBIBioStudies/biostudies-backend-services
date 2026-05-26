@@ -10,7 +10,6 @@ import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.dto.UserGroupDto
-import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
@@ -150,8 +149,6 @@ interface SecurityOperations {
     fun login(loginRequest: LoginRequest): UserProfile
 
     fun registerUser(registerRequest: RegisterRequest)
-
-    fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
 interface UserOperations {
