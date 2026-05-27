@@ -34,7 +34,6 @@ import Versions.PoiVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3KVersion
-import Versions.S3Version
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
@@ -87,7 +86,6 @@ object Versions {
     const val WoodstoxVersion = "5.1.0"
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
-    const val S3Version = "1.12.772"
     const val S3KVersion = "1.3.83"
     const val HttpCrtVersion = "1.3.26"
     const val OkHttpVersion = "5.0.0-alpha.14"
@@ -168,7 +166,6 @@ object Dependencies {
     const val AwsS3K = "aws.sdk.kotlin:s3:$S3KVersion"
     const val HttpClientCrt = "aws.smithy.kotlin:http-client-engine-crt-jvm:$HttpCrtVersion"
     const val OkHttp3 = "com.squareup.okhttp3:okhttp:$OkHttpVersion"
-    const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
     const val ServletApi = "jakarta.servlet:jakarta.servlet-api"
     const val Logback = "ch.qos.logback:logback-classic"
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"
