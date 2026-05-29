@@ -1,7 +1,10 @@
 package uk.ac.ebi.fire.client.api
 
 import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.GetObjectRequest
+import aws.sdk.kotlin.services.s3.model.PutObjectRequest
+import aws.smithy.kotlin.runtime.content.asByteStream
 import aws.smithy.kotlin.runtime.content.writeToFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,6 +22,28 @@ class S3KClient(
             }
         copyFile(path, tmp)
         return tmp
+    }
+
+    override suspend fun upload(
+        file: File,
+        path: String,
+    ) {
+        val request =
+            PutObjectRequest {
+                bucket = bucketName
+                key = path
+                body = file.asByteStream()
+            }
+        s3Client.putObject(request)
+    }
+
+    override suspend fun deleteFile(path: String) {
+        val request =
+            DeleteObjectRequest {
+                bucket = bucketName
+                key = path
+            }
+        s3Client.deleteObject(request)
     }
 
     private suspend fun copyFile(

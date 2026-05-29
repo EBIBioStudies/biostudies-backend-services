@@ -1,7 +1,6 @@
 package uk.ac.ebi.fire.client.integration.web
 
 import ebi.ac.uk.coroutines.SuspendRetryTemplate
-import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
@@ -60,6 +59,19 @@ internal class RetryWebClient(
 
     override suspend fun downloadByPath(path: String): File? {
         val opt = "Download file path='$path'"
-        return runBlocking { template.execute(opt) { fireS3Client.downloadByPath(path) } }
+        return template.execute(opt) { fireS3Client.downloadByPath(path) }
+    }
+
+    override suspend fun upload(
+        file: File,
+        path: String,
+    ) {
+        val opt = "Upload file path='$path'"
+        template.execute(opt) { fireS3Client.upload(file, path) }
+    }
+
+    override suspend fun deleteFile(path: String) {
+        val opt = "Delete file path='$path'"
+        template.execute(opt) { fireS3Client.deleteFile(path) }
     }
 }

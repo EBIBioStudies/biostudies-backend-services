@@ -1,20 +1,20 @@
 package ac.uk.ebi.biostd.itest.wiremock
 
-import com.amazonaws.services.s3.AmazonS3
+import kotlinx.coroutines.runBlocking
+import uk.ac.ebi.fire.client.integration.web.FireS3Client
 import java.io.File
 
 class FireS3Service(
-    private val s3Bucket: String,
-    private val amazonS3: AmazonS3,
+    private val fireS3Client: FireS3Client,
 ) {
     fun upload(
         file: File,
         path: String,
     ) {
-        amazonS3.putObject(s3Bucket, path, file)
+        runBlocking { fireS3Client.upload(file, path) }
     }
 
     fun deleteFile(path: String) {
-        amazonS3.deleteObject(s3Bucket, path)
+        runBlocking { fireS3Client.deleteFile(path) }
     }
 }

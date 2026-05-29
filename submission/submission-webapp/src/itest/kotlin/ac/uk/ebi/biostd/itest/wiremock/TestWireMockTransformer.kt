@@ -11,18 +11,17 @@ import ac.uk.ebi.biostd.itest.wiremock.handlers.RequestHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.SetPathHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnPublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnSetPathHandler
-import com.amazonaws.auth.AWSStaticCredentialsProvider
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.client.builder.AwsClientBuilder
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.AmazonS3Client
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
+import aws.sdk.kotlin.services.s3.S3Client
+import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
+import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
+import aws.smithy.kotlin.runtime.net.url.Url
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import uk.ac.ebi.fire.client.api.S3KClient
 import java.nio.file.Path
 import kotlin.random.Random
 
@@ -30,27 +29,22 @@ class TestWireMockTransformer(
     private val failFactor: Int?,
     private val fixedDelay: Long,
     private val handlers: List<RequestHandler>,
-) : ResponseDefinitionTransformer() {
+) : ResponseDefinitionTransformerV2 {
     override fun getName(): String = NAME
 
-    override fun transform(
-        rqt: Request,
-        responseDefinition: ResponseDefinition?,
-        files: FileSource?,
-        parameters: Parameters?,
-    ): ResponseDefinition {
+    override fun transform(serveEvent: ServeEvent): ResponseDefinition {
+        val rqt = serveEvent.request
         Thread.sleep(fixedDelay)
         return failIfApply()
             ?: handlers.firstOrNull { it.urlPattern.matches(rqt.url) && it.method == rqt.method }?.handleSafely(rqt)
             ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${rqt.method.name} is not supported")
     }
 
-    private fun failIfApply(): ResponseDefinition? {
-        return when {
+    private fun failIfApply(): ResponseDefinition? =
+        when {
             failFactor == null || Random.nextInt(0, failFactor) != 0 -> null
             else -> ResponseDefinition(INTERNAL_SERVER_ERROR.value(), "Simulated Error")
         }
-    }
 
     companion object {
         const val NAME = "testWireMockTransformer"
@@ -64,7 +58,7 @@ class TestWireMockTransformer(
             httpEndpoint: String,
             defaultBucket: String,
         ): TestWireMockTransformer {
-            val s3System = FireS3Service(defaultBucket, amazonS3Client(httpEndpoint))
+            val s3System = FireS3Service(S3KClient(defaultBucket, s3Client(httpEndpoint)))
             val fileSystem = FireMockFileSystem(dbFolder, ftpFolder, subFolder, s3System)
             val fireDatabase = FireMockDatabase(fileSystem)
 
@@ -85,14 +79,13 @@ class TestWireMockTransformer(
             )
         }
 
-        private fun amazonS3Client(endpoint: String): AmazonS3 {
-            val basicAWSCredentials = BasicAWSCredentials("x", "x")
-            val endpointConfiguration = AwsClientBuilder.EndpointConfiguration(endpoint, "x")
-            return AmazonS3Client.builder()
-                .withEndpointConfiguration(endpointConfiguration)
-                .withPathStyleAccessEnabled(true)
-                .withCredentials(AWSStaticCredentialsProvider(basicAWSCredentials))
-                .build()
-        }
+        private fun s3Client(endpoint: String): S3Client =
+            S3Client {
+                httpClient = CrtHttpEngine()
+                region = "x"
+                endpointUrl = Url.parse(endpoint)
+                forcePathStyle = true
+                credentialsProvider = StaticCredentialsProvider(Credentials("x", "x"))
+            }
     }
 }
