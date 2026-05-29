@@ -32,6 +32,7 @@ class ConfigurationPropertiesHolder {
         println(result.readText())
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun mergeWith(result: MutableMap<String, Any>): MutableMap<String, Any> {
         for ((key, value) in properties) {
             val keys = key.split(".")

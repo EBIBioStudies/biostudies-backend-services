@@ -161,7 +161,7 @@ class SubmissionPostProcessingTest(
             assertThat(statsV1.released).isTrue()
             assertThat(statsV1.storageMode).isEqualTo(storageMode)
             assertThat(statsV1.subCreationTime).isEqualTo(subV1.creationTime.toInstant())
-            assertThat(statsV1.subReleaseTime).isEqualTo(subV1.releaseTime?.toInstant())
+            assertThat(statsV1.subReleaseTime).isEqualTo(subV1.releaseTime.toInstant())
             assertThat(statsV1.subModificationTime).isEqualTo(subV1.modificationTime.toInstant())
             assertThat(statsV1.stats).hasSize(3)
             assertThat(statsV1.stats[DIRECTORIES.name]).isEqualTo(0)

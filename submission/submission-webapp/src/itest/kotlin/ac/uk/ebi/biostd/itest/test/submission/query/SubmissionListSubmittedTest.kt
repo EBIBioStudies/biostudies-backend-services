@@ -16,6 +16,7 @@ import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -52,6 +53,7 @@ class SubmissionListSubmittedTest(
             webClient = getWebClient(serverPort, SubmissionUser)
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     @Disabled
     fun `13-11 list submission request in SUBMITTED stage`() =

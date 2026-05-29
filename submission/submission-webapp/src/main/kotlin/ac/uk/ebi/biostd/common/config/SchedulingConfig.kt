@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.admin.operations.OperationsScheduler
 import ac.uk.ebi.biostd.admin.operations.OperationsService
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
@@ -24,6 +25,13 @@ class SchedulingConfig {
     fun operationsScheduler(
         applicationProperties: ApplicationProperties,
         statsReporterService: StatsReporterService,
+        migrationService: MigrationService,
         operationsService: OperationsService,
-    ): OperationsScheduler = OperationsScheduler(applicationProperties, operationsService, statsReporterService)
+    ): OperationsScheduler =
+        OperationsScheduler(
+            applicationProperties,
+            operationsService,
+            migrationService,
+            statsReporterService,
+        )
 }

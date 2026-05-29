@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.migration
+package ac.uk.ebi.biostd.migration.service
 
 import ac.uk.ebi.biostd.common.properties.MigrationProperties
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -9,9 +9,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.springframework.scheduling.annotation.Scheduled
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -23,17 +21,6 @@ class MigrationService(
     private val submissionRequestRepository: SubmissionRequestDocDataRepository,
     private val extSubmissionService: ExtSubmissionService,
 ) {
-    @Scheduled(cron = "0 0 * * * *")
-    fun migrateSubmission() {
-        runBlocking {
-            if (properties.enabled) {
-                migrateSubmissions()
-            } else {
-                logger.info { "Skip migration running. 'enableMigration' is not enabled." }
-            }
-        }
-    }
-
     suspend fun migrateSubmissions() {
         logger.info { "Running submission FIRE migration" }
         val limit = Instant.now().minus(properties.minModificationDays.toLong(), ChronoUnit.DAYS)

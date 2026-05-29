@@ -54,6 +54,8 @@ class SecurityWebConfig(
                     .permitAll()
                     .requestMatchers("/pmc/**")
                     .permitAll()
+                    .requestMatchers("/cluster/**")
+                    .hasAuthority("ADMIN")
                     .anyRequest()
                     .fullyAuthenticated()
             }.exceptionHandling { exceptions ->
