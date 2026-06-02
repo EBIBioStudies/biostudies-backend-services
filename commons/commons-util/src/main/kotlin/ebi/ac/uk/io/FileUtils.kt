@@ -156,8 +156,6 @@ object FileUtils {
 
     fun md5(file: File): String = if (Files.isDirectory(file.toPath())) hashFolder(file).toString() else calculateMd5(file)
 
-    fun md5(value: String): String = DigestUtils.md5Hex(value).uppercase()
-
     fun listAllFiles(file: File): List<File> {
         require(file.isDirectory) { "$file need to be a directory" }
         return Files
