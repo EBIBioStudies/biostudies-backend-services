@@ -35,4 +35,11 @@ interface FireWebClient {
 
 interface FireS3Client {
     suspend fun downloadByPath(path: String): File?
+
+    suspend fun upload(
+        file: File,
+        path: String,
+    )
+
+    suspend fun deleteFile(path: String)
 }

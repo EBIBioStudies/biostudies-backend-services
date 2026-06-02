@@ -1,16 +1,21 @@
 image: gradle:8.7-jdk17
+
 services:
   - docker:28.5.2-dind
+
 variables:
   DOCKER_HOST: "tcp://docker:2375"
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
+  GITLAB_ADVANCED_SAST_ENABLED: 'true'
 
 include:
   - local: '/ci/docker.yml'
   - local: '/ci/jobs.yml'
+  - template: Jobs/SAST.gitlab-ci.yml
 
 stages:
+  - test
   - build-test
   - nfs-itest
   - fire-itest
