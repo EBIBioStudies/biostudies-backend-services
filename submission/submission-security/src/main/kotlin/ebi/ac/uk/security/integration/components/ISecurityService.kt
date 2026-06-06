@@ -11,7 +11,6 @@ import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
-@Suppress("TooManyFunctions")
 interface ISecurityService {
     suspend fun registerUser(request: RegisterRequest): SecurityUser
 
@@ -28,8 +27,6 @@ interface ISecurityService {
     suspend fun changePassword(request: ChangePasswordRequest): User
 
     fun resetPassword(request: ResetPasswordRequest)
-
-    suspend fun refreshUser(email: String): SecurityUser
 
     suspend fun updateMagicFolder(
         email: String,

@@ -15,6 +15,8 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.extended.model.hasMd5
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -92,6 +94,7 @@ class SubmissionRequestLoader(
     ): ExtFile =
         withContext(Dispatchers.IO) {
             when {
+                file.hasMd5 && sub.storageMode == NFS -> file
                 file.file.isDirectory() && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
                 else -> file.copy(md5 = file.file.md5(), size = file.file.size())
             }

@@ -30,7 +30,6 @@ import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
-import ebi.ac.uk.security.persistence.getActiveByEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
@@ -85,13 +84,6 @@ open class SecurityService(
 
         createMagicFolder(user)
         return user
-    }
-
-    override suspend fun refreshUser(email: String): SecurityUser {
-        val dbUser = userRepository.getActiveByEmail(email)
-        val securityUser = profileService.asSecurityUser(dbUser)
-        createMagicFolder(securityUser)
-        return securityUser
     }
 
     override suspend fun activate(activationKey: String) {

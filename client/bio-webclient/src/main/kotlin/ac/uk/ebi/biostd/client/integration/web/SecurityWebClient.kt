@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
@@ -26,16 +25,11 @@ class SecurityWebClient private constructor(
         }
     }
 
-    override fun login(loginRequest: LoginRequest): UserProfile {
-        return client.postForObject<UserProfile>("/auth/login", RequestParams(body = loginRequest))
-    }
+    override fun login(loginRequest: LoginRequest): UserProfile =
+        client.postForObject<UserProfile>("/auth/login", RequestParams(body = loginRequest))
 
     override fun registerUser(registerRequest: RegisterRequest) {
         client.post("/auth/register", RequestParams(body = registerRequest))
-    }
-
-    override fun checkUser(checkUserRequest: CheckUserRequest) {
-        client.post("/auth/check-registration", RequestParams(body = checkUserRequest))
     }
 
     companion object {

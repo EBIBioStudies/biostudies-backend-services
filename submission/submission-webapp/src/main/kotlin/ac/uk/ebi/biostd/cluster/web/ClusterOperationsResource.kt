@@ -1,61 +1,38 @@
 package ac.uk.ebi.biostd.cluster.web
 
+import jakarta.validation.constraints.Pattern
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
-import uk.ac.ebi.biostd.client.cluster.model.Job
-import uk.ac.ebi.biostd.client.cluster.model.JobSpec
-import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
-import uk.ac.ebi.biostd.client.cluster.model.QueueSpec
 
 @RestController
 @RequestMapping("/cluster")
+@PreAuthorize("hasAuthority('ADMIN')")
+@Validated
 class ClusterOperationsResource(
     private val clusterClient: ClusterClient,
 ) {
-    @PostMapping("/health")
-    suspend fun clusterHealthCheck(): Job {
-        val spec = JobSpec(command = "echo 'hello';")
-        return clusterClient.triggerJobSync(spec)
-    }
-
-    @PostMapping("/submit")
-    suspend fun submitJob(
-        @RequestBody job: JobSpecDto,
-    ): Job {
-        val response = clusterClient.triggerJobAsync(job.asJobSpec())
-        return response.fold(
-            { it },
-            { throw IllegalStateException(it) },
-        )
-    }
-
     @GetMapping("/jobs/{jobId}/status")
     suspend fun jobStatus(
+        @Pattern(regexp = JOB_ID_PATTERN)
         @PathVariable jobId: String,
-    ): JobStatus {
-        return JobStatus(clusterClient.jobStatus(jobId))
-    }
+    ): JobStatus = JobStatus(clusterClient.jobStatus(jobId))
 
     @GetMapping("/jobs/{jobId}/logs")
     suspend fun jobLogs(
+        @Pattern(regexp = JOB_ID_PATTERN)
         @PathVariable jobId: String,
-    ): String {
-        return clusterClient.jobLogs(jobId)
-    }
+    ): String = clusterClient.jobLogs(jobId)
 
-    data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {
-        fun asJobSpec(): JobSpec =
-            JobSpec(
-                command = command,
-                queue = QueueSpec.fromName(queue),
-                ram = MemorySpec.fromMegaBytes(ramMegaBytes),
-            )
-    }
+    data class JobStatus(
+        val status: String,
+    )
 
-    data class JobStatus(val status: String)
+    private companion object {
+        const val JOB_ID_PATTERN = "[A-Za-z0-9._-]{1,64}"
+    }
 }
