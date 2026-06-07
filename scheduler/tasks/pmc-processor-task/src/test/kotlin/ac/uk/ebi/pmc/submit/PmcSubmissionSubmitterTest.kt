@@ -99,6 +99,7 @@ internal class PmcSubmissionSubmitterTest {
                                 "allow" to jsonArray("allow")
                                 "deny" to jsonArray("deny")
                                 "uploadType" to "nfs"
+                                "lastActivity" to "2026-06-07T12:00:00"
                             }.toString(),
                         ),
                 ),
