@@ -40,6 +40,7 @@ class ProfileService(
             orcid = user.orcid,
             secret = user.secret,
             superuser = user.superuser,
+            lastActivity = user.lastActivity,
             userFolder = userMagicFolder(user.storageMode, userFtpRootPath, user.secret, user.id),
             groupsFolders = groupsMagicFolder(user.groups),
             permissions = getPermissions(user.permissions),

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.nio.file.Paths
+import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileSourcesServiceTest(
@@ -169,6 +170,7 @@ class FileSourcesServiceTest(
             orcid = "0000-0002-1825-0097",
             secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
             superuser = true,
+            lastActivity = LAST_ACTIVITY,
             userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
@@ -199,11 +201,16 @@ class FileSourcesServiceTest(
             orcid = "1234-5678-9101-1121",
             secret = "98214a2f-f80b-4f33-86a4-26d3bd0453aa",
             superuser = true,
+            lastActivity = LAST_ACTIVITY,
             userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true,
             adminCollections = emptyList(),
         )
+    }
+
+    private companion object {
+        val LAST_ACTIVITY: LocalDateTime = LocalDateTime.parse("2024-01-01T12:00:00")
     }
 }

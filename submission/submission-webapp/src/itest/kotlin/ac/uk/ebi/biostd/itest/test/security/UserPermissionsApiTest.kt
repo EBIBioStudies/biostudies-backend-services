@@ -34,6 +34,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
+import java.time.LocalDateTime
 
 @ExtendWith(SpringExtension::class)
 @Import(FilePersistenceConfig::class)
@@ -144,6 +145,7 @@ class UserPermissionsApiTest(
                 keyTime = 2,
                 passwordDigest = ByteArray(1),
                 storageMode = StorageMode.NFS,
+                lastActivity = LocalDateTime.parse("2024-01-01T12:00:00"),
             )
     }
 }
