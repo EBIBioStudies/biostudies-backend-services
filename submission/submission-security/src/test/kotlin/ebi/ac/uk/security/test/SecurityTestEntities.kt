@@ -6,6 +6,7 @@ import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import java.time.LocalDateTime
 
 internal class SecurityTestEntities {
     companion object {
@@ -56,6 +57,7 @@ internal class SecurityTestEntities {
             )
 
         val passwordDigest = ByteArray(0)
+        val lastActivity: LocalDateTime = LocalDateTime.parse("2024-01-01T12:00:00")
 
         val simpleUser: DbUser =
             DbUser(
@@ -65,6 +67,7 @@ internal class SecurityTestEntities {
                 secret = SECRET,
                 storageMode = StorageMode.NFS,
                 passwordDigest = passwordDigest,
+                lastActivity = lastActivity,
             )
 
         val adminUser =
@@ -76,6 +79,7 @@ internal class SecurityTestEntities {
                 storageMode = StorageMode.NFS,
                 passwordDigest = passwordDigest,
                 superuser = true,
+                lastActivity = lastActivity,
             )
     }
 }

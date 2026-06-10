@@ -20,6 +20,7 @@ import jakarta.persistence.NamedEntityGraph
 import jakarta.persistence.NamedEntityGraphs
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 internal const val USER_DATA_GRAPH = "DbUser.fullData"
@@ -48,6 +49,8 @@ class DbUser(
     var email: String,
     @Column
     var fullName: String,
+    @Column(nullable = false)
+    var lastActivity: LocalDateTime = LocalDateTime.now(),
     @Column
     var keyTime: Long = OffsetDateTime.now().toInstant().toEpochMilli(),
     @Column

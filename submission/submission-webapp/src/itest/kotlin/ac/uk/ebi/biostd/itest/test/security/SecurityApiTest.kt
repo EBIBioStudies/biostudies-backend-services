@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit.SECONDS
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -70,6 +72,25 @@ class SecurityApiTest(
             assertThat(result.uploadType).isEqualTo("nfs")
         }
 
+    @Test
+    fun `22-8 get user profile`() =
+        runTest {
+            securityTestService.ensureUserRegistration(FtpSuperUser)
+            val client = getWebClient(serverPort, FtpSuperUser)
+
+            val startedAt = LocalDateTime.now().minusSeconds(1).truncatedTo(SECONDS)
+            val result = client.getProfile()
+            val finishedAt = LocalDateTime.now().plusSeconds(1).truncatedTo(SECONDS)
+
+            val storedUser = userDataRepository.getByEmail(FtpSuperUser.email)
+
+            assertThat(result.email).isEqualTo(FtpSuperUser.email)
+            assertThat(result.fullname).isEqualTo(FtpSuperUser.username)
+            assertThat(result.uploadType).isEqualTo("ftp")
+            assertThat(result.lastActivity.truncatedTo(SECONDS)).isBetween(startedAt, finishedAt)
+            assertThat(storedUser.lastActivity).isEqualTo(result.lastActivity.truncatedTo(SECONDS))
+        }
+
     object NfsUser : TestUser {
         override val username = "New Nfs User"
         override val email = "new-nfs-biostudies-mgmt@ebi.ac.uk"
@@ -83,14 +104,6 @@ class SecurityApiTest(
         override val email = "new-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
-        override val storageMode = StorageMode.NFS
-    }
-
-    object InactiveUser : TestUser {
-        override val username = "Inactive User"
-        override val email = "inactive@ebi.ac.uk"
-        override val password = "12345"
-        override val superUser = false
         override val storageMode = StorageMode.NFS
     }
 }

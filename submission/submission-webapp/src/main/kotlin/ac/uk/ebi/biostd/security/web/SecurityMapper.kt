@@ -21,6 +21,7 @@ class SecurityMapper {
                 allow = getAllow(user),
                 secret = user.userFolder.relativePath.toString(),
                 uploadType = user.userFolder.type,
+                lastActivity = user.lastActivity,
             )
         }
 

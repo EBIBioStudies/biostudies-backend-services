@@ -1,5 +1,7 @@
 package ebi.ac.uk.api.security
 
+import java.time.LocalDateTime
+
 @Suppress("LongParameterList")
 class UserProfile(
     val sessid: String,
@@ -12,4 +14,5 @@ class UserProfile(
     val allow: List<String>,
     val deny: List<String>,
     val uploadType: String,
+    val lastActivity: LocalDateTime,
 )

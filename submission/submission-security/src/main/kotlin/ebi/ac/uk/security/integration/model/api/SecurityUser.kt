@@ -3,6 +3,7 @@ package ebi.ac.uk.security.integration.model.api
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ebi.ac.uk.model.User
 import java.nio.file.Path
+import java.time.LocalDateTime
 
 data class SecurityUser(
     val id: Long,
@@ -12,6 +13,7 @@ data class SecurityUser(
     val orcid: String?,
     val secret: String,
     val superuser: Boolean,
+    val lastActivity: LocalDateTime,
     val userFolder: UserFolder,
     val groupsFolders: List<GroupFolder>,
     val permissions: Set<SecurityPermission>,

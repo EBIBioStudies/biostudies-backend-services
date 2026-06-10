@@ -17,6 +17,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
+import java.time.LocalDateTime
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ProfileServiceTest(
@@ -36,6 +37,7 @@ class ProfileServiceTest(
             fullName = "admin_user",
             secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
             orcid = "0000-0002-1825-0097",
+            lastActivity = LAST_ACTIVITY,
             groups = mutableSetOf(testGroup),
             passwordDigest = "".toByteArray(),
             superuser = true,
@@ -77,6 +79,7 @@ class ProfileServiceTest(
                 orcid = "0000-0002-1825-0097",
                 secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
                 superuser = true,
+                lastActivity = LAST_ACTIVITY,
                 userFolder = expectedUserFolder,
                 groupsFolders = listOf(expectedGroupFolder),
                 permissions = emptySet(),
@@ -88,5 +91,9 @@ class ProfileServiceTest(
 
         assertThat(user).usingRecursiveComparison().isEqualTo(expectedUser)
         assertThat(token).isEqualTo("a token")
+    }
+
+    private companion object {
+        val LAST_ACTIVITY: LocalDateTime = LocalDateTime.parse("2024-01-01T12:00:00")
     }
 }

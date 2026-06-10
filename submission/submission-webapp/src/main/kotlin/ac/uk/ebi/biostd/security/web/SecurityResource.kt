@@ -93,7 +93,7 @@ class SecurityResource(
         @RequestBody request: ChangePasswordRequest,
     ): User = securityService.changePassword(request)
 
-    @GetMapping(value = ["/check", "/profile"])
+    @GetMapping(value = ["/profile"])
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     fun userProfile(authentication: Authentication): UserProfile =

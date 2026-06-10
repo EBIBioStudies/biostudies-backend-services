@@ -10,6 +10,7 @@ import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.util.SecurityUtil
+import java.time.LocalDateTime
 
 internal class SqlSecurityQueryService(
     private val securityUtil: SecurityUtil,
@@ -33,11 +34,13 @@ internal class SqlSecurityQueryService(
             ?.let { profileService.asSecurityUser(it) }
             ?: throw UserNotFoundByEmailException(email)
 
-    override fun getUserProfile(authToken: String): UserInfo =
-        securityUtil
-            .checkToken(authToken)
-            ?.let { profileService.getUserProfile(it, authToken) }
-            ?: throw UserNotFoundByTokenException()
+    override fun getUserProfile(authToken: String): UserInfo {
+        val user = securityUtil.checkToken(authToken) ?: throw UserNotFoundByTokenException()
+        user.lastActivity = LocalDateTime.now()
+        userRepository.save(user)
+
+        return profileService.getUserProfile(user, authToken)
+    }
 
     override fun getUserFolderStats(email: String): FolderStats {
         val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)

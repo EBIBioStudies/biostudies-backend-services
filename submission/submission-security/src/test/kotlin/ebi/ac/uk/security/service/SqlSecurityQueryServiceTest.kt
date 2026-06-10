@@ -21,14 +21,18 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit.SECONDS
 
 @ExtendWith(MockKExtension::class)
 class SqlSecurityQueryServiceTest(
-    @MockK private val securityUtil: SecurityUtil,
-    @MockK private val profileService: ProfileService,
-    @MockK private val securityService: SecurityService,
-    @MockK private val userRepository: UserDataRepository,
-    @MockK private val securityProperties: SecurityProperties,
+    @param:MockK private val dbUser: DbUser,
+    @param:MockK private val userInfo: UserInfo,
+    @param:MockK private val securityUser: SecurityUser,
+    @param:MockK private val securityUtil: SecurityUtil,
+    @param:MockK private val profileService: ProfileService,
+    @param:MockK private val userRepository: UserDataRepository,
+    @param:MockK private val securityProperties: SecurityProperties,
 ) {
     private val testInstance =
         SqlSecurityQueryService(securityUtil, profileService, userRepository, securityProperties)
@@ -53,10 +57,7 @@ class SqlSecurityQueryServiceTest(
     }
 
     @Test
-    fun `get user`(
-        @MockK dbUser: DbUser,
-        @MockK securityUser: SecurityUser,
-    ) {
+    fun `get user`() {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
         every { userRepository.findByEmail("user@test.org") } returns dbUser
 
@@ -72,14 +73,25 @@ class SqlSecurityQueryServiceTest(
     }
 
     @Test
-    fun `get user profile`(
-        @MockK dbUser: DbUser,
-        @MockK userInfo: UserInfo,
-    ) {
-        every { profileService.getUserProfile(dbUser, "the-token") } returns userInfo
+    fun `get user profile`() {
+        val lastActivity = LocalDateTime.now().minusSeconds(1).truncatedTo(SECONDS)
+        val dbUser =
+            DbUser(
+                email = "user@test.org",
+                fullName = "User",
+                secret = "secret",
+                passwordDigest = ByteArray(0),
+                storageMode = StorageMode.NFS,
+                lastActivity = lastActivity,
+            )
+
+        every { userRepository.save(dbUser) } returns dbUser
         every { securityUtil.checkToken("the-token") } returns dbUser
+        every { profileService.getUserProfile(dbUser, "the-token") } returns userInfo
 
         assertThat(testInstance.getUserProfile("the-token")).isEqualTo(userInfo)
+        assertThat(dbUser.lastActivity.truncatedTo(SECONDS)).isBetween(lastActivity, lastActivity.plusSeconds(10))
+        verify(exactly = 1) { userRepository.save(dbUser) }
     }
 
     @Test
@@ -120,10 +132,7 @@ class SqlSecurityQueryServiceTest(
     }
 
     @Test
-    fun `get or register when the user exists`(
-        @MockK dbUser: DbUser,
-        @MockK securityUser: SecurityUser,
-    ) {
+    fun `get or register when the user exists`() {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
         every { userRepository.findByEmail("user@test.org") } returns dbUser
 
