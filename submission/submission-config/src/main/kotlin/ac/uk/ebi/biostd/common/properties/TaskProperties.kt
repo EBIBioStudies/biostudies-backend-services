@@ -18,9 +18,6 @@ enum class Mode {
     POST_PROCESS_INNER_FILES,
     POST_PROCESS_PAGETAB_FILES,
     POST_PROCESS_DOI,
-
-    /**
-     * Load PMC extract links using PMC text mining.
-     */
     LOAD_PMC_LINKS,
+    NOTIFY_USER_SPACE_CLEAN_UP,
 }

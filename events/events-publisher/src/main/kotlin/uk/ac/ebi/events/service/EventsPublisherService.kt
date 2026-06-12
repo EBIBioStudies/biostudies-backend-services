@@ -1,11 +1,13 @@
 package uk.ac.ebi.events.service
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
+import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -32,6 +34,9 @@ class EventsPublisherService(
 ) {
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
+
+    fun cleanupNotification(notification: CleanUpNotification) =
+        rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, CLEANUP_NOTIFICATIONS_ROUTING_KEY, notification)
 
     fun requestFilesCopied(
         accNo: String,

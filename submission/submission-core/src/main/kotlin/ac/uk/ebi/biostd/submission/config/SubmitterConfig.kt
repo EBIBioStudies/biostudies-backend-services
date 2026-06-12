@@ -10,13 +10,19 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorMongoDataService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.DOI_RETRY_TEMPLATE
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
+import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
+import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
@@ -52,8 +58,10 @@ import ebi.ac.uk.extended.mapping.from.ToExtLinkListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
+import ebi.ac.uk.security.service.ProfileService
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -295,10 +303,36 @@ class SubmitterConfig(
         )
 
     @Bean
+    fun notificationErrorDataService(notificationErrorMongoRepository: NotificationErrorMongoRepository): NotificationErrorDataService =
+        NotificationErrorMongoDataService(notificationErrorMongoRepository)
+
+    @Bean
     fun extPostProcessingService(
         localPostProcessingService: LocalPostProcessingService,
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
     ): ExtPostProcessingService = ExtPostProcessingService(localPostProcessingService, remoteSubmitterExecutor)
+
+    @Bean
+    fun localUserSpaceCleanUpService(
+        userRepository: UserDataRepository,
+        properties: ApplicationProperties,
+        securityQueryService: SecurityQueryService,
+        eventsPublisherService: EventsPublisherService,
+        notificationErrorService: NotificationErrorDataService,
+    ): LocalUserSpaceCleanUpService =
+        LocalUserSpaceCleanUpService(
+            userRepository,
+            properties.cleanUp,
+            securityQueryService,
+            eventsPublisherService,
+            notificationErrorService,
+        )
+
+    @Bean
+    fun extUserSpaceCleanUpService(
+        localUserSpaceCleanUpService: LocalUserSpaceCleanUpService,
+        remoteSubmitterExecutor: RemoteSubmitterExecutor,
+    ): ExtUserSpaceCleanUpService = ExtUserSpaceCleanUpService(remoteSubmitterExecutor, localUserSpaceCleanUpService)
 
     @Bean
     fun submissionProcessor(

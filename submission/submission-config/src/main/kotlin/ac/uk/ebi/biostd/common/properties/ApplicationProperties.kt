@@ -23,6 +23,7 @@ data class ApplicationProperties(
     val submissionTask: SubmissionTaskProperties,
     val cluster: ClusterProperties,
     val pmc: PmcProperties,
+    val cleanUp: CleanUpProperties,
 )
 
 data class RetryProperties(
@@ -95,4 +96,12 @@ data class PmcProperties(
     val enableLinksExtraction: Boolean,
     val authToken: String,
     val loadLimit: Int = 1,
+)
+
+data class CleanUpProperties(
+    val enabled: Boolean,
+    val firstWarningDays: Long,
+    val secondWarningDays: Long,
+    val thirdWarningDays: Long,
+    val cleanUpPeriodDays: Long,
 )

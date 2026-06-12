@@ -77,7 +77,7 @@ internal class FireWebClient(
 }
 
 /**
- * Perform same as @see [RestOperations.getForObject] but maps 404 status response into null result.
+ * Perform as @see [RestOperations.getForObject] but maps 404 status response into a null result.
  */
 private suspend inline fun <reified T> WebClient.getOrNull(url: String): T? =
     runCatching {

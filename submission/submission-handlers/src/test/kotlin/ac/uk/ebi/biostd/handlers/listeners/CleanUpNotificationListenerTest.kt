@@ -1,0 +1,44 @@
+package ac.uk.ebi.biostd.handlers.listeners
+
+import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
+import ebi.ac.uk.extended.events.CleanUpNotification
+import ebi.ac.uk.notifications.service.CleanUpNotificationService
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.amqp.rabbit.core.RabbitTemplate
+
+@ExtendWith(MockKExtension::class)
+class CleanUpNotificationListenerTest(
+    @MockK private val rabbitTemplate: RabbitTemplate,
+    @MockK private val notificationsSender: ebi.ac.uk.commons.http.slack.NotificationsSender,
+    @MockK private val notificationService: CleanUpNotificationService,
+) {
+    private val testInstance = CleanUpNotificationListener(rabbitTemplate, notificationsSender, notificationService)
+
+    @AfterEach
+    fun afterEach() = clearAllMocks()
+
+    @Test
+    fun `cleanup notification`() {
+        val notification =
+            CleanUpNotification(
+                email = "test@ebi.ac.uk",
+                username = "Test User",
+                lastActivityDate = "2026-06-08",
+                cleanUpDate = "2026-08-08",
+            )
+
+        every { notificationService.sendCleanUpNotification(notification) } answers { nothing }
+
+        testInstance.receiveMessage(notification)
+
+        verify(exactly = 1) { notificationService.sendCleanUpNotification(notification) }
+    }
+}

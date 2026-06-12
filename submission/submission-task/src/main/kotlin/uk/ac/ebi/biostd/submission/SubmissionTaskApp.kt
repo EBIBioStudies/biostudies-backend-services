@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.submission
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.Mode.LOAD_PMC_LINKS
+import ac.uk.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
@@ -11,6 +12,7 @@ import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
+import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
@@ -78,6 +80,7 @@ class Execute(
     private val dynamicProperties: DynamicProperties,
     private val context: ConfigurableApplicationContext,
     private val submissionSubmitter: ExtSubmissionSubmitter,
+    private val userSpaceCleanUpService: LocalUserSpaceCleanUpService,
     private val submissionPostProcessingService: LocalPostProcessingService,
     private val pmcLinksProcessor: PmcLinksProcessor,
 ) : CommandLineRunner {
@@ -93,6 +96,7 @@ class Execute(
                 POST_PROCESS_PAGETAB_FILES -> postProcessPagetabFiles()
                 POST_PROCESS_DOI -> postProcessDoi()
                 LOAD_PMC_LINKS -> loadLinks()
+                NOTIFY_USER_SPACE_CLEAN_UP -> sendUserSpaceCleanUpNotifications()
             }
             exitProcess(SpringApplication.exit(context))
         }
@@ -134,6 +138,12 @@ class Execute(
         logger.info { "Started post processing all submissions ----------------------------------------" }
         submissionPostProcessingService.postProcessAll()
         logger.info { "Finished post processing all submissions ---------------------------------------" }
+    }
+
+    private suspend fun sendUserSpaceCleanUpNotifications() {
+        logger.info { "Started sending user space cleanup notifications--------------------------------" }
+        userSpaceCleanUpService.sendNotifications()
+        logger.info { "Finished sending user space cleanup notifications--------------------------------" }
     }
 
     private suspend fun runProcess(

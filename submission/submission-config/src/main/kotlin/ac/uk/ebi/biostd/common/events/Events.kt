@@ -12,6 +12,9 @@ const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
 // Used for security notification as password reset, user created
 const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 
+// Used for cleanup notification emails
+const val CLEANUP_NOTIFICATIONS_ROUTING_KEY = "bio.cleanup.notification"
+
 // Indicates the ui that a submission needs to be refreshed
 const val SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY = "bio.submission.partials"
 

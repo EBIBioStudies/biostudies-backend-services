@@ -6,6 +6,11 @@ import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.ALL
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.DOI
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.INNER_FILES
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.PAGETAB
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.STATS
 import ac.uk.ebi.biostd.submission.domain.submitter.ExecutionArg
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 
@@ -60,11 +65,11 @@ class ExtPostProcessingService(
         }
 
         when (mode) {
-            PostProcessMode.ALL -> postProcess()
-            PostProcessMode.STATS -> stats()
-            PostProcessMode.INNER_FILES -> innerFiles()
-            PostProcessMode.PAGETAB -> pagetabFiles()
-            PostProcessMode.DOI -> doi()
+            ALL -> postProcess()
+            STATS -> stats()
+            INNER_FILES -> innerFiles()
+            PAGETAB -> pagetabFiles()
+            DOI -> doi()
         }
     }
 

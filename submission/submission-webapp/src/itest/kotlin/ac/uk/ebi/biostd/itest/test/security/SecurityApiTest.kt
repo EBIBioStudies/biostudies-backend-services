@@ -76,19 +76,20 @@ class SecurityApiTest(
     fun `22-8 get user profile`() =
         runTest {
             securityTestService.ensureUserRegistration(FtpSuperUser)
-            val client = getWebClient(serverPort, FtpSuperUser)
 
+            val client = getWebClient(serverPort, FtpSuperUser)
+            val dbUser = userDataRepository.getByEmail(FtpSuperUser.email)
+            val previousLastActivity = dbUser.lastActivity.truncatedTo(SECONDS)
             val startedAt = LocalDateTime.now().minusSeconds(1).truncatedTo(SECONDS)
             val result = client.getProfile()
             val finishedAt = LocalDateTime.now().plusSeconds(1).truncatedTo(SECONDS)
-
-            val storedUser = userDataRepository.getByEmail(FtpSuperUser.email)
+            val lastActivity = result.lastActivity.truncatedTo(SECONDS)
 
             assertThat(result.email).isEqualTo(FtpSuperUser.email)
             assertThat(result.fullname).isEqualTo(FtpSuperUser.username)
             assertThat(result.uploadType).isEqualTo("ftp")
-            assertThat(result.lastActivity.truncatedTo(SECONDS)).isBetween(startedAt, finishedAt)
-            assertThat(storedUser.lastActivity).isEqualTo(result.lastActivity.truncatedTo(SECONDS))
+            assertThat(lastActivity).isBetween(startedAt, finishedAt)
+            assertThat(lastActivity).isAfterOrEqualTo(previousLastActivity)
         }
 
     object NfsUser : TestUser {

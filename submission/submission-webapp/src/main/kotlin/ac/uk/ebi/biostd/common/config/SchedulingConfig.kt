@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,11 +28,13 @@ class SchedulingConfig {
         statsReporterService: StatsReporterService,
         migrationService: MigrationService,
         operationsService: OperationsService,
+        userSpaceCleanUpService: ExtUserSpaceCleanUpService,
     ): OperationsScheduler =
         OperationsScheduler(
             applicationProperties,
             operationsService,
             migrationService,
             statsReporterService,
+            userSpaceCleanUpService,
         )
 }
