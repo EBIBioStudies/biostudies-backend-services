@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -13,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
 import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorMongoDataService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService

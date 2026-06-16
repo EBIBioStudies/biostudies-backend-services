@@ -13,7 +13,7 @@ class CleanUpNotificationService(
     private val properties: NotificationProperties,
 ) {
     fun sendCleanUpNotification(notification: CleanUpNotification) {
-        val templateContent = templateLoader.loadTemplate("cleanup/clean-up-notification.html")
+        val templateContent = templateLoader.loadTemplate("cleanup/${notification.emailTemplate}.html")
         val cleanUpModel =
             CleanUpNotificationModel(
                 username = notification.username,
@@ -25,7 +25,7 @@ class CleanUpNotificationService(
                 from = EMAIL_FROM,
                 to = notification.email,
                 bcc = properties.bccEmail,
-                subject = "BioStudies Submission Tool Cleanup Notification",
+                subject = notification.emailSubject,
                 content = CleanUpNotificationTemplate(templateContent).render(cleanUpModel),
             )
 

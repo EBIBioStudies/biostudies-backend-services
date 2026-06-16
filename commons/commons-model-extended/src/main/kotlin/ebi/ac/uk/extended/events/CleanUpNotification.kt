@@ -15,4 +15,8 @@ class CleanUpNotification(
     val lastActivityDate: String,
     @JsonProperty("cleanUpDate")
     val cleanUpDate: String,
+    @JsonProperty("emailSubject")
+    val emailSubject: String,
+    @JsonProperty("emailTemplate")
+    val emailTemplate: String,
 ) : Serializable

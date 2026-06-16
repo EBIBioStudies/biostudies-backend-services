@@ -9,7 +9,7 @@ import java.time.Instant
 data class DocNotificationError(
     @Id
     val id: ObjectId,
-    val accNo: String,
+    val key: String,
     val messagePayload: String,
     val notificationType: String,
     val errorMessage: String,

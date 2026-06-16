@@ -38,17 +38,20 @@ class CleanUpNotificationServiceTest(
                 username = "Test User",
                 lastActivityDate = "2026-06-08",
                 cleanUpDate = "2026-08-08",
+                emailSubject = "Inactivity notice - Cleanup of your BioStudies workspace",
+                emailTemplate = "clean-up-warning",
             )
 
         every { properties.bccEmail } returns BBC_EMAIL
-        every { templateLoader.loadTemplate("cleanup/clean-up-notification.html") } returns "<p>\${USERNAME} \${LAST_ACTIVITY_DATE} \${CLEAN_UP_DATE}</p>"
+        every { templateLoader.loadTemplate("cleanup/clean-up-warning.html") } returns
+            "<p>\${USERNAME} \${LAST_ACTIVITY_DATE} \${CLEAN_UP_DATE}</p>"
         every { simpleEmailService.send(capture(cleanupEmail)) } answers { nothing }
 
         testInstance.sendCleanUpNotification(notification)
 
         val email = cleanupEmail.captured
         verify(exactly = 1) { simpleEmailService.send(email) }
-        assertEmail(email, "BioStudies Submission Tool Cleanup Notification", "<p>Test User 2026-06-08 2026-08-08</p>")
+        assertEmail(email, "Inactivity notice - Cleanup of your BioStudies workspace", "<p>Test User 2026-06-08 2026-08-08</p>")
     }
 
     private fun assertEmail(

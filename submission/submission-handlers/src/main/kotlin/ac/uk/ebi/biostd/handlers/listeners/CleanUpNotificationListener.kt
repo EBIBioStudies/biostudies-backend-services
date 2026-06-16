@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.handlers.common.HANDLERS_SUBSYSTEM
 import ac.uk.ebi.biostd.handlers.common.SYSTEM_NAME
 import ac.uk.ebi.biostd.handlers.config.CLEANUP_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
-import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.CLEAN_UP_NOTIFICATION
@@ -45,7 +45,7 @@ class CleanUpNotificationListener(
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
         notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, message))
         notificationErrorService.saveNotificationError(
-            accNo = notification.email,
+            key = notification.email,
             messagePayload = message,
             notificationType = CLEAN_UP_NOTIFICATION,
             errorMessage = exception.localizedMessage,
