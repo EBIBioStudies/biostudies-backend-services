@@ -46,6 +46,7 @@ class ITestListener : TestExecutionListener {
         fireSetup()
         securitySetup()
         doiSetup()
+        cleanUpSetup()
         persistenceSetup()
         submissionTaskSetup()
         clusterSetup()
@@ -188,6 +189,14 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.doi.retry.initialInterval", 100)
         properties.addProperty("app.doi.retry.multiplier", 2)
         properties.addProperty("app.doi.retry.maxInterval", 500)
+    }
+
+    private fun cleanUpSetup() {
+        properties.addProperty("app.cleanup.enabled", true)
+        properties.addProperty("app.cleanup.firstWarningDays", 30)
+        properties.addProperty("app.cleanup.secondWarningDays", 45)
+        properties.addProperty("app.cleanup.thirdWarningDays", 59)
+        properties.addProperty("app.cleanup.cleanUpPeriodDays", 60)
     }
 
     private fun submissionTaskSetup() {

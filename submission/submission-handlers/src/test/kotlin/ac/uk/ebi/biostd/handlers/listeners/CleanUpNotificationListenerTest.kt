@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
 import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
@@ -17,10 +15,10 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 @ExtendWith(MockKExtension::class)
 class CleanUpNotificationListenerTest(
-    @MockK private val rabbitTemplate: RabbitTemplate,
-    @MockK private val notificationsSender: ebi.ac.uk.commons.http.slack.NotificationsSender,
-    @MockK private val notificationService: CleanUpNotificationService,
-    @MockK private val notificationErrorService: NotificationErrorDataService,
+    @param:MockK private val rabbitTemplate: RabbitTemplate,
+    @param:MockK private val notificationsSender: ebi.ac.uk.commons.http.slack.NotificationsSender,
+    @param:MockK private val notificationService: CleanUpNotificationService,
+    @param:MockK private val notificationErrorService: NotificationErrorDataService,
 ) {
     private val testInstance =
         CleanUpNotificationListener(rabbitTemplate, notificationsSender, notificationService, notificationErrorService)

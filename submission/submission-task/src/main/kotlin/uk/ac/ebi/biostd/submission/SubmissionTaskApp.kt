@@ -75,6 +75,7 @@ class DynamicProperties(
 }
 
 @Component
+@Suppress("LongParameterList", "TooManyFunctions")
 class Execute(
     private val properties: TaskProperties,
     private val dynamicProperties: DynamicProperties,

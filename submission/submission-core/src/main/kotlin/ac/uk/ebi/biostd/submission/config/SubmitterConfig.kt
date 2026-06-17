@@ -58,10 +58,8 @@ import ebi.ac.uk.extended.mapping.from.ToExtLinkListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
-import ebi.ac.uk.security.service.ProfileService
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
