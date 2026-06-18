@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
 import ac.uk.ebi.biostd.common.properties.CleanUpProperties
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.CLEAN_UP_ERROR
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.FINAL_WARNING_SUBJECT
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.FINAL_WARNING_TEMPLATE
+import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.USER_SPACE_ERROR
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.WARNING_SUBJECT
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.WARNING_TEMPLATE
 import ebi.ac.uk.extended.events.CleanUpNotification
@@ -39,7 +39,7 @@ class LocalUserSpaceCleanUpServiceTest(
     @param:MockK private val userRepository: UserDataRepository,
     @param:MockK private val securityQueryService: SecurityQueryService,
     @param:MockK private val eventsPublisherService: EventsPublisherService,
-    @param:MockK private val notificationErrorService: NotificationErrorDataService,
+    @param:MockK private val notificationErrorService: NotificationLogDataService,
 ) {
     private val cleanUpProperties =
         CleanUpProperties(
@@ -134,7 +134,7 @@ class LocalUserSpaceCleanUpServiceTest(
                 FINAL_WARNING_TEMPLATE,
             )
             coVerify(exactly = 0) {
-                notificationErrorService.saveNotificationError(any(), any(), any(), any())
+                notificationErrorService.logNotificationError(any(), any(), any(), any())
             }
         }
 
@@ -179,15 +179,15 @@ class LocalUserSpaceCleanUpServiceTest(
             } returns emptyList()
             every { securityQueryService.getUser(brokenUser.email) } returns brokenUser
             every { eventsPublisherService.cleanupNotification(any()) } answers { nothing }
-            coEvery { notificationErrorService.saveNotificationError(any(), any(), any(), any()) } returns Unit
+            coEvery { notificationErrorService.logNotificationError(any(), any(), any(), any()) } returns Unit
 
             testInstance.sendNotifications()
 
             coVerify(exactly = 1) {
-                notificationErrorService.saveNotificationError(
+                notificationErrorService.logNotificationError(
                     brokenUser.email,
                     expectedError,
-                    CLEAN_UP_ERROR,
+                    USER_SPACE_ERROR,
                     any(),
                 )
             }

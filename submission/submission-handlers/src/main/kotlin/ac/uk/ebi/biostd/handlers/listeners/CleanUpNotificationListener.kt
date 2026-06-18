@@ -5,10 +5,9 @@ import ac.uk.ebi.biostd.handlers.common.HANDLERS_SUBSYSTEM
 import ac.uk.ebi.biostd.handlers.common.SYSTEM_NAME
 import ac.uk.ebi.biostd.handlers.config.CLEANUP_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
-import ebi.ac.uk.extended.events.CLEAN_UP_NOTIFICATION
 import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import kotlinx.coroutines.runBlocking
@@ -23,7 +22,7 @@ class CleanUpNotificationListener(
     private val rabbitTemplate: RabbitTemplate,
     private val notificationsSender: NotificationsSender,
     private val cleanUpNotificationService: CleanUpNotificationService,
-    private val notificationErrorService: NotificationErrorDataService,
+    private val notificationLogDataService: NotificationLogDataService,
 ) {
     @RabbitListener(queues = [CLEANUP_NOTIFICATIONS_QUEUE])
     fun receiveMessage(notification: CleanUpNotification) {
@@ -32,6 +31,11 @@ class CleanUpNotificationListener(
         runBlocking {
             runCatching {
                 cleanUpNotificationService.sendCleanUpNotification(notification)
+                notificationLogDataService.logNotification(
+                    key = notification.email,
+                    notification = notification,
+                    notificationType = notification.type,
+                )
             }.onFailure { onError(notification, it) }
         }
     }
@@ -44,10 +48,10 @@ class CleanUpNotificationListener(
         logger.error { message }
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
         notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, message))
-        notificationErrorService.saveNotificationError(
+        notificationLogDataService.logNotificationError(
             key = notification.email,
-            messagePayload = message,
-            notificationType = CLEAN_UP_NOTIFICATION,
+            notification = notification,
+            notificationType = notification.type,
             errorMessage = exception.localizedMessage,
         )
     }

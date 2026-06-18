@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import io.mockk.clearAllMocks
@@ -18,7 +18,7 @@ class CleanUpNotificationListenerTest(
     @param:MockK private val rabbitTemplate: RabbitTemplate,
     @param:MockK private val notificationsSender: ebi.ac.uk.commons.http.slack.NotificationsSender,
     @param:MockK private val notificationService: CleanUpNotificationService,
-    @param:MockK private val notificationErrorService: NotificationErrorDataService,
+    @param:MockK private val notificationErrorService: NotificationLogDataService,
 ) {
     private val testInstance =
         CleanUpNotificationListener(rabbitTemplate, notificationsSender, notificationService, notificationErrorService)

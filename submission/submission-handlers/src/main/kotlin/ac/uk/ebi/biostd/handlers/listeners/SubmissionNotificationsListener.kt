@@ -9,8 +9,7 @@ import ac.uk.ebi.biostd.handlers.config.FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.FailedRequestMessage
@@ -28,7 +27,7 @@ class SubmissionNotificationsListener(
     private val notificationsSender: NotificationsSender,
     private val rtNotificationService: RtNotificationService,
     private val notificationProps: NotificationProperties,
-    private val notificationErrorDataService: NotificationErrorDataService,
+    private val notificationLogDataService: NotificationLogDataService,
 ) {
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
@@ -69,26 +68,19 @@ class SubmissionNotificationsListener(
 
     private fun notifySafely(
         message: SubmissionMessage,
-        notificationType: String,
+        type: String,
         notifyFunction: SubmissionMessage.() -> Unit,
     ) = runBlocking {
         runCatching {
             notifyFunction(message)
+            notificationLogDataService.logNotification(message.accNo, type, message)
         }.onFailure {
             onError(message)
-            val errorMsg = "Error processing notification of type '$notificationType' for submission '${message.accNo}"
-            val payload = jacksonObjectMapper().writeValueAsString(message)
-            logger.error(it) { "$errorMsg': ${it.message ?: it.localizedMessage}" }
+            val error = it.message ?: it.localizedMessage
+            val errorMsg = "Error processing notification of type '$type' for submission '${message.accNo}: $error"
+            logger.error(it) { errorMsg }
             logger.error { "Failed notification payload: $message" }
-
-            if (notificationProps.persistErrors) {
-                notificationErrorDataService.saveNotificationError(
-                    key = message.accNo,
-                    notificationType = notificationType,
-                    messagePayload = payload,
-                    errorMessage = it.message ?: it.localizedMessage,
-                )
-            }
+            notificationLogDataService.logNotificationError(message.accNo, errorMsg, type, message)
         }
     }
 

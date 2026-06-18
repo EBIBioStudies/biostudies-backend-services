@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.SystemNotification
 import ebi.ac.uk.extended.events.FailedRequestMessage
@@ -38,7 +38,7 @@ class SubmissionNotificationsListenerTest(
     @param:MockK private val notificationsSender: NotificationsSender,
     @param:MockK private val rtNotificationService: RtNotificationService,
     @param:MockK private val notificationProperties: NotificationProperties,
-    @param:MockK private val notificationErrorDataService: NotificationErrorDataService,
+    @param:MockK private val notificationLogDataService: NotificationLogDataService,
 ) {
     private val message: SubmissionMessage =
         SubmissionMessage(
@@ -55,7 +55,7 @@ class SubmissionNotificationsListenerTest(
             notificationsSender,
             rtNotificationService,
             notificationProperties,
-            notificationErrorDataService,
+            notificationLogDataService,
         )
 
     @BeforeEach
@@ -163,7 +163,7 @@ class SubmissionNotificationsListenerTest(
         every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception("error message")
         coEvery { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
         coEvery {
-            notificationErrorDataService.saveNotificationError(
+            notificationLogDataService.logNotificationError(
                 "S-BSST1",
                 any(),
                 "Release Notification",
@@ -178,7 +178,7 @@ class SubmissionNotificationsListenerTest(
             webConsumer.getExtSubmission("ext-tab-url")
             notificationsSender.send(errorNotificationSlot.captured)
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
-            notificationErrorDataService.saveNotificationError(
+            notificationLogDataService.logNotificationError(
                 "S-BSST1",
                 any(),
                 "Release Notification",
@@ -204,7 +204,7 @@ class SubmissionNotificationsListenerTest(
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
         }
         coVerify(exactly = 0) {
-            notificationErrorDataService.saveNotificationError(any(), any(), any(), any())
+            notificationLogDataService.logNotificationError(any(), any(), any(), any())
         }
     }
 

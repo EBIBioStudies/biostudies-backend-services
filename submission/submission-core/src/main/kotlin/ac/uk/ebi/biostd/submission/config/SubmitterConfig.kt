@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.common.service.NotificationErrorDataService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -12,9 +12,10 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationLogMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorMongoDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationLogMongoDataService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -301,8 +302,10 @@ class SubmitterConfig(
         )
 
     @Bean
-    fun notificationErrorDataService(notificationErrorMongoRepository: NotificationErrorMongoRepository): NotificationErrorDataService =
-        NotificationErrorMongoDataService(notificationErrorMongoRepository)
+    fun notificationErrorDataService(
+        notificationLogRepo: NotificationLogMongoRepository,
+        notificationErrorMongoRepo: NotificationErrorMongoRepository,
+    ): NotificationLogDataService = NotificationLogMongoDataService(notificationLogRepo, notificationErrorMongoRepo)
 
     @Bean
     fun extPostProcessingService(
@@ -316,7 +319,7 @@ class SubmitterConfig(
         properties: ApplicationProperties,
         securityQueryService: SecurityQueryService,
         eventsPublisherService: EventsPublisherService,
-        notificationErrorService: NotificationErrorDataService,
+        notificationErrorService: NotificationLogDataService,
     ): LocalUserSpaceCleanUpService =
         LocalUserSpaceCleanUpService(
             userRepository,
