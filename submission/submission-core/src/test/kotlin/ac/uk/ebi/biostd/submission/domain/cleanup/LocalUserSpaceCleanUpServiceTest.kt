@@ -186,9 +186,9 @@ class LocalUserSpaceCleanUpServiceTest(
             coVerify(exactly = 1) {
                 notificationErrorService.logNotificationError(
                     brokenUser.email,
-                    expectedError,
+                    brokenUser.userFolder.path.toString(),
                     USER_SPACE_ERROR,
-                    any(),
+                    expectedError,
                 )
             }
             verify(exactly = 0) { eventsPublisherService.cleanupNotification(any()) }

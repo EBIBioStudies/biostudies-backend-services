@@ -34,6 +34,7 @@ class CleanUpNotificationServiceTest(
         val cleanupEmail = slot<Email>()
         val notification =
             CleanUpNotification(
+                type = "FIRST_WARNING",
                 email = TEST_EMAIL,
                 username = "Test User",
                 lastActivityDate = "2026-06-08",

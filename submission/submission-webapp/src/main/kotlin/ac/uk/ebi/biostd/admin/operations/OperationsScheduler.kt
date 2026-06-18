@@ -24,11 +24,27 @@ class OperationsScheduler(
     }
 
     /**
+     * Migrate released submissions from NFS to FIRE every day at 2 am.
+     */
+    @Scheduled(cron = "0 0 2 * * *")
+    fun migrateSubmission() {
+        runBlocking { if (properties.migration.enabled) migrationService.migrateSubmissions() }
+    }
+
+    /**
      * Archive request every day at 4 am.
      */
     @Scheduled(cron = "0 0 4 * * *")
     fun archiveRequests() {
         runBlocking { if (properties.enableTmpCleaning) operationsService.archiveRequests() }
+    }
+
+    /**
+     * Send user space cleanup notifications every day at 6 am.
+     */
+    @Scheduled(cron = "0 0 6 * * *")
+    fun sendUserSpaceCleanUpNotifications() {
+        runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(NOTIFY, remote = true) }
     }
 
     /**
@@ -40,27 +56,10 @@ class OperationsScheduler(
     }
 
     /**
-     * Send user space cleanup notifications every day at 11 am.
-     */
-    @Scheduled(cron = "0 0 11 * * *")
-    fun sendUserSpaceCleanUpNotifications() {
-        runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(NOTIFY, remote = true) }
-    }
-
-    /**
      * Generate the submission stats report on the 4th day of every month at 3:00 AM
      */
     @Scheduled(cron = "0 0 3 4 * *")
     fun publishSubmissionStatsReport() {
         runBlocking { if (properties.enableStatsReport) statsReporterService.reportStats() }
-    }
-
-    @Scheduled(cron = "0 0 * * * *")
-    fun migrateSubmission() {
-        runBlocking {
-            if (properties.migration.enabled) {
-                migrationService.migrateSubmissions()
-            }
-        }
     }
 }

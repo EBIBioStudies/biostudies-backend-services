@@ -65,7 +65,6 @@ class SubmissionNotificationsListenerTest(
         every { submission.collections } returns emptyList()
         every { notificationProperties.uiUrl } returns "ui-url"
         every { notificationProperties.stUrl } returns "st-url"
-        every { notificationProperties.persistErrors } returns true
         every { webConsumer.getExtUser("ext-user-url") } returns submitter
         every { webConsumer.getExtSubmission("ext-tab-url") } returns submission
         every {
@@ -74,6 +73,7 @@ class SubmissionNotificationsListenerTest(
         every {
             rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url", "st-url")
         } answers { nothing }
+        coEvery { notificationLogDataService.logNotification(any(), any(), any()) } returns Unit
     }
 
     @AfterEach
@@ -84,9 +84,10 @@ class SubmissionNotificationsListenerTest(
         testInstance.receiveSubmissionMessage(message)
 
         verify { rabbitTemplate wasNot called }
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url", "st-url")
+            notificationLogDataService.logNotification("S-BSST1", "Successful Submission Notification", message)
         }
     }
 
@@ -100,9 +101,10 @@ class SubmissionNotificationsListenerTest(
         testInstance.receiveSubmissionMessage(message)
 
         verify { rabbitTemplate wasNot called }
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url/bioimages", "st-url")
+            notificationLogDataService.logNotification("S-BSST1", "Successful Submission Notification", message)
         }
     }
 
@@ -117,6 +119,9 @@ class SubmissionNotificationsListenerTest(
             rabbitTemplate wasNot called
             rtNotificationService wasNot called
         }
+        coVerify(exactly = 1) {
+            notificationLogDataService.logNotification("S-BSST1", "Successful Submission Notification", message)
+        }
     }
 
     @Test
@@ -124,9 +129,10 @@ class SubmissionNotificationsListenerTest(
         testInstance.receiveSubmissionReleaseMessage(message)
 
         verify { rabbitTemplate wasNot called }
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url", "st-url")
+            notificationLogDataService.logNotification("S-BSST1", "Release Notification", message)
         }
     }
 
@@ -140,6 +146,9 @@ class SubmissionNotificationsListenerTest(
         verify {
             rabbitTemplate wasNot called
             rtNotificationService wasNot called
+        }
+        coVerify(exactly = 1) {
+            notificationLogDataService.logNotification("S-BSST1", "Release Notification", message)
         }
     }
 
@@ -167,7 +176,7 @@ class SubmissionNotificationsListenerTest(
                 "S-BSST1",
                 any(),
                 "Release Notification",
-                "error message",
+                message,
             )
         } returns Unit
 
@@ -182,18 +191,25 @@ class SubmissionNotificationsListenerTest(
                 "S-BSST1",
                 any(),
                 "Release Notification",
-                "error message",
+                message,
             )
         }
     }
 
     @Test
-    fun `notification failed when persistence is disabled`() {
+    fun `notification failed is logged`() {
         val errorNotificationSlot = slot<SystemNotification>()
 
-        every { notificationProperties.persistErrors } returns false
         every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception("error message")
         coEvery { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
+        coEvery {
+            notificationLogDataService.logNotificationError(
+                "S-BSST1",
+                any(),
+                "Release Notification",
+                message,
+            )
+        } returns Unit
 
         testInstance.receiveSubmissionReleaseMessage(message)
 
@@ -202,13 +218,17 @@ class SubmissionNotificationsListenerTest(
             webConsumer.getExtSubmission("ext-tab-url")
             notificationsSender.send(errorNotificationSlot.captured)
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
-        }
-        coVerify(exactly = 0) {
-            notificationLogDataService.logNotificationError(any(), any(), any(), any())
+            notificationLogDataService.logNotificationError(
+                "S-BSST1",
+                any(),
+                "Release Notification",
+                message,
+            )
         }
     }
 
     private fun mockSubmitter() {
+        every { submitter.email } returns "submitter@ebi.ac.uk"
         every { submitter.fullName } returns "Dr Owner"
         every { submitter.notificationsEnabled } returns true
     }

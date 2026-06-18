@@ -4,10 +4,11 @@ import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,6 +31,7 @@ class CleanUpNotificationListenerTest(
     fun `cleanup notification`() {
         val notification =
             CleanUpNotification(
+                type = "FIRST_WARNING",
                 email = "test@ebi.ac.uk",
                 username = "Test User",
                 lastActivityDate = "2026-06-08",
@@ -39,9 +41,13 @@ class CleanUpNotificationListenerTest(
             )
 
         every { notificationService.sendCleanUpNotification(notification) } answers { nothing }
+        coEvery { notificationErrorService.logNotification(any(), any(), any()) } returns Unit
 
         testInstance.receiveMessage(notification)
 
-        verify(exactly = 1) { notificationService.sendCleanUpNotification(notification) }
+        coVerify(exactly = 1) {
+            notificationService.sendCleanUpNotification(notification)
+            notificationErrorService.logNotification(notification.email, notification.type, notification)
+        }
     }
 }
