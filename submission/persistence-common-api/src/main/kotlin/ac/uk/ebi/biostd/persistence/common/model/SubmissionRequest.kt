@@ -93,7 +93,7 @@ data class SubmissionRequest(
     )
 
     /**
-     * Update request by setting new status, resetting current Index and updating modification date.
+     * Update the request by setting a new status, resetting the current Index and updating the modification date.
      */
     fun withNewStatus(status: RequestStatus): SubmissionRequest =
         copy(
@@ -105,7 +105,8 @@ data class SubmissionRequest(
     fun withErrors(errors: List<String>): SubmissionRequest = copy(errors = errors, status = INVALID)
 
     /**
-     * Update request by setting new status, resetting current Index, submission body and updating modification date.
+     * Update the request by setting a new status, resetting the current index, submission body, and updating the
+     * modification date.
      */
     fun withNewStatus(
         status: RequestStatus,
@@ -118,7 +119,7 @@ data class SubmissionRequest(
         )
 
     /**
-     * Create a Submission Request after indexing stage setting total files field.
+     * Create a Submission Request after the indexing stage setting the total files field.
      */
     fun indexed(totalFiles: Int): SubmissionRequest =
         copy(
@@ -143,7 +144,7 @@ data class SubmissionRequest(
 }
 
 /**
- * Retrieves the expected action to be performed when submission request is the given status.
+ * Retrieves the expected action to be performed when the submission request is the given status.
  */
 val RequestStatus.action: String
     get() {

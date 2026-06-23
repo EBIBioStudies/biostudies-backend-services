@@ -14,7 +14,7 @@ import ebi.ac.uk.model.constants.FileFields.DB_SIZE
 import java.io.File
 
 /**
- * Source that allows the submitter to use store files directly in fire and bypass backend mechanism.
+ * Source that allows the submitter to use files stored in FIRE and bypass the backend mechanism.
  */
 internal object DbFilesSource : FilesSource {
     override val description: String
@@ -27,7 +27,7 @@ internal object DbFilesSource : FilesSource {
     ): ExtFile? {
         val valuesMap = attributes.associateBy({ it.name }, { it.value })
         val dbFile = getDbFile(valuesMap)
-        return if (dbFile != null) return asFireFile(path, dbFile, attributes) else null
+        return if (dbFile != null) asFireFile(path, dbFile, attributes) else null
     }
 
     override suspend fun getFileList(path: String): File? = null

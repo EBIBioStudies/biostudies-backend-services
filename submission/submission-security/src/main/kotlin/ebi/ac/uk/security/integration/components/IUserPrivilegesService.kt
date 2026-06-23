@@ -53,4 +53,9 @@ interface IUserPrivilegesService {
         email: String,
         accNo: String,
     ): Boolean
+
+    suspend fun canSkipFilesValidation(
+        email: String,
+        accNo: String,
+    ): Boolean
 }

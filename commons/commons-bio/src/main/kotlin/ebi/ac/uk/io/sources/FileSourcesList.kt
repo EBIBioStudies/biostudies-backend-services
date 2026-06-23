@@ -79,7 +79,7 @@ class SourcesList(
         attributes: List<ExtAttribute>,
         fileListName: String?,
     ): ExtFile? {
-        require(validPathPattern.matches(path)) { throw InvalidPathException(path, fileListName) }
+        validatePath(path, fileListName)
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
@@ -96,7 +96,15 @@ class SourcesList(
         path: String,
         fileListName: String?,
     ): File? {
-        require(validPathPattern.matches(path)) { throw InvalidPathException(path, fileListName) }
+        validatePath(path, fileListName)
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
+    }
+
+    private fun validatePath(
+        path: String,
+        fileListName: String?,
+    ) {
+        val canSkipCheck = sources.any { it.javaClass == AdminUpdateFilesSource::class.java }
+        require(canSkipCheck || validPathPattern.matches(path)) { throw InvalidPathException(path, fileListName) }
     }
 }

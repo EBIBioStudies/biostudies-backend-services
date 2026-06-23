@@ -19,9 +19,9 @@ import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class)
 internal class SourcesListTest(
-    @MockK private val file: ExtFile,
-    @MockK private val oneFileSource: FilesSource,
-    @MockK private val anotherFileSource: FilesSource,
+    @param:MockK private val file: ExtFile,
+    @param:MockK private val oneFileSource: FilesSource,
+    @param:MockK private val anotherFileSource: FilesSource,
 ) {
     private val testInstance = SourcesList(listOf(oneFileSource, anotherFileSource))
 
@@ -55,6 +55,17 @@ internal class SourcesListTest(
                 coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
                 coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
                 assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
+            }
+
+        @Test
+        fun `admin metadata source skips path checks`() =
+            runTest {
+                val path = "folder/filé.txt"
+                val sourcesList = SourcesList(listOf(AdminUpdateFilesSource, oneFileSource))
+
+                coEvery { oneFileSource.getExtFile(path, FILE_TYPE.value, attributes) } returns file
+
+                assertThat(sourcesList.findExtFile(path, FILE_TYPE.value, attributes)).isEqualTo(file)
             }
     }
 

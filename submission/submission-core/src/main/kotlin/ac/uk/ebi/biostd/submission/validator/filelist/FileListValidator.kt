@@ -39,7 +39,7 @@ class FileListValidator(
                 submitter = submitter,
                 files = null,
                 rootPath = rootPath,
-                submission = submission,
+                previousVersion = submission,
                 preferredSources = emptyList(),
             )
         val fileSources = fileSourcesService.submissionSources(fileSourcesRequest)

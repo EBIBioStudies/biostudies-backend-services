@@ -43,12 +43,16 @@ internal class UserPrivilegesService(
         accessType: AccessType,
     ): List<String> =
         when {
-            isSuperUser(email) -> tagsDataRepository.findAll().map { it.name }
-            else ->
+            isSuperUser(email) -> {
+                tagsDataRepository.findAll().map { it.name }
+            }
+
+            else -> {
                 permissionsService
                     .allowedTags(email, accessType)
                     .map { it.accessTag.name }
                     .distinct()
+            }
         }
 
     override suspend fun canResubmit(
@@ -84,6 +88,11 @@ internal class UserPrivilegesService(
         }
 
     override suspend fun canTransferSubmission(
+        email: String,
+        accNo: String,
+    ): Boolean = isSuperUser(email) || isCollectionAdmin(email, accNo)
+
+    override suspend fun canSkipFilesValidation(
         email: String,
         accNo: String,
     ): Boolean = isSuperUser(email) || isCollectionAdmin(email, accNo)

@@ -181,11 +181,11 @@ class SubmitWebHandler(
                 files = requestFiles,
                 onBehalfUser = onBehalfUser,
                 rootPath = rootPath,
-                submission = previous,
+                previousVersion = previous,
                 preferredSources = preferredSources,
             )
 
-        fun getSources(sourceRequest: FileSourcesRequest): FileSourcesList =
+        suspend fun getSources(sourceRequest: FileSourcesRequest): FileSourcesList =
             when (appProperties.asyncMode) {
                 true -> ByPassSourceList(fileSourcesService.submissionSources(sourceRequest))
                 false -> fileSourcesService.submissionSources(sourceRequest)
@@ -196,7 +196,7 @@ class SubmitWebHandler(
          *
          * 1. AccNo, RootPath attributes are extracted from the submission.
          * 2. Submission file sources are obtained.
-         * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
+         * 3. Submission is deserialized, including file sources, to check both pagetab structure and file presence.
          * 4. Overridden attributes are set.
          * 5. AccNo and version are calculated.
          * 6. Request draft is created if it doesn't exist.

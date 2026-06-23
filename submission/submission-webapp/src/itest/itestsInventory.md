@@ -74,7 +74,7 @@ Contains permissions API test.
 
 ## File List Test Suite
 
-Contains test related to file list.
+Contains test related to the file list functionality.
 
 | Class                  | Test No | Test name                                                         |
 |------------------------|---------|-------------------------------------------------------------------|
@@ -140,14 +140,14 @@ Contains test related to submission
 
 Contains test related to resubmission
 
-| Class               | Test No | Test name                                      |
-|---------------------|---------|------------------------------------------------|
-| ResubmissionApiTest | 5-1     | Resubmit study updating a file content         |
-| ResubmissionApiTest | 5-2     | Resubmit study with the same files             |
-| ResubmissionApiTest | 5-3     | Resubmit study with rootPath                   |
-| ResubmissionApiTest | 5-4     | Resubmit study updating only metadata          |
-| ResubmissionApiTest | 5-5     | Resubmit study adding new files                |
-| ResubmissionApiTest | 5-6     | Resubmit study currenlty being flag as invalid |
+| Class               | Test No | Test name                                         |
+|---------------------|---------|---------------------------------------------------|
+| ResubmissionApiTest | 5-1     | Resubmit study updating a file content            |
+| ResubmissionApiTest | 5-2     | Resubmit study with the same files                |
+| ResubmissionApiTest | 5-3     | Resubmit study with rootPath                      |
+| ResubmissionApiTest | 5-4     | Resubmit study updating only metadata             |
+| ResubmissionApiTest | 5-5     | Resubmit study adding new files                   |
+| ResubmissionApiTest | 5-6     | Resubmit study currenlty being flagged as invalid |
 
 ### Stats Test suite
 

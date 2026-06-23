@@ -23,7 +23,6 @@ import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
@@ -38,10 +37,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileListValidatorTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val extFile: ExtFile,
-    @MockK private val source: FilesSource,
-    @MockK private val fileSourcesService: FileSourcesService,
-    @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
+    @param:MockK private val extFile: ExtFile,
+    @param:MockK private val source: FilesSource,
+    @param:MockK private val fileSourcesService: FileSourcesService,
+    @param:MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
     private val serializationService = SerializationConfig.serializationService()
     private val filesSource = SourcesList(listOf(source))
@@ -71,7 +70,7 @@ class FileListValidatorTest(
 
         coEvery { source.getFileList("valid.tsv") } returns valid
         coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        coEvery { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest("S-BSST0", "root-path", "valid.tsv", submitter, onBehalfUser)
         testInstance.validateFileList(request)
@@ -81,7 +80,7 @@ class FileListValidatorTest(
         assertThat(fileSourceRequest.preferredSources).isEmpty()
         assertThat(fileSourceRequest.submitter).isEqualTo(submitter)
         assertThat(fileSourceRequest.rootPath).isEqualTo("root-path")
-        assertThat(fileSourceRequest.submission).isEqualTo(extSubmission)
+        assertThat(fileSourceRequest.previousVersion).isEqualTo(extSubmission)
         assertThat(fileSourceRequest.onBehalfUser).isEqualTo(onBehalfUser)
 
         coVerify(exactly = 1) {
@@ -100,7 +99,7 @@ class FileListValidatorTest(
 
         coEvery { source.getFileList("fail.xlsx") } returns invalid
         coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        coEvery { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
         coEvery { source.getExtFile("ghost.txt", "file", listOf(ExtAttribute("Type", "fail"))) } returns null
 
         excel(invalid) {
@@ -126,13 +125,13 @@ class FileListValidatorTest(
         val fileSourceRequest = fileSourcesSlot.captured
         assertThat(fileSourceRequest.files).isNull()
         assertThat(fileSourceRequest.rootPath).isNull()
-        assertThat(fileSourceRequest.submission).isNull()
+        assertThat(fileSourceRequest.previousVersion).isNull()
         assertThat(fileSourceRequest.onBehalfUser).isNull()
         assertThat(fileSourceRequest.preferredSources).isEmpty()
         assertThat(fileSourceRequest.submitter).isEqualTo(submitter)
 
         coVerify(exactly = 0) { submissionQueryService.findExtByAccNo("S-BSST0") }
-        verify(exactly = 1) { fileSourcesService.submissionSources(fileSourceRequest) }
+        coVerify(exactly = 1) { fileSourcesService.submissionSources(fileSourceRequest) }
     }
 
     @Test
@@ -144,7 +143,7 @@ class FileListValidatorTest(
         val empty = tempFolder.createFile("empty.tsv", "Files\tType")
 
         coEvery { source.getFileList("empty.tsv") } returns empty
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        coEvery { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest(null, null, "empty.tsv", submitter, onBehalfUser)
         val exception = assertThrows<InvalidFileListException> { testInstance.validateFileList(request) }
