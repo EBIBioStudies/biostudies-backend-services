@@ -7,6 +7,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -14,9 +15,11 @@ import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -30,17 +33,18 @@ import java.time.LocalDateTime
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileSourcesServiceTest(
     tempFolder: TemporaryFolder,
-    @MockK private val fireClient: FireClient,
-    @MockK private val subFtp: FtpClient,
-    @MockK private val ftpClient: FtpClient,
-    @MockK private val filesRepo: SubmissionFilesPersistenceService,
-    @MockK private val folderResolver: SubmissionFolderResolver,
+    @param:MockK private val fireClient: FireClient,
+    @param:MockK private val subFtp: FtpClient,
+    @param:MockK private val ftpClient: FtpClient,
+    @param:MockK private val filesRepo: SubmissionFilesPersistenceService,
+    @param:MockK private val folderResolver: SubmissionFolderResolver,
+    @param:MockK private val userPrivilegesService: IUserPrivilegesService,
 ) {
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
     private val builder = FilesSourceListBuilder(folderResolver, fireClient, ftpClient, subFtp, filesRepo)
-    private val testInstance = FileSourcesService(builder)
+    private val testInstance = FileSourcesService(builder, userPrivilegesService)
     private val extSubmission = basicExtSubmission.copy(storageMode = StorageMode.FIRE)
 
     @AfterEach
@@ -52,101 +56,132 @@ class FileSourcesServiceTest(
     }
 
     @Test
-    fun `default submission sources with FIRE submission`() {
-        val request =
-            FileSourcesRequest(
-                folderType = FolderType.NFS,
-                onBehalfUser = onBehalfUser(),
-                submitter = submitter(),
-                files = listOf(tempFile),
-                rootPath = "root-path",
-                submission = extSubmission,
-                preferredSources = emptyList(),
-            )
+    fun `default submission sources with FIRE submission`() =
+        runTest {
+            val request =
+                FileSourcesRequest(
+                    folderType = FolderType.NFS,
+                    onBehalfUser = onBehalfUser(),
+                    submitter = submitter(),
+                    files = listOf(tempFile),
+                    rootPath = "root-path",
+                    previousVersion = extSubmission,
+                    preferredSources = emptyList(),
+                )
 
-        val fileSources = testInstance.submissionSources(request) as SourcesList
+            val fileSources = testInstance.submissionSources(request) as SourcesList
 
-        val sources = fileSources.sources
-        assertThat(sources).hasSize(7)
-        assertThat(sources[0].description).isEqualTo("Provided Db files")
-        assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
-        assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
-        assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
-        assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[6].description).isEqualTo("Previous version files [File System]")
-    }
-
-    @Test
-    fun `default submission sources with NFS submission`() {
-        val request =
-            FileSourcesRequest(
-                folderType = FolderType.NFS,
-                onBehalfUser = onBehalfUser(),
-                submitter = submitter(),
-                files = listOf(tempFile),
-                rootPath = "root-path",
-                submission = extSubmission,
-                preferredSources = emptyList(),
-            )
-
-        val fileSources = testInstance.submissionSources(request) as SourcesList
-
-        val sources = fileSources.sources
-        assertThat(sources).hasSize(7)
-        assertThat(sources[0].description).isEqualTo("Provided Db files")
-        assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
-        assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
-        assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
-        assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[6].description).isEqualTo("Previous version files [File System]")
-    }
+            val sources = fileSources.sources
+            assertThat(sources).hasSize(7)
+            assertThat(sources[0].description).isEqualTo("Provided Db files")
+            assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
+            assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+            assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
+            assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
+            assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
+            assertThat(sources[6].description).isEqualTo("Previous version files [File System]")
+        }
 
     @Test
-    fun `default submission sources with no onBehalfUser`() {
-        val request =
-            FileSourcesRequest(
-                folderType = FolderType.NFS,
-                onBehalfUser = null,
-                submitter = submitter(),
-                files = listOf(tempFile),
-                rootPath = "root-path",
-                submission = extSubmission,
-                preferredSources = emptyList(),
-            )
+    fun `default submission sources with NFS submission`() =
+        runTest {
+            val request =
+                FileSourcesRequest(
+                    folderType = FolderType.NFS,
+                    onBehalfUser = onBehalfUser(),
+                    submitter = submitter(),
+                    files = listOf(tempFile),
+                    rootPath = "root-path",
+                    previousVersion = extSubmission,
+                    preferredSources = emptyList(),
+                )
 
-        val fileSources = testInstance.submissionSources(request) as SourcesList
+            val fileSources = testInstance.submissionSources(request) as SourcesList
 
-        val sources = fileSources.sources
-        assertThat(sources).hasSize(5)
-        assertThat(sources[0].description).isEqualTo("Provided Db files")
-        assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
-        assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
-        assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[4].description).isEqualTo("Previous version files [File System]")
-    }
+            val sources = fileSources.sources
+            assertThat(sources).hasSize(7)
+            assertThat(sources[0].description).isEqualTo("Provided Db files")
+            assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
+            assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+            assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
+            assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
+            assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
+            assertThat(sources[6].description).isEqualTo("Previous version files [File System]")
+        }
 
     @Test
-    fun `submission sources with preferred sources`() {
-        val request =
-            FileSourcesRequest(
-                folderType = FolderType.NFS,
-                onBehalfUser = null,
-                submitter = submitter(),
-                files = null,
-                rootPath = null,
-                submission = extSubmission,
-                preferredSources = listOf(SUBMISSION),
-            )
+    fun `default submission sources with no onBehalfUser`() =
+        runTest {
+            val request =
+                FileSourcesRequest(
+                    folderType = FolderType.NFS,
+                    onBehalfUser = null,
+                    submitter = submitter(),
+                    files = listOf(tempFile),
+                    rootPath = "root-path",
+                    previousVersion = extSubmission,
+                    preferredSources = emptyList(),
+                )
 
-        val fileSources = testInstance.submissionSources(request) as SourcesList
+            val fileSources = testInstance.submissionSources(request) as SourcesList
 
-        val sources = fileSources.sources
-        assertThat(sources).hasSize(2)
-        assertThat(sources[0].description).isEqualTo("Provided Db files")
-        assertThat(sources[1].description).isEqualTo("Previous version files [File System]")
-    }
+            val sources = fileSources.sources
+            assertThat(sources).hasSize(5)
+            assertThat(sources[0].description).isEqualTo("Provided Db files")
+            assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
+            assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+            assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
+            assertThat(sources[4].description).isEqualTo("Previous version files [File System]")
+        }
+
+    @Test
+    fun `submission sources with preferred sources`() =
+        runTest {
+            val request =
+                FileSourcesRequest(
+                    folderType = FolderType.NFS,
+                    onBehalfUser = null,
+                    submitter = submitter(),
+                    files = null,
+                    rootPath = null,
+                    previousVersion = extSubmission,
+                    preferredSources = listOf(SUBMISSION),
+                )
+
+            coEvery { userPrivilegesService.canSkipFilesValidation(submitter().email, extSubmission.accNo) } returns false
+
+            val fileSources = testInstance.submissionSources(request) as SourcesList
+
+            val sources = fileSources.sources
+            assertThat(sources).hasSize(2)
+            assertThat(sources[0].description).isEqualTo("Provided Db files")
+            assertThat(sources[1].description).isEqualTo("Previous version files [File System]")
+        }
+
+    @Test
+    fun `metadata update sources for privileged user skip path validation`() =
+        runTest {
+            val submitter = submitter()
+            val request =
+                FileSourcesRequest(
+                    folderType = FolderType.NFS,
+                    onBehalfUser = onBehalfUser(),
+                    submitter = submitter,
+                    files = listOf(tempFile),
+                    rootPath = "root-path",
+                    previousVersion = extSubmission,
+                    preferredSources = listOf(SUBMISSION),
+                )
+
+            coEvery { userPrivilegesService.canSkipFilesValidation(submitter.email, extSubmission.accNo) } returns true
+
+            val fileSources = testInstance.submissionSources(request) as SourcesList
+
+            val sources = fileSources.sources
+            assertThat(sources).hasSize(2)
+            assertThat(sources[0].description).isEqualTo("Admin Metadata Update")
+            assertThat(sources[1].description).isEqualTo("Previous version files [File System]")
+        }
 
     private fun submitter(): SecurityUser {
         val userFolder =
