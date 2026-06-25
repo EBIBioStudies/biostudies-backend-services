@@ -55,56 +55,56 @@ class StatsReporterServiceTest(
 
             // Verify ArrayExpress Report
             val totalAEReport = statsDir.resolve(TOTAL_REPORT_DIR).resolve(AE_REPORT_NAME)
-            val expectedTotalAEReport = "202306\t$PREVIOUS_AE_TOTAL\n202307\t$AE_TOTAL"
+            val expectedTotalAEReport = "202012\t$PREVIOUS_AE_TOTAL\n202101\t$AE_TOTAL"
             assertThat(totalAEReport).exists()
             assertThat(totalAEReport).hasContent(expectedTotalAEReport)
 
             val deltaAEReport = statsDir.resolve(DELTA_REPORT_DIR).resolve(AE_REPORT_NAME)
-            val expectedDeltaAEReport = "202306\t$PREVIOUS_AE_DELTA\n202307\t$AE_DELTA"
+            val expectedDeltaAEReport = "202012\t$PREVIOUS_AE_DELTA\n202101\t$AE_DELTA"
             assertThat(deltaAEReport).exists()
             assertThat(deltaAEReport).hasContent(expectedDeltaAEReport)
 
             val countAEReport = statsDir.resolve(COUNT_REPORT_DIR).resolve(AE_REPORT_NAME)
-            val expectedCountAEReport = "202306\t$PREVIOUS_AE_COUNT\n202307\t$AE_COUNT"
+            val expectedCountAEReport = "202012\t$PREVIOUS_AE_COUNT\n202101\t$AE_COUNT"
             assertThat(countAEReport).exists()
             assertThat(countAEReport).hasContent(expectedCountAEReport)
 
             // Verify Imaging Report
             val totalImagingReport = statsDir.resolve(TOTAL_REPORT_DIR).resolve(IMAGING_REPORT_NAME)
-            val expectedTotalImagingReport = "202306\t$PREVIOUS_IMAGING_TOTAL\n202307\t$IMAGING_TOTAL"
+            val expectedTotalImagingReport = "202012\t$PREVIOUS_IMAGING_TOTAL\n202101\t$IMAGING_TOTAL"
             assertThat(totalImagingReport).exists()
             assertThat(totalImagingReport).hasContent(expectedTotalImagingReport)
 
             val deltaImagingReport = statsDir.resolve(DELTA_REPORT_DIR).resolve(IMAGING_REPORT_NAME)
-            val expectedDeltaImagingReport = "202306\t$PREVIOUS_IMAGING_DELTA\n202307\t$IMAGING_DELTA"
+            val expectedDeltaImagingReport = "202012\t$PREVIOUS_IMAGING_DELTA\n202101\t$IMAGING_DELTA"
             assertThat(deltaImagingReport).exists()
             assertThat(deltaImagingReport).hasContent(expectedDeltaImagingReport)
 
             val countImagingReport = statsDir.resolve(COUNT_REPORT_DIR).resolve(IMAGING_REPORT_NAME)
-            val expectedCountImagingReport = "202306\t$PREVIOUS_IMAGING_COUNT\n202307\t$IMAGING_COUNT"
+            val expectedCountImagingReport = "202012\t$PREVIOUS_IMAGING_COUNT\n202101\t$IMAGING_COUNT"
             assertThat(countImagingReport).exists()
             assertThat(countImagingReport).hasContent(expectedCountImagingReport)
 
             // Verify Imaging Report
             val totalNonImagingReport = statsDir.resolve(TOTAL_REPORT_DIR).resolve(NON_IMAGING_REPORT_NAME)
-            val expectedTotalNonImagingReport = "202306\t$PREVIOUS_NON_IMAGING_TOTAL\n202307\t$NON_IMAGING_TOTAL"
+            val expectedTotalNonImagingReport = "202012\t$PREVIOUS_NON_IMAGING_TOTAL\n202101\t$NON_IMAGING_TOTAL"
             assertThat(totalNonImagingReport).exists()
             assertThat(totalNonImagingReport).hasContent(expectedTotalNonImagingReport)
 
             val deltaNonImagingReport = statsDir.resolve(DELTA_REPORT_DIR).resolve(NON_IMAGING_REPORT_NAME)
-            val expectedDeltaNonImagingReport = "202306\t$PREVIOUS_NON_IMAGING_DELTA\n202307\t$NON_IMAGING_DELTA"
+            val expectedDeltaNonImagingReport = "202012\t$PREVIOUS_NON_IMAGING_DELTA\n202101\t$NON_IMAGING_DELTA"
             assertThat(deltaNonImagingReport).exists()
             assertThat(deltaNonImagingReport).hasContent(expectedDeltaNonImagingReport)
 
             val countNonImagingReport = statsDir.resolve(COUNT_REPORT_DIR).resolve(NON_IMAGING_REPORT_NAME)
-            val expectedCountNonImagingReport = "202306\t$PREVIOUS_NON_IMAGING_COUNT\n202307\t$NON_IMAGING_COUNT"
+            val expectedCountNonImagingReport = "202012\t$PREVIOUS_NON_IMAGING_COUNT\n202101\t$NON_IMAGING_COUNT"
             assertThat(countNonImagingReport).exists()
             assertThat(countNonImagingReport).hasContent(expectedCountNonImagingReport)
         }
 
     private fun setUpDate() {
         mockkStatic(OffsetDateTime::class)
-        every { OffsetDateTime.now() } returns OffsetDateTime.of(2023, 8, 24, 0, 0, 0, 0, UTC)
+        every { OffsetDateTime.now() } returns OffsetDateTime.of(2021, 2, 1, 0, 0, 0, 0, UTC)
     }
 
     private fun setUpStats() {
@@ -115,19 +115,19 @@ class StatsReporterServiceTest(
         } returns CollectionStats(NON_IMAGING_COUNT, NON_IMAGING_TOTAL)
 
         val deltaReport = statsDir.createDirectory(DELTA_REPORT_DIR)
-        deltaReport.createFile(AE_REPORT_NAME, "202306\t$PREVIOUS_AE_DELTA\n")
-        deltaReport.createFile(IMAGING_REPORT_NAME, "202306\t$PREVIOUS_IMAGING_DELTA\n")
-        deltaReport.createFile(NON_IMAGING_REPORT_NAME, "202306\t$PREVIOUS_NON_IMAGING_DELTA\n")
+        deltaReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_AE_DELTA\n")
+        deltaReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_IMAGING_DELTA\n")
+        deltaReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_NON_IMAGING_DELTA\n")
 
         val countReport = statsDir.createDirectory(COUNT_REPORT_DIR)
-        countReport.createFile(AE_REPORT_NAME, "202306\t$PREVIOUS_AE_COUNT\n")
-        countReport.createFile(IMAGING_REPORT_NAME, "202306\t$PREVIOUS_IMAGING_COUNT\n")
-        countReport.createFile(NON_IMAGING_REPORT_NAME, "202306\t$PREVIOUS_NON_IMAGING_COUNT\n")
+        countReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_AE_COUNT\n")
+        countReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_IMAGING_COUNT\n")
+        countReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_NON_IMAGING_COUNT\n")
 
         val totalReport = statsDir.createDirectory(TOTAL_REPORT_DIR)
-        totalReport.createFile(AE_REPORT_NAME, "202306\t$PREVIOUS_AE_TOTAL\n")
-        totalReport.createFile(IMAGING_REPORT_NAME, "202306\t$PREVIOUS_IMAGING_TOTAL\n")
-        totalReport.createFile(NON_IMAGING_REPORT_NAME, "202306\t$PREVIOUS_NON_IMAGING_TOTAL\n")
+        totalReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_AE_TOTAL\n")
+        totalReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_IMAGING_TOTAL\n")
+        totalReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_NON_IMAGING_TOTAL\n")
     }
 
     private fun setUpPaths() {

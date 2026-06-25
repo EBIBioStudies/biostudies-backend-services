@@ -97,7 +97,7 @@ class StatsReporterService(
     private fun OffsetDateTime.asPreviousMonth(months: Long) = minusMonths(months).format(ofPattern(FORMAT_PATTERN))
 
     companion object {
-        private const val FORMAT_PATTERN = "YYYYMM"
+        private const val FORMAT_PATTERN = "yyyyMM"
         const val DELTA_REPORT_DIR = "delta"
         const val TOTAL_REPORT_DIR = "total"
         const val COUNT_REPORT_DIR = "count"
