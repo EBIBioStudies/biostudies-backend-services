@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/stats")
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAuthority('ADMIN')")
 class StatsResource(
     private val submissionStatsService: SubmissionStatsService,
     private val tmpFileGenerator: TempFileGenerator,
