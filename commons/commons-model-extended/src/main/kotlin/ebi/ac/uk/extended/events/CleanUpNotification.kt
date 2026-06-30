@@ -3,20 +3,20 @@ package ebi.ac.uk.extended.events
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
-@Suppress("SerialVersionUIDInSerializableClass")
+@Suppress("LongParameterList", "SerialVersionUIDInSerializableClass")
 class CleanUpNotification(
-    @JsonProperty("email")
+    @field:JsonProperty("email")
     val email: String,
-    @JsonProperty("username")
+    @field:JsonProperty("username")
     val username: String,
-    @JsonProperty("lastActivityDate")
+    @field:JsonProperty("lastActivityDate")
     val lastActivityDate: String,
-    @JsonProperty("cleanUpDate")
+    @field:JsonProperty("cleanUpDate")
     val cleanUpDate: String,
-    @JsonProperty("emailSubject")
+    @field:JsonProperty("emailSubject")
     val emailSubject: String,
-    @JsonProperty("emailTemplate")
+    @field:JsonProperty("emailTemplate")
     val emailTemplate: String,
-    @JsonProperty("type")
+    @field:JsonProperty("type")
     val type: String,
 ) : Serializable

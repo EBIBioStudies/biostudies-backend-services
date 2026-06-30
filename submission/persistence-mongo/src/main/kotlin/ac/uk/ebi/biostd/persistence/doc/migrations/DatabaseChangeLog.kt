@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists

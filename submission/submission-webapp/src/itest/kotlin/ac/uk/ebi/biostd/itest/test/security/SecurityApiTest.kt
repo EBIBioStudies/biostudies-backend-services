@@ -76,14 +76,13 @@ class SecurityApiTest(
     fun `22-8 get user profile`() =
         runTest {
             securityTestService.ensureUserRegistration(FtpSuperUser)
-
             val client = getWebClient(serverPort, FtpSuperUser)
-            val dbUser = userDataRepository.getByEmail(FtpSuperUser.email)
-            val previousLastActivity = dbUser.lastActivity.truncatedTo(SECONDS)
+
             val startedAt = LocalDateTime.now().minusSeconds(1).truncatedTo(SECONDS)
             val result = client.getProfile()
             val finishedAt = LocalDateTime.now().plusSeconds(1).truncatedTo(SECONDS)
-            val lastActivity = result.lastActivity.truncatedTo(SECONDS)
+
+            val storedUser = userDataRepository.getByEmail(FtpSuperUser.email)
 
             assertThat(result.email).isEqualTo(FtpSuperUser.email)
             assertThat(result.fullname).isEqualTo(FtpSuperUser.username)
