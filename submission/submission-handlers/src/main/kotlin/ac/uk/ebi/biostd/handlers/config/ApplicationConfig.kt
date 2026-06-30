@@ -2,18 +2,21 @@ package ac.uk.ebi.biostd.handlers.config
 
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.exception.CustomErrorHandler
+import ac.uk.ebi.biostd.handlers.listeners.CleanUpNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionListener
 import ac.uk.ebi.biostd.handlers.listeners.SecurityNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationLogMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorDataService
-import ac.uk.ebi.biostd.persistence.doc.service.NotificationErrorMongoDataService
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationLogMongoDataService
 import ac.uk.ebi.biostd.persistence.integration.config.NotificationPersistenceConfig
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig
+import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.SecurityNotificationService
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
@@ -63,7 +66,7 @@ class Listeners {
         notificationsSender: NotificationsSender,
         applicationProperties: ApplicationProperties,
         rtNotificationService: RtNotificationService,
-        notificationErrorDataService: NotificationErrorDataService,
+        notificationLogDataService: NotificationLogDataService,
     ): SubmissionNotificationsListener =
         SubmissionNotificationsListener(
             rabbitTemplate,
@@ -71,12 +74,14 @@ class Listeners {
             notificationsSender,
             rtNotificationService,
             applicationProperties.notifications,
-            notificationErrorDataService,
+            notificationLogDataService,
         )
 
     @Bean
-    fun notificationErrorDataService(notificationErrorMongoRepository: NotificationErrorMongoRepository): NotificationErrorDataService =
-        NotificationErrorMongoDataService(notificationErrorMongoRepository)
+    fun notificationErrorDataService(
+        notificationLogRepo: NotificationLogMongoRepository,
+        notificationErrorMongoRepo: NotificationErrorMongoRepository,
+    ): NotificationLogDataService = NotificationLogMongoDataService(notificationLogRepo, notificationErrorMongoRepo)
 
     @Bean
     fun securityNotificationsListener(
@@ -88,6 +93,20 @@ class Listeners {
             rabbitTemplate,
             notificationsSender,
             securityNotificationService,
+        )
+
+    @Bean
+    fun cleanUpNotificationsListener(
+        rabbitTemplate: RabbitTemplate,
+        notificationsSender: NotificationsSender,
+        cleanUpNotificationService: CleanUpNotificationService,
+        notificationErrorService: NotificationLogDataService,
+    ): CleanUpNotificationListener =
+        CleanUpNotificationListener(
+            rabbitTemplate,
+            notificationsSender,
+            cleanUpNotificationService,
+            notificationErrorService,
         )
 }
 
@@ -133,6 +152,10 @@ class Services {
     @Bean
     fun securityNotificationService(notificationConfig: NotificationConfig): SecurityNotificationService =
         notificationConfig.securityNotificationService()
+
+    @Bean
+    fun cleanUpNotificationService(notificationConfig: NotificationConfig): CleanUpNotificationService =
+        notificationConfig.cleanUpNotificationService()
 }
 
 @Configuration

@@ -206,3 +206,7 @@ object DocStatsFields {
     const val STATS_DIRECTORIES = "DIRECTORIES"
     const val STATS_NON_DECLARED_FILES_DIRECTORIES = "NON_DECLARED_FILES_DIRECTORIES"
 }
+
+object DocNotificationFields {
+    const val NOTIFICATION_KEY = "key"
+}

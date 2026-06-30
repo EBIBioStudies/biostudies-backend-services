@@ -30,17 +30,17 @@ import java.util.Date
 
 @ExtendWith(MockKExtension::class)
 class SubmissionReleaserServiceTest(
-    @MockK private val bioWebClient: BioWebClient,
-    @MockK private val notificationTimes: NotificationTimes,
-    @MockK private val releaserRepository: SubmissionReleaserRepository,
-    @MockK private val requestRepository: SubmissionRequestRepository,
-    @MockK private val eventsPublisherService: EventsPublisherService,
+    @param:MockK private val bioWebClient: BioWebClient,
+    @param:MockK private val releaseNotificationTimes: NotificationTimes,
+    @param:MockK private val releaserRepository: SubmissionReleaserRepository,
+    @param:MockK private val requestRepository: SubmissionRequestRepository,
+    @param:MockK private val eventsPublisherService: EventsPublisherService,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 10, 11, 0, 0, UTC).toInstant()
     private val testInstance =
         SubmissionReleaserService(
             bioWebClient,
-            notificationTimes,
+            releaseNotificationTimes,
             releaserRepository,
             requestRepository,
             eventsPublisherService,
@@ -123,9 +123,9 @@ class SubmissionReleaserServiceTest(
     }
 
     private fun mockNotificationTimes() {
-        every { notificationTimes.firstWarningDays } returns 60
-        every { notificationTimes.secondWarningDays } returns 30
-        every { notificationTimes.thirdWarningDays } returns 7
+        every { releaseNotificationTimes.firstWarningDays } returns 60
+        every { releaseNotificationTimes.secondWarningDays } returns 30
+        every { releaseNotificationTimes.thirdWarningDays } returns 7
     }
 
     private fun mockExtensionFunctions() {

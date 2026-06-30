@@ -9,7 +9,6 @@ import ebi.ac.uk.system.tempFolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.nio.file.Paths
@@ -56,16 +55,6 @@ class OperationsService(
                     logger.info { "Archived request $accNo, $version" }
                 }
             }.collect()
-
-    fun archiveRequests(
-        accNo: String,
-        version: Int,
-    ) = runBlocking {
-        runSafely("Archive accNo='$accNo', version:'$version'") {
-            persistenceService.archiveRequest(accNo, version)
-            logger.info { "Archived request $accNo, $version" }
-        }
-    }
 
     private suspend fun runSafely(
         description: String,

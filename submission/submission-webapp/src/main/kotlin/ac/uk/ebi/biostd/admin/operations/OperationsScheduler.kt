@@ -2,22 +2,33 @@ package ac.uk.ebi.biostd.admin.operations
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.migration.service.MigrationService
+import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
+import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
 
 class OperationsScheduler(
-    private val applicationProperties: ApplicationProperties,
+    private val properties: ApplicationProperties,
     private val operationsService: OperationsService,
     private val migrationService: MigrationService,
     private val statsReporterService: StatsReporterService,
+    private val userCleanUpService: ExtUserSpaceCleanUpService,
 ) {
     /**
      * Delete request files every day at 1 am.
      */
     @Scheduled(cron = "0 0 1 * * *")
     fun deleteRequestFiles() {
-        runBlocking { if (applicationProperties.enableTmpCleaning) operationsService.deleteRequestFiles() }
+        runBlocking { if (properties.enableTmpCleaning) operationsService.deleteRequestFiles() }
+    }
+
+    /**
+     * Migrate released submissions from NFS to FIRE every day at 2 am.
+     */
+    @Scheduled(cron = "0 0 2 * * *")
+    fun migrateSubmission() {
+        runBlocking { if (properties.migration.enabled) migrationService.migrateSubmissions() }
     }
 
     /**
@@ -25,7 +36,15 @@ class OperationsScheduler(
      */
     @Scheduled(cron = "0 0 4 * * *")
     fun archiveRequests() {
-        runBlocking { if (applicationProperties.enableTmpCleaning) operationsService.archiveRequests() }
+        runBlocking { if (properties.enableTmpCleaning) operationsService.archiveRequests() }
+    }
+
+    /**
+     * Send user space cleanup notifications every day at 6 am.
+     */
+    @Scheduled(cron = "0 0 6 * * *")
+    fun sendUserSpaceCleanUpNotifications() {
+        runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(NOTIFY, remote = true) }
     }
 
     /**
@@ -33,7 +52,7 @@ class OperationsScheduler(
      */
     @Scheduled(cron = "0 0 5 * * 0")
     fun cleanTempFolders() {
-        runBlocking { if (applicationProperties.enableTmpCleaning) operationsService.cleanTempFolders() }
+        runBlocking { if (properties.enableTmpCleaning) operationsService.cleanTempFolders() }
     }
 
     /**
@@ -41,15 +60,6 @@ class OperationsScheduler(
      */
     @Scheduled(cron = "0 0 3 4 * *")
     fun publishSubmissionStatsReport() {
-        runBlocking { if (applicationProperties.enableStatsReport) statsReporterService.reportStats() }
-    }
-
-    @Scheduled(cron = "0 0 * * * *")
-    fun migrateSubmission() {
-        runBlocking {
-            if (applicationProperties.migration.enabled) {
-                migrationService.migrateSubmissions()
-            }
-        }
+        runBlocking { if (properties.enableStatsReport) statsReporterService.reportStats() }
     }
 }

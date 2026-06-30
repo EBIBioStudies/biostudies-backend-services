@@ -15,6 +15,8 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Query
+import java.time.LocalDateTime
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
     fun findByName(name: String): DbAccessTag?
@@ -59,6 +61,12 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
         email: String,
         active: Boolean,
     ): DbUser?
+
+    @Query("SELECT u.email FROM DbUser u WHERE u.lastActivity BETWEEN :start AND :end")
+    fun findAllByLastActivityIsBetween(
+        start: LocalDateTime,
+        end: LocalDateTime,
+    ): List<String>
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
     fun findByEmail(email: String): DbUser?

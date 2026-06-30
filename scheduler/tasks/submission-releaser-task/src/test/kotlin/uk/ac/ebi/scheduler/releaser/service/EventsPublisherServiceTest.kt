@@ -16,8 +16,8 @@ import uk.ac.ebi.events.config.EventsProperties
 
 @ExtendWith(MockKExtension::class)
 class EventsPublisherServiceTest(
-    @MockK private val rabbitTemplate: RabbitTemplate,
-    @MockK private val eventsProperties: EventsProperties,
+    @param:MockK private val rabbitTemplate: RabbitTemplate,
+    @param:MockK private val eventsProperties: EventsProperties,
 ) {
     private val testInstance: EventsPublisherService = EventsPublisherService(rabbitTemplate, eventsProperties)
 

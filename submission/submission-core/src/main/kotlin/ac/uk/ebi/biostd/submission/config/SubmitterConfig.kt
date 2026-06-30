@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -10,13 +11,19 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationLogMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.doc.service.NotificationLogMongoDataService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.GeneralConfig.Companion.DOI_RETRY_TEMPLATE
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
+import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
+import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
@@ -295,10 +302,38 @@ class SubmitterConfig(
         )
 
     @Bean
+    fun notificationErrorDataService(
+        notificationLogRepo: NotificationLogMongoRepository,
+        notificationErrorMongoRepo: NotificationErrorMongoRepository,
+    ): NotificationLogDataService = NotificationLogMongoDataService(notificationLogRepo, notificationErrorMongoRepo)
+
+    @Bean
     fun extPostProcessingService(
         localPostProcessingService: LocalPostProcessingService,
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
     ): ExtPostProcessingService = ExtPostProcessingService(localPostProcessingService, remoteSubmitterExecutor)
+
+    @Bean
+    fun localUserSpaceCleanUpService(
+        userRepository: UserDataRepository,
+        properties: ApplicationProperties,
+        securityQueryService: SecurityQueryService,
+        eventsPublisherService: EventsPublisherService,
+        notificationErrorService: NotificationLogDataService,
+    ): LocalUserSpaceCleanUpService =
+        LocalUserSpaceCleanUpService(
+            userRepository,
+            properties.cleanUp,
+            securityQueryService,
+            eventsPublisherService,
+            notificationErrorService,
+        )
+
+    @Bean
+    fun extUserSpaceCleanUpService(
+        localUserSpaceCleanUpService: LocalUserSpaceCleanUpService,
+        remoteSubmitterExecutor: RemoteSubmitterExecutor,
+    ): ExtUserSpaceCleanUpService = ExtUserSpaceCleanUpService(remoteSubmitterExecutor, localUserSpaceCleanUpService)
 
     @Bean
     fun submissionProcessor(

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.handlers.config
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
@@ -16,6 +17,7 @@ const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"
 
 internal const val LOG_QUEUE = "submission-submitted-log-queue"
 internal const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
+internal const val CLEANUP_NOTIFICATIONS_QUEUE = "cleanup-notifications-queue"
 internal const val SUBMIT_NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
 internal const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notifications-queue"
 internal const val FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE = "submission-failed-notifications-queue"
@@ -49,6 +51,9 @@ class QueuesConfig {
     fun securityNotificationsQueue(): Queue = Queue(SECURITY_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
+    fun cleanUpNotificationsQueue(): Queue = Queue(CLEANUP_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
+
+    @Bean
     fun logQueueBinding(exchange: TopicExchange): Binding = BindingBuilder.bind(logQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
 
     @Bean
@@ -73,4 +78,8 @@ class QueuesConfig {
     @Bean
     fun securityNotificationsQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(securityNotificationsQueue()).to(exchange).with(SECURITY_NOTIFICATIONS_ROUTING_KEY)
+
+    @Bean
+    fun cleanUpNotificationsQueueBinding(exchange: TopicExchange): Binding =
+        BindingBuilder.bind(cleanUpNotificationsQueue()).to(exchange).with(CLEANUP_NOTIFICATIONS_ROUTING_KEY)
 }

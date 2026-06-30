@@ -1,7 +1,10 @@
+@file:Suppress("TooManyFunctions")
+
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocNotificationFields.NOTIFICATION_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PROCESS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
@@ -45,6 +48,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
+import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationError
+import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationLog
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -68,6 +73,9 @@ suspend fun ReactiveMongoTemplate.executeMigrations() {
     ensureStatsIndexes()
     ensureFileListIndexes()
     ensureSubmissionFilesIndexes()
+
+    ensureNotificationLogsIndexes()
+    ensureNotificationErrorsIndexes()
 }
 
 suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
@@ -239,5 +247,27 @@ suspend fun ReactiveMongoOperations.ensureSubmissionFilesIndexes() {
         createIndex(backgroundIndex().on(DOC_SUB_FILE_SUBMISSION_VERSION, ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on("$DOC_SUB_FILE_FILE.$DOC_SUB_FILE_MD5", ASC)).awaitSingleOrNull()
         createIndex(backgroundIndex().on("$DOC_SUB_FILE_FILE.$FILE_DOC_FILEPATH", ASC)).awaitSingleOrNull()
+    }
+}
+
+/**
+ * notification_logs collection indexes
+ * 1. key
+ */
+suspend fun ReactiveMongoOperations.ensureNotificationLogsIndexes() {
+    ensureExists(DocNotificationLog::class.java)
+    indexOps<DocNotificationLog>().apply {
+        createIndex(backgroundIndex().on(NOTIFICATION_KEY, ASC)).awaitSingleOrNull()
+    }
+}
+
+/**
+ * notification_errors collection indexes
+ * 1. key
+ */
+suspend fun ReactiveMongoOperations.ensureNotificationErrorsIndexes() {
+    ensureExists(DocNotificationError::class.java)
+    indexOps<DocNotificationError>().apply {
+        createIndex(backgroundIndex().on(NOTIFICATION_KEY, ASC)).awaitSingleOrNull()
     }
 }

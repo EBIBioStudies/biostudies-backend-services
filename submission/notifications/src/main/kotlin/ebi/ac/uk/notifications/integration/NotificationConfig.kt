@@ -3,6 +3,7 @@ package ebi.ac.uk.notifications.integration
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ebi.ac.uk.notifications.api.RtClient
+import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.RtTicketService
 import ebi.ac.uk.notifications.service.SecurityNotificationService
@@ -21,6 +22,8 @@ class NotificationConfig(
 
     fun securityNotificationService(): SecurityNotificationService = securityNotificationService
 
+    fun cleanUpNotificationService(): CleanUpNotificationService = cleanUpNotificationService
+
     private val webClient by lazy { WebClient.builder().build() }
 
     private val emailService by lazy { SimpleEmailService(mailSender) }
@@ -29,6 +32,14 @@ class NotificationConfig(
 
     private val securityNotificationService by lazy {
         SecurityNotificationService(
+            templateLoader,
+            emailService,
+            properties,
+        )
+    }
+
+    private val cleanUpNotificationService by lazy {
+        CleanUpNotificationService(
             templateLoader,
             emailService,
             properties,
