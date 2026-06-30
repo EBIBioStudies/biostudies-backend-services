@@ -26,14 +26,14 @@ import ac.uk.ebi.biostd.persistence.model.DbUser as UserDB
 
 @ExtendWith(MockKExtension::class)
 class UserPrivilegesServiceTest(
-    @MockK private val author: UserDB,
-    @MockK private val otherAuthor: UserDB,
-    @MockK private val user: UserDB,
-    @MockK private val basicSubmission: BasicSubmission,
-    @MockK private val userRepository: UserDataRepository,
-    @MockK private val queryService: SubmissionMetaQueryService,
-    @MockK private val tagsDataRepository: AccessTagDataRepo,
-    @MockK private val userPermissionsService: UserPermissionsService,
+    @param:MockK private val author: UserDB,
+    @param:MockK private val otherAuthor: UserDB,
+    @param:MockK private val user: UserDB,
+    @param:MockK private val basicSubmission: BasicSubmission,
+    @param:MockK private val userRepository: UserDataRepository,
+    @param:MockK private val queryService: SubmissionMetaQueryService,
+    @param:MockK private val tagsDataRepository: AccessTagDataRepo,
+    @param:MockK private val userPermissionsService: UserPermissionsService,
 ) {
     private val testInstance =
         UserPrivilegesService(userRepository, tagsDataRepository, queryService, userPermissionsService)
@@ -227,6 +227,19 @@ class UserPrivilegesServiceTest(
         every { userPermissionsService.hasPermission("superuser@mail.com", "any_project", ADMIN) } returns true
         assertThat(testInstance.canUpdateReleaseDate("superuser@mail.com", "any_project")).isTrue()
     }
+
+    @Test
+    fun `can skip files validation for superuser and collection admin only`() =
+        runTest {
+            assertThat(testInstance.canSkipFilesValidation("superuser@mail.com", "accNo")).isTrue()
+
+            coEvery { queryService.getCollections("accNo") } returns listOf("A-Collection")
+            every { userPermissionsService.isAdmin("author@mail.com", "A-Collection") } returns true
+            assertThat(testInstance.canSkipFilesValidation("author@mail.com", "accNo")).isTrue()
+
+            every { userPermissionsService.isAdmin("otherAuthor@mail.com", "A-Collection") } returns false
+            assertThat(testInstance.canSkipFilesValidation("otherAuthor@mail.com", "accNo")).isFalse()
+        }
 
     private fun initUsers() {
         every { user.id } returns 123

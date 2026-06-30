@@ -115,16 +115,17 @@ class SubmissionRequestFilesValidator(
         val request = submissionRequest.process!!
         val submission = request.submission
         val previous = request.previousVersion?.let { queryService.getExtByAccNoAndVersion(submission.accNo, it) }
-        var sourceRequest =
+        val sourceRequest =
             FileSourcesRequest(
                 folderType = FolderType.NFS,
                 onBehalfUser = submissionRequest.onBehalfUser?.let { securityService.getUser(it) },
                 files = submissionRequest.files,
                 submitter = securityService.getUser(submission.submitter),
                 rootPath = submission.rootPath,
-                submission = previous,
+                previousVersion = previous,
                 preferredSources = submissionRequest.preferredSources,
             )
+
         return fileSourcesService.submissionSources(sourceRequest)
     }
 }

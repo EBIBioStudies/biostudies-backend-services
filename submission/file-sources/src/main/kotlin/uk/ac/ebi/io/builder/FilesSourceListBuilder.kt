@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allInnerSubmissionFiles
 import ebi.ac.uk.ftp.FtpClient
+import ebi.ac.uk.io.sources.AdminUpdateFilesSource
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.SourcesList
@@ -41,6 +42,10 @@ class FilesSourceListBuilder(
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()
         return this.apply { builderAction() }.build()
+    }
+
+    fun addAdminMetadataFilesSource() {
+        sources.add(AdminUpdateFilesSource)
     }
 
     fun addDbFilesSource() {

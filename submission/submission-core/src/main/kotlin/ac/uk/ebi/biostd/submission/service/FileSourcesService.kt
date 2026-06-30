@@ -6,6 +6,7 @@ import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.paths.FolderType
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.io.File
@@ -14,29 +15,34 @@ private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION)
 
 class FileSourcesService(
     private val builder: FilesSourceListBuilder,
+    private val userPrivilegesService: IUserPrivilegesService,
 ) {
-    fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
+    suspend fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
         val folderType = rqt.folderType
         val onBehalfUser = rqt.onBehalfUser
         val submitter = rqt.submitter
         val files = rqt.files
         val rootPath = rqt.rootPath
-        val submission = rqt.submission
-        val preferred = rqt.preferredSources.ifEmpty { DEFAULT_SOURCES }
+        val sub = rqt.previousVersion
 
-        val sources =
-            builder.buildFilesSourceList {
-                if (submitter.superuser) addDbFilesSource()
-                if (files != null) addFilesListSource(files)
-                preferred.forEach {
-                    when (it) {
-                        USER_SPACE -> addUserSources(rootPath, onBehalfUser, submitter, folderType, this)
-                        SUBMISSION -> if (submission != null) addSubmissionSource(submission, folderType)
-                    }
+        if (rqt.isMetadataUpdate && userPrivilegesService.canSkipFilesValidation(submitter.email, sub!!.accNo)) {
+            return builder.buildFilesSourceList {
+                addAdminMetadataFilesSource()
+                addSubmissionSource(sub, folderType)
+            }
+        }
+
+        val preferred = rqt.preferredSources.ifEmpty { DEFAULT_SOURCES }
+        return builder.buildFilesSourceList {
+            if (submitter.superuser) addDbFilesSource()
+            if (files != null) addFilesListSource(files)
+            preferred.forEach {
+                when (it) {
+                    USER_SPACE -> addUserSources(rootPath, onBehalfUser, submitter, folderType, this)
+                    SUBMISSION -> if (sub != null) addSubmissionSource(sub, folderType)
                 }
             }
-
-        return sources
+        }
     }
 
     private fun addUserSources(
@@ -75,6 +81,9 @@ data class FileSourcesRequest(
     val submitter: SecurityUser,
     val files: List<File>?,
     val rootPath: String?,
-    val submission: ExtSubmission?,
+    val previousVersion: ExtSubmission?,
     val preferredSources: List<PreferredSource>,
-)
+) {
+    val isMetadataUpdate: Boolean
+        get() = previousVersion != null && preferredSources.size == 1 && preferredSources.first() == SUBMISSION
+}

@@ -12,6 +12,7 @@ import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.ftp.RetryFtpClient
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -40,7 +41,10 @@ class GeneralConfig {
     fun filesSourceListBuilder(config: FilesSourceConfig): FilesSourceListBuilder = config.filesSourceListBuilder()
 
     @Bean
-    fun fileSourcesService(builder: FilesSourceListBuilder): FileSourcesService = FileSourcesService(builder)
+    fun fileSourcesService(
+        builder: FilesSourceListBuilder,
+        userPrivilegesService: IUserPrivilegesService,
+    ): FileSourcesService = FileSourcesService(builder, userPrivilegesService)
 
     @Bean
     fun extFilesResolver(properties: ApplicationProperties): FilesResolver = FilesResolver(File(properties.persistence.requestFilesPath))

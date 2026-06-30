@@ -366,7 +366,7 @@ class ResubmissionApiTest(
         }
 
     @Test
-    fun `5-6 Resubmit study currenlty being flag as invalid`() =
+    fun `5-6 Resubmit study currenlty being flagged as invalid`() =
         runTest {
             val version1 =
                 tsv {
