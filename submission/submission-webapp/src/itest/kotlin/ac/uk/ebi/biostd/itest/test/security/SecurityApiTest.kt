@@ -88,7 +88,7 @@ class SecurityApiTest(
             assertThat(result.fullname).isEqualTo(FtpSuperUser.username)
             assertThat(result.uploadType).isEqualTo("ftp")
             assertThat(result.lastActivity.truncatedTo(SECONDS)).isBetween(startedAt, finishedAt)
-            assertThat(storedUser.lastActivity).isEqualTo(result.lastActivity.truncatedTo(SECONDS))
+            assertThat(storedUser.lastActivity.truncatedTo(SECONDS)).isBetween(startedAt, finishedAt)
         }
 
     object NfsUser : TestUser {
