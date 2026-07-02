@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
+import ac.uk.ebi.biostd.persistence.doc.model.DocCleanUpError
+import ac.uk.ebi.biostd.persistence.doc.model.DocCleanUpLog
 import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationError
 import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationLog
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -312,3 +314,7 @@ interface LinkListDocLinkRepository : CoroutineCrudRepository<LinkListDocLink, O
 interface NotificationLogMongoRepository : CoroutineCrudRepository<DocNotificationLog, ObjectId>
 
 interface NotificationErrorMongoRepository : CoroutineCrudRepository<DocNotificationError, ObjectId>
+
+interface CleanUpLogMongoRepository : CoroutineCrudRepository<DocCleanUpLog, ObjectId>
+
+interface CleanUpErrorMongoRepository : CoroutineCrudRepository<DocCleanUpError, ObjectId>

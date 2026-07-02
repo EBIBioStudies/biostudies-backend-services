@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
 import ac.uk.ebi.biostd.common.properties.CleanUpProperties
+import ac.uk.ebi.biostd.persistence.common.service.CleanUpLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.NotificationType.FINAL_WARNING
@@ -13,15 +14,21 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.io.path.absolutePathString
 
 class LocalUserSpaceCleanUpService(
+    private val clusterClient: ClusterClient,
     private val userRepository: UserDataRepository,
     private val cleanUpProperties: CleanUpProperties,
     private val securityQueryService: SecurityQueryService,
+    private val cleanUpLogDataService: CleanUpLogDataService,
     private val eventsPublisherService: EventsPublisherService,
     private val notificationLogDataService: NotificationLogDataService,
 ) {
@@ -38,7 +45,7 @@ class LocalUserSpaceCleanUpService(
     ) = withContext(Dispatchers.IO) {
         logger.info { "Sending ${type.name} cleanup notifications for users with last activity at $date" }
         userRepository
-            .findAllByLastActivityIsBetween(date.atStartOfDay(), date.atEndOfDay())
+            .findAllByLastActivityIsBetweenAndActive(date.atStartOfDay(), date.atEndOfDay())
             .map { securityQueryService.getUser(it) }
             .filterNot { isUserSpaceEmpty(it) }
             .forEach { notifyCleanUp(it, type) }
@@ -72,6 +79,31 @@ class LocalUserSpaceCleanUpService(
                 lastActivityDate = user.lastActivity.formatted(),
             )
         eventsPublisherService.cleanupNotification(notification)
+    }
+
+    suspend fun cleanUpUserSpaces() =
+        withContext(Dispatchers.IO) {
+            val cleanUpDate = LocalDate.now().minusDays(cleanUpProperties.cleanUpPeriodDays)
+            logger.info { "Cleaning up users with last activity at $cleanUpDate" }
+            userRepository
+                .findAllByLastActivityIsBetweenAndActive(cleanUpDate.atStartOfDay(), cleanUpDate.atEndOfDay())
+                .map { securityQueryService.getUser(it) }
+                .filterNot { isUserSpaceEmpty(it) }
+                .forEach { cleanUpUserSpace(it) }
+        }
+
+    private suspend fun cleanUpUserSpace(user: SecurityUser) {
+        val path = user.userFolder.path.absolutePathString()
+        logger.info { "Dispatching user space clean up job for user ${user.email} at $path" }
+        val job = JobSpec(queue = DataMoverQueue, command = "rm -rf $path/*")
+        val jobTry = clusterClient.triggerJobAsync(job)
+        jobTry.fold({
+            cleanUpLogDataService.logCleanUp(user.email, it.id, user.lastActivity, path)
+            logger.info { "User space clean up job dispatched for user ${user.email}. Job id: ${it.id}" }
+        }, {
+            cleanUpLogDataService.logCleanUpError(user.email, it.message ?: it.localizedMessage, path)
+            logger.error { "Failed to dispatch user space clean up job for user ${user.email}. Error: ${it.message}" }
+        })
     }
 
     private fun LocalDateTime.formatted() = format(DateTimeFormatter.ofPattern(DATE_FORMAT))

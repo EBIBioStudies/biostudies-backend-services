@@ -62,8 +62,8 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
         active: Boolean,
     ): DbUser?
 
-    @Query("SELECT u.email FROM DbUser u WHERE u.lastActivity BETWEEN :start AND :end")
-    fun findAllByLastActivityIsBetween(
+    @Query("SELECT u.email FROM DbUser u WHERE u.active = true AND u.lastActivity BETWEEN :start AND :end")
+    fun findAllByLastActivityIsBetweenAndActive(
         start: LocalDateTime,
         end: LocalDateTime,
     ): List<String>

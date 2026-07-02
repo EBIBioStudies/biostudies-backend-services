@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.admin.operations
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
+import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import kotlinx.coroutines.runBlocking
@@ -45,6 +46,14 @@ class OperationsScheduler(
     @Scheduled(cron = "0 0 6 * * *")
     fun sendUserSpaceCleanUpNotifications() {
         runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(NOTIFY, remote = true) }
+    }
+
+    /**
+     * Clean inactive user spaces every day at 11 pm.
+     */
+    @Scheduled(cron = "0 0 23 * * *")
+    fun cleanUserSpaces() {
+        runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(CLEAN_UP, remote = true) }
     }
 
     /**

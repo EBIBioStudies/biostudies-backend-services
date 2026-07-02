@@ -20,4 +20,5 @@ enum class Mode {
     POST_PROCESS_DOI,
     LOAD_PMC_LINKS,
     NOTIFY_USER_SPACE_CLEAN_UP,
+    CLEAN_UP_USER_SPACE,
 }

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
 import ac.uk.ebi.biostd.common.properties.CleanUpProperties
+import ac.uk.ebi.biostd.persistence.common.service.CleanUpLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.FINAL_WARNING_SUBJECT
@@ -32,7 +33,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 
 @ExtendWith(MockKExtension::class)
 class LocalUserSpaceCleanUpServiceTest(
@@ -40,6 +43,7 @@ class LocalUserSpaceCleanUpServiceTest(
     @param:MockK private val securityQueryService: SecurityQueryService,
     @param:MockK private val eventsPublisherService: EventsPublisherService,
     @param:MockK private val notificationErrorService: NotificationLogDataService,
+    @param:MockK private val cleanUpLogDataService: CleanUpLogDataService,
 ) {
     private val cleanUpProperties =
         CleanUpProperties(
@@ -57,6 +61,7 @@ class LocalUserSpaceCleanUpServiceTest(
             securityQueryService,
             eventsPublisherService,
             notificationErrorService,
+            cleanUpLogDataService,
         )
 
     @BeforeEach
@@ -192,6 +197,69 @@ class LocalUserSpaceCleanUpServiceTest(
                 )
             }
             verify(exactly = 0) { eventsPublisherService.cleanupNotification(any()) }
+        }
+
+    @Test
+    fun `find users to cleanup uses exact cutoff and skips empty user spaces`() =
+        runTest {
+            val today = LocalDate.parse("2026-06-16")
+            val userToClean = createUser("cleanup@ebi.ac.uk", "Cleanup User", today.minusDays(120).atTime(10, 0))
+            val emptyUser =
+                createUser(
+                    "empty@ebi.ac.uk",
+                    "Empty User",
+                    today.minusDays(120).atTime(11, 0),
+                    Files.createTempDirectory("cleanup-empty"),
+                )
+
+            every { LocalDate.now() } returns today
+            every {
+                userRepository.findAllByLastActivityIsBetweenAndActive(
+                    today.minusDays(120).atStartOfDay(),
+                    today
+                        .minusDays(120)
+                        .plusDays(1)
+                        .atStartOfDay()
+                        .minusSeconds(1),
+                )
+            } returns listOf(userToClean.email, emptyUser.email)
+            every { securityQueryService.getUser(userToClean.email) } returns userToClean
+            every { securityQueryService.getUser(emptyUser.email) } returns emptyUser
+
+            val users = testInstance.cleanUpUserSpaces()
+
+            assertThat(users).containsExactly(
+                LocalUserSpaceCleanUpService.CleanUpUser(
+                    email = userToClean.email,
+                    lastActivity = userToClean.lastActivity,
+                    userSpacePath = userToClean.userFolder.path.absolutePathString(),
+                ),
+            )
+            coVerify(exactly = 0) {
+                cleanUpLogDataService.logCleanUpError(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `clean up user deletes user space contents and preserves root folder`() =
+        runTest {
+            val folder = Files.createTempDirectory("cleanup-user")
+            val nestedFolder = folder.resolve("nested").createDirectories()
+            val hiddenFile = folder.resolve(".hidden")
+            val nestedFile = nestedFolder.resolve("file.txt")
+            Files.writeString(hiddenFile, "hidden")
+            Files.writeString(nestedFile, "nested")
+            val user = createUser("cleanup@ebi.ac.uk", "Cleanup User", LocalDateTime.parse("2026-02-16T10:00:00"), folder)
+
+            every { securityQueryService.getUser(user.email) } returns user
+
+            testInstance.cleanUpUser(user.email)
+
+            assertThat(folder.exists()).isTrue()
+            assertThat(folder.toFile().listFiles()).isEmpty()
+            coVerify(exactly = 0) {
+                cleanUpLogDataService.logCleanUpError(any(), any(), any(), any())
+            }
         }
 
     private fun createUser(

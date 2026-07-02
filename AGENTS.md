@@ -6,6 +6,10 @@
 - itest-fire: unset ITEST_FAIL_FACTOR && ./gradlew clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
 - itest-chaos: export ITEST_FAIL_FACTOR=8 && ./gradlew clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
 
+## Skills Used
+- grill-with-docs: used to clarify and document the user-space cleanup design.
+- domain-modeling: requested through grill-with-docs; not installed locally, so the design was modeled from repository code and captured in ADR/glossary docs.
+
 ## Definition of Done
 Before marking the work as complete:
 
