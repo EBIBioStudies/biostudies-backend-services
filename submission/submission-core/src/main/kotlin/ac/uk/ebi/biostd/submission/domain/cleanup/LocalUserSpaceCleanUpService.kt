@@ -23,6 +23,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.io.path.absolutePathString
 
+@Suppress("LongParameterList")
 class LocalUserSpaceCleanUpService(
     private val clusterClient: ClusterClient,
     private val userRepository: UserDataRepository,
@@ -47,20 +48,22 @@ class LocalUserSpaceCleanUpService(
         userRepository
             .findAllByLastActivityIsBetweenAndActive(date.atStartOfDay(), date.atEndOfDay())
             .map { securityQueryService.getUser(it) }
-            .filterNot { isUserSpaceEmpty(it) }
+            .filterNot { isUserSpaceEmpty(it, NOTIFICATION_ERROR) }
             .forEach { notifyCleanUp(it, type) }
     }
 
-    private suspend fun isUserSpaceEmpty(user: SecurityUser) =
-        runCatching {
-            user.userFolder.path
-                .toFile()
-                .isEmpty()
-        }.onFailure {
-            val error = "Error checking user folder for '${user.email}', secret: ${user.userFolder.path}"
-            logger.error { error }
-            notificationLogDataService.logNotificationError(user.email, it.localizedMessage, USER_SPACE_ERROR, error)
-        }.getOrDefault(true)
+    private suspend fun isUserSpaceEmpty(
+        user: SecurityUser,
+        errorType: String,
+    ) = runCatching {
+        user.userFolder.path
+            .toFile()
+            .isEmpty()
+    }.onFailure {
+        val error = "Error checking user folder for '${user.email}', secret: ${user.userFolder.path}"
+        logger.error { error }
+        notificationLogDataService.logNotificationError(user.email, it.localizedMessage, errorType, error)
+    }.getOrDefault(true)
 
     private fun notifyCleanUp(
         user: SecurityUser,
@@ -88,14 +91,14 @@ class LocalUserSpaceCleanUpService(
             userRepository
                 .findAllByLastActivityIsBetweenAndActive(cleanUpDate.atStartOfDay(), cleanUpDate.atEndOfDay())
                 .map { securityQueryService.getUser(it) }
-                .filterNot { isUserSpaceEmpty(it) }
+                .filterNot { isUserSpaceEmpty(it, CLEAN_UP_ERROR) }
                 .forEach { cleanUpUserSpace(it) }
         }
 
     private suspend fun cleanUpUserSpace(user: SecurityUser) {
         val path = user.userFolder.path.absolutePathString()
         logger.info { "Dispatching user space clean up job for user ${user.email} at $path" }
-        val job = JobSpec(queue = DataMoverQueue, command = "rm -rf $path/*")
+        val job = JobSpec(queue = DataMoverQueue, command = "find ${path.shellQuoted()} -mindepth 1 -delete")
         val jobTry = clusterClient.triggerJobAsync(job)
         jobTry.fold({
             cleanUpLogDataService.logCleanUp(user.email, it.id, user.lastActivity, path)
@@ -110,9 +113,12 @@ class LocalUserSpaceCleanUpService(
 
     private fun LocalDate.atEndOfDay() = plusDays(1).atStartOfDay().minusSeconds(1)
 
+    private fun String.shellQuoted() = "'${replace("'", "'\"'\"'")}'"
+
     companion object {
         const val DATE_FORMAT = "dd MMMM yyyy"
-        const val USER_SPACE_ERROR = "USER_SPACE_ERROR"
+        const val CLEAN_UP_ERROR = "CLEAN_UP_ERROR"
+        const val NOTIFICATION_ERROR = "CLEAN_UP_NOTIFICATION_ERROR"
         const val WARNING_TEMPLATE = "clean-up-warning"
         const val FINAL_WARNING_TEMPLATE = "clean-up-final-warning"
         const val WARNING_SUBJECT = "Inactivity notice – Cleanup of your BioStudies workspace"

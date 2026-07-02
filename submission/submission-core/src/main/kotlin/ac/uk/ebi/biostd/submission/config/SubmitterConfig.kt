@@ -73,6 +73,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
@@ -325,6 +326,7 @@ class SubmitterConfig(
 
     @Bean
     fun localUserSpaceCleanUpService(
+        clusterClient: ClusterClient,
         userRepository: UserDataRepository,
         properties: ApplicationProperties,
         securityQueryService: SecurityQueryService,
@@ -333,21 +335,20 @@ class SubmitterConfig(
         cleanUpLogDataService: CleanUpLogDataService,
     ): LocalUserSpaceCleanUpService =
         LocalUserSpaceCleanUpService(
+            clusterClient,
             userRepository,
             properties.cleanUp,
             securityQueryService,
+            cleanUpLogDataService,
             eventsPublisherService,
             notificationErrorService,
-            cleanUpLogDataService,
         )
 
     @Bean
     fun extUserSpaceCleanUpService(
         localUserSpaceCleanUpService: LocalUserSpaceCleanUpService,
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
-        cleanUpLogDataService: CleanUpLogDataService,
-    ): ExtUserSpaceCleanUpService =
-        ExtUserSpaceCleanUpService(remoteSubmitterExecutor, localUserSpaceCleanUpService, cleanUpLogDataService)
+    ): ExtUserSpaceCleanUpService = ExtUserSpaceCleanUpService(remoteSubmitterExecutor, localUserSpaceCleanUpService)
 
     @Bean
     fun submissionProcessor(

@@ -18,7 +18,7 @@ The missing behavior is automatic deletion of files from inactive user spaces. T
 
 - run once per day;
 - find users whose `lastActivity` is at least `cleanUpPeriodDays` days old;
-- dispatch a cluster job for each matching user;
+- dispatch a data-mover cluster job for each matching user;
 - delete all files in that user's user space.
 
 ## Decision
@@ -29,12 +29,10 @@ Use the existing cleanup boundary and cluster task infrastructure:
   - discover active users eligible for cleanup using an exact cutoff day derived from
     `today - cleanUpPeriodDays`;
   - skip users whose user space is empty;
-  - clean a single user's user-space folder by email;
+  - submit one data-mover cluster job per eligible user;
 - extend `ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP` to:
-  - discover eligible users locally when invoked by the web scheduler;
-  - submit one cluster task per eligible user with an email argument;
-- add a new task mode, for example `CLEAN_UP_USER_SPACE`, that runs in `submission-task` and deletes the single
-  user's files on the cluster filesystem;
+  - execute the cleanup flow locally when invoked by the submission task;
+  - execute the cleanup flow remotely through a submission-task cluster job when invoked by the web scheduler;
 - schedule cleanup separately from notifications in `OperationsScheduler`, behind `app.cleanup.enabled`, close to the
   end of the day.
 
@@ -55,8 +53,8 @@ Add Mongo audit documents alongside the existing notification audit documents:
 - `DocCleanUpError` for any error while trying to cleanup, including:
   - error message;
   - cluster job id when available;
-  - user email when available;
-  - absolute path to the user space when available.
+  - user email;
+  - absolute path to the user space.
 
 Create `cleanup_logs` and `cleanup_errors` collections through the Mongo migration flow in `DatabaseChangeLog.kt`,
 following the `notification_logs` and `notification_errors` pattern. Add a background index on `email` only for each

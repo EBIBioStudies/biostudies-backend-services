@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.cleanup
 
 import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
-import ac.uk.ebi.biostd.persistence.common.service.CleanUpLogDataService
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
@@ -10,7 +9,6 @@ import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 class ExtUserSpaceCleanUpService(
     private val remoteSubmitterExecutor: RemoteSubmitterExecutor,
     private val localUserSpaceCleanUpService: LocalUserSpaceCleanUpService,
-    private val cleanUpLogDataService: CleanUpLogDataService,
 ) {
     suspend fun cleanUp(
         mode: CleanUpMode,

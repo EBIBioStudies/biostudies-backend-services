@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.FINAL_WARNING_SUBJECT
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.FINAL_WARNING_TEMPLATE
-import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.USER_SPACE_ERROR
+import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.NOTIFICATION_ERROR
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.WARNING_SUBJECT
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.WARNING_TEMPLATE
 import ebi.ac.uk.extended.events.CleanUpNotification
@@ -20,6 +20,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
@@ -28,6 +29,10 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path
@@ -35,10 +40,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
 
 @ExtendWith(MockKExtension::class)
 class LocalUserSpaceCleanUpServiceTest(
+    @param:MockK private val clusterClient: ClusterClient,
     @param:MockK private val userRepository: UserDataRepository,
     @param:MockK private val securityQueryService: SecurityQueryService,
     @param:MockK private val eventsPublisherService: EventsPublisherService,
@@ -56,12 +61,13 @@ class LocalUserSpaceCleanUpServiceTest(
 
     private val testInstance =
         LocalUserSpaceCleanUpService(
+            clusterClient,
             userRepository,
             cleanUpProperties,
             securityQueryService,
+            cleanUpLogDataService,
             eventsPublisherService,
             notificationErrorService,
-            cleanUpLogDataService,
         )
 
     @BeforeEach
@@ -85,36 +91,9 @@ class LocalUserSpaceCleanUpServiceTest(
             val finalWarningUser = createUser("final@ebi.ac.uk", "Final User", today.minusDays(90).atTime(12, 0))
 
             every { LocalDate.now() } returns today
-            every {
-                userRepository.findAllByLastActivityIsBetween(
-                    today.minusDays(30).atStartOfDay(),
-                    today
-                        .minusDays(30)
-                        .plusDays(1)
-                        .atStartOfDay()
-                        .minusSeconds(1),
-                )
-            } returns listOf(firstWarningUser.email)
-            every {
-                userRepository.findAllByLastActivityIsBetween(
-                    today.minusDays(60).atStartOfDay(),
-                    today
-                        .minusDays(60)
-                        .plusDays(1)
-                        .atStartOfDay()
-                        .minusSeconds(1),
-                )
-            } returns listOf(secondWarningUser.email)
-            every {
-                userRepository.findAllByLastActivityIsBetween(
-                    today.minusDays(90).atStartOfDay(),
-                    today
-                        .minusDays(90)
-                        .plusDays(1)
-                        .atStartOfDay()
-                        .minusSeconds(1),
-                )
-            } returns listOf(finalWarningUser.email)
+            everyWarningUsers(today, 30, firstWarningUser.email)
+            everyWarningUsers(today, 60, secondWarningUser.email)
+            everyWarningUsers(today, 90, finalWarningUser.email)
             every { securityQueryService.getUser(firstWarningUser.email) } returns firstWarningUser
             every { securityQueryService.getUser(secondWarningUser.email) } returns secondWarningUser
             every { securityQueryService.getUser(finalWarningUser.email) } returns finalWarningUser
@@ -122,7 +101,6 @@ class LocalUserSpaceCleanUpServiceTest(
 
             testInstance.sendNotifications()
 
-            assertThat(notifications).hasSize(3)
             assertThat(notifications.map { it.email }).containsExactly(
                 firstWarningUser.email,
                 secondWarningUser.email,
@@ -152,36 +130,9 @@ class LocalUserSpaceCleanUpServiceTest(
                 "Error checking user folder for '${brokenUser.email}', secret: ${brokenUser.userFolder.path}"
 
             every { LocalDate.now() } returns today
-            every {
-                userRepository.findAllByLastActivityIsBetween(
-                    today.minusDays(30).atStartOfDay(),
-                    today
-                        .minusDays(30)
-                        .plusDays(1)
-                        .atStartOfDay()
-                        .minusSeconds(1),
-                )
-            } returns listOf(brokenUser.email)
-            every {
-                userRepository.findAllByLastActivityIsBetween(
-                    today.minusDays(60).atStartOfDay(),
-                    today
-                        .minusDays(60)
-                        .plusDays(1)
-                        .atStartOfDay()
-                        .minusSeconds(1),
-                )
-            } returns emptyList()
-            every {
-                userRepository.findAllByLastActivityIsBetween(
-                    today.minusDays(90).atStartOfDay(),
-                    today
-                        .minusDays(90)
-                        .plusDays(1)
-                        .atStartOfDay()
-                        .minusSeconds(1),
-                )
-            } returns emptyList()
+            everyWarningUsers(today, 30, brokenUser.email)
+            everyWarningUsers(today, 60)
+            everyWarningUsers(today, 90)
             every { securityQueryService.getUser(brokenUser.email) } returns brokenUser
             every { eventsPublisherService.cleanupNotification(any()) } answers { nothing }
             coEvery { notificationErrorService.logNotificationError(any(), any(), any(), any()) } returns Unit
@@ -192,7 +143,7 @@ class LocalUserSpaceCleanUpServiceTest(
                 notificationErrorService.logNotificationError(
                     brokenUser.email,
                     brokenUser.userFolder.path.toString(),
-                    USER_SPACE_ERROR,
+                    NOTIFICATION_ERROR,
                     expectedError,
                 )
             }
@@ -200,7 +151,7 @@ class LocalUserSpaceCleanUpServiceTest(
         }
 
     @Test
-    fun `find users to cleanup uses exact cutoff and skips empty user spaces`() =
+    fun `clean up dispatches a data mover job for each matching non-empty active user`() =
         runTest {
             val today = LocalDate.parse("2026-06-16")
             val userToClean = createUser("cleanup@ebi.ac.uk", "Cleanup User", today.minusDays(120).atTime(10, 0))
@@ -211,6 +162,8 @@ class LocalUserSpaceCleanUpServiceTest(
                     today.minusDays(120).atTime(11, 0),
                     Files.createTempDirectory("cleanup-empty"),
                 )
+            val job = Job("12345", "datamover", "/logs/12345")
+            val jobSpec = slot<JobSpec>()
 
             every { LocalDate.now() } returns today
             every {
@@ -225,42 +178,79 @@ class LocalUserSpaceCleanUpServiceTest(
             } returns listOf(userToClean.email, emptyUser.email)
             every { securityQueryService.getUser(userToClean.email) } returns userToClean
             every { securityQueryService.getUser(emptyUser.email) } returns emptyUser
+            coEvery { clusterClient.triggerJobAsync(capture(jobSpec)) } returns Result.success(job)
+            coEvery { cleanUpLogDataService.logCleanUp(any(), any(), any(), any()) } returns Unit
 
-            val users = testInstance.cleanUpUserSpaces()
+            testInstance.cleanUpUserSpaces()
 
-            assertThat(users).containsExactly(
-                LocalUserSpaceCleanUpService.CleanUpUser(
-                    email = userToClean.email,
-                    lastActivity = userToClean.lastActivity,
-                    userSpacePath = userToClean.userFolder.path.absolutePathString(),
-                ),
-            )
+            assertThat(jobSpec.captured.queue).isEqualTo(DataMoverQueue)
+            assertThat(jobSpec.captured.command)
+                .isEqualTo("find '${userToClean.userFolder.path.absolutePathString()}' -mindepth 1 -delete")
+            coVerify(exactly = 1) {
+                cleanUpLogDataService.logCleanUp(
+                    userToClean.email,
+                    job.id,
+                    userToClean.lastActivity,
+                    userToClean.userFolder.path.absolutePathString(),
+                )
+            }
             coVerify(exactly = 0) {
                 cleanUpLogDataService.logCleanUpError(any(), any(), any(), any())
             }
         }
 
     @Test
-    fun `clean up user deletes user space contents and preserves root folder`() =
+    fun `clean up logs dispatch errors with the user email and path`() =
         runTest {
-            val folder = Files.createTempDirectory("cleanup-user")
-            val nestedFolder = folder.resolve("nested").createDirectories()
-            val hiddenFile = folder.resolve(".hidden")
-            val nestedFile = nestedFolder.resolve("file.txt")
-            Files.writeString(hiddenFile, "hidden")
-            Files.writeString(nestedFile, "nested")
-            val user = createUser("cleanup@ebi.ac.uk", "Cleanup User", LocalDateTime.parse("2026-02-16T10:00:00"), folder)
+            val today = LocalDate.parse("2026-06-16")
+            val userToClean = createUser("cleanup@ebi.ac.uk", "Cleanup User", today.minusDays(120).atTime(10, 0))
+            val failure = IllegalStateException("cluster unavailable")
 
-            every { securityQueryService.getUser(user.email) } returns user
+            every { LocalDate.now() } returns today
+            every {
+                userRepository.findAllByLastActivityIsBetweenAndActive(
+                    today.minusDays(120).atStartOfDay(),
+                    today
+                        .minusDays(120)
+                        .plusDays(1)
+                        .atStartOfDay()
+                        .minusSeconds(1),
+                )
+            } returns listOf(userToClean.email)
+            every { securityQueryService.getUser(userToClean.email) } returns userToClean
+            coEvery { clusterClient.triggerJobAsync(any()) } returns Result.failure(failure)
+            coEvery { cleanUpLogDataService.logCleanUpError(any(), any(), any(), any()) } returns Unit
 
-            testInstance.cleanUpUser(user.email)
+            testInstance.cleanUpUserSpaces()
 
-            assertThat(folder.exists()).isTrue()
-            assertThat(folder.toFile().listFiles()).isEmpty()
+            coVerify(exactly = 1) {
+                cleanUpLogDataService.logCleanUpError(
+                    userToClean.email,
+                    failure.message.orEmpty(),
+                    userToClean.userFolder.path.absolutePathString(),
+                )
+            }
             coVerify(exactly = 0) {
-                cleanUpLogDataService.logCleanUpError(any(), any(), any(), any())
+                cleanUpLogDataService.logCleanUp(any(), any(), any(), any())
             }
         }
+
+    private fun everyWarningUsers(
+        today: LocalDate,
+        daysAgo: Long,
+        vararg emails: String,
+    ) {
+        every {
+            userRepository.findAllByLastActivityIsBetweenAndActive(
+                today.minusDays(daysAgo).atStartOfDay(),
+                today
+                    .minusDays(daysAgo)
+                    .plusDays(1)
+                    .atStartOfDay()
+                    .minusSeconds(1),
+            )
+        } returns emails.toList()
+    }
 
     private fun createUser(
         email: String,

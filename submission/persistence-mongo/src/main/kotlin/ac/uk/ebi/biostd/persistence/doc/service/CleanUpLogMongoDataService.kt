@@ -32,18 +32,18 @@ class CleanUpLogMongoDataService(
     }
 
     override suspend fun logCleanUpError(
-        email: String?,
+        email: String,
         errorMessage: String,
+        userSpacePath: String,
         jobId: String?,
-        userSpacePath: String?,
     ) {
         cleanUpErrorMongoRepository.save(
             DocCleanUpError(
                 id = ObjectId(),
+                email = email,
                 date = Instant.now(),
                 errorMessage = errorMessage,
                 jobId = jobId,
-                email = email,
                 userSpacePath = userSpacePath,
             ),
         )

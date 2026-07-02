@@ -27,11 +27,11 @@ space is not empty.
 
 ## Cleanup dispatch
 
-The orchestration step that submits one cluster job per eligible user.
+The orchestration step that submits one data-mover cluster job per eligible user.
 
 ## Cleanup task
 
-The cluster-executed task that deletes files for a single user's workspace.
+The cluster-executed command that deletes files for a single user's workspace.
 
 ## Root user folder
 
@@ -47,8 +47,8 @@ cluster job id, user email, the user's `lastActivity` at selection time, and the
 ## Cleanup error
 
 Mongo document proposed as `DocCleanUpError`. Records failures that happen while trying to cleanup a user's workspace,
-including the error message, cluster job id when available, user email when available, and absolute path to the user
-space when available. The `cleanup_errors` collection has an `email` index.
+including the error message, cluster job id when available, user email, and absolute path to the user space. The
+`cleanup_errors` collection has an `email` index.
 
 ## Exact cutoff
 
