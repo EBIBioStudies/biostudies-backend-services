@@ -210,3 +210,7 @@ object DocStatsFields {
 object DocNotificationFields {
     const val NOTIFICATION_KEY = "key"
 }
+
+object DocCleanUpFields {
+    const val CLEANUP_EMAIL = "email"
+}

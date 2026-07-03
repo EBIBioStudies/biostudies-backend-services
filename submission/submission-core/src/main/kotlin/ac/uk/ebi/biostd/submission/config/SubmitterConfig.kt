@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.service.CleanUpLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
@@ -11,10 +12,13 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.CleanUpErrorMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.CleanUpLogMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationLogMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.doc.service.CleanUpLogMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.NotificationLogMongoDataService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
@@ -69,6 +73,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
@@ -308,6 +313,12 @@ class SubmitterConfig(
     ): NotificationLogDataService = NotificationLogMongoDataService(notificationLogRepo, notificationErrorMongoRepo)
 
     @Bean
+    fun cleanUpLogDataService(
+        cleanUpLogMongoRepository: CleanUpLogMongoRepository,
+        cleanUpErrorMongoRepository: CleanUpErrorMongoRepository,
+    ): CleanUpLogDataService = CleanUpLogMongoDataService(cleanUpLogMongoRepository, cleanUpErrorMongoRepository)
+
+    @Bean
     fun extPostProcessingService(
         localPostProcessingService: LocalPostProcessingService,
         remoteSubmitterExecutor: RemoteSubmitterExecutor,
@@ -315,16 +326,20 @@ class SubmitterConfig(
 
     @Bean
     fun localUserSpaceCleanUpService(
+        clusterClient: ClusterClient,
         userRepository: UserDataRepository,
         properties: ApplicationProperties,
         securityQueryService: SecurityQueryService,
         eventsPublisherService: EventsPublisherService,
         notificationErrorService: NotificationLogDataService,
+        cleanUpLogDataService: CleanUpLogDataService,
     ): LocalUserSpaceCleanUpService =
         LocalUserSpaceCleanUpService(
+            clusterClient,
             userRepository,
             properties.cleanUp,
             securityQueryService,
+            cleanUpLogDataService,
             eventsPublisherService,
             notificationErrorService,
         )

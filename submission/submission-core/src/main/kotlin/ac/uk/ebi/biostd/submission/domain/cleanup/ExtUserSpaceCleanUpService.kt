@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
 import ac.uk.ebi.biostd.common.properties.Mode
+import ac.uk.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
@@ -21,9 +22,17 @@ class ExtUserSpaceCleanUpService(
             }
         }
 
+        suspend fun cleanUpUserSpaces() {
+            if (remote.not()) {
+                localUserSpaceCleanUpService.cleanUpUserSpaces()
+            } else {
+                remoteSubmitterExecutor.executeRemotely(emptyList(), CLEAN_UP_USER_SPACE)
+            }
+        }
+
         when (mode) {
             NOTIFY -> notify()
-            CLEAN_UP -> TODO()
+            CLEAN_UP -> cleanUpUserSpaces()
         }
     }
 

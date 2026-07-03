@@ -3,6 +3,7 @@
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocCleanUpFields.CLEANUP_EMAIL
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocNotificationFields.NOTIFICATION_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
@@ -48,6 +49,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
+import ac.uk.ebi.biostd.persistence.doc.model.DocCleanUpError
+import ac.uk.ebi.biostd.persistence.doc.model.DocCleanUpLog
 import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationError
 import ac.uk.ebi.biostd.persistence.doc.model.DocNotificationLog
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -76,6 +79,8 @@ suspend fun ReactiveMongoTemplate.executeMigrations() {
 
     ensureNotificationLogsIndexes()
     ensureNotificationErrorsIndexes()
+    ensureCleanUpLogsIndexes()
+    ensureCleanUpErrorsIndexes()
 }
 
 suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
@@ -269,5 +274,27 @@ suspend fun ReactiveMongoOperations.ensureNotificationErrorsIndexes() {
     ensureExists(DocNotificationError::class.java)
     indexOps<DocNotificationError>().apply {
         createIndex(backgroundIndex().on(NOTIFICATION_KEY, ASC)).awaitSingleOrNull()
+    }
+}
+
+/**
+ * cleanup_logs collection indexes
+ * 1. email
+ */
+suspend fun ReactiveMongoOperations.ensureCleanUpLogsIndexes() {
+    ensureExists(DocCleanUpLog::class.java)
+    indexOps<DocCleanUpLog>().apply {
+        createIndex(backgroundIndex().on(CLEANUP_EMAIL, ASC)).awaitSingleOrNull()
+    }
+}
+
+/**
+ * cleanup_errors collection indexes
+ * 1. email
+ */
+suspend fun ReactiveMongoOperations.ensureCleanUpErrorsIndexes() {
+    ensureExists(DocCleanUpError::class.java)
+    indexOps<DocCleanUpError>().apply {
+        createIndex(backgroundIndex().on(CLEANUP_EMAIL, ASC)).awaitSingleOrNull()
     }
 }

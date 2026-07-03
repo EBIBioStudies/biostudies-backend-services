@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocCleanUpFields.CLEANUP_EMAIL
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PROCESS
@@ -46,6 +47,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
+import ac.uk.ebi.biostd.persistence.doc.model.DocCleanUpError
+import ac.uk.ebi.biostd.persistence.doc.model.DocCleanUpLog
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -91,6 +94,8 @@ internal class DatabaseChangeLogTest(
         mongoTemplate.dropCollection<DocSubmissionRequest>()
         mongoTemplate.dropCollection<DocSubmissionRequestFile>()
         mongoTemplate.dropCollection<FileListDocFile>()
+        mongoTemplate.dropCollection<DocCleanUpLog>()
+        mongoTemplate.dropCollection<DocCleanUpError>()
     }
 
     @Test
@@ -220,6 +225,34 @@ internal class DatabaseChangeLogTest(
                 )
             }
 
+            suspend fun assertCleanUpLogsIndexes() {
+                val cleanupLogsIndexes =
+                    mongoTemplate
+                        .collection<DocCleanUpLog>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
+
+                assertThat(mongoTemplate.collectionExists<DocCleanUpLog>().awaitSingle()).isTrue()
+                assertThat(cleanupLogsIndexes).hasSize(2)
+                assertThat(cleanupLogsIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertThat(cleanupLogsIndexes[1]).containsEntry("key", Document(CLEANUP_EMAIL, 1))
+            }
+
+            suspend fun assertCleanUpErrorsIndexes() {
+                val cleanupErrorsIndexes =
+                    mongoTemplate
+                        .collection<DocCleanUpError>()
+                        .listIndexes()
+                        .asFlow()
+                        .toList()
+
+                assertThat(mongoTemplate.collectionExists<DocCleanUpError>().awaitSingle()).isTrue()
+                assertThat(cleanupErrorsIndexes).hasSize(2)
+                assertThat(cleanupErrorsIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertThat(cleanupErrorsIndexes[1]).containsEntry("key", Document(CLEANUP_EMAIL, 1))
+            }
+
             suspend fun assertRequestFileIndexes() {
                 val filesIndexes =
                     mongoTemplate
@@ -263,6 +296,8 @@ internal class DatabaseChangeLogTest(
             assertFileListIndexes()
             assertStatsIndexes()
             assertSubmissionFilesIndexes()
+            assertCleanUpLogsIndexes()
+            assertCleanUpErrorsIndexes()
         }
 
     companion object {

@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
 import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.Mode.LOAD_PMC_LINKS
 import ac.uk.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
@@ -98,6 +99,7 @@ class Execute(
                 POST_PROCESS_DOI -> postProcessDoi()
                 LOAD_PMC_LINKS -> loadLinks()
                 NOTIFY_USER_SPACE_CLEAN_UP -> sendUserSpaceCleanUpNotifications()
+                CLEAN_UP_USER_SPACE -> cleanUpUserSpace()
             }
             exitProcess(SpringApplication.exit(context))
         }
@@ -145,6 +147,12 @@ class Execute(
         logger.info { "Started sending user space cleanup notifications--------------------------------" }
         userSpaceCleanUpService.sendNotifications()
         logger.info { "Finished sending user space cleanup notifications--------------------------------" }
+    }
+
+    private suspend fun cleanUpUserSpace() {
+        logger.info { "Started users space cleanup" }
+        userSpaceCleanUpService.cleanUpUserSpaces()
+        logger.info { "Finished users space cleanup" }
     }
 
     private suspend fun runProcess(
