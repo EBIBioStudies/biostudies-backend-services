@@ -19,6 +19,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SOURCE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 
 class ExtFileSerializer : JsonSerializer<ExtFile>() {
@@ -43,6 +44,9 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeObjectField(FILE_MD5, file.md5)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.NfsFile.type)
+        writeStringField(SOURCE_TYPE, file.sourceType?.name)
+        writeStringField(FILE_TYPE, file.type.value)
+        writeStringField(FILE_TYPE, file.type.value)
         writeStringField(FILE_TYPE, file.type.value)
         writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
@@ -58,6 +62,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeBooleanField(FILE_FIRE_PUBLISHED, file.published)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
+        writeStringField(SOURCE_TYPE, file.sourceType?.name)
         writeStringField(FILE_TYPE, file.type.value)
         writeStringField(FILE_MD5, file.md5)
         writeNumberField(FILE_SIZE, file.size)
@@ -71,6 +76,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStringField(FILE_TYPE, file.type)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.RequestFile.type)
+        writeStringField(SOURCE_TYPE, file.sourceType?.name)
         writeEndObject()
     }
 }

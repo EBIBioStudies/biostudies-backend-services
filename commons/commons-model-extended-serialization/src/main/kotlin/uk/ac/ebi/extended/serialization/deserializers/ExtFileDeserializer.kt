@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
@@ -24,9 +25,11 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SOURCE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertOrDefault
+import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 import java.nio.file.Paths
 
@@ -53,6 +56,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         RequestFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             type = node.getNode<TextNode>(FILE_TYPE).textValue(),
+            sourceType = node.findNode<TextNode>(SOURCE_TYPE)?.let { FileSourceType.valueOf(it.textValue()) },
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
 
@@ -69,6 +73,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),
+            sourceType = node.findNode<TextNode>(SOURCE_TYPE)?.let { FileSourceType.valueOf(it.textValue()) },
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
 
@@ -85,6 +90,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),
+            sourceType = node.findNode<TextNode>(SOURCE_TYPE)?.let { FileSourceType.valueOf(it.textValue()) },
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
     }

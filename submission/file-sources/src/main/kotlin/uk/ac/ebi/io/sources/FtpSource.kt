@@ -14,8 +14,8 @@ import java.nio.file.Path
 import kotlin.io.path.createTempFile
 
 /**
- *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
- *  This separation is necessary as files are check in backend instance with no access to FTP file system while
+ *  Ftp source. Mix both, ftp protocol to validate file presence, and direct ftp mount point to access file content.
+ *  This separation is necessary as files are checked in the backend instance with no access to theFTP file system while
  *  processing is executed in data mover which can access mount point.
  */
 class FtpSource(

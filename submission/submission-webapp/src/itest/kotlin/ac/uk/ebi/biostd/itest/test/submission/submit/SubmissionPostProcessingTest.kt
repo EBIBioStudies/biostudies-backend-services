@@ -253,6 +253,13 @@ class SubmissionPostProcessingTest(
                     )
                 }
             }
+
+            // Verify user source files were cleaned up
+            val userFiles = webClient.listUserFiles().map { it.name }
+            assertThat(userFiles).doesNotContain("stats file 1.doc", "statsFile2.txt")
+
+            val userFilesA = webClient.listUserFiles("a").map { it.name }
+            assertThat(userFilesA).doesNotContain("statsFile3.pdf")
         }
 
     @Test

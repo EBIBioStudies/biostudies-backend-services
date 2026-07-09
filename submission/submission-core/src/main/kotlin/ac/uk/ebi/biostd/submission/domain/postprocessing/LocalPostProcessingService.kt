@@ -1,26 +1,35 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.NON_DECLARED_FILES_DIRECTORIES
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.DoiService
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileSourceType.USER
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.allSectionsFiles
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
@@ -41,9 +50,11 @@ class LocalPostProcessingService(
     private val subFolderResolver: SubmissionFolderResolver,
     private val serializationService: ExtSerializationService,
     private val extSubQueryService: SubmissionPersistenceQueryService,
+    private val requestFilesService: SubmissionRequestFilesPersistenceService,
     private val submissionFileRepository: SubmissionFilesDocDataRepository,
     private val toSimpleSubmissionMapper: ToSubmissionMapper,
     private val doiService: DoiService,
+    private val concurrency: Int,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
         logger.info { "Calculating stats for submission $accNo" }
@@ -70,6 +81,12 @@ class LocalPostProcessingService(
         registerDoi(sub)
     }
 
+    suspend fun cleanUpFiles(accNo: String) {
+        logger.info { "Cleaning up user source files for submission '$accNo'" }
+        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+        cleanUpUserSourceFiles(sub)
+    }
+
     suspend fun postProcess(accNo: String) {
         logger.info { "Started post-processing submission '$accNo'" }
         val previousVersion = extSubQueryService.findLatestInactiveByAccNo(accNo)
@@ -79,12 +96,15 @@ class LocalPostProcessingService(
         indexSubmissionInnerFiles(sub)
         calculateStats(sub)
         if (sub.doi != null && previousVersion?.doi == null) registerDoi(sub)
+        cleanUpUserSourceFiles(sub)
 
         logger.info { "Finished post-processing submission '$accNo'" }
     }
 
     private suspend fun registerDoi(sub: ExtSubmission) {
+        logger.info { "Started registering doi for submission ${sub.accNo}, version ${sub.version}" }
         doiService.registerDoi(sub.accNo, sub.owner, toSimpleSubmissionMapper.toSimpleSubmission(sub))
+        logger.info { "Finished registering doi for submission ${sub.accNo}, version ${sub.version}" }
     }
 
     private suspend fun indexSubmissionInnerFiles(submission: ExtSubmission) {
@@ -159,6 +179,26 @@ class LocalPostProcessingService(
             }
 
         return circularReferences
+    }
+
+    private suspend fun cleanUpUserSourceFiles(sub: ExtSubmission) {
+        fun cleanUpUserFile(file: SubmissionRequestFile) {
+            val source = file.sourceFile as NfsFile
+            val target = file.file as PersistedExtFile
+
+            if (source.file.isFile && source.file.md5() == target.md5) {
+                logger.info { "Deleting user file ${source.file.absolutePath}" }
+                FileUtils.deleteFile(source.file)
+            }
+        }
+
+        logger.info { "Started cleaning up user source files for submission ${sub.accNo}, version ${sub.version}" }
+        requestFilesService
+            .getSubmissionRequestFiles(sub.accNo, sub.version)
+            .filter { it.sourceType == USER && it.sourceFile is NfsFile }
+            .concurrently(concurrency) { cleanUpUserFile(it) }
+            .collect()
+        logger.info { "Finished cleaning up user source files for submission ${sub.accNo}, version ${sub.version}" }
     }
 
     suspend fun postProcessAll() {

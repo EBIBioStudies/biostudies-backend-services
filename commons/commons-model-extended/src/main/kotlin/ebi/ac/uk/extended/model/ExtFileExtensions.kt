@@ -12,11 +12,14 @@ val ExtFile.storageMode: StorageMode
             is RequestFile -> error("RequestFile does not have an storage mode")
         }
 
-fun ExtFile.copyWithAttributes(attributes: List<ExtAttribute>): ExtFile =
+fun ExtFile.typeSafeCopy(
+    attributes: List<ExtAttribute>,
+    sourceType: FileSourceType?,
+): ExtFile =
     when (this) {
-        is FireFile -> copy(attributes = attributes)
-        is NfsFile -> copy(attributes = attributes)
-        is RequestFile -> copy(attributes = attributes)
+        is FireFile -> copy(attributes = attributes, sourceType = sourceType)
+        is NfsFile -> copy(attributes = attributes, sourceType = sourceType)
+        is RequestFile -> copy(attributes = attributes, sourceType = sourceType)
     }
 
 fun NfsFile.asFireFile(

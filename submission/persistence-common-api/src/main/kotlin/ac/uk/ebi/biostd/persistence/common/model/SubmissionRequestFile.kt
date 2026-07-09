@@ -9,6 +9,7 @@ data class SubmissionRequestFile(
     val version: Int,
     val path: String,
     val file: ExtFile,
+    val sourceFile: ExtFile,
     val status: RequestFileStatus,
     val sourceType: FileSourceType?,
     val previousSubFile: Boolean = false,
@@ -19,7 +20,16 @@ data class SubmissionRequestFile(
         status: RequestFileStatus,
         sourceType: FileSourceType?,
         previousSubFile: Boolean = false,
-    ) : this(sub.accNo, sub.version, file.filePath, file, status, sourceType, previousSubFile)
+    ) : this(
+        accNo = sub.accNo,
+        version = sub.version,
+        path = file.filePath,
+        file = file,
+        status = status,
+        sourceFile = file,
+        sourceType = sourceType,
+        previousSubFile = previousSubFile,
+    )
 }
 
 enum class RequestFileStatus {

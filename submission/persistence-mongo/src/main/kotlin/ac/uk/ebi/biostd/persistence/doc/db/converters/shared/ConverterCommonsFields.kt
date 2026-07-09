@@ -89,6 +89,7 @@ object LinkListDocLinkFields {
 object DocSubmissionRequestFileFields {
     const val RQT_FILE_INDEX = "index"
     const val RQT_FILE_FILE = "file"
+    const val RQT_FILE_SOURCE_FILE = "sourceFile"
     const val RQT_FILE_STATUS = "status"
     const val RQT_FILE_SOURCE_TYPE = "sourceType"
     const val RQT_FILE_PATH = "path"

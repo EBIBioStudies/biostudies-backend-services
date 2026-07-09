@@ -51,4 +51,10 @@ class ExtSubmissionPostProcessResource(
         @PathVariable accNo: String,
         @RequestParam remote: Boolean = false,
     ) = extPostProcessingService.postProcess(accNo, PostProcessMode.DOI, remote)
+
+    @PostMapping("/{accNo}/post-process/cleanup")
+    suspend fun cleanUpUserSourceFiles(
+        @PathVariable accNo: String,
+        @RequestParam remote: Boolean = false,
+    ) = extPostProcessingService.postProcess(accNo, PostProcessMode.CLEAN_UP, remote)
 }

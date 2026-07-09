@@ -31,8 +31,8 @@ internal class PathSource(
 }
 
 /**
- *  File system directory source. Note that file type and file extension is check in case file is generated zip file
- *  of a folder.
+ *  File system directory source. Note that file type and extension are checked in case the file is zip generated from a
+ *  folder.
  */
 internal class UserPathSource(
     override val description: String,
@@ -47,7 +47,7 @@ internal class UserPathSource(
     ): ExtFile? {
         val filePath = if (type == DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         val file = pathSource.getExtFile(filePath, type, attributes)
-        return file?.copy(sourcetype = USER)
+        return file?.copy(sourceType = USER)
     }
 
     override suspend fun getFileList(path: String): File? = pathSource.getFileList(path)
@@ -65,5 +65,5 @@ internal class GroupPathSource(
         path: String,
         type: String,
         attributes: List<ExtAttribute>,
-    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), type, attributes)
+    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), type, attributes)?.copy(sourceType = USER)
 }

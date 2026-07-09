@@ -26,6 +26,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SOURCE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SOURCE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
@@ -39,7 +40,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES_ARCH
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
-import com.mongodb.BasicDBObject
+import com.mongodb.BasicDBObject.parse
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
@@ -262,9 +263,11 @@ class SubmissionRequestDocDataRepository(
     }
 
     suspend fun upsertSubRqtFile(file: SubmissionRequestFile) {
-        val serializedFile = BasicDBObject.parse(extSerializationService.serialize(file.file))
+        val serializedFile = parse(extSerializationService.serialize(file.file))
+        val serializedSourceFile = parse(extSerializationService.serialize(file.sourceFile))
         val update =
             update(RQT_FILE_FILE, serializedFile)
+                .set(RQT_FILE_SOURCE_FILE, serializedSourceFile)
                 .set(RQT_FILE_STATUS, file.status)
                 .set(RQT_FILE_SOURCE_TYPE, file.sourceType)
         val where =
@@ -289,8 +292,10 @@ class SubmissionRequestDocDataRepository(
                     Filters.eq(RQT_PREVIOUS_SUB_FILE, file.previousSubFile),
                 ),
                 listOf(
-                    Updates.set(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file.file))),
                     Updates.set(RQT_FILE_STATUS, file.status),
+                    Updates.set(RQT_FILE_SOURCE_TYPE, file.sourceType),
+                    Updates.set(RQT_FILE_FILE, parse(extSerializationService.serialize(file.file))),
+                    Updates.set(RQT_FILE_SOURCE_FILE, parse(extSerializationService.serialize(file.sourceFile))),
                 ),
                 UpdateOptions().upsert(true),
             )
