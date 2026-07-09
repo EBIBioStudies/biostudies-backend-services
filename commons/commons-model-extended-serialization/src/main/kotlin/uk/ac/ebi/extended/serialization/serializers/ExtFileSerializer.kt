@@ -44,9 +44,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeObjectField(FILE_MD5, file.md5)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.NfsFile.type)
-        writeStringField(SOURCE_TYPE, file.sourceType?.name)
-        writeStringField(FILE_TYPE, file.type.value)
-        writeStringField(FILE_TYPE, file.type.value)
+        file.sourceType?.let { writeStringField(SOURCE_TYPE, it.name) }
         writeStringField(FILE_TYPE, file.type.value)
         writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
@@ -62,7 +60,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeBooleanField(FILE_FIRE_PUBLISHED, file.published)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
-        writeStringField(SOURCE_TYPE, file.sourceType?.name)
+        file.sourceType?.let { writeStringField(SOURCE_TYPE, it.name) }
         writeStringField(FILE_TYPE, file.type.value)
         writeStringField(FILE_MD5, file.md5)
         writeNumberField(FILE_SIZE, file.size)
@@ -76,7 +74,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStringField(FILE_TYPE, file.type)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.RequestFile.type)
-        writeStringField(SOURCE_TYPE, file.sourceType?.name)
+        file.sourceType?.let { writeStringField(SOURCE_TYPE, it.name) }
         writeEndObject()
     }
 }

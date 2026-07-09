@@ -6,6 +6,8 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.FileSourceType.SUBMISSION
+import ebi.ac.uk.extended.model.FileSourceType.USER
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -44,6 +46,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
                         },
                     )
                 "extType" to "nfsFile"
+                "sourceType" to "USER"
                 "type" to "file"
                 "size" to file.size()
                 "md5" to file.md5()
@@ -57,6 +60,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.fullPath).isEqualTo(file.absolutePath)
         assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.attributes).hasSize(2)
+        assertThat(extFile.sourceType).isEqualTo(USER)
 
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
@@ -85,6 +89,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
                         },
                     )
                 "type" to "file"
+                "sourceType" to "SUBMISSION"
                 "size" to 10
                 "md5" to "fireFileMd5"
                 "extType" to "fireFile"
@@ -102,6 +107,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.size).isEqualTo(10)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.type).isEqualTo(FILE)
+        assertThat(extFile.sourceType).isEqualTo(SUBMISSION)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
     }

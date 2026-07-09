@@ -215,6 +215,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     previousSubFile = false,
                     sourceType = FileSourceType.SUBMISSION,
                     file = BasicDBObject("property", "value"),
+                    sourceFile = BasicDBObject("sourceProperty", "source-value"),
                 )
 
             requestRepository.saveRequest(request)
@@ -288,8 +289,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
         runTest {
             val extFile1 = createNfsFile("rqt1.txt", "Files/rqt1.txt", tempFolder.createFile("rqt1.txt"))
             val extFile2 = createNfsFile("rqt2.txt", "Files/rqt2.txt", tempFolder.createFile("rqt2.txt"))
-            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, "rqt1.txt", extFile1, INDEXED, FileSourceType.USER)
-            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, "rqt2.txt", extFile2, INDEXED, FileSourceType.USER)
+            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, "rqt1.txt", extFile1, extFile1, INDEXED, FileSourceType.USER)
+            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, "rqt2.txt", extFile2, extFile2, INDEXED, FileSourceType.USER)
 
             requestRepository.upsertSubRqtFile(rqtFile1)
             requestRepository.upsertSubRqtFile(rqtFile2)

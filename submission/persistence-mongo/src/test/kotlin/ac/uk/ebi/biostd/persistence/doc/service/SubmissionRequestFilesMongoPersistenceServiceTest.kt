@@ -68,12 +68,13 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             runTest {
                 val extFile =
                     createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-                val requestFile = SubmissionRequestFile("S-BSST0", 1, "requested.txt", extFile, INDEXED, SUBMISSION)
+                val requestFile = SubmissionRequestFile("S-BSST0", 1, "requested.txt", extFile, extFile, INDEXED, SUBMISSION)
 
                 testInstance.saveSubmissionRequestFile(requestFile)
 
                 val saved = testInstance.getSubmissionRequestFile("S-BSST0", 1, "requested.txt")
                 assertThat(saved).isEqualTo(requestFile)
+                assertThat(saved.sourceFile).isEqualTo(extFile)
             }
 
         @Test
@@ -82,10 +83,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
                 val first = createNfsFile("first.txt", "Files/first.txt", tempFolder.createFile("first.txt"))
                 val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
 
-                val requestFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", first, INDEXED, SUBMISSION)
+                val requestFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", first, first, INDEXED, SUBMISSION)
                 testInstance.saveSubmissionRequestFile(requestFile)
 
-                val updatedFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", second, INDEXED, SUBMISSION)
+                val updatedFile = SubmissionRequestFile("S-BSST0", 2, "updated.txt", second, second, INDEXED, SUBMISSION)
                 testInstance.saveSubmissionRequestFile(updatedFile)
 
                 val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
@@ -103,10 +104,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         @BeforeEach
         fun beforeEach() =
             runBlocking {
-                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, "file1.txt", extFile1, INDEXED, USER)
-                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, "file2.txt", extFile2, LOADED, USER)
-                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, "file3.txt", extFile3, COPIED, USER)
-                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, "file4.txt", extFile4, COPIED, USER)
+                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, "file1.txt", extFile1, extFile1, INDEXED, USER)
+                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, "file2.txt", extFile2, extFile2, LOADED, USER)
+                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, "file3.txt", extFile3, extFile3, COPIED, USER)
+                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, "file4.txt", extFile4, extFile4, COPIED, USER)
 
                 testInstance.saveSubmissionRequestFile(requestFile1)
                 testInstance.saveSubmissionRequestFile(requestFile2)
