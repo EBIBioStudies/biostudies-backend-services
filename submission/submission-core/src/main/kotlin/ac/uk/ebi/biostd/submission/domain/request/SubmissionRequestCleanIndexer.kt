@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.coroutines.concurrently
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.PersistedExtFile
@@ -21,7 +22,8 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
@@ -87,30 +89,45 @@ class SubmissionRequestCleanIndexer(
             return when (match) {
                 MatchType.CONFLICTING -> {
                     conflictIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, CONFLICTING, existingFile.sourceType, true)
+                    SubRqtFile(new, existingFile, CONFLICTING, existingFile.sourceType, previousSubFile = true)
                 }
 
                 MatchType.CONFLICTING_PAGE_TAB -> {
                     conflictPageTabIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, CONFLICTING_PAGE_TAB, existingFile.sourceType, true)
+                    SubRqtFile(new, existingFile, CONFLICTING_PAGE_TAB, existingFile.sourceType, previousSubFile = true)
                 }
 
                 MatchType.DEPRECATED -> {
                     deprecatedIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, DEPRECATED, existingFile.sourceType, true)
+                    SubRqtFile(new, existingFile, DEPRECATED, existingFile.sourceType, previousSubFile = true)
                 }
 
                 MatchType.DEPRECATED_PAGE_TAB -> {
                     deprecatedPageTabIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, DEPRECATED_PAGE_TAB, existingFile.sourceType, true)
+                    SubRqtFile(new, existingFile, DEPRECATED_PAGE_TAB, existingFile.sourceType, previousSubFile = true)
                 }
 
                 MatchType.REUSED -> {
                     requireNotNull(newFile) { "New file shouldn't be null for REUSED files" }
                     when {
-                        current.released && new.released -> SubRqtFile(new, existingFile, RELEASED, newFile.sourceType, false)
-                        current.released.not() -> SubRqtFile(new, existingFile, COPIED, newFile.sourceType, false)
-                        else -> SubRqtFile(new, existingFile, REUSED, newFile.sourceType, true)
+                        current.released && new.released -> {
+                            SubRqtFile(
+                                new,
+                                existingFile,
+                                RELEASED,
+                                newFile.sourceType,
+                                newFile.sourceFile,
+                                false,
+                            )
+                        }
+
+                        current.released.not() -> {
+                            SubRqtFile(new, existingFile, COPIED, newFile.sourceType, newFile.sourceFile, false)
+                        }
+
+                        else -> {
+                            SubRqtFile(new, existingFile, REUSED, newFile.sourceType, newFile.sourceFile, true)
+                        }
                     }
                 }
             }
@@ -141,17 +158,18 @@ class SubmissionRequestCleanIndexer(
 
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
-            .concurrently(concurrency) { it.file }
-            .filterIsInstance<PersistedExtFile>()
-            .collect {
-                response[it.filePath] =
+            .filter { it.file is PersistedExtFile }
+            .concurrently(concurrency) {
+                val file = it.file as PersistedExtFile
+                response[file.filePath] =
                     FileRecord(
-                        md5 = it.md5,
-                        sourceType = it.sourceType,
+                        md5 = file.md5,
+                        sourceFile = it.sourceFile,
+                        sourceType = file.sourceType,
                         storageMode = new.storageMode,
-                        isPageTab = pageTabFiles.containsKey(it.md5),
+                        isPageTab = pageTabFiles.containsKey(file.md5),
                     )
-            }
+            }.collect()
 
         return FilesRecords(response)
     }
@@ -204,5 +222,6 @@ private data class FileRecord(
     val md5: String,
     val storageMode: StorageMode,
     val isPageTab: Boolean,
+    val sourceFile: ExtFile,
     val sourceType: FileSourceType?,
 )

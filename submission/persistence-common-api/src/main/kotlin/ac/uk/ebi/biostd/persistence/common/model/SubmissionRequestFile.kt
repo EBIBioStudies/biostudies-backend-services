@@ -19,6 +19,7 @@ data class SubmissionRequestFile(
         file: ExtFile,
         status: RequestFileStatus,
         sourceType: FileSourceType?,
+        sourceFile: ExtFile = file,
         previousSubFile: Boolean = false,
     ) : this(
         accNo = sub.accNo,
@@ -26,7 +27,7 @@ data class SubmissionRequestFile(
         path = file.filePath,
         file = file,
         status = status,
-        sourceFile = file,
+        sourceFile = sourceFile,
         sourceType = sourceType,
         previousSubFile = previousSubFile,
     )

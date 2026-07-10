@@ -306,8 +306,8 @@ class SubmitterConfig(
             filesRequestService,
             submissionFileRepository,
             toSimpleSubmissionMapper,
+            appProperties.cleanUp,
             doiService,
-            appProperties.persistence.concurrency,
         )
 
     @Bean

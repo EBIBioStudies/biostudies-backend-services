@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
+import ac.uk.ebi.biostd.common.properties.CleanUpProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
@@ -53,8 +54,8 @@ class LocalPostProcessingService(
     private val requestFilesService: SubmissionRequestFilesPersistenceService,
     private val submissionFileRepository: SubmissionFilesDocDataRepository,
     private val toSimpleSubmissionMapper: ToSubmissionMapper,
+    private val cleanUpProperties: CleanUpProperties,
     private val doiService: DoiService,
-    private val concurrency: Int,
 ) {
     suspend fun calculateStats(accNo: String): List<SubmissionStat> {
         logger.info { "Calculating stats for submission $accNo" }
@@ -82,9 +83,12 @@ class LocalPostProcessingService(
     }
 
     suspend fun cleanUpFiles(accNo: String) {
-        logger.info { "Cleaning up user source files for submission '$accNo'" }
-        val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
-        cleanUpUserSourceFiles(sub)
+        if (cleanUpProperties.postProcessCleanUpEnabled) {
+            logger.info { "Cleaning up user source files for submission '$accNo'" }
+            val sub =
+                extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = false, includeLinkListLinks = false)
+            cleanUpUserSourceFiles(sub)
+        }
     }
 
     suspend fun postProcess(accNo: String) {
@@ -96,7 +100,7 @@ class LocalPostProcessingService(
         indexSubmissionInnerFiles(sub)
         calculateStats(sub)
         if (sub.doi != null && previousVersion?.doi == null) registerDoi(sub)
-        cleanUpUserSourceFiles(sub)
+        if (cleanUpProperties.postProcessCleanUpEnabled) cleanUpUserSourceFiles(sub)
 
         logger.info { "Finished post-processing submission '$accNo'" }
     }
@@ -192,13 +196,15 @@ class LocalPostProcessingService(
             }
         }
 
-        logger.info { "Started cleaning up user source files for submission ${sub.accNo}, version ${sub.version}" }
-        requestFilesService
-            .getSubmissionRequestFiles(sub.accNo, sub.version)
-            .filter { it.sourceType == USER && it.sourceFile is NfsFile }
-            .concurrently(concurrency) { cleanUpUserFile(it) }
-            .collect()
-        logger.info { "Finished cleaning up user source files for submission ${sub.accNo}, version ${sub.version}" }
+        if (cleanUpProperties.postProcessCleanUpEnabled) {
+            logger.info { "Started cleaning up user source files for submission ${sub.accNo}, version ${sub.version}" }
+            requestFilesService
+                .getSubmissionRequestFiles(sub.accNo, sub.version)
+                .filter { it.sourceType == USER && it.sourceFile is NfsFile }
+                .concurrently(cleanUpProperties.concurrency) { cleanUpUserFile(it) }
+                .collect()
+            logger.info { "Finished cleaning up user source files for submission ${sub.accNo}, version ${sub.version}" }
+        }
     }
 
     suspend fun postProcessAll() {

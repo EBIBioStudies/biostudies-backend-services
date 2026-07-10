@@ -192,11 +192,13 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun cleanUpSetup() {
-        properties.addProperty("app.cleanup.enabled", true)
+        properties.addProperty("app.cleanup.concurrency", 10)
         properties.addProperty("app.cleanup.firstWarningDays", 30)
         properties.addProperty("app.cleanup.secondWarningDays", 45)
         properties.addProperty("app.cleanup.thirdWarningDays", 59)
         properties.addProperty("app.cleanup.cleanUpPeriodDays", 60)
+        properties.addProperty("app.cleanup.userSpaceCleanUpEnabled", true)
+        properties.addProperty("app.cleanup.postProcessCleanUpEnabled", true)
     }
 
     private fun submissionTaskSetup() {
