@@ -109,6 +109,7 @@ class SubmissionRequestCleanIndexer(
 
                 MatchType.REUSED -> {
                     requireNotNull(newFile) { "New file shouldn't be null for REUSED files" }
+                    reusedIdx.incrementAndGet()
                     when {
                         current.released && new.released -> {
                             SubRqtFile(
