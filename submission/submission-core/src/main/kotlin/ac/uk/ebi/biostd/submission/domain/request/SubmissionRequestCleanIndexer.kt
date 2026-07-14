@@ -89,22 +89,22 @@ class SubmissionRequestCleanIndexer(
             return when (match) {
                 MatchType.CONFLICTING -> {
                     conflictIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, CONFLICTING, existingFile.sourceType, previousSubFile = true)
+                    SubRqtFile(new, existingFile, CONFLICTING, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.CONFLICTING_PAGE_TAB -> {
                     conflictPageTabIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, CONFLICTING_PAGE_TAB, existingFile.sourceType, previousSubFile = true)
+                    SubRqtFile(new, existingFile, CONFLICTING_PAGE_TAB, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.DEPRECATED -> {
                     deprecatedIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, DEPRECATED, existingFile.sourceType, previousSubFile = true)
+                    SubRqtFile(new, existingFile, DEPRECATED, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.DEPRECATED_PAGE_TAB -> {
                     deprecatedPageTabIdx.incrementAndGet()
-                    SubRqtFile(new, existingFile, DEPRECATED_PAGE_TAB, existingFile.sourceType, previousSubFile = true)
+                    SubRqtFile(new, existingFile, DEPRECATED_PAGE_TAB, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.REUSED -> {
@@ -118,16 +118,16 @@ class SubmissionRequestCleanIndexer(
                                 RELEASED,
                                 newFile.sourceType,
                                 newFile.sourceFile,
-                                false,
+                                cleanUpRecord = false,
                             )
                         }
 
                         current.released.not() -> {
-                            SubRqtFile(new, existingFile, COPIED, newFile.sourceType, newFile.sourceFile, false)
+                            SubRqtFile(new, existingFile, COPIED, newFile.sourceType, newFile.sourceFile, cleanUpRecord = false)
                         }
 
                         else -> {
-                            SubRqtFile(new, existingFile, REUSED, newFile.sourceType, newFile.sourceFile, true)
+                            SubRqtFile(new, existingFile, REUSED, newFile.sourceType, newFile.sourceFile, cleanUpRecord = true)
                         }
                     }
                 }

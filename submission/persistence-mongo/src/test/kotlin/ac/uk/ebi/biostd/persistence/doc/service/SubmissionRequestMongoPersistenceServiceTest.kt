@@ -212,7 +212,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     version = 2,
                     path = "file-path",
                     status = LOADED,
-                    previousSubFile = false,
+                    cleanUpRecord = false,
                     sourceType = FileSourceType.SUBMISSION,
                     file = BasicDBObject("property", "value"),
                     sourceFile = BasicDBObject("sourceProperty", "source-value"),

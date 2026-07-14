@@ -4,6 +4,12 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileSourceType
 
+/**
+ * Represents a file associated with a submission request.
+ *
+ * @property cleanUpRecord flag that marks request-file records representing persisted submission files considered
+ * during clean-up. It is part of the persistence identity to avoid collisions for the same accNo/version/path.
+ */
 data class SubmissionRequestFile(
     val accNo: String,
     val version: Int,
@@ -12,7 +18,7 @@ data class SubmissionRequestFile(
     val sourceFile: ExtFile,
     val status: RequestFileStatus,
     val sourceType: FileSourceType?,
-    val previousSubFile: Boolean = false,
+    val cleanUpRecord: Boolean = false,
 ) {
     constructor(
         sub: ExtSubmission,
@@ -20,7 +26,7 @@ data class SubmissionRequestFile(
         status: RequestFileStatus,
         sourceType: FileSourceType?,
         sourceFile: ExtFile = file,
-        previousSubFile: Boolean = false,
+        cleanUpRecord: Boolean = false,
     ) : this(
         accNo = sub.accNo,
         version = sub.version,
@@ -29,7 +35,7 @@ data class SubmissionRequestFile(
         status = status,
         sourceFile = sourceFile,
         sourceType = sourceType,
-        previousSubFile = previousSubFile,
+        cleanUpRecord = cleanUpRecord,
     )
 }
 
