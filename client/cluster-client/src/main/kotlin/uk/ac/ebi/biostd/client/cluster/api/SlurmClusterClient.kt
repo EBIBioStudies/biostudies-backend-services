@@ -9,7 +9,7 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -35,12 +35,12 @@ class SlurmClusterClient(
 
     override suspend fun triggerJobSync(
         jobSpec: JobSpec,
-        checkJobInterval: Long,
-        maxSecondsDuration: Long,
+        checkJobInterval: Duration,
+        maxDuration: Duration,
     ): Job {
         val job = triggerJobAsync(jobSpec).getOrThrow()
         logger.info { "Job ${job.id} triggered. ${job.logsPath}. Awaiting completion..." }
-        await(job, checkJobInterval, maxSecondsDuration)
+        await(job, checkJobInterval, maxDuration)
         return job
     }
 
@@ -78,13 +78,13 @@ class SlurmClusterClient(
 
     private suspend fun await(
         job: Job,
-        checkJobInterval: Long,
-        maxSecondsDuration: Long,
+        checkJobInterval: Duration,
+        maxDuration: Duration,
     ) {
         return sshClient.runInSession {
             waitUntil(
-                checkInterval = checkJobInterval.seconds,
-                timeout = maxSecondsDuration.seconds,
+                checkInterval = checkJobInterval,
+                timeout = maxDuration,
             ) {
                 val status = jobStatus(job.id)
                 val completed = status == "COMPLETED"
@@ -106,7 +106,7 @@ class SlurmClusterClient(
 
     companion object {
         /**
-         * Empirically it was found that both -1, 0 means job was submitted sucefully.
+         * Empirically it was found that both -1, 0 means the job was submitted successfully.
          */
         val SUCCESS_EXITS_CODE = setOf(-1, 0)
 

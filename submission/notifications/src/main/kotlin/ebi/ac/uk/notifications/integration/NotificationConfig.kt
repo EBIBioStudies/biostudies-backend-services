@@ -8,6 +8,7 @@ import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.RtTicketService
 import ebi.ac.uk.notifications.service.SecurityNotificationService
 import ebi.ac.uk.notifications.service.SimpleEmailService
+import ebi.ac.uk.notifications.service.UrgentNotificationService
 import ebi.ac.uk.notifications.util.TemplateLoader
 import org.springframework.core.io.ResourceLoader
 import org.springframework.mail.javamail.JavaMailSenderImpl
@@ -23,6 +24,8 @@ class NotificationConfig(
     fun securityNotificationService(): SecurityNotificationService = securityNotificationService
 
     fun cleanUpNotificationService(): CleanUpNotificationService = cleanUpNotificationService
+
+    fun urgentNotificationService(): UrgentNotificationService = urgentNotificationService
 
     private val webClient by lazy { WebClient.builder().build() }
 
@@ -45,6 +48,8 @@ class NotificationConfig(
             properties,
         )
     }
+
+    private val urgentNotificationService by lazy { UrgentNotificationService(properties, emailService) }
 
     private val mailSender by lazy {
         JavaMailSenderImpl().apply {

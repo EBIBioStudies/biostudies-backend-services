@@ -10,10 +10,12 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
+import ebi.ac.uk.extended.events.UrgentNotification
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
@@ -46,6 +48,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Duration
 import kotlin.io.path.absolutePathString
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -213,17 +216,21 @@ open class SecurityService(
 
     private suspend fun createMagicFolder(user: SecurityUser) {
         when (user.userFolder) {
-            is FtpUserFolder -> createFtpMagicFolder(user.userFolder)
+            is FtpUserFolder -> createFtpMagicFolder(user.email, user.userFolder)
             is NfsUserFolder -> createNfsMagicFolder(user.email, user.userFolder)
         }
     }
 
-    private suspend fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
-        createClusterFolder(ftpFolder.path.parent, UNIX_RWX__X___)
-        createClusterFolder(ftpFolder.path, UNIX_RWXRWX___)
+    private suspend fun createFtpMagicFolder(
+        email: String,
+        ftpFolder: FtpUserFolder,
+    ) {
+        createClusterFolder(email, ftpFolder.path.parent, UNIX_RWX__X___)
+        createClusterFolder(email, ftpFolder.path, UNIX_RWXRWX___)
     }
 
     private suspend fun createClusterFolder(
+        email: String,
         path: Path,
         permissions: Int,
     ) {
@@ -235,9 +242,26 @@ open class SecurityService(
         val command = "$createCommand && $permissionsCommand && $changeGroupCommand"
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
-        logger.info { "Started creating the cluster FTP folder $path" }
-        clusterClient.triggerJobSync(job, checkJobInterval = 2)
-        logger.info { "Finished creating the cluster FTP folder $path" }
+        logger.info { "Started creating the cluster FTP folder for user $email at $path" }
+        runCatching {
+            clusterClient.triggerJobSync(job, checkJobInterval = 2.seconds, maxDuration = FOREVER)
+        }.onFailure { onError(email, path, it) }
+        logger.info { "Finished creating the cluster FTP folder for user $email at $path" }
+    }
+
+    private fun onError(
+        email: String,
+        path: Path,
+        error: Throwable,
+    ) {
+        val errorMessage = "Error creating the cluster FTP folder for user $email at $path"
+        logger.error { errorMessage }
+        val notification =
+            UrgentNotification(
+                subject = "User Folder Creation Failure",
+                content = "$errorMessage. With error: ${error.message ?: error.localizedMessage}.",
+            )
+        eventsPublisherService.urgentNotification(notification)
     }
 
     private suspend fun copyFilesClusterJob(

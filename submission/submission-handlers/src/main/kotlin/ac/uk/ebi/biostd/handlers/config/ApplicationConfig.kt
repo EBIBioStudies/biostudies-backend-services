@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.handlers.listeners.CleanUpNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionListener
 import ac.uk.ebi.biostd.handlers.listeners.SecurityNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
+import ac.uk.ebi.biostd.handlers.listeners.UrgentNotificationListener
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.NotificationErrorMongoRepository
@@ -19,6 +20,7 @@ import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.SecurityNotificationService
+import ebi.ac.uk.notifications.service.UrgentNotificationService
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -108,6 +110,18 @@ class Listeners {
             cleanUpNotificationService,
             notificationErrorService,
         )
+
+    @Bean
+    fun urgentNotificationsListener(
+        rabbitTemplate: RabbitTemplate,
+        notificationsSender: NotificationsSender,
+        urgentNotificationService: UrgentNotificationService,
+    ): UrgentNotificationListener =
+        UrgentNotificationListener(
+            rabbitTemplate,
+            notificationsSender,
+            urgentNotificationService,
+        )
 }
 
 @Configuration
@@ -156,6 +170,10 @@ class Services {
     @Bean
     fun cleanUpNotificationService(notificationConfig: NotificationConfig): CleanUpNotificationService =
         notificationConfig.cleanUpNotificationService()
+
+    @Bean
+    fun urgentNotificationService(notificationConfig: NotificationConfig): UrgentNotificationService =
+        notificationConfig.urgentNotificationService()
 }
 
 @Configuration

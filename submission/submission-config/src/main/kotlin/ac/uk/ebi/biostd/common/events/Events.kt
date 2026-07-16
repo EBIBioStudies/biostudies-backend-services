@@ -20,3 +20,6 @@ const val SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY = "bio.submission.partials"
 
 // Internal only. Used when a new submission request fails at any stage.
 const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"
+
+// Used for urgent notification emails.
+const val URGENT_NOTIFICATIONS_ROUTING_KEY = "bio.urgent.notification"

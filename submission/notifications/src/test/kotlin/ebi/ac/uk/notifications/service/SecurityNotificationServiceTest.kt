@@ -18,14 +18,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-private const val TEST_EMAIL = "test@ebi.ac.uk"
-private const val BBC_EMAIL = "test-2@ebi.ac.uk"
-
 @ExtendWith(MockKExtension::class)
 class SecurityNotificationServiceTest(
-    @MockK private val templateLoader: TemplateLoader,
-    @MockK private val simpleEmailService: SimpleEmailService,
-    @MockK private val properties: NotificationProperties,
+    @param:MockK private val templateLoader: TemplateLoader,
+    @param:MockK private val properties: NotificationProperties,
+    @param:MockK private val simpleEmailService: SimpleEmailService,
 ) {
     private val testInstance = SecurityNotificationService(templateLoader, simpleEmailService, properties)
 
@@ -92,5 +89,10 @@ class SecurityNotificationServiceTest(
         assertThat(email.to).isEqualTo(TEST_EMAIL)
         assertThat(email.subject).isEqualTo(subject)
         assertThat(email.content).isEqualTo(content)
+    }
+
+    companion object {
+        private const val TEST_EMAIL = "test@ebi.ac.uk"
+        private const val BBC_EMAIL = "test-2@ebi.ac.uk"
     }
 }
