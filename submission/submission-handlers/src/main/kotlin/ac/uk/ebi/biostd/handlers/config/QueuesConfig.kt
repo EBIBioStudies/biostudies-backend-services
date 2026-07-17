@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.URGENT_NOTIFICATIONS_ROUTING_KEY
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
@@ -17,6 +18,7 @@ const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"
 
 internal const val LOG_QUEUE = "submission-submitted-log-queue"
 internal const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
+internal const val URGENT_NOTIFICATIONS_QUEUE = "urgent-notifications-queue"
 internal const val CLEANUP_NOTIFICATIONS_QUEUE = "cleanup-notifications-queue"
 internal const val SUBMIT_NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
 internal const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notifications-queue"
@@ -51,6 +53,9 @@ class QueuesConfig {
     fun securityNotificationsQueue(): Queue = Queue(SECURITY_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
+    fun urgentNotificationsQueue(): Queue = Queue(URGENT_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
+
+    @Bean
     fun cleanUpNotificationsQueue(): Queue = Queue(CLEANUP_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
@@ -78,6 +83,10 @@ class QueuesConfig {
     @Bean
     fun securityNotificationsQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(securityNotificationsQueue()).to(exchange).with(SECURITY_NOTIFICATIONS_ROUTING_KEY)
+
+    @Bean
+    fun urgentNotificationsQueueBinding(exchange: TopicExchange): Binding =
+        BindingBuilder.bind(urgentNotificationsQueue()).to(exchange).with(URGENT_NOTIFICATIONS_ROUTING_KEY)
 
     @Bean
     fun cleanUpNotificationsQueueBinding(exchange: TopicExchange): Binding =

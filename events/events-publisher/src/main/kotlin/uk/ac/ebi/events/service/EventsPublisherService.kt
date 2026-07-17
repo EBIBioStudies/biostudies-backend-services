@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.URGENT_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.extended.events.RequestCheckedReleased
@@ -23,6 +24,7 @@ import ebi.ac.uk.extended.events.RequestToCleanIndexed
 import ebi.ac.uk.extended.events.RequestValidated
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
+import ebi.ac.uk.extended.events.UrgentNotification
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import uk.ac.ebi.events.config.EventsProperties
 
@@ -37,6 +39,9 @@ class EventsPublisherService(
 
     fun cleanupNotification(notification: CleanUpNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, CLEANUP_NOTIFICATIONS_ROUTING_KEY, notification)
+
+    fun urgentNotification(notification: UrgentNotification) =
+        rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, URGENT_NOTIFICATIONS_ROUTING_KEY, notification)
 
     fun requestFilesCopied(
         accNo: String,
