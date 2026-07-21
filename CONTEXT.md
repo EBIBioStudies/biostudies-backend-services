@@ -13,3 +13,6 @@ The origin of a file within a specific submission request. A file from user spac
 ### User space
 
 The per-user file area used as an input source for submission files uploaded by a user before they are consumed by a completed submission.
+
+- `Security notification`: an account-related notification used for activation, activation by email, and password reset.
+- `Urgent notification`: a separate operational notification used to report failures in the security notification flow; it carries an error type and an error message.

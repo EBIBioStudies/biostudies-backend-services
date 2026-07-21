@@ -8,6 +8,7 @@ import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.Result.Companion.success
 import kotlin.io.path.createTempFile
+import kotlin.time.Duration
 
 class LocalClusterClient : ClusterClient {
     private val activeProcess = ConcurrentHashMap<Long, Process>()
@@ -24,8 +25,8 @@ class LocalClusterClient : ClusterClient {
 
     override suspend fun triggerJobSync(
         jobSpec: JobSpec,
-        checkJobInterval: Long,
-        maxSecondsDuration: Long,
+        checkJobInterval: Duration,
+        maxDuration: Duration,
     ): Job {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
