@@ -45,7 +45,9 @@ class OperationsScheduler(
      */
     @Scheduled(cron = "0 0 6 * * *")
     fun sendUserSpaceCleanUpNotifications() {
-        runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(NOTIFY, remote = true) }
+        runBlocking {
+            if (properties.cleanUp.userSpaceCleanUpEnabled) userCleanUpService.cleanUp(NOTIFY, remote = true)
+        }
     }
 
     /**
@@ -53,7 +55,9 @@ class OperationsScheduler(
      */
     @Scheduled(cron = "0 0 23 * * *")
     fun cleanUserSpaces() {
-        runBlocking { if (properties.cleanUp.enabled) userCleanUpService.cleanUp(CLEAN_UP, remote = true) }
+        runBlocking {
+            if (properties.cleanUp.userSpaceCleanUpEnabled) userCleanUpService.cleanUp(CLEAN_UP, remote = true)
+        }
     }
 
     /**

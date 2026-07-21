@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
 import ac.uk.ebi.biostd.common.properties.Mode.LOAD_PMC_LINKS
 import ac.uk.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
+import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_CLEAN_UP
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
@@ -97,6 +98,7 @@ class Execute(
                 POST_PROCESS_INNER_FILES -> postProcessInnerFiles()
                 POST_PROCESS_PAGETAB_FILES -> postProcessPagetabFiles()
                 POST_PROCESS_DOI -> postProcessDoi()
+                POST_PROCESS_CLEAN_UP -> postProcessCleanUp()
                 LOAD_PMC_LINKS -> loadLinks()
                 NOTIFY_USER_SPACE_CLEAN_UP -> sendUserSpaceCleanUpNotifications()
                 CLEAN_UP_USER_SPACE -> cleanUpUserSpace()
@@ -129,6 +131,10 @@ class Execute(
 
     private suspend fun postProcessDoi() {
         dynamicProperties.submissions().forEach { submissionPostProcessingService.generateDoi(it.accNo) }
+    }
+
+    private suspend fun postProcessCleanUp() {
+        dynamicProperties.submissions().forEach { submissionPostProcessingService.cleanUpFiles(it.accNo) }
     }
 
     private suspend fun handleRequest() {

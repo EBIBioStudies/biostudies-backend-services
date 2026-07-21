@@ -1,12 +1,14 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
+import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_CLEAN_UP
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
 import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.ALL
+import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.DOI
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.INNER_FILES
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.PAGETAB
@@ -64,12 +66,21 @@ class ExtPostProcessingService(
             }
         }
 
+        suspend fun cleanUp() {
+            if (remote.not()) {
+                localPostProcessingService.cleanUpFiles(accNo)
+            } else {
+                remoteSubmitterExecutor.executeRemotely(asArgs(accNo), POST_PROCESS_CLEAN_UP)
+            }
+        }
+
         when (mode) {
             ALL -> postProcess()
             STATS -> stats()
             INNER_FILES -> innerFiles()
             PAGETAB -> pagetabFiles()
             DOI -> doi()
+            CLEAN_UP -> cleanUp()
         }
     }
 
@@ -93,5 +104,6 @@ class ExtPostProcessingService(
         INNER_FILES,
         PAGETAB,
         DOI,
+        CLEAN_UP,
     }
 }

@@ -61,7 +61,7 @@ class SubmissionRequestIndexer(
             .filesFlow(sub)
             .filterNot { paths.contains(it.filePath) }
             .onEach { paths.add(it.filePath) }
-            .map { file -> SubmissionRequestFile(sub, file, INDEXED, file.sourcetype) }
+            .map { file -> SubmissionRequestFile(sub, file, INDEXED, file.sourceType) }
             .collectIndexed { index, file ->
                 saveRequestFile(index, file)
             }

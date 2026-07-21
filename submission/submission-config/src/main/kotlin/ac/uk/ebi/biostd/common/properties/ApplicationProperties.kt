@@ -99,9 +99,11 @@ data class PmcProperties(
 )
 
 data class CleanUpProperties(
-    val enabled: Boolean,
+    val concurrency: Int,
     val firstWarningDays: Long,
     val secondWarningDays: Long,
     val thirdWarningDays: Long,
     val cleanUpPeriodDays: Long,
+    val userSpaceCleanUpEnabled: Boolean,
+    val postProcessCleanUpEnabled: Boolean,
 )

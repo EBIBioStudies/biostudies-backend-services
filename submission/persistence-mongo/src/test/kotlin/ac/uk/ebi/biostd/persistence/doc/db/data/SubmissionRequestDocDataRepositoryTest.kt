@@ -98,8 +98,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     version = 2,
                     path = "file-path",
                     status = RequestFileStatus.LOADED,
-                    previousSubFile = false,
+                    cleanUpRecord = false,
                     file = BasicDBObject("property", "value"),
+                    sourceFile = BasicDBObject("sourceProperty", "source-value"),
                     sourceType = FileSourceType.SUBMISSION,
                 )
             val rqtF2 =
@@ -109,8 +110,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     version = 2,
                     path = "file-path-2",
                     status = RequestFileStatus.CLEANED,
-                    previousSubFile = false,
+                    cleanUpRecord = false,
                     file = BasicDBObject("property", "value-2"),
+                    sourceFile = BasicDBObject("sourceProperty", "source-value-2"),
                     sourceType = FileSourceType.SUBMISSION,
                 )
 

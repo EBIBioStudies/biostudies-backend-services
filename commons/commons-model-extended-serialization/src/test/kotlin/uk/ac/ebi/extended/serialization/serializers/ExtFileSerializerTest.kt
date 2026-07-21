@@ -5,6 +5,8 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.FileSourceType.SUBMISSION
+import ebi.ac.uk.extended.model.FileSourceType.USER
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -32,6 +34,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                 size = file.size(),
                 md5 = file.md5(),
                 attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
+                sourceType = USER,
             )
         val expectedJson =
             jsonObj {
@@ -58,6 +61,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                         },
                     )
                 "extType" to "nfsFile"
+                "sourceType" to "USER"
                 "type" to "file"
                 "size" to file.size()
             }.toString()
@@ -78,6 +82,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                 size = 13,
                 type = FILE,
                 attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
+                sourceType = SUBMISSION,
             )
         val expectedJson =
             jsonObj {
@@ -105,6 +110,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                         },
                     )
                 "extType" to "fireFile"
+                "sourceType" to "SUBMISSION"
                 "type" to "file"
                 "md5" to "fireFileMd5"
                 "size" to 13

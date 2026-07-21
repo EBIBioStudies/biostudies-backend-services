@@ -50,6 +50,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
@@ -75,7 +76,7 @@ class SubmissionPostProcessingTest(
 
     @Test
     fun `31-1 submission post processing`() =
-        runTest {
+        runTest(timeout = 30.minutes) {
             fun tabFilesSize(sub: ExtSubmission) =
                 sub.allPageTabFiles
                     .filterIsInstance<PersistedExtFile>()
@@ -167,7 +168,9 @@ class SubmissionPostProcessingTest(
             assertThat(statsV1.stats[DIRECTORIES.name]).isEqualTo(0)
             assertThat(statsV1.stats[FILES_SIZE.name]).isEqualTo(expectedFilesSize)
             assertThat(statsV1.stats[NON_DECLARED_FILES_DIRECTORIES.name]).isEqualTo(0)
+            assertThat(webClient.listUserFiles().map { it.name }).doesNotContain("stats file 1.doc")
 
+            webClient.uploadFiles(listOf(subFile1))
             assertThat(webClient.submit(version2, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
             waitUntil(10.seconds) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
 
@@ -253,6 +256,10 @@ class SubmissionPostProcessingTest(
                     )
                 }
             }
+
+            // Verify user source files were cleaned up
+            assertThat(webClient.listUserFiles().map { it.name }).doesNotContain("stats file 1.doc", "statsFile2.txt")
+            assertThat(webClient.listUserFiles("a").map { it.name }).doesNotContain("statsFile3.pdf")
         }
 
     @Test

@@ -52,11 +52,13 @@ class LocalUserSpaceCleanUpServiceTest(
 ) {
     private val cleanUpProperties =
         CleanUpProperties(
-            enabled = true,
+            concurrency = 10,
             firstWarningDays = 30,
             secondWarningDays = 60,
             thirdWarningDays = 90,
             cleanUpPeriodDays = 120,
+            userSpaceCleanUpEnabled = true,
+            postProcessCleanUpEnabled = true,
         )
 
     private val testInstance =

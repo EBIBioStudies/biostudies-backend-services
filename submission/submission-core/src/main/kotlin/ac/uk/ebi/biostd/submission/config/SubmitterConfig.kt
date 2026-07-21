@@ -290,9 +290,11 @@ class SubmitterConfig(
         subFolderResolver: SubmissionFolderResolver,
         extSerializationService: ExtSerializationService,
         extSubQueryService: SubmissionPersistenceQueryService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
         submissionFileRepository: SubmissionFilesDocDataRepository,
         toSimpleSubmissionMapper: ToSubmissionMapper,
         doiService: DoiService,
+        appProperties: ApplicationProperties,
     ): LocalPostProcessingService =
         LocalPostProcessingService(
             pageTabService,
@@ -301,8 +303,10 @@ class SubmitterConfig(
             subFolderResolver,
             extSerializationService,
             extSubQueryService,
+            filesRequestService,
             submissionFileRepository,
             toSimpleSubmissionMapper,
+            appProperties.cleanUp,
             doiService,
         )
 

@@ -5,11 +5,12 @@ import ebi.ac.uk.base.ensureSuffix
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileSourceType.SUBMISSION
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.copyWithAttributes
+import ebi.ac.uk.extended.model.typeSafeCopy
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.constants.FileFields
 import uk.ac.ebi.fire.client.integration.web.FireClient
@@ -31,7 +32,7 @@ internal class SubmissionFilesSource(
         attributes: List<ExtAttribute>,
     ): ExtFile? {
         val filePath = expectedPath(path, type)
-        return findSubmissionFile(filePath)?.copyWithAttributes(attributes)
+        return findSubmissionFile(filePath)?.typeSafeCopy(attributes, sourceType = SUBMISSION)
     }
 
     private fun expectedPath(

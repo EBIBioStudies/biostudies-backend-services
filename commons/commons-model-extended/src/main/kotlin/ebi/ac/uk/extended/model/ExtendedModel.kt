@@ -47,7 +47,7 @@ data class ExtLink(
 sealed interface ExtFile {
     val filePath: String
     val attributes: List<ExtAttribute>
-    val sourcetype: FileSourceType?
+    val sourceType: FileSourceType?
 
     val fileName: String
         get() = filePath.substringAfterLast("/")
@@ -64,7 +64,7 @@ data class RequestFile(
     override val filePath: String,
     override val attributes: List<ExtAttribute>,
     val type: String,
-    override val sourcetype: FileSourceType? = null,
+    override val sourceType: FileSourceType? = null,
 ) : ExtFile
 
 data class FireFile(
@@ -77,7 +77,7 @@ data class FireFile(
     override val size: Long,
     override val type: ExtFileType,
     override val attributes: List<ExtAttribute> = listOf(),
-    override val sourcetype: FileSourceType? = null,
+    override val sourceType: FileSourceType? = null,
 ) : PersistedExtFile
 
 data class NfsFile(
@@ -89,7 +89,7 @@ data class NfsFile(
     override val size: Long,
     override val attributes: List<ExtAttribute> = listOf(),
     override val type: ExtFileType = if (file.isDirectory) DIR else FILE,
-    override val sourcetype: FileSourceType? = null,
+    override val sourceType: FileSourceType? = null,
 ) : PersistedExtFile
 
 enum class FileSourceType {

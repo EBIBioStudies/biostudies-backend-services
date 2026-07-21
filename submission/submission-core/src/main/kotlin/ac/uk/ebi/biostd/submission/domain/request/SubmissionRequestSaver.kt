@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.copyWithAttributes
+import ebi.ac.uk.extended.model.typeSafeCopy
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import mu.KotlinLogging
@@ -42,7 +42,7 @@ class SubmissionRequestSaver(
     private suspend fun assembleSubmission(sub: ExtSubmission): ExtSubmission {
         return fileProcessingService.processFiles(sub) { file ->
             val requestFile = filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, file.filePath)
-            return@processFiles requestFile.file.copyWithAttributes(file.attributes)
+            return@processFiles requestFile.file.typeSafeCopy(file.attributes, file.sourceType)
         }
     }
 }

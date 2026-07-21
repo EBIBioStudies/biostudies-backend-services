@@ -87,9 +87,10 @@ data class DocSubmissionRequestFile(
     val version: Int,
     val path: String,
     val file: DBObject,
+    val sourceFile: DBObject,
     val status: RequestFileStatus,
     val sourceType: FileSourceType?,
-    val previousSubFile: Boolean,
+    val cleanUpRecord: Boolean,
 )
 
 @Document(collection = PMC_SUBMISSIONS)

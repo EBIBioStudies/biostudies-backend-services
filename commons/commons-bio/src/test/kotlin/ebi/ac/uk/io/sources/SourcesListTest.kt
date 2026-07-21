@@ -20,10 +20,11 @@ import kotlin.test.assertFailsWith
 @ExtendWith(MockKExtension::class)
 internal class SourcesListTest(
     @param:MockK private val file: ExtFile,
-    @param:MockK private val oneFileSource: FilesSource,
-    @param:MockK private val anotherFileSource: FilesSource,
+    @param:MockK private val secondFile: ExtFile,
+    @param:MockK private val firstFileSource: FilesSource,
+    @param:MockK private val secondFileSource: FilesSource,
 ) {
-    private val testInstance = SourcesList(listOf(oneFileSource, anotherFileSource))
+    private val testInstance = SourcesList(listOf(firstFileSource, secondFileSource))
 
     private val filePath = "path/to/a/my file.txt"
     private val attributes = emptyList<ExtAttribute>()
@@ -36,24 +37,32 @@ internal class SourcesListTest(
         @Test
         fun whenOne() =
             runTest {
-                coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
-                coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                coEvery { firstFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+                coEvery { secondFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
                 assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
             }
 
         @Test
         fun whenAnother() =
             runTest {
-                coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-                coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+                coEvery { firstFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                coEvery { secondFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+                assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
+            }
+
+        @Test
+        fun whenBoth() =
+            runTest {
+                coEvery { firstFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+                coEvery { secondFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns secondFile
                 assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
             }
 
         @Test
         fun whenNone() =
             runTest {
-                coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-                coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                coEvery { firstFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                coEvery { secondFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
                 assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
             }
 
@@ -61,9 +70,9 @@ internal class SourcesListTest(
         fun `admin metadata source skips path checks`() =
             runTest {
                 val path = "folder/filé.txt"
-                val sourcesList = SourcesList(listOf(AdminUpdateFilesSource, oneFileSource))
+                val sourcesList = SourcesList(listOf(AdminUpdateFilesSource, firstFileSource))
 
-                coEvery { oneFileSource.getExtFile(path, FILE_TYPE.value, attributes) } returns file
+                coEvery { firstFileSource.getExtFile(path, FILE_TYPE.value, attributes) } returns file
 
                 assertThat(sourcesList.findExtFile(path, FILE_TYPE.value, attributes)).isEqualTo(file)
             }

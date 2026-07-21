@@ -47,6 +47,7 @@ class SubmissionRequestFilesMongoPersistenceService(
 
     private fun DocSubmissionRequestFile.toSubmissionRequestFile(): SubmissionRequestFile {
         val file = extSerializationService.deserializeFile(file.toString())
-        return SubmissionRequestFile(accNo, version, path, file, status, sourceType, previousSubFile)
+        val sourceFile = extSerializationService.deserializeFile(sourceFile.toString())
+        return SubmissionRequestFile(accNo, version, path, file, sourceFile, status, sourceType, cleanUpRecord)
     }
 }

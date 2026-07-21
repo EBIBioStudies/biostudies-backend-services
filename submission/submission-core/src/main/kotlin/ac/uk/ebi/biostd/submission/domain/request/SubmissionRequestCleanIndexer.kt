@@ -14,13 +14,16 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.coroutines.concurrently
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
@@ -79,38 +82,57 @@ class SubmissionRequestCleanIndexer(
         val deprecatedPageTabIdx = AtomicInteger(0)
 
         fun indexRequestFile(
-            file: PersistedExtFile,
+            existingFile: PersistedExtFile,
             isPageTab: Boolean,
-        ): SubRqtFile =
-            when (newFiles.findMatch(file, isPageTab)) {
+        ): SubRqtFile {
+            val (match, newFile) = newFiles.findMatch(existingFile, isPageTab)
+            return when (match) {
                 MatchType.CONFLICTING -> {
                     conflictIdx.incrementAndGet()
-                    SubRqtFile(new, file, CONFLICTING, file.sourcetype, true)
+                    SubRqtFile(new, existingFile, CONFLICTING, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.CONFLICTING_PAGE_TAB -> {
                     conflictPageTabIdx.incrementAndGet()
-                    SubRqtFile(new, file, CONFLICTING_PAGE_TAB, file.sourcetype, true)
+                    SubRqtFile(new, existingFile, CONFLICTING_PAGE_TAB, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.DEPRECATED -> {
                     deprecatedIdx.incrementAndGet()
-                    SubRqtFile(new, file, DEPRECATED, file.sourcetype, true)
+                    SubRqtFile(new, existingFile, DEPRECATED, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.DEPRECATED_PAGE_TAB -> {
                     deprecatedPageTabIdx.incrementAndGet()
-                    SubRqtFile(new, file, DEPRECATED_PAGE_TAB, file.sourcetype, true)
+                    SubRqtFile(new, existingFile, DEPRECATED_PAGE_TAB, existingFile.sourceType, cleanUpRecord = true)
                 }
 
                 MatchType.REUSED -> {
+                    requireNotNull(newFile) { "New file shouldn't be null for REUSED files" }
+                    reusedIdx.incrementAndGet()
                     when {
-                        current.released && new.released -> SubRqtFile(new, file, RELEASED, file.sourcetype, false)
-                        current.released.not() -> SubRqtFile(new, file, COPIED, file.sourcetype, false)
-                        else -> SubRqtFile(new, file, REUSED, file.sourcetype, true)
+                        current.released && new.released -> {
+                            SubRqtFile(
+                                new,
+                                existingFile,
+                                RELEASED,
+                                newFile.sourceType,
+                                newFile.sourceFile,
+                                cleanUpRecord = false,
+                            )
+                        }
+
+                        current.released.not() -> {
+                            SubRqtFile(new, existingFile, COPIED, newFile.sourceType, newFile.sourceFile, cleanUpRecord = false)
+                        }
+
+                        else -> {
+                            SubRqtFile(new, existingFile, REUSED, newFile.sourceType, newFile.sourceFile, cleanUpRecord = true)
+                        }
                     }
                 }
             }
+        }
 
         serializationService
             .filesFlowExt(current)
@@ -137,9 +159,19 @@ class SubmissionRequestCleanIndexer(
 
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
-            .concurrently(concurrency) { it.file }
-            .filterIsInstance<PersistedExtFile>()
-            .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode, pageTabFiles.containsKey(it.md5)) }
+            .filter { it.file is PersistedExtFile }
+            .concurrently(concurrency) {
+                val file = it.file as PersistedExtFile
+                response[file.filePath] =
+                    FileRecord(
+                        md5 = file.md5,
+                        sourceFile = it.sourceFile,
+                        sourceType = file.sourceType,
+                        storageMode = new.storageMode,
+                        isPageTab = pageTabFiles.containsKey(file.md5),
+                    )
+            }.collect()
+
         return FilesRecords(response)
     }
 }
@@ -153,7 +185,7 @@ private class FilesRecords(
     /**
      * Identifies and classifies the given file in one of the five categories:
      * - DEPRECATED: The existing file is not present in the new version or the storage mode has changed
-     * - DEPRECATED_PAGE_TAB: The existing pagetab file is not present in the new version and storage mode has changed
+     * - DEPRECATED_PAGE_TAB: The existing pagetab file is not in the new version, and the storage mode has changed
      * - CONFLICTING: The existing file is present in the new version but with different content
      * - CONFLICTING_PAGE_TAB: The existing pagetab file is present in the new version but with different content
      * - REUSED: The existing file hasn't changed in the new version, so it can be reused
@@ -161,18 +193,21 @@ private class FilesRecords(
     fun findMatch(
         existing: PersistedExtFile,
         isPageTab: Boolean,
-    ): MatchType {
+    ): Pair<MatchType, FileRecord?> {
         val newFile = newFiles[existing.filePath]
         val storageModeChanged = newFile?.storageMode != existing.storageMode
         val md5Changed = newFile?.md5 != existing.md5
 
-        return when {
-            newFile != null && storageModeChanged && isPageTab -> MatchType.DEPRECATED_PAGE_TAB
-            newFile == null || storageModeChanged -> MatchType.DEPRECATED
-            md5Changed && isPageTab -> MatchType.CONFLICTING_PAGE_TAB
-            md5Changed -> MatchType.CONFLICTING
-            else -> MatchType.REUSED
-        }
+        val matchType =
+            when {
+                newFile != null && storageModeChanged && isPageTab -> MatchType.DEPRECATED_PAGE_TAB
+                newFile == null || storageModeChanged -> MatchType.DEPRECATED
+                md5Changed && isPageTab -> MatchType.CONFLICTING_PAGE_TAB
+                md5Changed -> MatchType.CONFLICTING
+                else -> MatchType.REUSED
+            }
+
+        return matchType to newFile
     }
 }
 
@@ -188,4 +223,6 @@ private data class FileRecord(
     val md5: String,
     val storageMode: StorageMode,
     val isPageTab: Boolean,
+    val sourceFile: ExtFile,
+    val sourceType: FileSourceType?,
 )
