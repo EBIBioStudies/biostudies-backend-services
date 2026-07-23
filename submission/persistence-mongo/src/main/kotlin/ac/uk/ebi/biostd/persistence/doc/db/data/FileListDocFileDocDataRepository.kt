@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 
 class FileListDocFileDocDataRepository(
@@ -29,13 +30,16 @@ class FileListDocFileDocDataRepository(
         fileListName: String,
         pageable: Pageable,
     ): Page<FileListDocFile> {
+        val index = Math.toIntExact(pageable.offset)
+        val queryPageable = PageRequest.of(0, pageable.pageSize)
         val records =
             fileListDocFileRepository
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameOrderByIndexAsc(
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameAndIndexGreaterThanEqualOrderByIndexAsc(
                     accNo,
                     version,
                     fileListName,
-                    pageable,
+                    index,
+                    queryPageable,
                 )
         val total =
             fileListDocFileRepository.countBySubmissionAccNoAndSubmissionVersionAndFileListName(
