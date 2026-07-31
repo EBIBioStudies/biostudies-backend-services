@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 
 internal class SubmissionMongoFilesPersistenceService(
@@ -26,10 +27,13 @@ internal class SubmissionMongoFilesPersistenceService(
         sub: ExtSubmission,
         fileListName: String,
         pageable: Pageable,
-    ): Page<ExtFile> =
-        fileListDocFileRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(sub.accNo, sub.version, fileListName, pageable)
-            .map { it.file.toExtFile(sub.released, sub.relPath) }
+    ): Page<ExtFile> {
+        val page =
+            fileListDocFileRepository
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(sub.accNo, sub.version, fileListName, pageable)
+        val content = page.content.map { it.file.toExtFile(sub.released, sub.relPath) }
+        return PageImpl(content, page.pageable, page.totalElements)
+    }
 
     override suspend fun findReferencedFile(
         sub: ExtSubmission,

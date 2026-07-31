@@ -81,11 +81,13 @@ Contains test related to the file list functionality.
 | FileListSubmissionTest | 3-1     | JSON submission with TSV file list                                |
 | FileListSubmissionTest | 3-2     | JSON submission with XLS file list                                |
 | FileListSubmissionTest | 3-3     | JSON submission with invalid file list format                     |
-| FileListSubmissionTest | 3-4     | Filelist Submission with file list inside a folder            |
+| FileListSubmissionTest | 3-4     | Filelist Submission with file list inside a folder                |
 | FileListSubmissionTest | 3-5     | Filelist Submission with files reusing previous version file list |
 | FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
 | FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
 | FileListSubmissionTest | 3-8     | Filelist Submission with empty accNo                              |
+| FileListSubmissionTest | 3-9     | Filelist file Pagination API                                      |
+| FileListSubmissionTest | 3-10    | Filelist file Pagination API removes identical duplicates         |
 | FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
 | FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
 | FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |
@@ -96,7 +98,7 @@ Contains test related to the file list functionality.
 
 ## Link List Test Suite
 
-Contains test related to link list.
+Contains test related to the link list functionality.
 
 | Class                  | Test No | Test name                      |
 |------------------------|---------|--------------------------------|

@@ -3,11 +3,12 @@ package ac.uk.ebi.biostd.persistence.doc.db.repositories
 import ac.uk.ebi.biostd.persistence.doc.commons.OffsetBasedPageRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -30,12 +31,22 @@ import java.time.Duration
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class FileListDocFileRepositoryTest(
-    @Autowired private val repository: FileListDocFileDocDataRepository,
+    @param:Autowired private val repository: FileListDocFileDocDataRepository,
 ) {
     @Test
     fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() =
         runTest {
-            val file = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, ExtFileType.FILE.value)
+            val file =
+                FireDocFile(
+                    fileName = "filename",
+                    filePath = "filePath",
+                    relPath = "relPath",
+                    fireId = "fireId",
+                    attributes = listOf(),
+                    md5 = "md5",
+                    fileSize = 1L,
+                    fileType = FILE.value,
+                )
             val fileListFile =
                 FileListDocFile(
                     id = ObjectId(),
@@ -82,11 +93,69 @@ class FileListDocFileRepositoryTest(
             assertThat(page.pageable.offset).isEqualTo(1)
         }
 
+    @Test
+    fun `find by file list removes identical duplicate entries`() =
+        runTest {
+            val fileListName = "file-list"
+            val submissionAccNo = "S-TEST124"
+            val duplicated =
+                createFileListDocFile(submissionAccNo, fileListName, 0, "file-0", listOf(DocAttribute("GEN", "ABC")))
+            val distinctMetadata =
+                createFileListDocFile(submissionAccNo, fileListName, 2, "file-0", listOf(DocAttribute("GEN", "DEF")))
+            val unique =
+                createFileListDocFile(submissionAccNo, fileListName, 3, "file-2", listOf(DocAttribute("GEN", "GHI")))
+            val duplicateWithDifferentStorageDetails =
+                duplicated.copy(
+                    id = ObjectId(),
+                    index = 1,
+                    file =
+                        (duplicated.file as FireDocFile).copy(
+                            fireId = "different-fire-id",
+                            md5 = "different-md5",
+                        ),
+                )
+            val files =
+                listOf(
+                    duplicated,
+                    duplicateWithDifferentStorageDetails,
+                    distinctMetadata,
+                    unique,
+                )
+            repository.saveAll(files).toList()
+
+            val result = repository.findByFileList(submissionAccNo, 1, fileListName).toList()
+
+            assertThat(result).hasSize(3)
+            assertThat(result.map { it.file.filePath }).containsExactlyInAnyOrder("file-0", "file-0", "file-2")
+            assertThat(
+                result
+                    .filter { it.file.filePath == "file-0" }
+                    .map {
+                        it.file.attributes
+                            .first()
+                            .value
+                    },
+            ).containsExactlyInAnyOrder("ABC", "DEF")
+
+            val page =
+                repository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
+                    submissionAccNo,
+                    1,
+                    fileListName,
+                    OffsetBasedPageRequest.fromOffsetAndLimit(1, 1),
+                )
+
+            assertThat(page.content.map { it.file.filePath }).containsExactlyInAnyOrder("file-0")
+            assertThat(page.totalElements).isEqualTo(4)
+            assertThat(page.pageable.offset).isEqualTo(1)
+        }
+
     private fun createFileListDocFile(
         submissionAccNo: String,
         fileListName: String,
         index: Int,
         filePath: String,
+        attributes: List<DocAttribute> = listOf(),
     ) = FileListDocFile(
         id = ObjectId(),
         submissionId = ObjectId(),
@@ -96,10 +165,10 @@ class FileListDocFileRepositoryTest(
                 filePath = filePath,
                 relPath = "relPath",
                 fireId = "fireId",
-                attributes = listOf(),
+                attributes = attributes,
                 md5 = "md5",
                 fileSize = 1L,
-                fileType = ExtFileType.FILE.value,
+                fileType = FILE.value,
             ),
         fileListName = fileListName,
         index = index,

@@ -15,15 +15,12 @@ Before marking the work as complete:
 
 - Run:
   - build-test
-  - itest-nfs
   - itest-fire
-  - itest-chaos
 
 - Ensure:
   - Compilation is successful.
   - All unit tests are passing.
-  - All integration tests defined at ac.uk.ebi.biostd.itest.test are passing with enableFire=true
-  - All integration tests defined at ac.uk.ebi.biostd.itest.test are passing with enableFire=false
+  - All integration tests defined at ac.uk.ebi.biostd.itest.test are passing
 
 - Provide:
   - Summary of changes

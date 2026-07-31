@@ -43,6 +43,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -345,7 +346,7 @@ class FileListSubmissionTest(
         runTest {
             val submission =
                 tsv {
-                    line("Submission")
+                    line("Submission", "S-TEST39")
                     line("Title", "Empty AccNo")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
@@ -372,18 +373,66 @@ class FileListSubmissionTest(
                 ),
             )
 
-            val response = webClient.submit(submission, TSV)
-            assertThat(response).isSuccessful()
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
 
-            val accNo = response.body.accNo
-            val files = webClient.getFileListFiles(accNo, "file-list-3-9", ExtPageRequest(limit = 1, offset = 0))
-            assertThat(files.content).hasSize(1)
-            assertThat(files.content.first().filePath).isEqualTo("File391.txt")
+            val limit1 = webClient.getFileListFiles("S-TEST39", "file-list-3-9", ExtPageRequest(limit = 1, offset = 0))
+            assertThat(limit1.content).hasSize(1)
+            assertThat(limit1.content.first().filePath).isEqualTo("File391.txt")
 
-            val otherFiles = webClient.getFileListFiles(accNo, "file-list-3-9", ExtPageRequest(limit = 2, offset = 1))
-            assertThat(otherFiles.content).hasSize(2)
-            assertThat(otherFiles.content.first().filePath).isEqualTo("File392.txt")
-            assertThat(otherFiles.content.second().filePath).isEqualTo("File393.txt")
+            val limit2 = webClient.getFileListFiles("S-TEST39", "file-list-3-9", ExtPageRequest(limit = 2, offset = 1))
+            assertThat(limit2.content).hasSize(2)
+            assertThat(limit2.content.first().filePath).isEqualTo("File392.txt")
+            assertThat(limit2.content.second().filePath).isEqualTo("File393.txt")
+        }
+
+    @Test
+    fun `3-10 Filelist file Pagination API removes identical duplicates`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-TEST310")
+                    line("Title", "Duplicate File List Entries")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "duplicated-files.tsv")
+                    line()
+
+                    line("Experiment")
+                    line("File List", "duplicated-files.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tsv {
+                    line("Files", "GEN")
+                    line("Duplicated.txt", "ABC")
+                    line("Duplicated.txt", "ABC")
+                    line("Duplicated.txt", "DEF")
+                    line("Unique.txt", "GHI")
+                }.toString()
+
+            val duplicatedFile = tempFolder.createFile("Duplicated.txt", "duplicated content")
+            val uniqueFile = tempFolder.createFile("Unique.txt", "unique content")
+            val fileListFile = tempFolder.createFile("duplicated-files.tsv", fileList)
+            webClient.uploadFiles(listOf(fileListFile, duplicatedFile, uniqueFile))
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+            val extSubmission = webClient.getExtByAccNo("S-TEST310")
+            val referencedFilesPage = webClient.getFileListFiles(extSubmission.section.fileList!!.filesUrl!!)
+            val referencedFiles = referencedFilesPage.content
+
+            assertThat(referencedFiles).hasSize(3)
+            assertThat(referencedFilesPage.totalElements).isEqualTo(3)
+
+            val unique = referencedFiles.firstOrNull { it.filePath == "Unique.txt" }
+            assertNotNull(unique)
+            assertThat(unique.attributes.first().value).isEqualTo("GHI")
+
+            val duplicated = referencedFiles.filter { it.filePath == "Duplicated.txt" }
+            assertThat(duplicated).hasSize(2)
+            assertThat(duplicated.map { it.attributes.first().value }).containsExactlyInAnyOrder("ABC", "DEF")
         }
 
     @Nested

@@ -6,6 +6,12 @@
 **File list**: The ordered set of files attached to a submission section and exposed through the extended file-list endpoint.
 _Avoid_: referenced files, file list files
 
+**File list entry**: A rendered item in a file list, identified by its file path and metadata.
+_Avoid_: file row, file record
+
+**Duplicate file list entry**: Two file list entries that share the same file path and metadata.
+_Avoid_: repeated file, duplicated row
+
 - **Source File**: The original request-file object from which a submission request file was taken before submission 
   processing persisted, copied, released, or otherwise transformed it.
 - **Request file source type**: The origin of a file within a specific submission request. A file from user space is 
