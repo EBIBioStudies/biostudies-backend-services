@@ -53,8 +53,7 @@ class PmcSubmitter(
         val counter = AtomicInteger(0)
         val batchSize = configuredBatchSize ?: BATCH_SIZE
 
-        logger.info { "Submitting submission sourceFile='$sourceFile', batchSize='$batchSize', limit='$limit'" }
-
+        logger.info { "Started submitting submission sourceFile='$sourceFile', batchSize='$batchSize', limit='$limit'" }
         supervisorScope {
             submissionService
                 .findReadyToSubmit(sourceFile, limit ?: Int.MAX_VALUE)
@@ -62,6 +61,7 @@ class PmcSubmitter(
                 .concurrently(CONCURRENCY) { submitMany(it, counter.getAndIncrement()) }
                 .collect()
         }
+        logger.info { "Finished submitting submission sourceFile='$sourceFile', batchSize='$batchSize', limit='$limit'" }
     }
 
     private suspend fun submitMany(

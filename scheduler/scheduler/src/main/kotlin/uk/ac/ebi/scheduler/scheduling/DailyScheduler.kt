@@ -15,56 +15,72 @@ internal class DailyScheduler(
     private val pmcLoaderService: PmcLoaderService,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger,
 ) {
-    // Execute at 02:00 am
+    /**
+     * Release submissions every day at 02:00
+     */
     @Scheduled(cron = "0 0 2 * * *")
     fun releaseSubmissions() =
         runBlocking {
             if (dailyScheduling.releaser) submissionReleaserTrigger.triggerSubmissionReleaser()
         }
 
-    // Execute at 06:00 am
-    @Scheduled(cron = "0 0 6 * * *")
+    /**
+     * Load PMC submissions every day at 03:00
+     */
+    @Scheduled(cron = "0 0 3 * * *")
     fun loadPmc() =
         runBlocking {
             if (dailyScheduling.pmcImport) pmcLoaderService.loadFile()
         }
 
-    // Execute at 07:00 am
-    @Scheduled(cron = "0 0 7 * * *")
+    /**
+     * Process PMC submissions every day at 04:00
+     */
+    @Scheduled(cron = "0 0 4 * * *")
     fun processPmc() =
         runBlocking {
             if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor()
         }
 
-    // Execute at 04:00 am
-    @Scheduled(cron = "0 0 4 * * *")
+    /**
+     * Submit PMC submissions every day at 05:00
+     */
+    @Scheduled(cron = "0 0 5 * * *")
     fun submitPmc() =
         runBlocking {
             if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter(limit = DAILY_PMC_SUB_LIMIT)
         }
 
-    // Execute at 10:00 am
+    /**
+     * Send submission release notifications every day at 10:00
+     */
     @Scheduled(cron = "0 0 10 * * *")
     fun notifySubmissionRelease() =
         runBlocking {
             if (dailyScheduling.notifier) submissionReleaserTrigger.triggerSubmissionReleaseNotifier()
         }
 
-    // Execute at 4:00 am
-    @Scheduled(cron = "0 0 4 * * *")
+    /**
+     * Update PMC view every day at 06:00
+     */
+    @Scheduled(cron = "0 0 6 * * *")
     fun pmcViewUpdate() =
         runBlocking {
             if (dailyScheduling.pmcExport) exporterTrigger.triggerPmcViewUpdate()
         }
 
-    // Execute at 8:00 pm / 20:00
+    /**
+     * Export PMC submissions every day at 20:00
+     */
     @Scheduled(cron = "0 0 20 * * *")
     fun exportPmcSubmissions() =
         runBlocking {
             if (dailyScheduling.pmcExport) exporterTrigger.triggerPmcExport()
         }
 
-    // Execute at 9:00 pm / 21:00
+    /**
+     * Export public submissions every day at 21:00
+     */
     @Scheduled(cron = "0 0 21 * * *")
     fun exportPublicSubmissions() =
         runBlocking {

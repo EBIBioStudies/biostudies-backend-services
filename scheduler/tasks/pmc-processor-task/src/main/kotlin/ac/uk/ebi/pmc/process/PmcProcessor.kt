@@ -14,8 +14,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import java.io.File
 import java.nio.file.Paths
+
+private val logger = KotlinLogging.logger {}
 
 class PmcProcessor(
     private val submissionInitializer: SubmissionInitializer,
@@ -27,14 +30,18 @@ class PmcProcessor(
     fun processAll(sourceFile: String?): Unit = runBlocking { processSubmissions(sourceFile) }
 
     private suspend fun processSubmissions(sourceFile: String?) {
+        logger.info { "Started processing submissions. sourceFile='$sourceFile'" }
         supervisorScope {
-            submissionService.findReadyToProcess(sourceFile)
+            submissionService
+                .findReadyToProcess(sourceFile)
                 .concurrently(CONCURRENCY) { processSubmission(it) }
                 .collect()
         }
+        logger.info { "Finished processing submissions. sourceFile='$sourceFile'" }
     }
 
     private suspend fun processSubmission(subDoc: SubmissionDocument) {
+        logger.info { "Processing submission ${subDoc.accNo}" }
         runCatching { submissionInitializer.getSubmission(subDoc.body) }
             .fold(
                 { (sub, subBody) -> downloadFiles(sub, subBody, subDoc) },
@@ -57,7 +64,8 @@ class PmcProcessor(
     private suspend fun createTargetFolder(subDoc: SubmissionDocument): File =
         withContext(Dispatchers.IO) {
             val target =
-                Paths.get(properties.temp)
+                Paths
+                    .get(properties.temp)
                     .resolve(subDoc.accNo.takeLast(PARTITION_CHARACTERS))
                     .resolve(subDoc.accNo)
                     .resolve("${subDoc.sourceTime}")
