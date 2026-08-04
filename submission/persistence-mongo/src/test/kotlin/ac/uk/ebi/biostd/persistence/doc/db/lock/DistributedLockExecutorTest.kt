@@ -25,12 +25,12 @@ import java.time.Duration
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class DistributedLockExecutorTest(
-    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
+    @param:Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     private val testInstance = DistributedLockExecutor(mongoTemplate)
 
     @Test
-    fun adquireLockWhenAvailable() =
+    fun acquireLockWhenAvailable() =
         runTest {
             val lock = testInstance.acquireLock("lockId_1", "owner")
 
@@ -38,7 +38,7 @@ class DistributedLockExecutorTest(
         }
 
     @Test
-    fun adquireLockWhenLock() =
+    fun acquireLockWhenLock() =
         runTest {
             val lock = testInstance.acquireLock("lockId_2", "owner")
             val lock2 = testInstance.acquireLock("lockId_2", "another_owner")
@@ -48,7 +48,7 @@ class DistributedLockExecutorTest(
         }
 
     @Test
-    fun adquireLockWhenExpired() =
+    fun acquireLockWhenExpired() =
         runTest {
             val lock = testInstance.acquireLock("lockId_3", "owner", Duration.ofMillis(500))
             assertThat(lock).isTrue()
@@ -62,7 +62,7 @@ class DistributedLockExecutorTest(
         }
 
     @Test
-    fun adquireLockAfterRelease() =
+    fun acquireLockAfterRelease() =
         runTest {
             val lock = testInstance.acquireLock("lockId_4", "owner")
             val lockTry = testInstance.acquireLock("lockId_4", "another_owner")
@@ -84,6 +84,18 @@ class DistributedLockExecutorTest(
 
             assertThat(lock).isTrue()
             assertThat(released).isFalse()
+        }
+
+    @Test
+    fun findActiveLocksIgnoresExpiredLocks() =
+        runTest {
+            testInstance.acquireLock("active-lock", "owner")
+            testInstance.acquireLock("expired-lock", "owner", Duration.ofMillis(500))
+            sleep(1000)
+
+            val activeLocks = testInstance.findActiveLocks(listOf("active-lock", "expired-lock", "missing-lock"))
+
+            assertThat(activeLocks).containsExactly("active-lock")
         }
 
     companion object {

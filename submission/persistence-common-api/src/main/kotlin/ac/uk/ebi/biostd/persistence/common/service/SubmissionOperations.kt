@@ -184,6 +184,11 @@ interface SubmissionRequestPersistenceService {
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<SubmissionId>
 
     /**
+     * Returns the identifiers from [submissionIds] that have an unexpired submission-processing lock.
+     */
+    suspend fun getActiveSubmissionLocks(submissionIds: Collection<SubmissionId>): Set<SubmissionId>
+
+    /**
      * Updates the given request files. The submission request index is updated based on the given number of elements.
      */
     suspend fun updateRqtFiles(rqtFiles: List<SubmissionRequestFile>)

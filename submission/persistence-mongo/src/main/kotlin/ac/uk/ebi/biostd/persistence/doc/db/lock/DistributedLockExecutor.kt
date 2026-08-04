@@ -48,6 +48,24 @@ internal class DistributedLockExecutor(
         return result.deletedCount > 0
     }
 
+    suspend fun findActiveLocks(lockIdentifiers: Collection<String>): Set<String> {
+        if (lockIdentifiers.isEmpty()) return emptySet()
+
+        val query =
+            Query.query(
+                where(LOCK_ID)
+                    .`in`(lockIdentifiers)
+                    .and(EXPIRES)
+                    .gt(System.currentTimeMillis()),
+            )
+        return mongoTemplate
+            .find(query, Lock::class.java)
+            .map { it.lockId }
+            .collectList()
+            .awaitSingle()
+            .toSet()
+    }
+
     data class Lock(
         @Id
         val lockId: String,

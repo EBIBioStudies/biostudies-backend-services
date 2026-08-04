@@ -10,7 +10,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Scheduled
 import java.time.Duration
-import java.time.temporal.ChronoUnit
 
 private val logger = KotlinLogging.logger {}
 
@@ -23,32 +22,43 @@ class RetryHandler(
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     @EventListener(ApplicationReadyEvent::class)
-    fun onStart() =
-        runBlocking {
-            logger.info { "Re processing pending submission on application start" }
-            requestService
-                .getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
-                .chunked(RETRY_BATCH)
-                .collect { reTriggerSafely(it.map { (accNo, version) -> SubmissionId(accNo, version) }) }
-        }
+    fun onStart() = retryStuckSubmissions("application start")
 
     @Scheduled(cron = "0 0 */3 * * ?")
-    fun onSchedule() =
+    fun onSchedule() = retryStuckSubmissions("scheduled")
+
+    private fun retryStuckSubmissions(trigger: String) =
         runBlocking {
-            logger.info { "Scheduled re processing of pending submission" }
+            var candidates = 0
+            var retried = 0
+            var locked = 0
+
+            logger.info { "Starting retry run[trigger='$trigger']" }
             requestService
-                .getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
+                .getProcessingRequests(RETRY_THRESHOLD)
                 .chunked(RETRY_BATCH)
-                .collect { reTriggerSafely(it.map { (accNo, version) -> SubmissionId(accNo, version) }) }
+                .collect { batch ->
+                    val activeLocks = requestService.getActiveSubmissionLocks(batch)
+                    val retryable = batch.filterNot(activeLocks::contains)
+
+                    candidates += batch.size
+                    locked += activeLocks.size
+                    retried += retryable.size
+                    if (retryable.isNotEmpty()) reTriggerSafely(retryable)
+                }
+
+            logger.info {
+                "Finished retry run[trigger='$trigger', candidates='$candidates', retried='$retried', locked='$locked']"
+            }
         }
 
     private suspend fun reTriggerSafely(submissionIds: List<SubmissionId>) {
         runCatching { extSubmissionService.reTriggerSubmissionAsync(submissionIds) }
-            .onFailure { logger.error { "Failed to re triggering submission batch[size='${submissionIds.size}']" } }
-            .onSuccess { logger.info { "Completed processing of request batch[size='${submissionIds.size}']" } }
+            .onFailure { logger.error(it) { "Failed to re-trigger submission batch[size='${submissionIds.size}']" } }
     }
 
     private companion object {
         const val RETRY_BATCH = 500
+        val RETRY_THRESHOLD: Duration = Duration.ofHours(3)
     }
 }
