@@ -37,12 +37,13 @@ class PmcFileLoader(
         val file = filePath?.let { folder.resolve(it) }
 
         val files = if (file != null) listOf(file) else folder.listFiles(GzFilter).orEmpty().toList()
-        logger.info { "loading files ${files.joinToString()}" }
+        logger.info { "Started loading files ${files.joinToString()}" }
         processFiles(
             toProcess = files,
             processedFolder = folder.createSubFolder("processed"),
             failedFolder = folder.createSubFolder("failed"),
         )
+        logger.info { "Finished loading files ${files.joinToString()}" }
     }
 
     private suspend fun processFiles(

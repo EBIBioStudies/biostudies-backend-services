@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
+import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
+import ac.uk.ebi.biostd.submission.pmc.ProcessConfig
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
@@ -13,11 +15,12 @@ class OperationsScheduler(
     private val properties: ApplicationProperties,
     private val operationsService: OperationsService,
     private val migrationService: MigrationService,
+    private val pmcLinksProcessor: PmcLinksProcessor,
     private val statsReporterService: StatsReporterService,
     private val userCleanUpService: ExtUserSpaceCleanUpService,
 ) {
     /**
-     * Delete request files every day at 1 am.
+     * Delete request files every day at 01:00
      */
     @Scheduled(cron = "0 0 1 * * *")
     fun deleteRequestFiles() {
@@ -25,7 +28,7 @@ class OperationsScheduler(
     }
 
     /**
-     * Migrate released submissions from NFS to FIRE every day at 2 am.
+     * Migrate released submissions from NFS to FIRE every day at 02:00
      */
     @Scheduled(cron = "0 0 2 * * *")
     fun migrateSubmission() {
@@ -33,7 +36,7 @@ class OperationsScheduler(
     }
 
     /**
-     * Archive request every day at 4 am.
+     * Archive request every day at 04:00
      */
     @Scheduled(cron = "0 0 4 * * *")
     fun archiveRequests() {
@@ -41,7 +44,7 @@ class OperationsScheduler(
     }
 
     /**
-     * Send user space cleanup notifications every day at 6 am.
+     * Send user space cleanup notifications every day at 06:00
      */
     @Scheduled(cron = "0 0 6 * * *")
     fun sendUserSpaceCleanUpNotifications() {
@@ -51,7 +54,7 @@ class OperationsScheduler(
     }
 
     /**
-     * Clean inactive user spaces every day at 11 pm.
+     * Clean inactive user spaces every day at 23:00
      */
     @Scheduled(cron = "0 0 23 * * *")
     fun cleanUserSpaces() {
@@ -61,7 +64,7 @@ class OperationsScheduler(
     }
 
     /**
-     * Clean files in temp folders every week, on Sundays, at 5 am
+     * Clean files in temp folders every week, on Sundays, at 05:00
      */
     @Scheduled(cron = "0 0 5 * * 0")
     fun cleanTempFolders() {
@@ -69,10 +72,26 @@ class OperationsScheduler(
     }
 
     /**
-     * Generate the submission stats report on the 4th day of every month at 3:00 AM
+     * Generate the submission stats report on the 4th day of every month at 03:00
      */
     @Scheduled(cron = "0 0 3 4 * *")
     fun publishSubmissionStatsReport() {
         runBlocking { if (properties.enableStatsReport) statsReporterService.reportStats() }
+    }
+
+    /**
+     * Extract PMC links every at the configured rate in milliseconds with a delay of 5 seconds between executions
+     */
+    @Scheduled(fixedRateString = "\${app.pmc.rateMiliseconds}", initialDelay = INITIAL_DELAY_MS)
+    fun extractPmcLinks() {
+        runBlocking {
+            if (properties.pmc.enableLinksExtraction) {
+                pmcLinksProcessor.loadFromDb(ProcessConfig(limit = properties.pmc.loadLimit))
+            }
+        }
+    }
+
+    companion object {
+        private const val INITIAL_DELAY_MS = 5000L
     }
 }
