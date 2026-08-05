@@ -19,6 +19,7 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.FileSourceType
+import ebi.ac.uk.extended.model.FileSourceType.USER
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus
@@ -277,11 +278,22 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 SubmissionId("zxy", 2),
             )
             assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly(
-                SubmissionId(
-                    "zxy",
-                    2,
-                ),
+                SubmissionId("zxy", 2),
             )
+        }
+
+    @Test
+    fun `get active submission locks`() =
+        runTest {
+            val locked = SubmissionId("S-BSST1", 1)
+            val unlocked = SubmissionId("S-BSST2", 2)
+            val candidates = listOf(locked, unlocked)
+
+            lockService.onLockRequest(locked.accNo, locked.version, "process-id") {
+                assertThat(testInstance.getActiveSubmissionLocks(candidates)).containsExactly(locked)
+            }
+
+            assertThat(testInstance.getActiveSubmissionLocks(candidates)).isEmpty()
         }
 
     @Test
@@ -289,8 +301,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
         runTest {
             val extFile1 = createNfsFile("rqt1.txt", "Files/rqt1.txt", tempFolder.createFile("rqt1.txt"))
             val extFile2 = createNfsFile("rqt2.txt", "Files/rqt2.txt", tempFolder.createFile("rqt2.txt"))
-            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, "rqt1.txt", extFile1, extFile1, INDEXED, FileSourceType.USER)
-            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, "rqt2.txt", extFile2, extFile2, INDEXED, FileSourceType.USER)
+            val rqtFile1 = SubmissionRequestFile("S-BSST0", 1, "rqt1.txt", extFile1, extFile1, INDEXED, USER)
+            val rqtFile2 = SubmissionRequestFile("S-BSST0", 1, "rqt2.txt", extFile2, extFile2, INDEXED, USER)
 
             requestRepository.upsertSubRqtFile(rqtFile1)
             requestRepository.upsertSubRqtFile(rqtFile2)

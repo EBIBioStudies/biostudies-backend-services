@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.lock.DistributedLockExecutor
+import ebi.ac.uk.model.SubmissionId
 import java.time.Duration
 
 class DistributedLockService internal constructor(
@@ -12,7 +13,7 @@ class DistributedLockService internal constructor(
         lockOwner: String,
         handler: suspend () -> T,
     ): T {
-        val lockId = "REQUEST_${accNo}_$version"
+        val lockId = requestLockId(accNo, version)
         try {
             val locked = distributedLockExecutor.acquireLock(lockId, lockOwner, DEFAULT_LOCK_TIME)
             return when {
@@ -33,14 +34,26 @@ class DistributedLockService internal constructor(
             val locked = distributedLockExecutor.acquireLock(lockIdentifier, lockOwner, DEFAULT_LOCK_TIME)
             return when {
                 locked -> handler()
-                else -> error("Could not adquire lock '$lockIdentifier'")
+                else -> error("Could not acquire lock '$lockIdentifier'")
             }
         } finally {
             distributedLockExecutor.releaseLock(lockIdentifier, lockOwner)
         }
     }
 
+    suspend fun getActiveSubmissionLocks(submissionIds: Collection<SubmissionId>): Set<SubmissionId> {
+        val submissionsByLockId = submissionIds.associateBy { requestLockId(it.accNo, it.version) }
+        return distributedLockExecutor
+            .findActiveLocks(submissionsByLockId.keys)
+            .mapTo(mutableSetOf()) { submissionsByLockId.getValue(it) }
+    }
+
     private companion object {
-        val DEFAULT_LOCK_TIME = Duration.ofDays(7)
+        val DEFAULT_LOCK_TIME: Duration = Duration.ofDays(7)
+
+        fun requestLockId(
+            accNo: String,
+            version: Int,
+        ) = "REQUEST_${accNo}_$version"
     }
 }

@@ -9,6 +9,10 @@
   `USER`; a file carried forward from an earlier submission version is `SUBMISSION`.
 - **User space**: The per-user file area used as an input source for submission files uploaded by a user before they are 
   consumed by a completed submission.
+- **Stuck submission request**: A submission request that has remained in a processing state without modification beyond
+  the retry threshold.
+- **Active submission-processing lock**: An unexpired claim that a process is working on one submission request. Its
+  presence is authoritative for retry eligibility, independently of the process's external cluster status.
 
 ### Notifications
 - **Security notification**: an account-related notification used for activation, activation by email, and password 

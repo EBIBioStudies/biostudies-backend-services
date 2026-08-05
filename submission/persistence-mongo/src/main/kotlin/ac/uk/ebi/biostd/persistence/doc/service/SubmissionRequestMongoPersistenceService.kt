@@ -128,6 +128,9 @@ class SubmissionRequestMongoPersistenceService(
             }
         }
 
+    override suspend fun getActiveSubmissionLocks(submissionIds: Collection<SubmissionId>): Set<SubmissionId> =
+        distributedLockService.getActiveSubmissionLocks(submissionIds)
+
     override suspend fun archiveRequest(
         accNo: String,
         version: Int,
