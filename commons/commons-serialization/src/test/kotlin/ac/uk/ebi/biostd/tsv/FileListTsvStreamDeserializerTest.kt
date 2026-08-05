@@ -79,7 +79,7 @@ class FileListTsvStreamDeserializerTest(
         }
 
     @Test
-    fun deserilizeWithEmptyNullValues() =
+    fun `deserialize with null values`() =
         runTest {
             val tsvFile =
                 createTsvFile(
@@ -92,19 +92,15 @@ class FileListTsvStreamDeserializerTest(
                 )
 
             val files = tsvFile.inputStream().use { testInstance.deserializeFileList(it).toList() }
-
             assertThat(files).hasSize(2)
-
             assertThat(files.first()).isEqualTo(
                 BioFile("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))),
             )
-            assertThat(files.second()).isEqualTo(
-                BioFile("file2.txt", attributes = listOf(Attribute("Attr1", "C"))),
-            )
+            assertThat(files.second()).isEqualTo(BioFile("file2.txt", attributes = listOf(Attribute("Attr1", "C"))))
         }
 
     @Test
-    fun deserilizeWithExtraEmptyNullValues() =
+    fun `deserialize with extra empty null values`() =
         runTest {
             val tsvFile =
                 createTsvFile(
@@ -117,9 +113,7 @@ class FileListTsvStreamDeserializerTest(
                 )
 
             val files = tsvFile.inputStream().use { testInstance.deserializeFileList(it).toList() }
-
             assertThat(files).hasSize(2)
-
             assertThat(files.first()).isEqualTo(
                 BioFile("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))),
             )
@@ -149,6 +143,21 @@ class FileListTsvStreamDeserializerTest(
             val result = output.inputStream().use { testInstance.deserializeFileList(it).toList() }
             assertThat(result).allSatisfy { assertThat(it).usingRecursiveComparison().isEqualTo(iterator.next()) }
             assertThat(result).hasSize(20000)
+        }
+
+    @Test
+    fun `serialize file list without attributes`() =
+        runTest {
+            val files = listOf(BioFile("file1.txt"), BioFile("file2.txt"))
+            val output = tempFolder.createFile("no-attributes.tsv")
+            output.outputStream().use { testInstance.serializeFileList(files.asFlow(), it) }
+            assertThat(output).hasContent(
+                """
+                Files
+                file1.txt
+                file2.txt
+                """.trimIndent(),
+            )
         }
 
     @Test

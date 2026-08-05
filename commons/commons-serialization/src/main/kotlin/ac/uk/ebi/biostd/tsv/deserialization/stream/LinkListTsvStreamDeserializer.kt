@@ -1,16 +1,13 @@
 package ac.uk.ebi.biostd.tsv.deserialization.stream
 
 import ac.uk.ebi.biostd.tsv.TAB
-import ac.uk.ebi.biostd.validation.INVALID_FILES_TABLE
 import ac.uk.ebi.biostd.validation.INVALID_LINKS_TABLE
-import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import ebi.ac.uk.io.ext.asFlow
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 import ebi.ac.uk.util.collections.destructure
 import kotlinx.coroutines.Dispatchers
@@ -42,30 +39,25 @@ internal class LinkListTsvStreamDeserializer {
 
     private suspend fun BufferedWriter.writeHeaders(link: Link) =
         withContext(Dispatchers.IO) {
-            val attrsNames = link.attributes.map { it.name }
-            write("Links".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
+            if (link.attributes.isEmpty()) {
+                write("Links")
+            } else {
+                val attrsNames = link.attributes.map { it.name }
+                write("Links".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
+            }
             newLine()
         }
 
     private suspend fun BufferedWriter.writeAttributesValues(link: Link) =
         withContext(Dispatchers.IO) {
-            val attrsValues = link.attributes.map { it.value }
-            write(link.url.plus(TAB).plus(attrsValues.joinToString(TAB.toString())))
+            if (link.attributes.isEmpty()) {
+                write(link.url)
+            } else {
+                val attrsValues = link.attributes.map { it.value }
+                write(link.url.plus(TAB).plus(attrsValues.joinToString(TAB.toString())))
+            }
             newLine()
         }
-
-    fun deserializeFileList(linkList: InputStream): Flow<Link> {
-        val reader = linkList.bufferedReader()
-        val (links, headers) = reader.readLine().split(TAB).destructure()
-        require(links == FILES_TABLE.value) { throw InvalidElementException(INVALID_FILES_TABLE) }
-        require(headers.none { it.isBlank() }) { throw InvalidElementException(REQUIRED_ATTR_NAME) }
-
-        return reader
-            .asFlow()
-            .filter { it.isNotBlank() }
-            .withIndex()
-            .map { (index, row) -> deserializeFileListRow(index + 1, row.split(TAB), headers) }
-    }
 
     fun deserializeLinkList(linkList: InputStream): Flow<Link> {
         val reader = linkList.bufferedReader()
@@ -80,19 +72,6 @@ internal class LinkListTsvStreamDeserializer {
             .map { (index, row) -> deserializeLinkListRow(index + 1, row.split(TAB), headers) }
     }
 
-    private fun deserializeFileListRow(
-        index: Int,
-        row: List<String>,
-        headers: List<String>,
-    ): Link {
-        val (linkName, attributes) = row.destructure()
-        require(linkName.isNotBlank()) {
-            throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_LINK_URL")
-        }
-
-        return Link(linkName, attributes = buildAttributes(attributes, headers, index))
-    }
-
     private fun deserializeLinkListRow(
         index: Int,
         row: List<String>,
@@ -103,18 +82,14 @@ internal class LinkListTsvStreamDeserializer {
             throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_LINK_URL")
         }
 
-        return Link(url, attributes = buildAttributes(attributes, headers, index))
+        return Link(url, attributes = buildAttributes(attributes, headers))
     }
 
     private fun buildAttributes(
         fields: List<String>,
         headers: List<String>,
-        idx: Int,
-    ): List<Attribute> {
-        require(fields.size == headers.size) {
-            throw InvalidElementException("Error at row ${idx + 1}: $INVALID_TABLE_ROW")
-        }
-
-        return headers.mapIndexed { headerIndex, name -> Attribute(name, fields[headerIndex]) }
-    }
+    ): List<Attribute> =
+        fields
+            .take(headers.size)
+            .mapIndexed { index, value -> Attribute(headers[index], value) }
 }

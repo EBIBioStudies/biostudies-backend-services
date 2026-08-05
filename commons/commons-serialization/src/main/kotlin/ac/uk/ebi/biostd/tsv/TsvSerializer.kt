@@ -33,5 +33,5 @@ internal class TsvSerializer(
 
     fun deserializeFileList(inputStream: InputStream): Flow<BioFile> = streamSerializer.deserializeFileList(inputStream)
 
-    fun deserializeLinkList(inputStream: InputStream): Flow<Link> = streamSerializer.deserializeLinkList(inputStream)
+    fun deserializeLinkList(inputStream: InputStream): Flow<Link> = linkStreamSerializer.deserializeLinkList(inputStream)
 }
