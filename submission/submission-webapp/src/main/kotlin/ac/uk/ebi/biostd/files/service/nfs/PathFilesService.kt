@@ -25,7 +25,7 @@ class PathFilesService internal constructor(
     ) = withContext(Dispatchers.IO) {
         FileUtils.copyOrReplaceFile(
             source = file,
-            target = basePath.safeResolve(file.name),
+            target = basePath.safeResolve(path).safeResolve(file.name),
             permissions = Permissions(RW_RW____, RWXRWX___),
         )
     }

@@ -9,6 +9,9 @@
   `USER`; a file carried forward from an earlier submission version is `SUBMISSION`.
 - **User space**: The per-user file area used as an input source for submission files uploaded by a user before they are 
   consumed by a completed submission.
+- **Direct-upload staging area**: The `direct-uploads` folder in user space containing a PageTab file received through
+  a direct file-submission request. It is a first-priority source for that PageTab, alongside the normal user-space
+  source used by its other file references.
 - **Stuck submission request**: A submission request that has remained in a processing state without modification beyond
   the retry threshold.
 - **Active submission-processing lock**: An unexpired claim that a process is working on one submission request. Its
