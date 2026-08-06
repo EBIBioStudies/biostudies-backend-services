@@ -26,12 +26,12 @@ import java.nio.file.Files
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class PageTabUtilTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val serializationService: SerializationService,
-    @MockK private val toSubmissionMapper: ToSubmissionMapper,
-    @MockK private val fileListMapper: ToFileListMapper,
-    @MockK private val linkListMapper: ToLinkListMapper,
-    @MockK private val extSubmission: ExtSubmission,
-    @MockK private val sub: Submission,
+    @param:MockK private val serializationService: SerializationService,
+    @param:MockK private val toSubmissionMapper: ToSubmissionMapper,
+    @param:MockK private val fileListMapper: ToFileListMapper,
+    @param:MockK private val linkListMapper: ToLinkListMapper,
+    @param:MockK private val extSubmission: ExtSubmission,
+    @param:MockK private val sub: Submission,
 ) {
     private val testInstance = PageTabUtil(serializationService, toSubmissionMapper, fileListMapper, linkListMapper)
 
