@@ -53,9 +53,8 @@ class SubmitWebHandler(
     }
 
     suspend fun submit(request: FileSubmitWebRequest): Submission {
+        uploadSubInputFile(request)
         val rqt = buildRequest(request)
-        val fileService = fileServiceFactory.forUser(request.config.submitter)
-        fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
         val extSubmission = subService.submit(rqt)
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
@@ -81,9 +80,8 @@ class SubmitWebHandler(
     }
 
     suspend fun submitAsync(request: FileSubmitWebRequest): SubmissionId {
+        uploadSubInputFile(request)
         val rqt = buildRequest(request)
-        val fileService = fileServiceFactory.forUser(request.config.submitter)
-        fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
         subService.submitAsync(rqt)
 
         return SubmissionId(rqt.accNo, rqt.version)
@@ -94,6 +92,11 @@ class SubmitWebHandler(
         subService.submitAsync(rqt)
 
         return SubmissionId(rqt.accNo, rqt.version)
+    }
+
+    private suspend fun uploadSubInputFile(request: FileSubmitWebRequest) {
+        val fileService = fileServiceFactory.forUser(request.config.submitter)
+        fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
     }
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
@@ -174,16 +177,23 @@ class SubmitWebHandler(
         fun sourceRequest(
             rootPath: String?,
             previous: ExtSubmission?,
-        ): FileSourcesRequest =
-            FileSourcesRequest(
+        ): FileSourcesRequest {
+            val subFiles =
+                buildList {
+                    if (requestFiles != null) addAll(requestFiles)
+                    if (rqt is FileSubmitWebRequest) add(rqt.submission)
+                }
+
+            return FileSourcesRequest(
                 folderType = FolderType.FTP,
                 submitter = submitter,
-                files = requestFiles,
+                files = subFiles,
                 onBehalfUser = onBehalfUser,
                 rootPath = rootPath,
                 previousVersion = previous,
                 preferredSources = preferredSources,
             )
+        }
 
         suspend fun getSources(sourceRequest: FileSourcesRequest): FileSourcesList =
             when (appProperties.asyncMode) {
