@@ -33,6 +33,7 @@ import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -384,6 +386,73 @@ class FileListSubmissionTest(
             assertThat(otherFiles.content).hasSize(2)
             assertThat(otherFiles.content.first().filePath).isEqualTo("File392.txt")
             assertThat(otherFiles.content.second().filePath).isEqualTo("File393.txt")
+        }
+
+    @Test
+    fun `3-10 File list reused by sections and elements are de-duplicated`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-TEST310")
+                    line("Title", "Shared File List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "shared-file-list.tsv")
+                    line()
+
+                    line("Experiment")
+                    line("File List", "shared-file-list.tsv")
+                    line()
+                }.toString()
+            val fileList =
+                tsv {
+                    line("Files", "Type")
+                    line("file1.txt", "ABC")
+                    line("file1.txt", "ABC")
+                    line("file1.txt", "DEF")
+                    line("file2.txt", "GHI")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("file1.txt", "file 1"),
+                    tempFolder.createFile("file2.txt", "file 2"),
+                    tempFolder.createFile("shared-file-list.tsv", fileList),
+                ),
+            )
+
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+            val extSub = webClient.getExtByAccNo("S-TEST310")
+            val filesPage = webClient.getFileListFiles("S-TEST310", "shared-file-list", ExtPageRequest())
+            val files = filesPage.content
+            assertThat(files).hasSize(3)
+            assertThat(filesPage.totalElements).isEqualTo(3)
+
+            val duplicated = files.filter { it.filePath == "file1.txt" }
+            assertThat(duplicated).hasSize(2)
+            assertThat(duplicated.map { it.attributes.first().value }).containsExactlyInAnyOrder("ABC", "DEF")
+
+            val unique = files.firstOrNull { it.filePath == "file2.txt" }
+            assertNotNull(unique)
+            assertThat(unique.attributes.first().value).isEqualTo("GHI")
+
+            val pageTabPath = submissionPath.resolve(extSub.relPath).resolve(FILES_PATH)
+            assertThat(pageTabPath.resolve("shared-file-list.tsv")).hasContent(
+                """
+                Files	Type
+                file1.txt	ABC
+                file1.txt	DEF
+                file2.txt	GHI
+                """.trimIndent(),
+            )
+            assertThat(pageTabPath.resolve("shared-file-list.json")).hasContent(
+                """
+                [{"path":"file1.txt","size":6,"attributes":[{"name":"Type","value":"ABC"}],"type":"file"},{"path":"file1.txt","size":6,"attributes":[{"name":"Type","value":"DEF"}],"type":"file"},{"path":"file2.txt","size":6,"attributes":[{"name":"Type","value":"GHI"}],"type":"file"}]
+                """.trimIndent(),
+            )
         }
 
     @Nested

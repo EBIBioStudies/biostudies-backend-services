@@ -5,9 +5,11 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.io.use
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -70,7 +72,8 @@ class ToFileListMapper(
         targetFormat: SubFormat,
         target: OutputStream,
     ) {
-        val sourceFiles = source.map { it.toFile() }
+        val seen = mutableSetOf<BioFile>()
+        val sourceFiles = source.map { it.toFile() }.filter { seen.add(it) }
         serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }
 
@@ -79,7 +82,8 @@ class ToFileListMapper(
         targetFormat: SubFormat,
         target: OutputStream,
     ) {
-        val sourceFiles = extSerializationService.deserializeFileListAsFlow(input).map { it.toFile() }
+        val seen = mutableSetOf<BioFile>()
+        val sourceFiles = extSerializationService.deserializeFileListAsFlow(input).map { it.toFile() }.filter { seen.add(it) }
         serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }
 }

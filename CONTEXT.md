@@ -3,6 +3,14 @@
 ## Glossary
 
 ### Submissions
+- **File-list reference**: A section's reference to a file list identified by its full PageTab path. Multiple sections
+  may reference the same file list within one submission version.
+- **File-list entry**: A distinct parsed file record belonging to a full file-list path in one submission version. It
+  exists once regardless of how many file-list references use that list or how often the identical record appears.
+- **Link-list reference**: A section's reference to a link list identified by its full PageTab path. Multiple sections
+  may reference the same link list within one submission version.
+- **Link-list entry**: A distinct parsed link record belonging to a full link-list path in one submission version. It
+  exists once regardless of how many link-list references use that list or how often the identical record appears.
 - **Source File**: The original request-file object from which a submission request file was taken before submission 
   processing persisted, copied, released, or otherwise transformed it.
 - **Request file source type**: The origin of a file within a specific submission request. A file from user space is 

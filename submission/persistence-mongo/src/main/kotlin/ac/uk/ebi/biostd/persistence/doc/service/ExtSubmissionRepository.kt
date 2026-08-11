@@ -68,12 +68,13 @@ class ExtSubmissionRepository(
     ) {
         val accNo = sub.accNo
         val version = sub.version
-        sub.allFileList.forEach { fileList ->
+        sub.allFileList.distinctBy { it.filePath }.forEach { fileList ->
             fileList.file.inputStream().use { stream ->
                 val fileListName = fileList.filePath
                 logger.info { "$accNo ${sub.owner} Started saving file list : '$fileListName" }
                 serializationService
                     .deserializeFileListAsSequence(stream)
+                    .distinct()
                     .mapIndexed { idx, file -> fileMapper.toDocFile(file, fileListName, idx, subId, accNo, version) }
                     .chunked(PERSISTENCE_CHUNK_SIZE)
                     .forEach { chunk -> fileListDocFileRepository.saveAll(chunk).collect() }
@@ -88,12 +89,13 @@ class ExtSubmissionRepository(
     ) {
         val accNo = sub.accNo
         val version = sub.version
-        sub.allLinkList.forEach { linkList ->
+        sub.allLinkList.distinctBy { it.filePath }.forEach { linkList ->
             linkList.file.inputStream().use { stream ->
                 val linkListName = linkList.filePath
                 logger.info { "$accNo ${sub.owner} Started saving link list : '$linkListName" }
                 serializationService
                     .deserializeLinkListAsSequence(stream)
+                    .distinct()
                     .mapIndexed { idx, link -> linkMapper.toDocLink(link, linkListName, idx, subId, accNo, version) }
                     .chunked(PERSISTENCE_CHUNK_SIZE)
                     .forEach { chunk -> linkListDocLinkRepository.saveAll(chunk).collect() }
