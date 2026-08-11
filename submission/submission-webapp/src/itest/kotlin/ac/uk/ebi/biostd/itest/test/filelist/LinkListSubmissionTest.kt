@@ -36,6 +36,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -364,6 +365,66 @@ class LinkListSubmissionTest(
             assertThat(otherLinks.content).hasSize(2)
             assertThat(otherLinks.content.first().url).isEqualTo("Link392")
             assertThat(otherLinks.content.second().url).isEqualTo("Link393")
+        }
+
+    @Test
+    fun `32-6 Link list reused by sections and elements are de-duplicated`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-LLT326")
+                    line("Title", "Shared Link List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("Link List", "shared-link-list.tsv")
+                    line()
+
+                    line("Experiment")
+                    line("Link List", "shared-link-list.tsv")
+                    line()
+                }.toString()
+            val linkList =
+                tsv {
+                    line("Links", "Type")
+                    line("https://example.org/1", "ABC")
+                    line("https://example.org/1", "ABC")
+                    line("https://example.org/1", "DEF")
+                    line("https://example.org/2", "GHI")
+                }.toString()
+
+            webClient.uploadFiles(listOf(tempFolder.createFile("shared-link-list.tsv", linkList)))
+            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+
+            val extSub = webClient.getExtByAccNo("S-LLT326")
+            val linksPage = webClient.getLinkListLinks("S-LLT326", "shared-link-list", ExtPageRequest())
+            val links = linksPage.content
+            assertThat(links).hasSize(3)
+            assertThat(linksPage.totalElements).isEqualTo(3)
+
+            val duplicated = links.filter { it.url == "https://example.org/1" }
+            assertThat(duplicated).hasSize(2)
+            assertThat(duplicated.map { it.attributes.first().value }).containsExactlyInAnyOrder("ABC", "DEF")
+
+            val unique = links.firstOrNull { it.url == "https://example.org/2" }
+            assertNotNull(unique)
+            assertThat(unique.attributes.first().value).isEqualTo("GHI")
+
+            val pageTabPath = submissionPath.resolve(extSub.relPath).resolve(FILES_PATH)
+            assertThat(pageTabPath.resolve("shared-link-list.tsv")).hasContent(
+                """
+                Links	Type
+                https://example.org/1	ABC
+                https://example.org/1	DEF
+                https://example.org/2	GHI
+                """.trimIndent(),
+            )
+            assertThat(pageTabPath.resolve("shared-link-list.json")).hasContent(
+                """
+                [{"url":"https://example.org/1","attributes":[{"name":"Type","value":"ABC"}]},{"url":"https://example.org/1","attributes":[{"name":"Type","value":"DEF"}]},{"url":"https://example.org/2","attributes":[{"name":"Type","value":"GHI"}]}]
+                """.trimIndent(),
+            )
         }
 
     private suspend fun assertReferencedLinks(

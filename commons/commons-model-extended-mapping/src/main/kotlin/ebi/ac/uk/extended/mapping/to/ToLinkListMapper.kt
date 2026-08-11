@@ -5,9 +5,11 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.io.use
+import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinkList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -70,7 +72,8 @@ class ToLinkListMapper(
         targetFormat: SubFormat,
         target: OutputStream,
     ) {
-        val sourceLinks = source.map { it.toLink() }
+        val seen = mutableSetOf<Link>()
+        val sourceLinks = source.map { it.toLink() }.filter { seen.add(it) }
         serializationService.serializeLinkList(sourceLinks, targetFormat, target)
     }
 
@@ -79,7 +82,8 @@ class ToLinkListMapper(
         targetFormat: SubFormat,
         target: OutputStream,
     ) {
-        val sourceLinks = extSerializationService.deserializeLinkListAsFlow(input).map { it.toLink() }
+        val seen = mutableSetOf<Link>()
+        val sourceLinks = extSerializationService.deserializeLinkListAsFlow(input).map { it.toLink() }.filter { seen.add(it) }
         serializationService.serializeLinkList(sourceLinks, targetFormat, target)
     }
 }
