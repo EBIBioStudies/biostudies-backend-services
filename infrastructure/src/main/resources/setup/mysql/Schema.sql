@@ -64,6 +64,16 @@ CREATE TABLE User
     CONSTRAINT login_index UNIQUE (login)
 );
 
+CREATE TABLE TransferLog
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    timestamp   DATETIME(6)  NOT NULL,
+    user        VARCHAR(255) NOT NULL,
+    sourceEmail VARCHAR(255) NOT NULL,
+    targetEmail VARCHAR(255) NOT NULL,
+    operation   VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE UserGroup
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,

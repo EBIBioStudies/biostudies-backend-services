@@ -47,6 +47,13 @@ class SubmissionRequestMongoPersistenceService(
     private val requestFilesRepository: SubmissionRequestFilesDocDataRepository,
     private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
+    override suspend fun transferDrafts(
+        owner: String,
+        newOwner: String,
+    ) {
+        requestRepository.transferDrafts(owner, newOwner)
+    }
+
     override suspend fun findRequestDrafts(
         owner: String,
         pageRequest: PageRequest,

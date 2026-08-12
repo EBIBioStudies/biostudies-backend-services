@@ -304,8 +304,13 @@ Contains test related to operations over submissions involving system privileges
 |-------------------------------|---------|------------------------------------------------------------|
 | TransferSubmissionsTest       | 33-1    | superuser transfers all submissions                        |
 | TransferSubmissionsTest       | 33-2    | superuser transfers specific submissions                   |
-| TransferSubmissionsTest       | 33-3    | admin user transfers submissions.                          |
+| TransferSubmissionsTest       | 33-3    | collection admin transfers authorized submissions           |
 | TransferSubmissionsTest       | 33-4    | regular user transfer submissions                          |
+| TransferSubmissionsTest       | 33-5    | collection admin cannot transfer all selected submissions   |
+| TransferSubmissionsTest       | 33-6    | superuser transfers submissions to a new user               |
+| TransferSubmissionsTest       | 33-7    | transfer to a new user requires a name                      |
+| TransferSubmissionsTest       | 33-8    | superuser transfers submissions with email update           |
+| TransferSubmissionsTest       | 33-9    | email update rejects an existing target account             |
 
 ### Admin Operations Test suite
 
