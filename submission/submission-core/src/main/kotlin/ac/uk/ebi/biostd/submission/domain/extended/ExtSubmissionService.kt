@@ -2,11 +2,17 @@ package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.model.TransferOperation
+import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.EMAIL_UPDATE
+import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.TRANSFER
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.TransferLogDataService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
 import ac.uk.ebi.biostd.submission.service.DoiService
@@ -23,6 +29,7 @@ import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
+import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Instant
@@ -42,6 +49,8 @@ class ExtSubmissionService(
     private val securityService: SecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
     private val requestService: SubmissionRequestPersistenceService,
+    private val userRepository: UserDataRepository,
+    private val transferLogDataService: TransferLogDataService,
 ) {
     suspend fun reTriggerSubmission(
         accNo: String,
@@ -222,20 +231,38 @@ class ExtSubmissionService(
         user: String,
         options: SubmissionTransferOptions,
     ) {
-        require(securityService.existsByEmail(options.newOwner, onlyActive = false).not()) {
-            throw UserAlreadyRegisteredException(options.newOwner)
+        val owner = options.owner.lowercase()
+        val newOwner = options.newOwner.lowercase()
+
+        fun validateUser() {
+            require(owner != newOwner) { "The new e-mail can't be the same as the current one" }
+            require(securityService.existsByEmail(newOwner, onlyActive = false).not()) {
+                throw UserAlreadyRegisteredException(newOwner)
+            }
         }
 
-        val owner = securityService.getUser(options.owner)
-        transferSubmissions(user, options.copy(userName = owner.fullName))
+        fun updateUser() {
+            val sourceUser = userRepository.findByEmail(owner) ?: throw UserNotFoundException(owner)
+            sourceUser.email = newOwner
+            userRepository.save(sourceUser)
+        }
+
+        validateUser()
+        val submissions = queryService.getSubmissionsByOwner(owner).toList()
+        checkCanTransfer(user, submissions.map { it.accNo })
+        updateUser()
+        requestService.transferDrafts(owner, newOwner)
+        transferSubmissions(owner, newOwner, submissions)
+        logTransfer(user, owner, newOwner, EMAIL_UPDATE)
     }
 
     suspend fun transferSubmissions(
         user: String,
         options: SubmissionTransferOptions,
     ) {
+        val owner = options.owner.lowercase()
+        val newOwner = options.newOwner.lowercase()
         val userName = options.userName.orEmpty()
-        val (owner, newOwner, _, accNoList) = options
 
         fun validateUsers() {
             require(securityService.existsByEmail(owner, onlyActive = false)) { throw UserNotFoundException(owner) }
@@ -245,16 +272,32 @@ class ExtSubmissionService(
             }
         }
 
-        suspend fun transfer(accNo: String) {
-            logger.info { "Transferring submission $accNo from $owner to $newOwner" }
-            require(privilegesService.canTransferSubmission(user, accNo)) { throw UnauthorizedOperation(user) }
-            persistenceService.setOwner(accNo, newOwner)
-            eventsPublisherService.submissionsRefresh(accNo, newOwner)
-        }
-
         validateUsers()
-        queryService
-            .getSubmissionsByOwner(owner, accNoList)
-            .collect { transfer(it.accNo) }
+        val submissions = queryService.getSubmissionsByOwner(owner, options.accNoList).toList()
+        checkCanTransfer(user, submissions.map { it.accNo })
+        transferSubmissions(owner, newOwner, submissions)
+        logTransfer(user, owner, newOwner, TRANSFER)
     }
+
+    private suspend fun transferSubmissions(
+        owner: String,
+        newOwner: String,
+        submissions: List<BasicSubmission>,
+    ) = submissions.forEach {
+        logger.info { "Transferring submission ${it.accNo} from $owner to $newOwner" }
+        persistenceService.setOwner(it.accNo, newOwner)
+        eventsPublisherService.submissionsRefresh(it.accNo, newOwner)
+    }
+
+    private suspend fun checkCanTransfer(
+        user: String,
+        accNos: List<String>,
+    ) = require(accNos.all { privilegesService.canTransferSubmission(user, it) }) { throw UnauthorizedOperation(user) }
+
+    private fun logTransfer(
+        user: String,
+        owner: String,
+        newOwner: String,
+        operation: TransferOperation,
+    ) = transferLogDataService.logTransfer(user.lowercase(), owner, newOwner, operation)
 }

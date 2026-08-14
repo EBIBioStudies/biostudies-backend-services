@@ -137,6 +137,11 @@ interface SubmissionLinksPersistenceService {
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
+    suspend fun transferDrafts(
+        owner: String,
+        newOwner: String,
+    )
+
     suspend fun findRequestDrafts(
         owner: String,
         pageRequest: PageRequest = PageRequest(),
