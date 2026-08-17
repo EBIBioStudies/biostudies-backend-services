@@ -2,14 +2,17 @@ package ac.uk.ebi.biostd.persistence.integration.config
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.TransferLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlPersistenceService
+import ac.uk.ebi.biostd.persistence.integration.services.TransferLogSqlDataService
 import ac.uk.ebi.biostd.persistence.integration.services.UserSqlPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TransferLogDataRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -40,4 +43,8 @@ open class SqlPersistenceConfig {
     @Bean
     internal open fun userPermissionsService(permissionRepo: AccessPermissionRepository): UserPermissionsService =
         UserSqlPermissionsService(permissionRepo)
+
+    @Bean
+    internal open fun transferLogDataService(transferLogRepository: TransferLogDataRepository): TransferLogDataService =
+        TransferLogSqlDataService(transferLogRepository)
 }

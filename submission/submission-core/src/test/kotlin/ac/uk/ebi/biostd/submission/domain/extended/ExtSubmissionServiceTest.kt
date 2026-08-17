@@ -5,7 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.TransferLogDataService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -42,6 +44,8 @@ class ExtSubmissionServiceTest(
     @param:MockK private val securityService: SecurityQueryService,
     @param:MockK private val eventsPublisherService: EventsPublisherService,
     @param:MockK private val requestService: SubmissionRequestPersistenceService,
+    @param:MockK private val userRepository: UserDataRepository,
+    @param:MockK private val transferLogDataService: TransferLogDataService,
 ) {
     private val testInstance =
         ExtSubmissionService(
@@ -54,6 +58,8 @@ class ExtSubmissionServiceTest(
             securityService,
             eventsPublisherService,
             requestService,
+            userRepository,
+            transferLogDataService,
         )
 
     @AfterEach

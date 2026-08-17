@@ -48,6 +48,7 @@ import com.mongodb.client.model.Updates
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.ACTIVE_STATUS
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
+import ebi.ac.uk.model.RequestStatus.DRAFT
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -74,6 +75,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.data.mongodb.core.updateFirst
+import org.springframework.data.mongodb.core.updateMulti
 import org.springframework.data.mongodb.core.upsert
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
@@ -84,6 +86,14 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
+    suspend fun transferDrafts(
+        owner: String,
+        newOwner: String,
+    ) {
+        val query = Query(where(RQT_OWNER).`is`(owner).and(RQT_STATUS).`is`(DRAFT))
+        mongoTemplate.updateMulti<DocSubmissionRequest>(query, update(RQT_OWNER, newOwner)).awaitSingleOrNull()
+    }
+
     suspend fun saveRequest(request: DocSubmissionRequest): DocSubmissionRequest {
         val query =
             Query(

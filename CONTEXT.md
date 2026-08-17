@@ -25,6 +25,13 @@
 - **Active submission-processing lock**: An unexpired claim that a process is working on one submission request. Its
   presence is authoritative for retry eligibility, independently of the process's external cluster status.
 
+### User accounts
+- **Email-change transfer**: The atomic administrative update of a user account's email, including the account's
+  transferable submission resources while preserving the active account identity and user space.
+- **Transfer log**: An immutable administrative audit record of a transfer or email update, identifying when it
+  occurred, the acting account, the source email, the target email, and the operation type; one is recorded for each
+  successful command even when no submission ownership changes.
+
 ### Notifications
 - **Security notification**: an account-related notification used for activation, activation by email, and password 
   reset.

@@ -1,12 +1,14 @@
 package ac.uk.ebi.biostd.persistence.repositories
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.TransferOperation
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSecurityToken
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
 import ac.uk.ebi.biostd.persistence.model.DbTag
+import ac.uk.ebi.biostd.persistence.model.DbTransferLog
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
@@ -76,6 +78,14 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
 }
 
 interface TokenDataRepository : JpaRepository<DbSecurityToken, String>
+
+interface TransferLogDataRepository : JpaRepository<DbTransferLog, Long> {
+    fun findFirstBySourceEmailAndTargetEmailAndOperationOrderByTimestampDesc(
+        sourceEmail: String,
+        targetEmail: String,
+        operation: TransferOperation,
+    ): DbTransferLog?
+}
 
 interface UserGroupDataRepository : JpaRepository<DbUserGroup, Long> {
     fun findByName(groupName: String): DbUserGroup?
