@@ -152,6 +152,7 @@ fun backgroundIndex(): Index = Index().background()
  * 5. Index
  * 6. Path
  * 7. Submission AccNo, Submission Version, File.Path
+ * 8. Submission AccNo, Submission Version, File List Name, Index
  */
 suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
     ensureExists(FileListDocFile::class.java)
@@ -168,6 +169,13 @@ suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
                 .on("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", ASC),
+        ).awaitSingleOrNull()
+        createIndex(
+            Index()
+                .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
+                .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
+                .on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC)
+                .on(FILE_LIST_DOC_FILE_INDEX, ASC),
         ).awaitSingleOrNull()
     }
 }

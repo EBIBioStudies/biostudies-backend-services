@@ -86,6 +86,7 @@ Contains test related to the file list functionality.
 | FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
 | FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
 | FileListSubmissionTest | 3-8     | Filelist Submission with empty accNo                              |
+| FileListSubmissionTest | 3-10    | File list reused by sections and elements are de-duplicated       |
 | FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
 | FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
 | FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |
@@ -104,6 +105,7 @@ Contains test related to link list.
 | LinkListSubmissionTest | 32-2    | JSON submission with link list |
 | LinkListSubmissionTest | 32-3    | resubmission modifying links   |
 | LinkListSubmissionTest | 32-4    | resubmission reusing link list |
+| LinkListSubmissionTest | 32-6    | Link list reused by sections and elements are de-duplicated |
 
 ## Submission/Resubmission Test Suite
 

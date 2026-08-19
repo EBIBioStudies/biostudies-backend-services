@@ -170,7 +170,7 @@ internal class DatabaseChangeLogTest(
                         .asFlow()
                         .toList()
                 assertThat(mongoTemplate.collectionExists<FileListDocFile>().awaitSingle()).isTrue()
-                assertThat(listIndexes).hasSize(8)
+                assertThat(listIndexes).hasSize(9)
                 assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(listIndexes[1]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ID, 1))
                 assertThat(listIndexes[3]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1))
@@ -182,6 +182,13 @@ internal class DatabaseChangeLogTest(
                     Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1)
                         .append(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1)
                         .append("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", 1),
+                )
+                assertThat(listIndexes[8]).containsEntry(
+                    "key",
+                    Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1)
+                        .append(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1)
+                        .append(FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1)
+                        .append(FILE_LIST_DOC_FILE_INDEX, 1),
                 )
             }
 

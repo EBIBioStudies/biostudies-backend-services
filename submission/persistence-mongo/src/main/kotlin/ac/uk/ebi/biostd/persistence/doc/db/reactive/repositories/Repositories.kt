@@ -263,10 +263,11 @@ interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, O
         fileListName: String,
     ): Flow<FileListDocFile>
 
-    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameOrderByIndexAsc(
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameAndIndexGreaterThanEqualOrderByIndexAsc(
         accNo: String,
         version: Int,
         fileListName: String,
+        index: Int,
         pageable: Pageable,
     ): Flow<FileListDocFile>
 
@@ -288,7 +289,7 @@ interface LinkListDocLinkRepository : CoroutineCrudRepository<LinkListDocLink, O
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndLinkListNameOrderByIndexAsc(
         accNo: String,
         version: Int,
-        fileListName: String,
+        linkListName: String,
     ): Flow<LinkListDocLink>
 
     fun findAllBySubmissionAccNoAndSubmissionVersionAndLinkListNameOrderByIndexAsc(
@@ -297,17 +298,18 @@ interface LinkListDocLinkRepository : CoroutineCrudRepository<LinkListDocLink, O
         linkListName: String,
     ): Flow<LinkListDocLink>
 
-    fun findAllBySubmissionAccNoAndSubmissionVersionAndLinkListNameOrderByIndexAsc(
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndLinkListNameAndIndexGreaterThanEqualOrderByIndexAsc(
         accNo: String,
         version: Int,
-        fileListName: String,
+        linkListName: String,
+        index: Int,
         pageable: Pageable,
     ): Flow<LinkListDocLink>
 
     suspend fun countBySubmissionAccNoAndSubmissionVersionAndLinkListName(
         accNo: String,
         version: Int,
-        fileListName: String,
+        linkListName: String,
     ): Long
 }
 

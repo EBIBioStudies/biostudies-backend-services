@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
+import ac.uk.ebi.biostd.persistence.doc.commons.OffsetBasedPageRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -29,7 +30,7 @@ import java.time.Duration
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class FileListDocFileRepositoryTest(
-    @Autowired private val repository: FileListDocFileDocDataRepository,
+    @param:Autowired private val repository: FileListDocFileDocDataRepository,
 ) {
     @Test
     fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() =
@@ -54,6 +55,55 @@ class FileListDocFileRepositoryTest(
 
             assertThat(result).containsExactly(fileListFile)
         }
+
+    @Test
+    fun `find all by submission and file list from index`() =
+        runTest {
+            val fileListName = "file-list"
+            val submissionAccNo = "S-TEST123"
+            val files =
+                listOf(
+                    createFileListDocFile(index = 0, filePath = "file-0"),
+                    createFileListDocFile(index = 1, filePath = "file-1"),
+                    createFileListDocFile(index = 2, filePath = "file-2"),
+                )
+            repository.saveAll(files).toList()
+
+            val page =
+                repository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
+                    submissionAccNo,
+                    1,
+                    fileListName,
+                    OffsetBasedPageRequest.fromOffsetAndLimit(1, 2),
+                )
+
+            assertThat(page.content.map { it.file.filePath }).containsExactly("file-1", "file-2")
+            assertThat(page.totalElements).isEqualTo(3)
+            assertThat(page.pageable.offset).isEqualTo(1)
+        }
+
+    private fun createFileListDocFile(
+        index: Int,
+        filePath: String,
+    ) = FileListDocFile(
+        id = ObjectId(),
+        submissionId = ObjectId(),
+        file =
+            FireDocFile(
+                fileName = "$filePath.txt",
+                filePath = filePath,
+                relPath = "relPath",
+                fireId = "fireId",
+                attributes = listOf(),
+                md5 = "md5",
+                fileSize = 1L,
+                fileType = ExtFileType.FILE.value,
+            ),
+        fileListName = "file-list",
+        index = index,
+        submissionVersion = 1,
+        submissionAccNo = "S-TEST123",
+    )
 
     companion object {
         @Container

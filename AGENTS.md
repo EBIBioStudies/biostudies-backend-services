@@ -10,6 +10,10 @@
 - grill-with-docs: used to clarify and document the user-space cleanup design.
 - domain-modeling: requested through grill-with-docs; not installed locally, so the design was modeled from repository code and captured in ADR/glossary docs.
 
+## Guidelines
+- When a new integration test is added to any class in the `ac.uk.ebi.biostd.itest.test.` package, a new entry should be
+ added to `itestsinventory.md`
+
 ## Definition of Done
 Before marking the work as complete:
 
