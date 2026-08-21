@@ -19,4 +19,14 @@ interface UserPermissionsService {
         accessTag: String,
         accessType: AccessType,
     ): Boolean
+
+    fun canGrantPermissions(
+        user: String,
+        accessTag: String,
+    ): Boolean
+
+    fun canRevokePermissions(
+        user: String,
+        accessTag: String,
+    ): Boolean
 }

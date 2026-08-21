@@ -61,6 +61,8 @@ Contains permissions API test.
 | UserPermissionsApiTest | 21-3    | Grant permission to non-existing user              |
 | UserPermissionsApiTest | 21-4    | Grant permission to non-existing submission        |
 | UserPermissionsApiTest | 21-5    | Revoke permissions to a Regular user by Superuser  |
+| UserPermissionsApiTest | 21-6    | ADMIN user grants permission to a Regular user     |
+| UserPermissionsApiTest | 21-7    | Revoke permission by a Regular user without ADMIN access |
 
 ### User Files operations Test suite
 

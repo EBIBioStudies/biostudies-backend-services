@@ -26,6 +26,8 @@
   presence is authoritative for retry eligibility, independently of the process's external cluster status.
 
 ### User accounts
+- **Accession ADMIN permission**: An `ADMIN` access permission assigned to a user for one accession. It authorizes
+  that user to grant permissions for that same accession, without granting administrative authority elsewhere.
 - **Email-change transfer**: The atomic administrative update of a user account's email, including the account's
   transferable submission resources while preserving the active account identity and user space.
 - **Transfer log**: An immutable administrative audit record of a transfer or email update, identifying when it
