@@ -1,25 +1,33 @@
 package ac.uk.ebi.biostd.security.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.security.domain.exception.PermissionsUserDoesNotExistsException
+import ac.uk.ebi.biostd.security.domain.exception.RevokePermissionException
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * Separate class required due to @Transactional annotation
+ */
 open class RevokePermissionService(
     private val userRepository: UserDataRepository,
     private val permissionRepository: AccessPermissionRepository,
+    private val userPermissionService: UserPermissionsService,
 ) {
     @Transactional
     open fun revokePermission(
+        user: String,
         accessType: AccessType,
-        email: String,
+        targetUser: String,
         accNo: String,
     ) {
-        require(userRepository.existsByEmail(email)) { throw PermissionsUserDoesNotExistsException(email) }
+        require(userPermissionService.canRevokePermissions(user, accNo)) { throw RevokePermissionException(user, accNo) }
+        require(userRepository.existsByEmail(targetUser)) { throw PermissionsUserDoesNotExistsException(targetUser) }
 
-        if (permissionRepository.permissionExists(accessType, email, accNo)) {
-            permissionRepository.deleteByUserEmailAndAccessTypeAndAccessTagName(email, accessType, accNo)
+        if (permissionRepository.permissionExists(accessType, targetUser, accNo)) {
+            permissionRepository.deleteByUserEmailAndAccessTypeAndAccessTagName(targetUser, accessType, accNo)
         }
     }
 }

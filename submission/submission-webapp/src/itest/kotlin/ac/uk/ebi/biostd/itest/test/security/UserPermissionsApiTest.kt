@@ -7,9 +7,12 @@ import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE_FILES
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -47,15 +50,18 @@ class UserPermissionsApiTest(
 ) {
     private lateinit var superWebClient: BioWebClient
     private lateinit var regularWebClient: BioWebClient
+    private lateinit var adminWebClient: BioWebClient
 
     @BeforeAll
     fun init(): Unit =
         runBlocking {
             securityTestService.ensureUserRegistration(SuperUser)
             securityTestService.ensureUserRegistration(RegularUser)
+            securityTestService.ensureUserRegistration(AccessionAdminUser)
 
             superWebClient = getWebClient(serverPort, SuperUser)
             regularWebClient = getWebClient(serverPort, RegularUser)
+            adminWebClient = getWebClient(serverPort, AccessionAdminUser)
 
             val collection =
                 tsv {
@@ -88,25 +94,32 @@ class UserPermissionsApiTest(
     @Test
     fun `21-2 Grant permission to a Regular user by Regular user`() =
         runTest {
-            assertThrows<WebClientException> {
-                regularWebClient.grantPermission(dbUser.email, "PermissionCollection", READ.name)
-            }
+            val exception =
+                assertThrows<WebClientException> {
+                    regularWebClient.grantPermission(dbUser.email, "PermissionCollection", READ.name)
+                }
+            assertThat(exception)
+                .hasMessageContaining("User ${RegularUser.email} can't grant permissions over PermissionCollection")
         }
 
     @Test
     fun `21-3 Grant permission to non-existing user`() =
         runTest {
-            assertThrows<WebClientException>("The user fakeUser does not exist") {
-                superWebClient.grantPermission("fakeUser", "PermissionCollection", READ.name)
-            }
+            val exception =
+                assertThrows<WebClientException> {
+                    superWebClient.grantPermission("fakeUser", "PermissionCollection", READ.name)
+                }
+            assertThat(exception).hasMessageContaining("The user fakeUser does not exist")
         }
 
     @Test
     fun `21-4 Grant permission to non-existing submission`() =
         runTest {
-            assertThrows<WebClientException>("The submission fakeAccNo was not found") {
-                superWebClient.grantPermission(dbUser.email, "fakeAccNo", READ.name)
-            }
+            val exception =
+                assertThrows<WebClientException> {
+                    superWebClient.grantPermission(dbUser.email, "fakeAccNo", READ.name)
+                }
+            assertThat(exception).hasMessageContaining("Connection Error: The provided server is invalid")
         }
 
     @Test
@@ -127,6 +140,28 @@ class UserPermissionsApiTest(
             assertPermission(updatedPermissions.first(), DELETE)
         }
 
+    @Test
+    fun `21-6 ADMIN user grants permission to a Regular user`() =
+        runTest {
+            superWebClient.grantPermission(AccessionAdminUser.email, "PermissionCollection", ADMIN.name)
+
+            adminWebClient.grantPermission(dbUser.email, "PermissionCollection", DELETE_FILES.name)
+
+            val permissions = accessPermissionRepository.findAllByUserEmailAndAccessType(dbUser.email, DELETE_FILES)
+            assertThat(permissions).hasSize(1)
+        }
+
+    @Test
+    fun `21-7 Regular user cannot revoke permission`() =
+        runTest {
+            val exception =
+                assertThrows<WebClientException> {
+                    regularWebClient.revokePermission(dbUser.email, "PermissionCollection", READ.name)
+                }
+            assertThat(exception)
+                .hasMessageContaining("User ${RegularUser.email} can't revoke permissions over PermissionCollection")
+        }
+
     private fun assertPermission(
         permission: DbAccessPermission,
         accessType: AccessType,
@@ -137,6 +172,14 @@ class UserPermissionsApiTest(
     }
 
     private companion object {
+        object AccessionAdminUser : TestUser {
+            override val username = "Accession Admin User"
+            override val email = "accession.admin@ebi.ac.uk"
+            override val password = "678910"
+            override val superUser = false
+            override val storageMode = StorageMode.NFS
+        }
+
         val dbUser =
             DbUser(
                 email = "test@email.com",

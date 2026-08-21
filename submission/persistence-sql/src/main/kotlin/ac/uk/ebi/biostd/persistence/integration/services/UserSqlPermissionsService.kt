@@ -5,10 +5,12 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 
 const val DEFAULT_USER = "default_user@ebi.ac.uk"
 
 internal class UserSqlPermissionsService(
+    private val userRepository: UserDataRepository,
     private val permissionRepo: AccessPermissionRepository,
 ) : UserPermissionsService {
     override fun allowedTags(
@@ -22,9 +24,7 @@ internal class UserSqlPermissionsService(
     override fun isAdmin(
         user: String,
         accessTag: String,
-    ): Boolean {
-        return permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, ADMIN, accessTag)
-    }
+    ): Boolean = permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, ADMIN, accessTag)
 
     override fun hasPermission(
         user: String,
@@ -33,4 +33,16 @@ internal class UserSqlPermissionsService(
     ): Boolean =
         permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, accessType, accessTag) ||
             permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(DEFAULT_USER, accessType, accessTag)
+
+    override fun canGrantPermissions(
+        user: String,
+        accessTag: String,
+    ): Boolean = isSuperUser(user) || isAdmin(user, accessTag)
+
+    override fun canRevokePermissions(
+        user: String,
+        accessTag: String,
+    ): Boolean = isSuperUser(user) || isAdmin(user, accessTag)
+
+    private fun isSuperUser(email: String) = userRepository.getByEmail(email).superuser
 }

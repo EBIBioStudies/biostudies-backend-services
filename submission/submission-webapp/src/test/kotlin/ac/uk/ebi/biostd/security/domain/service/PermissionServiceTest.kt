@@ -3,12 +3,14 @@ package ac.uk.ebi.biostd.security.domain.service
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.security.domain.exception.GrantPermissionException
 import ac.uk.ebi.biostd.security.domain.exception.PermissionsUserDoesNotExistsException
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -32,16 +34,19 @@ class PermissionServiceTest(
     @MockK private val permissionRepo: AccessPermissionRepository,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val tagRepository: AccessTagDataRepo,
+    @MockK private val userPermissionsService: UserPermissionsService,
     @MockK private val dbAccessTag: DbAccessTag,
     @MockK private val dbUser: DbUser,
 ) {
-    private val testInstance = PermissionService(subQueryService, permissionRepo, userRepository, tagRepository)
+    private val testInstance =
+        PermissionService(subQueryService, permissionRepo, userRepository, tagRepository, userPermissionsService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
     @BeforeEach
     fun beforeEach() {
+        every { userPermissionsService.canGrantPermissions(USER, ACC_NO) } returns true
         coEvery { subQueryService.existByAccNo(ACC_NO) } returns true
         every { userRepository.findByEmail(EMAIL) } returns dbUser
         every { tagRepository.findByName(ACC_NO) } returns dbAccessTag
@@ -52,7 +57,7 @@ class PermissionServiceTest(
     @Test
     fun `grant permission`() =
         runTest {
-            testInstance.grantPermission(READ, EMAIL, ACC_NO)
+            testInstance.grantPermission(USER, READ, EMAIL, ACC_NO)
 
             assertThat(dbAccessPermissionSlot.captured.user).isEqualTo(dbUser)
             assertThat(dbAccessPermissionSlot.captured.accessTag).isEqualTo(dbAccessTag)
@@ -63,7 +68,7 @@ class PermissionServiceTest(
         runTest {
             every { permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(EMAIL, READ, ACC_NO) } returns true
 
-            testInstance.grantPermission(READ, EMAIL, ACC_NO)
+            testInstance.grantPermission(USER, READ, EMAIL, ACC_NO)
 
             verify(exactly = 0) { permissionRepo.save(any()) }
         }
@@ -76,7 +81,7 @@ class PermissionServiceTest(
             every { tagRepository.findByName(ACC_NO) } returns null
             every { tagRepository.save(capture(accessTagSlot)) } returns dbAccessTag
 
-            testInstance.grantPermission(READ, EMAIL, ACC_NO)
+            testInstance.grantPermission(USER, READ, EMAIL, ACC_NO)
 
             verify(exactly = 1) { tagRepository.save(accessTagSlot.captured) }
             assertThat(dbAccessPermissionSlot.captured.user).isEqualTo(dbUser)
@@ -90,7 +95,7 @@ class PermissionServiceTest(
 
             val error =
                 assertThrows<PermissionsUserDoesNotExistsException> {
-                    testInstance.grantPermission(READ, EMAIL, ACC_NO)
+                    testInstance.grantPermission(USER, READ, EMAIL, ACC_NO)
                 }
 
             assertThat(error.message).isEqualTo("The user $EMAIL does not exist")
@@ -103,13 +108,28 @@ class PermissionServiceTest(
 
             val error =
                 assertThrows<SubmissionNotFoundException> {
-                    testInstance.grantPermission(READ, EMAIL, ACC_NO)
+                    testInstance.grantPermission(USER, READ, EMAIL, ACC_NO)
                 }
 
             assertThat(error.message).isEqualTo("The submission '$ACC_NO' was not found")
         }
 
+    @Test
+    fun `when user cannot grant permissions`() =
+        runTest {
+            every { userPermissionsService.canGrantPermissions(USER, ACC_NO) } returns false
+
+            val error =
+                assertThrows<GrantPermissionException> {
+                    testInstance.grantPermission(USER, READ, EMAIL, ACC_NO)
+                }
+
+            assertThat(error.message).isEqualTo("User $USER can't grant permissions over $ACC_NO")
+            verify(exactly = 0) { permissionRepo.save(any()) }
+        }
+
     private companion object {
+        const val USER = "admin@test.org"
         const val EMAIL = "email@test.org"
         const val ACC_NO = "ArrayExpress"
         val dbAccessPermissionSlot = slot<DbAccessPermission>()
