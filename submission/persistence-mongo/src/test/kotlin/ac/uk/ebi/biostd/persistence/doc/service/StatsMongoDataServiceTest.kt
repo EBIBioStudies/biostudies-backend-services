@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.query.Query
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -44,6 +45,8 @@ class StatsMongoDataServiceTest(
 ) {
     @BeforeEach
     fun beforeEach() {
+        mongoTemplate.remove(Query(), SUBMISSIONS_COLLECTION_KEY).block()
+        mongoTemplate.remove(Query(), DocSubmissionStats::class.java).block()
         setUpSubmissions()
         setUpStats()
     }
@@ -52,12 +55,22 @@ class StatsMongoDataServiceTest(
     fun calculateStats() =
         runTest {
             val imagingStats = testInstance.calculateImagingStats()
-            assertThat(imagingStats.count).isEqualTo(2)
-            assertThat(imagingStats.filesSize).isEqualTo(10L)
+            assertThat(imagingStats.all.count).isEqualTo(2)
+            assertThat(imagingStats.all.filesSize).isEqualTo(10L)
+            assertThat(imagingStats.public.count).isEqualTo(1)
+            assertThat(imagingStats.public.filesSize).isEqualTo(4L)
 
             val nonImagingStats = testInstance.calculateNonImagingStats()
-            assertThat(nonImagingStats.count).isEqualTo(3L)
-            assertThat(nonImagingStats.filesSize).isEqualTo(19L)
+            assertThat(nonImagingStats.all.count).isEqualTo(3L)
+            assertThat(nonImagingStats.all.filesSize).isEqualTo(19L)
+            assertThat(nonImagingStats.public.count).isEqualTo(1)
+            assertThat(nonImagingStats.public.filesSize).isEqualTo(7L)
+
+            val aeStats = testInstance.calculateAEStats()
+            assertThat(aeStats.all.count).isEqualTo(2)
+            assertThat(aeStats.all.filesSize).isEqualTo(16L)
+            assertThat(aeStats.public.count).isEqualTo(1)
+            assertThat(aeStats.public.filesSize).isEqualTo(7L)
         }
 
     private fun setUpSubmissions() {
@@ -85,13 +98,14 @@ class StatsMongoDataServiceTest(
             accNo: String,
             stats: Map<String, Long>,
             collections: List<String> = emptyList(),
+            released: Boolean = testSub.released,
         ) {
             val stat =
                 DocSubmissionStats(
                     id = ObjectId(),
                     accNo = accNo,
                     version = testSub.version,
-                    released = testSub.released,
+                    released = released,
                     stats = stats,
                     subCreationTime = testSub.creationTime,
                     subReleaseTime = testSub.releaseTime,
@@ -102,11 +116,16 @@ class StatsMongoDataServiceTest(
             mongoTemplate.save(stat).block()
         }
 
-        save(accNo = "S-BSST3", stats = mapOf(FILES_SIZE.value to 3))
+        save(accNo = "S-BSST3", stats = mapOf(FILES_SIZE.value to 3), released = false)
         save(accNo = "S-BIAD1", stats = mapOf(FILES_SIZE.value to 4, VIEWS.value to 11), collections = bioImages)
-        save(accNo = "S-BIAD3", stats = mapOf(FILES_SIZE.value to 6), collections = bioImages)
+        save(accNo = "S-BIAD3", stats = mapOf(FILES_SIZE.value to 6), collections = bioImages, released = false)
         save(accNo = "E-MTAB1", stats = mapOf(FILES_SIZE.value to 7, VIEWS.value to 14), collections = arrayExpress)
-        save(accNo = "E-MTAB2", stats = mapOf(FILES_SIZE.value to 9, VIEWS.value to 16), collections = arrayExpress)
+        save(
+            accNo = "E-MTAB2",
+            stats = mapOf(FILES_SIZE.value to 9, VIEWS.value to 16),
+            collections = arrayExpress,
+            released = false,
+        )
     }
 
     companion object {

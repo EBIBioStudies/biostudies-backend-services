@@ -3,6 +3,13 @@
 ## Glossary
 
 ### Submissions
+- **Public collection statistics**: Monthly collection-level data-size, month-to-month change, and study-count
+  measures that include only submissions marked released when the snapshot is taken. It describes report contents,
+  not endpoint access.
+  _Avoid_: Public studies, published report
+- **Statistical collection category**: A report grouping based on a submission's collection membership. ArrayExpress
+  is its own category and is also part of the non-imaging category; BioImages is excluded from non-imaging.
+  _Avoid_: Mutually exclusive collection category
 - **File-list reference**: A section's reference to a file list identified by its full PageTab path. Multiple sections
   may reference the same file list within one submission version.
 - **File-list entry**: A distinct parsed file record belonging to a full file-list path in one submission version. It

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ac.uk.ebi.biostd.persistence.common.model.CollectionStats
+import ac.uk.ebi.biostd.persistence.common.model.CollectionStatsReport
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.AE_REPORT_NAME
@@ -9,6 +10,7 @@ import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.DELTA_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.IMAGING_REPORT_NAME
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.NON_IMAGING_REPORT_NAME
+import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.PUBLIC_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.TOTAL_REPORT_DIR
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
@@ -100,7 +102,43 @@ class StatsReporterServiceTest(
             val expectedCountNonImagingReport = "202012\t$PREVIOUS_NON_IMAGING_COUNT\n202101\t$NON_IMAGING_COUNT"
             assertThat(countNonImagingReport).exists()
             assertThat(countNonImagingReport).hasContent(expectedCountNonImagingReport)
+
+            // Verify public ArrayExpress report
+            assertPublicReports(AE_REPORT_NAME, PREVIOUS_PUBLIC_AE_COUNT, PUBLIC_AE_COUNT, PREVIOUS_PUBLIC_AE_TOTAL, PUBLIC_AE_TOTAL)
+
+            // Verify public imaging report
+            assertPublicReports(
+                IMAGING_REPORT_NAME,
+                PREVIOUS_PUBLIC_IMAGING_COUNT,
+                PUBLIC_IMAGING_COUNT,
+                PREVIOUS_PUBLIC_IMAGING_TOTAL,
+                PUBLIC_IMAGING_TOTAL,
+            )
+
+            // Verify public non-imaging report
+            assertPublicReports(
+                NON_IMAGING_REPORT_NAME,
+                PREVIOUS_PUBLIC_NON_IMAGING_COUNT,
+                PUBLIC_NON_IMAGING_COUNT,
+                PREVIOUS_PUBLIC_NON_IMAGING_TOTAL,
+                PUBLIC_NON_IMAGING_TOTAL,
+            )
         }
+
+    private fun assertPublicReports(
+        reportName: String,
+        previousCount: Long,
+        count: Long,
+        previousTotal: Long,
+        total: Long,
+    ) {
+        assertThat(statsDir.resolve(TOTAL_REPORT_DIR).resolve(PUBLIC_REPORT_DIR).resolve(reportName))
+            .hasContent("202012\t$previousTotal\n202101\t$total")
+        assertThat(statsDir.resolve(DELTA_REPORT_DIR).resolve(PUBLIC_REPORT_DIR).resolve(reportName))
+            .hasContent("202012\t$PREVIOUS_PUBLIC_DELTA\n202101\t${total - previousTotal}")
+        assertThat(statsDir.resolve(COUNT_REPORT_DIR).resolve(PUBLIC_REPORT_DIR).resolve(reportName))
+            .hasContent("202012\t$previousCount\n202101\t$count")
+    }
 
     private fun setUpDate() {
         mockkStatic(OffsetDateTime::class)
@@ -108,11 +146,21 @@ class StatsReporterServiceTest(
     }
 
     private fun setUpStats() {
-        coEvery { statsDataService.calculateAEStats() } returns CollectionStats(AE_COUNT, AE_TOTAL)
-        coEvery { statsDataService.calculateImagingStats() } returns CollectionStats(IMAGING_COUNT, IMAGING_TOTAL)
-        coEvery {
-            statsDataService.calculateNonImagingStats()
-        } returns CollectionStats(NON_IMAGING_COUNT, NON_IMAGING_TOTAL)
+        coEvery { statsDataService.calculateAEStats() } returns
+            CollectionStatsReport(
+                all = CollectionStats(AE_COUNT, AE_TOTAL),
+                public = CollectionStats(PUBLIC_AE_COUNT, PUBLIC_AE_TOTAL),
+            )
+        coEvery { statsDataService.calculateImagingStats() } returns
+            CollectionStatsReport(
+                all = CollectionStats(IMAGING_COUNT, IMAGING_TOTAL),
+                public = CollectionStats(PUBLIC_IMAGING_COUNT, PUBLIC_IMAGING_TOTAL),
+            )
+        coEvery { statsDataService.calculateNonImagingStats() } returns
+            CollectionStatsReport(
+                all = CollectionStats(NON_IMAGING_COUNT, NON_IMAGING_TOTAL),
+                public = CollectionStats(PUBLIC_NON_IMAGING_COUNT, PUBLIC_NON_IMAGING_TOTAL),
+            )
 
         val deltaReport = statsDir.createDirectory(DELTA_REPORT_DIR)
         deltaReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_AE_DELTA\n")
@@ -128,6 +176,21 @@ class StatsReporterServiceTest(
         totalReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_AE_TOTAL\n")
         totalReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_IMAGING_TOTAL\n")
         totalReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_NON_IMAGING_TOTAL\n")
+
+        val publicDeltaReport = deltaReport.createDirectory(PUBLIC_REPORT_DIR)
+        publicDeltaReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_DELTA\n")
+        publicDeltaReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_DELTA\n")
+        publicDeltaReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_DELTA\n")
+
+        val publicCountReport = countReport.createDirectory(PUBLIC_REPORT_DIR)
+        publicCountReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_AE_COUNT\n")
+        publicCountReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_IMAGING_COUNT\n")
+        publicCountReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_NON_IMAGING_COUNT\n")
+
+        val publicTotalReport = totalReport.createDirectory(PUBLIC_REPORT_DIR)
+        publicTotalReport.createFile(AE_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_AE_TOTAL\n")
+        publicTotalReport.createFile(IMAGING_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_IMAGING_TOTAL\n")
+        publicTotalReport.createFile(NON_IMAGING_REPORT_NAME, "202012\t$PREVIOUS_PUBLIC_NON_IMAGING_TOTAL\n")
     }
 
     private fun setUpPaths() {
@@ -155,5 +218,21 @@ class StatsReporterServiceTest(
         private const val PREVIOUS_NON_IMAGING_COUNT = 76L
         private const val PREVIOUS_NON_IMAGING_DELTA = 123456L
         private const val PREVIOUS_NON_IMAGING_TOTAL = 9181921234L
+
+        private const val PREVIOUS_PUBLIC_DELTA = 17L
+        private const val PUBLIC_AE_COUNT = 500L
+        private const val PUBLIC_AE_TOTAL = 700L
+        private const val PREVIOUS_PUBLIC_AE_COUNT = 400L
+        private const val PREVIOUS_PUBLIC_AE_TOTAL = 600L
+
+        private const val PUBLIC_IMAGING_COUNT = 150L
+        private const val PUBLIC_IMAGING_TOTAL = 800L
+        private const val PREVIOUS_PUBLIC_IMAGING_COUNT = 100L
+        private const val PREVIOUS_PUBLIC_IMAGING_TOTAL = 900L
+
+        private const val PUBLIC_NON_IMAGING_COUNT = 50L
+        private const val PUBLIC_NON_IMAGING_TOTAL = 300L
+        private const val PREVIOUS_PUBLIC_NON_IMAGING_COUNT = 40L
+        private const val PREVIOUS_PUBLIC_NON_IMAGING_TOTAL = 200L
     }
 }

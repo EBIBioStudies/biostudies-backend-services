@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.StatsNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.CollectionStats
+import ac.uk.ebi.biostd.persistence.common.model.CollectionStatsReport
 import ac.uk.ebi.biostd.persistence.common.model.StatsReportResult
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
@@ -19,7 +20,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STAT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocStatsFields.STATS_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import com.mongodb.bulk.BulkWriteResult
@@ -161,24 +161,36 @@ class StatsMongoDataService(
         return statsDataRepository.bulkWrite(upserts)
     }
 
-    override suspend fun calculateAEStats(): CollectionStats {
-        val filter = where(SUB_COLLECTIONS).`in`(AE_COLLECTION)
-        return calculateStats(filter)
+    override suspend fun calculateAEStats(): CollectionStatsReport {
+        val filter = where(STATS_COLLECTIONS).`in`(AE_COLLECTION)
+        return CollectionStatsReport(
+            all = calculateStats(filter),
+            public = calculatePublicStats(filter),
+        )
     }
 
-    override suspend fun calculateImagingStats(): CollectionStats {
-        val filter = where(SUB_COLLECTIONS).`in`(IMAGING_COLLECTION)
-        return calculateStats(filter)
+    override suspend fun calculateImagingStats(): CollectionStatsReport {
+        val filter = where(STATS_COLLECTIONS).`in`(IMAGING_COLLECTION)
+        return CollectionStatsReport(
+            all = calculateStats(filter),
+            public = calculatePublicStats(filter),
+        )
     }
 
-    override suspend fun calculateNonImagingStats(): CollectionStats {
+    override suspend fun calculateNonImagingStats(): CollectionStatsReport {
         val filter =
             Criteria().orOperator(
                 where(STATS_COLLECTIONS).size(0),
                 where(STATS_COLLECTIONS).nin(IMAGING_COLLECTION),
             )
-        return calculateStats(filter)
+        return CollectionStatsReport(
+            all = calculateStats(filter),
+            public = calculatePublicStats(filter),
+        )
     }
+
+    private suspend fun calculatePublicStats(collectionFilter: Criteria): CollectionStats =
+        calculateStats(Criteria().andOperator(collectionFilter, where(STATS_RELEASED).`is`(true)))
 
     private suspend fun calculateStats(filter: Criteria): CollectionStats {
         val count = calculateStat(filter) { group().count() }
