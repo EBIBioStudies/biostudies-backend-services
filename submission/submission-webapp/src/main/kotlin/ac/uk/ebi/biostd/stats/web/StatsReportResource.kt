@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.nio.file.Paths
 
 @RestController
+@Suppress("TooManyFunctions")
 @RequestMapping("/stats/report")
 class StatsReportResource(
     private val appProperties: ApplicationProperties,
