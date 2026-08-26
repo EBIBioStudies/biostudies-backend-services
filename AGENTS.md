@@ -13,6 +13,7 @@
 ## Guidelines
 - When a new integration test is added to any class in the `ac.uk.ebi.biostd.itest.test.` package, a new entry should be
  added to `itestsinventory.md`
+- Don't create unit tests for the web resource classes (i.e. containing endpoints) unless specifically asked.
 
 ## Definition of Done
 Before marking the work as complete:
