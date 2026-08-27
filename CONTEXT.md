@@ -42,6 +42,14 @@
   successful command even when no submission ownership changes.
 
 ### Notifications
+- **Ticket correspondence**: A user-facing message recorded on a submission's Request Tracker ticket and delivered through its external communication channel.
+  _Avoid_: Internal comment, ticket note
+- **Resolved submission ticket**: A submission's Request Tracker ticket whose lifecycle status is `resolved` after its creation and after each notification correspondence.
+  _Avoid_: Open support ticket
+- **Submission ticket accession**: The submission accession stored in a Request Tracker ticket's `Accession` custom field, linking the ticket to exactly one submission.
+  _Avoid_: Ticket subject identifier
+- **Operational notification recipient**: The mailbox that receives a copy of every submission ticket correspondence for operational visibility.
+  _Avoid_: Per-message BCC recipient
 - **Security notification**: an account-related notification used for activation, activation by email, and password 
   reset.
 - **Urgent notification**: a separate operational notification used to report failures in the security notification 

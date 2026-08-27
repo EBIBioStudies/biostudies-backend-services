@@ -3,10 +3,12 @@ package ebi.ac.uk.notifications.api
 import ac.uk.ebi.biostd.common.properties.RtConfig
 import ebi.ac.uk.notifications.exception.InvalidResponseException
 import ebi.ac.uk.notifications.exception.InvalidTicketIdException
+import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -14,9 +16,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.util.LinkedMultiValueMap
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.ResponseEntity
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class)
 class RtClientTest(
@@ -25,28 +32,23 @@ class RtClientTest(
     @MockK private val requestSpec: RequestBodySpec,
 ) {
     private val testInstance = RtClient(rtConfig, client)
-    private val testBody =
-        LinkedMultiValueMap(
-            mapOf(
-                "content" to
-                    listOf(
-                        buildString {
-                            appendLine("Queue: test-queue")
-                            appendLine("Subject: Test")
-                            appendLine("Status: resolved")
-                            appendLine("Requestor: test@mail.org")
-                            appendLine("AdminCc: admin@mail.org")
-                            appendLine("CF-Accession: S-TEST1")
-                            append("Text: A notification")
-                        },
-                    ),
-            ),
+    private lateinit var headerConsumer: CapturingSlot<Consumer<HttpHeaders>>
+    private val createTicketBody =
+        mapOf(
+            "Queue" to "test-queue",
+            "Subject" to "Test",
+            "Status" to "resolved",
+            "Requestor" to "test@mail.org",
+            "AdminCc" to "admin@mail.org",
+            "CustomFields" to mapOf("Accession" to "S-TEST1"),
+            "Content" to "A notification",
+            "ContentType" to "text/plain",
         )
 
     @BeforeEach
     fun beforeEach() {
-        every { rtConfig.user } returns "test-user"
-        every { rtConfig.password } returns "123456"
+        headerConsumer = slot()
+        every { rtConfig.token } returns "test-token"
         every { rtConfig.queue } returns "test-queue"
         every { rtConfig.host } returns "http://test-desk"
     }
@@ -56,12 +58,8 @@ class RtClientTest(
 
     @Test
     fun `create ticket`() {
-        val response = "RT/4.2.16 200 Ok\n\n# Ticket 80338 created.\n\n"
-        val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=123456"
-
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
+        val url = "http://test-desk/REST/2.0/ticket"
+        mockRtRequest(url, createTicketBody, mapOf("id" to "80338"))
 
         val ticketId =
             testInstance.createTicket(
@@ -73,32 +71,14 @@ class RtClientTest(
             )
 
         assertThat(ticketId).isEqualTo("80338")
+        verifyRtRequest(url, createTicketBody)
     }
 
     @Test
-    fun `create ticket without bcc`() {
-        val response = "RT/4.2.16 200 Ok\n\n# Ticket 80338 created.\n\n"
-        val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=123456"
-        val testBody =
-            LinkedMultiValueMap(
-                mapOf(
-                    "content" to
-                        listOf(
-                            buildString {
-                                appendLine("Queue: test-queue")
-                                appendLine("Subject: Test")
-                                appendLine("Status: resolved")
-                                appendLine("Requestor: test@mail.org")
-                                appendLine("CF-Accession: S-TEST1")
-                                append("Text: A notification")
-                            },
-                        ),
-                ),
-            )
-
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
+    fun `create ticket without operational notification recipient`() {
+        val url = "http://test-desk/REST/2.0/ticket"
+        val requestBody = createTicketBody - "AdminCc"
+        mockRtRequest(url, requestBody, mapOf("id" to "80338"))
 
         val ticketId =
             testInstance.createTicket(
@@ -110,17 +90,19 @@ class RtClientTest(
             )
 
         assertThat(ticketId).isEqualTo("80338")
+        verifyRtRequest(url, requestBody)
     }
 
     @Test
-    fun `comment ticket`() {
-        val url = "http://test-desk/REST/1.0/ticket/80338/comment?user=test-user&pass=123456"
-        val content = "id: 80338\nAction: correspond\nStatus: resolved\nBcc: admin@mail.org\nText: A comment"
-        val testBody = LinkedMultiValueMap(mapOf("content" to listOf(content)))
-
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "response"
+    fun `comment ticket sends correspondence`() {
+        val url = "http://test-desk/REST/2.0/ticket/80338/correspond"
+        val requestBody =
+            mapOf(
+                "Content" to "A comment",
+                "ContentType" to "text/plain",
+                "Status" to "resolved",
+            )
+        mockRtCorrespondenceRequest(url, requestBody)
 
         testInstance.commentTicket(
             ticketId = "80338",
@@ -128,22 +110,19 @@ class RtClientTest(
             comment = "A comment",
         )
 
-        verify(exactly = 1) {
-            client.post().uri(url)
-            requestSpec.bodyValue(testBody)
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
-        }
+        verifyRtCorrespondenceRequest(url, requestBody)
     }
 
     @Test
-    fun `comment ticket without bcc`() {
-        val url = "http://test-desk/REST/1.0/ticket/80338/comment?user=test-user&pass=123456"
-        val content = "id: 80338\nAction: correspond\nStatus: resolved\nText: A comment"
-        val testBody = LinkedMultiValueMap(mapOf("content" to listOf(content)))
-
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "response"
+    fun `comment ticket does not require operational notification recipient`() {
+        val url = "http://test-desk/REST/2.0/ticket/80338/correspond"
+        val requestBody =
+            mapOf(
+                "Content" to "A comment",
+                "ContentType" to "text/plain",
+                "Status" to "resolved",
+            )
+        mockRtCorrespondenceRequest(url, requestBody)
 
         testInstance.commentTicket(
             ticketId = "80338",
@@ -151,21 +130,13 @@ class RtClientTest(
             comment = "A comment",
         )
 
-        verify(exactly = 1) {
-            client.post().uri(url)
-            requestSpec.bodyValue(testBody)
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
-        }
+        verifyRtCorrespondenceRequest(url, requestBody)
     }
 
     @Test
-    fun `invalid response`() {
-        val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=123"
-
-        every { rtConfig.password } returns "123"
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "Wrong user/password"
+    fun `invalid ticket response`() {
+        val url = "http://test-desk/REST/2.0/ticket"
+        mockRtRequest(url, createTicketBody, emptyMap())
 
         assertThrows<InvalidTicketIdException> {
             testInstance.createTicket(
@@ -179,34 +150,9 @@ class RtClientTest(
     }
 
     @Test
-    fun `bad request`() {
-        val response = "RT/4.2.16 400 Ok\n\n# Queue not set.\n\n"
-        val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=1234"
-
-        every { rtConfig.password } returns "1234"
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
-
-        assertThrows<InvalidTicketIdException> {
-            testInstance.createTicket(
-                accNo = "S-TEST1",
-                subject = "Test",
-                owner = "test@mail.org",
-                adminCc = "admin@mail.org",
-                content = "A notification",
-            )
-        }
-    }
-
-    @Test
-    fun `server down`() {
-        val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=12"
-
-        every { rtConfig.password } returns "12"
-        every { client.post().uri(url) } returns requestSpec
-        every { requestSpec.bodyValue(testBody) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns null
+    fun `null response`() {
+        val url = "http://test-desk/REST/2.0/ticket"
+        mockRtRequest(url, createTicketBody, null)
 
         assertThrows<InvalidResponseException> {
             testInstance.createTicket(
@@ -217,5 +163,60 @@ class RtClientTest(
                 content = "A notification",
             )
         }
+    }
+
+    private fun mockRtRequest(
+        url: String,
+        requestBody: Map<String, Any>,
+        response: Map<String, String>?,
+    ) {
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.headers(capture(headerConsumer)) } returns requestSpec
+        every { requestSpec.bodyValue(requestBody) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(Map::class.java).block() } returns response
+    }
+
+    private fun verifyRtRequest(
+        url: String,
+        requestBody: Map<String, Any>,
+    ) {
+        verify(exactly = 1) {
+            client.post().uri(url)
+            requestSpec.headers(any())
+            requestSpec.bodyValue(requestBody)
+            requestSpec.retrieve().bodyToMono(Map::class.java).block()
+        }
+
+        val headers = HttpHeaders()
+        headerConsumer.captured.accept(headers)
+        assertThat(headers.getFirst(AUTHORIZATION)).isEqualTo("token test-token")
+        assertThat(headers.getFirst(CONTENT_TYPE)).isEqualTo(APPLICATION_JSON.toString())
+    }
+
+    private fun mockRtCorrespondenceRequest(
+        url: String,
+        requestBody: Map<String, Any>,
+    ) {
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.headers(capture(headerConsumer)) } returns requestSpec
+        every { requestSpec.bodyValue(requestBody) } returns requestSpec
+        every { requestSpec.retrieve().toBodilessEntity().block() } returns ResponseEntity.ok().build<Void>()
+    }
+
+    private fun verifyRtCorrespondenceRequest(
+        url: String,
+        requestBody: Map<String, Any>,
+    ) {
+        verify(exactly = 1) {
+            client.post().uri(url)
+            requestSpec.headers(any())
+            requestSpec.bodyValue(requestBody)
+            requestSpec.retrieve().toBodilessEntity().block()
+        }
+
+        val headers = HttpHeaders()
+        headerConsumer.captured.accept(headers)
+        assertThat(headers.getFirst(AUTHORIZATION)).isEqualTo("token test-token")
+        assertThat(headers.getFirst(CONTENT_TYPE)).isEqualTo(APPLICATION_JSON.toString())
     }
 }
