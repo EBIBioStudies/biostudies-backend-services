@@ -19,6 +19,5 @@ data class NotificationProperties(
 data class RtConfig(
     val host: String,
     val queue: String,
-    val user: String,
-    val password: String,
+    val token: String,
 )
