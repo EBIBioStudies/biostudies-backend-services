@@ -33,16 +33,4 @@ internal class UserSqlPermissionsService(
     ): Boolean =
         permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, accessType, accessTag) ||
             permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(DEFAULT_USER, accessType, accessTag)
-
-    override fun canGrantPermissions(
-        user: String,
-        accessTag: String,
-    ): Boolean = isSuperUser(user) || isAdmin(user, accessTag)
-
-    override fun canRevokePermissions(
-        user: String,
-        accessTag: String,
-    ): Boolean = isSuperUser(user) || isAdmin(user, accessTag)
-
-    private fun isSuperUser(email: String) = userRepository.getByEmail(email).superuser
 }
