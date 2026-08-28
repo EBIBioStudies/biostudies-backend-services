@@ -5,12 +5,10 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 
 const val DEFAULT_USER = "default_user@ebi.ac.uk"
 
 internal class UserSqlPermissionsService(
-    private val userRepository: UserDataRepository,
     private val permissionRepo: AccessPermissionRepository,
 ) : UserPermissionsService {
     override fun allowedTags(
