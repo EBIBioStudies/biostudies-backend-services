@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.collections.second
@@ -141,14 +142,29 @@ class UserPermissionsApiTest(
         }
 
     @Test
-    fun `21-6 ADMIN user grants permission to a Regular user`() =
+    fun `21-6 ADMIN user grants and revokes permission to a Regular user`() =
         runTest {
+            val user = dbUser.email
+            val submission =
+                tsv {
+                    line("Submission", "S-PCOL1")
+                    line("Title", "Test Submission For Permissions")
+                    line("AttachTo", "PermissionCollection")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line()
+                }.toString()
+
+            assertThat(superWebClient.submit(submission, TSV)).isSuccessful()
             superWebClient.grantPermission(AccessionAdminUser.email, "PermissionCollection", ADMIN.name)
 
-            adminWebClient.grantPermission(dbUser.email, "PermissionCollection", DELETE_FILES.name)
+            adminWebClient.grantPermission(user, "S-PCOL1", DELETE_FILES.name)
+            assertThat(accessPermissionRepository.findAllByUserEmailAndAccessType(user, DELETE_FILES)).hasSize(1)
 
-            val permissions = accessPermissionRepository.findAllByUserEmailAndAccessType(dbUser.email, DELETE_FILES)
-            assertThat(permissions).hasSize(1)
+            adminWebClient.revokePermission(user, "S-PCOL1", DELETE_FILES.name)
+            assertThat(accessPermissionRepository.findAllByUserEmailAndAccessType(user, DELETE_FILES)).isEmpty()
         }
 
     @Test
