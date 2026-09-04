@@ -215,7 +215,8 @@ class SubmitWebHandler(
         suspend fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
             val previous = accNo?.let { extSubService.findExtendedSubmission(it) }
-            val sources = getSources(sourceRequest(rootPath, previous))
+            val sourceRequest = sourceRequest(rootPath, previous)
+            val sources = getSources(sourceRequest)
             val submission = deserializeSubmission(sources).withAttributes(attrs)
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
             val draft = getOrCreateRequest(accNo, submitter.email, submission)
@@ -229,7 +230,7 @@ class SubmitWebHandler(
                 owner = submitter.email,
                 sources = sources,
                 preferredSources = preferredSources,
-                requestFiles = requestFiles.orEmpty(),
+                requestFiles = sourceRequest.files.orEmpty(),
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,
                 collection = collection,
