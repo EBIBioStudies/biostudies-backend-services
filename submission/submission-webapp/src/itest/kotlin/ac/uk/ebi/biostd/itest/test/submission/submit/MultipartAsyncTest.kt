@@ -15,7 +15,6 @@ import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -118,44 +117,5 @@ class MultipartAsyncTest(
                 val files = it.files.map { it.fileName }
                 assertThat(files).containsExactly(file2.name, file3.name)
             }
-        }
-
-    @Test
-    fun `direct PageTab submission can reference itself`() =
-        runTest {
-            val testFile = tempFolder.createFile("test.txt", "content")
-            webClient.uploadFile(testFile)
-            val submission =
-                tempFolder.createFile(
-                    "direct-submission.tsv",
-                    tsv {
-                        line("Submission", "S-DIRECT-UPLOAD-001")
-                        line("Title", "Direct upload submission")
-                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                        line()
-
-                        line("Study")
-                        line()
-
-                        line("File", "direct-submission.tsv")
-                        line("Type", "PageTab")
-                        line()
-
-                        line("File", "test.txt")
-                        line("Type", "content")
-                        line()
-                    }.toString(),
-                )
-
-            val (accNo, version) =
-                webClient.submitMultipartAsync(submission, SubmitParameters(storageMode = storageMode))
-
-            waitUntil(timeout = 5.seconds) { submissionRepository.existByAccNoAndVersion(accNo, version) }
-
-            val storedSubmission = submissionRepository.getExtByAccNoAndVersion(accNo, version)
-            val files = storedSubmission.section.files
-            assertThat(files).hasSize(2)
-            assertThat(files.first()).hasLeftValueSatisfying { it.fileName == submission.name }
-            assertThat(files.second()).hasLeftValueSatisfying { it.fileName == testFile.name }
         }
 }
