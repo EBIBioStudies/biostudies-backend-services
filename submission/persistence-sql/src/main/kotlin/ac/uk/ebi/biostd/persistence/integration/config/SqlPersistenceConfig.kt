@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TransferLogDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -42,10 +41,8 @@ open class SqlPersistenceConfig {
         )
 
     @Bean
-    internal open fun userPermissionsService(
-        userRepo: UserDataRepository,
-        permissionRepo: AccessPermissionRepository,
-    ): UserPermissionsService = UserSqlPermissionsService(userRepo, permissionRepo)
+    internal open fun userPermissionsService(permissionRepo: AccessPermissionRepository): UserPermissionsService =
+        UserSqlPermissionsService(permissionRepo)
 
     @Bean
     internal open fun transferLogDataService(transferLogRepository: TransferLogDataRepository): TransferLogDataService =

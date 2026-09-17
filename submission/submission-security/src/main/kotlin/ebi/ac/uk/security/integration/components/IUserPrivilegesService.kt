@@ -58,4 +58,14 @@ interface IUserPrivilegesService {
         email: String,
         accNo: String,
     ): Boolean
+
+    suspend fun canGrantPermissions(
+        user: String,
+        accessTag: String,
+    ): Boolean
+
+    suspend fun canRevokePermissions(
+        user: String,
+        accessTag: String,
+    ): Boolean
 }

@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.security.domain.service
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -12,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.security.domain.exception.GrantPermissionException
 import ac.uk.ebi.biostd.security.domain.exception.PermissionsUserDoesNotExistsException
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.every
@@ -30,27 +30,27 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class PermissionServiceTest(
-    @MockK private val subQueryService: SubmissionMetaQueryService,
-    @MockK private val permissionRepo: AccessPermissionRepository,
-    @MockK private val userRepository: UserDataRepository,
-    @MockK private val tagRepository: AccessTagDataRepo,
-    @MockK private val userPermissionsService: UserPermissionsService,
-    @MockK private val dbAccessTag: DbAccessTag,
-    @MockK private val dbUser: DbUser,
+    @param:MockK private val subQueryService: SubmissionMetaQueryService,
+    @param:MockK private val permissionRepo: AccessPermissionRepository,
+    @param:MockK private val userRepository: UserDataRepository,
+    @param:MockK private val tagRepository: AccessTagDataRepo,
+    @param:MockK private val userPrivilegeService: IUserPrivilegesService,
+    @param:MockK private val dbAccessTag: DbAccessTag,
+    @param:MockK private val dbUser: DbUser,
 ) {
     private val testInstance =
-        PermissionService(subQueryService, permissionRepo, userRepository, tagRepository, userPermissionsService)
+        PermissionService(subQueryService, permissionRepo, userRepository, tagRepository, userPrivilegeService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
     @BeforeEach
     fun beforeEach() {
-        every { userPermissionsService.canGrantPermissions(USER, ACC_NO) } returns true
         coEvery { subQueryService.existByAccNo(ACC_NO) } returns true
         every { userRepository.findByEmail(EMAIL) } returns dbUser
         every { tagRepository.findByName(ACC_NO) } returns dbAccessTag
         every { permissionRepo.save(capture(dbAccessPermissionSlot)) } returns mockk()
+        coEvery { userPrivilegeService.canGrantPermissions(USER, ACC_NO) } returns true
         every { permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(EMAIL, READ, ACC_NO) } returns false
     }
 
@@ -117,7 +117,7 @@ class PermissionServiceTest(
     @Test
     fun `when user cannot grant permissions`() =
         runTest {
-            every { userPermissionsService.canGrantPermissions(USER, ACC_NO) } returns false
+            coEvery { userPrivilegeService.canGrantPermissions(USER, ACC_NO) } returns false
 
             val error =
                 assertThrows<GrantPermissionException> {

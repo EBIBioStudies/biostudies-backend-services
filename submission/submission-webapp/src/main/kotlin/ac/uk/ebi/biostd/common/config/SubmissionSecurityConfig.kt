@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -12,6 +11,7 @@ import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
 import com.fasterxml.jackson.databind.ObjectMapper
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -28,22 +28,22 @@ class SubmissionSecurityConfig(
         userDataRepository: UserDataRepository,
         accessTagDataRepository: AccessTagDataRepo,
         submissionQueryService: SubmissionMetaQueryService,
-        userPermissionsService: UserPermissionsService,
+        userPrivilegesService: IUserPrivilegesService,
     ): PermissionService =
         PermissionService(
             submissionQueryService,
             permissionRepository,
             userDataRepository,
             accessTagDataRepository,
-            userPermissionsService,
+            userPrivilegesService,
         )
 
     @Bean
     fun revokePermissionService(
         userDataRepository: UserDataRepository,
         permissionRepository: AccessPermissionRepository,
-        userPermissionsService: UserPermissionsService,
-    ): RevokePermissionService = RevokePermissionService(userDataRepository, permissionRepository, userPermissionsService)
+        userPrivilegesService: IUserPrivilegesService,
+    ): RevokePermissionService = RevokePermissionService(userDataRepository, permissionRepository, userPrivilegesService)
 
     @Bean
     fun securityMapper() = SecurityMapper()

@@ -17,6 +17,7 @@ import ebi.ac.uk.api.SubmitAttribute
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThatThrows
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -47,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.nio.file.Paths
 import java.time.OffsetDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -305,6 +307,45 @@ class MultipartFileSubmissionApiTest(
 
             assertThatThrows<WebClientException> { webClient.submitMultipart(submission, params) }
                 .hasMessageContaining("Unsupported pagetab format: txt")
+        }
+
+    @Test
+    fun `9-6 direct PageTab submission can reference itself`() =
+        runTest {
+            val testFile = tempFolder.createFile("test.txt", "content")
+            webClient.uploadFile(testFile)
+            val submission =
+                tempFolder.createFile(
+                    "direct-submission.tsv",
+                    tsv {
+                        line("Submission", "S-DIRECT-UPLOAD-001")
+                        line("Title", "Direct upload submission")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+
+                        line("Study")
+                        line()
+
+                        line("File", "direct-submission.tsv")
+                        line("Type", "PageTab")
+                        line()
+
+                        line("File", "test.txt")
+                        line("Type", "content")
+                        line()
+                    }.toString(),
+                )
+
+            val (accNo, version) =
+                webClient.submitMultipartAsync(submission, SubmitParameters(storageMode = storageMode))
+
+            waitUntil(timeout = 5.seconds) { submissionRepository.existByAccNoAndVersion(accNo, version) }
+
+            val storedSubmission = submissionRepository.getExtByAccNoAndVersion(accNo, version)
+            val files = storedSubmission.section.files
+            assertThat(files).hasSize(2)
+            assertThat(files.first()).hasLeftValueSatisfying { it.fileName == submission.name }
+            assertThat(files.second()).hasLeftValueSatisfying { it.fileName == testFile.name }
         }
 
     private suspend fun assertSubmissionFiles(
