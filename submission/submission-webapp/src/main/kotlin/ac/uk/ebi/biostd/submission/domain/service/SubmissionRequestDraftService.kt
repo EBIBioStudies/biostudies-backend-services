@@ -69,7 +69,7 @@ class SubmissionRequestDraftService(
         val modificationTime = Instant.now()
 
         requestService.updateRequestDraft(requestDraft.accNo, owner, draft, modificationTime)
-        logger.info { "$accNo $owner Draft with key '$accNo' UPDATED for user '$owner'" }
+        logger.debug { "$accNo $owner Draft with key '$accNo' UPDATED for user '$owner'" }
 
         return requestDraft.copy(draft = draft, modificationTime = modificationTime.atOffset(UTC))
     }
