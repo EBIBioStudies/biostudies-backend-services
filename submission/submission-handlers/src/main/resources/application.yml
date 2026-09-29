@@ -40,5 +40,4 @@ app:
     rt:
       host: # RT server host
       queue: # Queue used for RT notifications
-      user: # RT user
-      password: # RT password
+      token: # RT API access token
