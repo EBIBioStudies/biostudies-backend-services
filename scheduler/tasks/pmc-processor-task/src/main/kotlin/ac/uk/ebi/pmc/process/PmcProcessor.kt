@@ -1,10 +1,11 @@
 package ac.uk.ebi.pmc.process
 
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.pmc.process.util.FileDownloader
-import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.coroutines.concurrently
@@ -21,7 +22,7 @@ import java.nio.file.Paths
 private val logger = KotlinLogging.logger {}
 
 class PmcProcessor(
-    private val submissionInitializer: SubmissionInitializer,
+    private val serializationService: SerializationService,
     private val errorService: ErrorsService,
     private val submissionService: SubmissionService,
     private val fileDownloader: FileDownloader,
@@ -42,21 +43,20 @@ class PmcProcessor(
 
     private suspend fun processSubmission(subDoc: SubmissionDocument) {
         logger.info { "Processing submission ${subDoc.accNo}" }
-        runCatching { submissionInitializer.getSubmission(subDoc.body) }
+        runCatching { serializationService.deserializeSubmission(subDoc.body, SubFormat.JSON) }
             .fold(
-                { (sub, subBody) -> downloadFiles(sub, subBody, subDoc) },
+                { sub -> downloadFiles(sub, subDoc) },
                 { errorService.saveError(subDoc, PmcMode.PROCESS, it) },
             )
     }
 
     private suspend fun downloadFiles(
         sub: Submission,
-        subBody: String,
         subDoc: SubmissionDocument,
     ) {
         val targetFolder = createTargetFolder(subDoc)
         fileDownloader.downloadFiles(targetFolder, sub).fold(
-            { submissionService.saveProcessedSubmission(subDoc.copy(body = subBody), it) },
+            { submissionService.saveProcessedSubmission(subDoc, it) },
             { errorService.saveError(subDoc, PmcMode.PROCESS, it) },
         )
     }

@@ -14,7 +14,6 @@ import ac.uk.ebi.pmc.persistence.repository.SubFileDataRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionDataRepository
 import ac.uk.ebi.pmc.process.ProcessorConfig
 import ac.uk.ebi.pmc.process.util.FileDownloader
-import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.pmc.submit.SubmitterConfig
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
@@ -48,10 +47,6 @@ class AppConfig {
 
     @Bean
     fun fileDownloader(pmcApi: PmcApi): FileDownloader = FileDownloader(pmcApi)
-
-    @Bean
-    fun submissionInitializer(serializationService: SerializationService): SubmissionInitializer =
-        SubmissionInitializer(serializationService)
 
     @Bean
     fun submissionService(

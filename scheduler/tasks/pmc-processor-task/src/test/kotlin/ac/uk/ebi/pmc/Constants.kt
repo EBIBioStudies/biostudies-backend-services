@@ -22,7 +22,7 @@ const val URL_FILE2_FILES_SERVER = "/files/getFileStream/PMC1234567?filename=fil
 const val URL_FILE3_FILES_SERVER = "/files/getFileStream/PMC8901234?filename=file3.txt"
 internal const val SUB_ERROR_TEXT = "Submission\tS-456ERROR\tPublic\n\nStudy\n\nLinks"
 internal const val ACC_NO = "S-123SUCCESS"
-internal val SUB_ATTRIBUTES = listOf(Attribute("Title", "Submission title"), Attribute("ReleaseDate", "2018-01-01"))
+internal val SUB_ATTRIBUTES = listOf(Attribute("Title", "Submission title"), Attribute("ReleaseDate", "2020-01-01"))
 
 val submissionBody =
     jsonObj {
