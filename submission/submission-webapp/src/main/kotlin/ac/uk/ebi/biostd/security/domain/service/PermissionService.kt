@@ -30,11 +30,11 @@ class PermissionService(
         require(userPrivilegesService.canGrantPermissions(user, accNo)) { throw GrantPermissionException(user, accNo) }
         require(submissionQueryService.existByAccNo(accNo)) { throw SubmissionNotFoundException(accNo) }
 
-        val user = userRepository.findByEmail(targetUser) ?: throw PermissionsUserDoesNotExistsException(targetUser)
+        val target = userRepository.findByEmail(targetUser) ?: throw PermissionsUserDoesNotExistsException(targetUser)
         val accessTag = tagRepository.findByName(accNo) ?: tagRepository.save(DbAccessTag(name = accNo))
 
         if (permissionRepository.permissionExists(accessType, targetUser, accNo).not()) {
-            permissionRepository.save(DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag))
+            permissionRepository.save(DbAccessPermission(accessType = accessType, user = target, accessTag = accessTag))
         }
     }
 }

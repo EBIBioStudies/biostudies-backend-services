@@ -34,12 +34,13 @@ class PmcSubmissionTabProcessor(
         return LocalDate.ofYearDay(year, 1).toString()
     }
 
+    @Suppress("CyclomaticComplexMethod")
     private fun transformChunk(
         chunk: TsvChunk,
         releaseDate: String,
     ): String {
-        fun processSubmissionChunks(lines: List<TsvChunkLine>) =
-            lines
+        fun processSubmissionChunks(chunks: List<TsvChunkLine>) =
+            chunks
                 .map { line ->
                     if (line.name.orEmpty() like RELEASE_DATE) listOf(line.name, releaseDate) else line.toList()
                 }.let { lines ->
@@ -50,15 +51,15 @@ class PmcSubmissionTabProcessor(
                     }
                 }
 
-        fun processLinkChunks(lines: List<TsvChunkLine>) =
-            lines.map { line ->
+        fun processLinkChunks(chunks: List<TsvChunkLine>) =
+            chunks.map { line ->
                 line.mapIndexed { index, value ->
                     if (index == 1 && !isAttrDetail(line.name.orEmpty())) normalizeLinkValue(value) else value
                 }
             }
 
-        fun processLinkTablesChunks(lines: List<TsvChunkLine>) =
-            lines.map { line ->
+        fun processLinkTablesChunks(chunks: List<TsvChunkLine>) =
+            chunks.map { line ->
                 line.mapIndexed { index, value ->
                     val header = chunk.header.getOrNull(index).orEmpty()
                     if (index > 0 && !isAttrDetail(header)) normalizeLinkValue(value) else value
