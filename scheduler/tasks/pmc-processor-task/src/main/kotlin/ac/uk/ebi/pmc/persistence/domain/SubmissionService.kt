@@ -61,13 +61,6 @@ class SubmissionService(
         logger.info { "Finish processing submission with accNo = '${sub.accNo}' from file ${sub.sourceFile}" }
     }
 
-    suspend fun saveSubmittingSubmission(
-        sub: SubmissionDocument,
-        version: Int,
-    ) {
-        subRepository.update(sub.copy(version = version, status = SUBMITTED))
-    }
-
     suspend fun saveSubmittingSubmissions(
         submissions: List<SubmissionDocument>,
         results: List<SubmissionId>,
