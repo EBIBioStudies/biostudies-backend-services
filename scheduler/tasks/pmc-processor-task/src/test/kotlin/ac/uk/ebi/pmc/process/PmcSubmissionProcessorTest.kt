@@ -205,19 +205,20 @@ internal class PmcSubmissionProcessorTest(
         }
 
         private fun assertProcessedSubmission(
-            docSubmission: SubmissionDocument,
+            processedSubmission: SubmissionDocument,
             files: List<SubFileDocument>,
         ) {
-            assertThat(docSubmission.status).isEqualTo(PROCESSED)
-            assertThat(docSubmission.files).hasSize(2)
-            assertThat(docSubmission.files).containsAll(files.map { it.id })
+            assertThat(processedSubmission.status).isEqualTo(PROCESSED)
+            assertThat(processedSubmission.body).isEqualTo(docSubmission.body)
+            assertThat(processedSubmission.files).hasSize(2)
+            assertThat(processedSubmission.files).containsAll(files.map { it.id })
 
             val expectedPath =
                 tempFolder.root
-                    .resolve(docSubmission.accNo.takeLast(3))
-                    .resolve(docSubmission.accNo)
-                    .resolve("${docSubmission.sourceTime}")
-                    .resolve("${docSubmission.posInFile}")
+                    .resolve(processedSubmission.accNo.takeLast(3))
+                    .resolve(processedSubmission.accNo)
+                    .resolve("${processedSubmission.sourceTime}")
+                    .resolve("${processedSubmission.posInFile}")
 
             assertThat(expectedPath.resolve(FILE1_NAME)).hasContent(FILE1_CONTENT)
             assertThat(expectedPath.resolve(FILE2_NAME)).hasContent(FILE2_CONTENT)

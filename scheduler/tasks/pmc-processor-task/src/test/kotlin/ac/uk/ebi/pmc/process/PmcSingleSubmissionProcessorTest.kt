@@ -184,6 +184,7 @@ internal class PmcSingleSubmissionProcessorTest(private val tempFolder: Temporar
             files: List<SubFileDocument>,
         ) {
             assertThat(docSubmission.status).isEqualTo(SubmissionStatus.PROCESSED)
+            assertThat(docSubmission.body).isEqualTo(this.docSubmission.body)
             assertThat(docSubmission.files).hasSize(2)
             assertThat(docSubmission.files).containsAll(files.map { it.id })
 

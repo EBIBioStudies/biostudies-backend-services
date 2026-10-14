@@ -28,9 +28,10 @@ import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-internal class TsvChunkGenerator(
-    private val parser: CSVFormat = createParser(),
-) {
+/** Parses PageTab blocks without validating required submission attributes. */
+class TsvChunkGenerator {
+    private val parser: CSVFormat = createParser()
+
     fun chunks(pageTab: String): Queue<TsvChunk> =
         chunkLines(pageTab)
             .split { it.isEmpty() }

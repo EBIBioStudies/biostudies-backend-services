@@ -12,7 +12,6 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_STATUS
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_UPDATED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -42,8 +41,6 @@ class SubmissionDataRepository(
         return inserted
     }
 
-    suspend fun findAll(): Flow<SubmissionDocument> = repository.findAll()
-
     suspend fun update(sub: SubmissionDocument): SubmissionDocument = repository.save(sub)
 
     suspend fun update(submissions: List<SubmissionDocument>) = repository.saveAll(submissions).collect()
@@ -52,7 +49,7 @@ class SubmissionDataRepository(
         status: SubmissionStatus,
         newStatus: SubmissionStatus,
     ): SubmissionDocument? {
-        val query = Query(Criteria.where(SUB_STATUS).`is`(status))
+        val query = Query(where(SUB_STATUS).`is`(status))
         val update = Update().set(SUB_STATUS, newStatus)
         val options = FindAndModifyOptions().returnNew(true)
         return mongoTemplate.findAndModify(query, update, options, SubmissionDocument::class.java).awaitFirstOrNull()
@@ -65,8 +62,7 @@ class SubmissionDataRepository(
     ): SubmissionDocument? {
         val query =
             Query(
-                Criteria
-                    .where(SUB_STATUS)
+                where(SUB_STATUS)
                     .`is`(status)
                     .and(SUB_SOURCE_FILE)
                     .`is`(sourceFile),

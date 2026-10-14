@@ -9,6 +9,9 @@ Link	Types
 AM905938	gen
 P12004	uniprot
 
+Publication
+Publication date	2020-08-19
+
 Submission	S-456ERROR	Public
 
 Study
