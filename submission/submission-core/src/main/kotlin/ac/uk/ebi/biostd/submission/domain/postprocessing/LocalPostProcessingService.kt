@@ -93,13 +93,12 @@ class LocalPostProcessingService(
 
     suspend fun postProcess(accNo: String) {
         logger.info { "Started post-processing submission '$accNo'" }
-        val previousVersion = extSubQueryService.findLatestInactiveByAccNo(accNo)
         val sub = extSubQueryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
 
         generateFallbackPageTabFiles(sub)
         indexSubmissionInnerFiles(sub)
         calculateStats(sub)
-        if (sub.doi != null && previousVersion?.doi == null) registerDoi(sub)
+        if (sub.doi != null) registerDoi(sub)
         if (cleanUpProperties.postProcessCleanUpEnabled) cleanUpUserSourceFiles(sub)
 
         logger.info { "Finished post-processing submission '$accNo'" }
