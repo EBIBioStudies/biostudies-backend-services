@@ -278,6 +278,11 @@ class ITestListener : TestExecutionListener {
         internal val clusterLogsPath = testAppFolder.createDirectory("cluster-logs")
         internal val clusterWrapperPath = testAppFolder.createDirectory("cluster-wrapper")
 
+        internal fun doiRegistrationRequests(accNo: String): List<String> =
+            doiServer.allServeEvents
+                .map { it.request.bodyAsString }
+                .filter { it.contains("<doi>10.6019/$accNo</doi>") }
+
         private val fireServer: WireMockServer by lazy { createFireApiMock() }
         private val doiServer: WireMockServer by lazy { createDoiApiMock() }
         private val ftpInServer = createFtpServer(FTP_USER, FTP_PASSWORD, userFilesFtp)

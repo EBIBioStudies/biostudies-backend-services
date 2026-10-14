@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.doiRegistrationRequests
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireTempFolder
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
@@ -394,32 +395,77 @@ class SubmissionPostProcessingTest(
             val submission =
                 tsv {
                     line("Submission", accNo)
-                    line("Title", "DOI Generation")
+                    line("Title", " DOI Generation ")
                     line("ReleaseDate", "2099-09-21")
+                    line("DOI")
                     line()
 
                     line("Study")
                     line()
 
                     line("Author")
-                    line("Name", "Jane Doe")
-                    line("ORCID", "1234-5678-9101-1121")
+                    line("Name", "  Jane Doe  ")
+                    line("ORCID", "  1234-5678-9101-1121  ")
                     line("Affiliation", "o1")
                     line()
 
                     line("Organization", "o1")
-                    line("Name", "EMBL")
+                    line("Name", "  EMBL  ")
                     line()
                 }.toString()
 
             assertThat(webClient.submit(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getExtByAccNo(accNo).doi).isNull()
-
-            webClient.generateDoi(accNo)
-
             waitForCompletion(10.seconds) {
                 submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
             }
+
+            val request = doiRegistrationRequests(accNo).first()
+            assertThat(request).contains("<title>DOI Generation</title>")
+            assertThat(request).contains("<given_name>Jane</given_name>")
+            assertThat(request).contains("<surname>Doe</surname>")
+            assertThat(request).contains("<affiliation>EMBL</affiliation>")
+            assertThat(request).contains("<ORCID authenticated=\"false\">https://orcid.org/1234-5678-9101-1121</ORCID>")
+
+            val updatedSubmission =
+                tsv {
+                    line("Submission", accNo)
+                    line("Title", "  Updated DOI Generation  ")
+                    line("ReleaseDate", "2099-09-21")
+                    line("DOI", "$BS_DOI_ID/$accNo")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("Author")
+                    line("Name", "  Janet Smith  ")
+                    line("ORCID", "  0000-0002-1825-0097  ")
+                    line("Affiliation", "o1")
+                    line()
+
+                    line("Organization", "o1")
+                    line("Name", "  EBI  ")
+                    line()
+                }.toString()
+
+            assertThat(webClient.submit(updatedSubmission, TSV)).isSuccessful()
+            waitUntil(10.seconds) {
+                doiRegistrationRequests(accNo).any { it.contains("<title>Updated DOI Generation</title>") }
+            }
+
+            val updateRequest =
+                doiRegistrationRequests(accNo).first { it.contains("<title>Updated DOI Generation</title>") }
+            assertThat(updateRequest).contains("<given_name>Janet</given_name>")
+            assertThat(updateRequest).contains("<surname>Smith</surname>")
+            assertThat(updateRequest).contains("<affiliation>EBI</affiliation>")
+            assertThat(updateRequest).contains("<ORCID authenticated=\"false\">https://orcid.org/0000-0002-1825-0097</ORCID>")
+            assertThat(updateRequest).doesNotContain(
+                "<title>DOI Generation</title>",
+                "<given_name>Jane</given_name>",
+                "<surname>Doe</surname>",
+                "<affiliation>EMBL</affiliation>",
+                "1234-5678-9101-1121",
+            )
         }
 
     @Test
