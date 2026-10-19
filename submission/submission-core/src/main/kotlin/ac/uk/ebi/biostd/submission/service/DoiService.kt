@@ -109,7 +109,7 @@ class DoiService(
                 .filter { it.isAuthor() }
                 .filter { isNameValid(it) }
 
-        return title to contributors.map { it.asContributor(organizations) }
+        return title.trim() to contributors.map { it.asContributor(organizations) }
     }
 
     private fun Section.asContributor(organizations: Map<String, String>): Contributor {
@@ -121,7 +121,7 @@ class DoiService(
             name = names.substringBeforeLast(" ", "").nullIfBlank(),
             surname = names.substringAfterLast(" "),
             affiliation = org,
-            orcid = find(ORCID_ATTR),
+            orcid = find(ORCID_ATTR)?.trim(),
         )
     }
 
@@ -132,7 +132,7 @@ class DoiService(
                 .filter { it.isOrganization() }
         validateOrganizations(organizations)
 
-        return organizations.associateBy({ it.accNo!! }, { it.findAttr(NAME_ATTR)!! })
+        return organizations.associateBy({ it.accNo!! }, { it.findAttr(NAME_ATTR)!!.trim() })
     }
 
     private fun validateOrganizations(organizations: List<Section>) {

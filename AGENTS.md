@@ -13,22 +13,15 @@
 ## Guidelines
 - When a new integration test is added to any class in the `ac.uk.ebi.biostd.itest.test.` package, a new entry should be
  added to `itestsinventory.md`
+- When writing pagetab for a test, prefer TSV format
 - Don't create unit tests for the web resource classes (i.e. containing endpoints) unless specifically asked.
 
 ## Definition of Done
 Before marking the work as complete:
 
-- Run:
-  - build-test
-  - itest-nfs
-  - itest-fire
-  - itest-chaos
-
 - Ensure:
   - Compilation is successful.
-  - All unit tests are passing.
-  - All integration tests defined at ac.uk.ebi.biostd.itest.test are passing with enableFire=true
-  - All integration tests defined at ac.uk.ebi.biostd.itest.test are passing with enableFire=false
+  - All integration tests defined at ac.uk.ebi.biostd.itest.test are passing (run `itest-fire`)
 
 - Provide:
   - Summary of changes
