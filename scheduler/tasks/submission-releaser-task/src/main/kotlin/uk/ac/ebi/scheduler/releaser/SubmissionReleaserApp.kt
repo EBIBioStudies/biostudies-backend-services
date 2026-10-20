@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.releaser
 
-import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import kotlinx.coroutines.runBlocking
@@ -27,7 +26,8 @@ fun main(args: Array<String>) {
 class SubmissionReleaserExecutor(
     private val applicationProperties: ApplicationProperties,
     private val submissionReleaserService: SubmissionReleaserService,
-) : CommandLineRunner, ApplicationContextAware {
+) : CommandLineRunner,
+    ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
     override fun run(vararg args: String?) {
@@ -35,7 +35,6 @@ class SubmissionReleaserExecutor(
             when (applicationProperties.mode) {
                 NOTIFY -> submissionReleaserService.notifySubmissionReleases()
                 RELEASE -> submissionReleaserService.releaseDailySubmissions()
-                GENERATE_FTP_LINKS -> submissionReleaserService.generateFtpLinks()
             }
         }
     }

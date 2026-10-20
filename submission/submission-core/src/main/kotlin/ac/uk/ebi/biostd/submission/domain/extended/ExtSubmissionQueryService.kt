@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.commons.OffsetBasedPageRequest
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -30,17 +29,13 @@ class ExtSubmissionQueryService(
         includeFileListFiles: Boolean = false,
     ): ExtSubmission? = submissionPersistenceQueryService.findExtByAccNo(accNo, includeFileListFiles)
 
-    suspend fun getReferencedFiles(
-        accNo: String,
-        fileListName: String,
-    ): ExtFileTable {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false, false)
-        val files = filesRepository.getReferencedFiles(sub, fileListName).toList()
-        return ExtFileTable(files.toList())
-    }
-
     suspend fun getReferencedFiles(request: ExtFileListFilesRequest): Page<ExtFile> {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(request.accNo, false, false)
+        val sub =
+            submissionPersistenceQueryService.getExtByAccNo(
+                accNo = request.accNo,
+                includeFileListFiles = false,
+                includeLinkListLinks = false,
+            )
         var pageRequest = OffsetBasedPageRequest.fromOffsetAndLimit(request.page.offset, request.page.limit)
         return filesRepository.getReferencedFiles(
             sub,
@@ -50,7 +45,12 @@ class ExtSubmissionQueryService(
     }
 
     suspend fun getReferencedLinks(request: ExtLinkListFilesRequest): Page<ExtLink> {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(request.accNo, false, false)
+        val sub =
+            submissionPersistenceQueryService.getExtByAccNo(
+                accNo = request.accNo,
+                includeFileListFiles = false,
+                includeLinkListLinks = false,
+            )
         var pageRequest = OffsetBasedPageRequest.fromOffsetAndLimit(request.page.offset, request.page.limit)
         return linksRepository.getReferencedLinks(
             sub,

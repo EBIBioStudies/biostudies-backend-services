@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
-import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.time.Instant
 
 @RestController
 @RequestMapping("/submissions/extended")
@@ -27,7 +24,6 @@ import java.time.Instant
 class ExtSubmissionResource(
     private val extSubmissionService: ExtSubmissionService,
     private val extSubmissionQueryService: ExtSubmissionQueryService,
-    private val extSerializationService: ExtSerializationService,
 ) {
     @GetMapping("/{accNo}")
     suspend fun getExtended(
@@ -51,13 +47,6 @@ class ExtSubmissionResource(
     suspend fun reindexSubmission(
         @PathVariable accNo: String,
     ) = extSubmissionService.reindexSubmission(accNo)
-
-    @PostMapping("/release/{accNo}/{releaseDate}")
-    suspend fun releaseSubmission(
-        @BioUser user: SecurityUser,
-        @PathVariable accNo: String,
-        @PathVariable releaseDate: String,
-    ): SubmissionId = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
 
     @PostMapping("/{accNo}/generate-doi")
     suspend fun generateDoi(
@@ -85,26 +74,4 @@ class ExtSubmissionResource(
         @BioUser user: SecurityUser,
         @RequestBody options: SubmissionTransferOptions,
     ) = extSubmissionService.transferEmailUpdate(user.email, options)
-
-    @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    suspend fun submitExtended(
-        @BioUser user: SecurityUser,
-        @RequestParam(SUBMISSION) extSubmission: String,
-    ): ExtSubmission =
-        extSubmissionService.submitExt(
-            user.email,
-            extSerializationService.deserialize(extSubmission),
-        )
-
-    @PostMapping("/async")
-    @PreAuthorize("isAuthenticated()")
-    suspend fun submitExtendedAsync(
-        @BioUser user: SecurityUser,
-        @RequestParam(SUBMISSION) extSubmission: String,
-    ): SubmissionId =
-        extSubmissionService.submitExtAsync(
-            user.email,
-            extSerializationService.deserialize(extSubmission),
-        )
 }

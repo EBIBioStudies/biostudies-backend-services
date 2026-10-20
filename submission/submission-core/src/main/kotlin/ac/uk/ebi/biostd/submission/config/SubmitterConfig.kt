@@ -198,7 +198,6 @@ class SubmitterConfig(
     @Bean
     fun submissionReleaser(
         fileStorageService: FileStorageService,
-        serializationService: ExtSerializationService,
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -206,7 +205,6 @@ class SubmitterConfig(
         SubmissionRequestReleaser(
             properties.persistence.concurrency,
             fileStorageService,
-            serializationService,
             submissionPersistenceQueryService,
             requestService,
             filesRequestService,

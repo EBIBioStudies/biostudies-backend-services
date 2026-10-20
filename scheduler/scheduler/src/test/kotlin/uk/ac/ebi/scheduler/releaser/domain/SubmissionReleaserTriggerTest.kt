@@ -1,7 +1,6 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
 import ac.uk.ebi.scheduler.properties.ReleaserMode
-import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import ebi.ac.uk.commons.http.slack.NotificationsSender
@@ -34,10 +33,10 @@ import kotlin.Result.Companion.success
 
 @ExtendWith(MockKExtension::class)
 class SubmissionReleaserTriggerTest(
-    @MockK private val job: Job,
-    @MockK private val appProperties: AppProperties,
-    @MockK private val clusterClient: ClusterClient,
-    @MockK private val notificationsSender: NotificationsSender,
+    @param:MockK private val job: Job,
+    @param:MockK private val appProperties: AppProperties,
+    @param:MockK private val clusterClient: ClusterClient,
+    @param:MockK private val notificationsSender: NotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()
@@ -76,15 +75,6 @@ class SubmissionReleaserTriggerTest(
 
             verifyClusterOperations()
             verifyJobSpecs(jobSpecs.captured, mode = NOTIFY)
-        }
-
-    @Test
-    fun triggerFtpLinksGenerator() =
-        runTest {
-            trigger.triggerFtpLinksGenerator()
-
-            verifyClusterOperations()
-            verifyJobSpecs(jobSpecs.captured, mode = GENERATE_FTP_LINKS)
         }
 
     private fun verifyClusterOperations() {
