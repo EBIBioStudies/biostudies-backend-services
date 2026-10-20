@@ -10,7 +10,6 @@ import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.toDate
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -92,18 +91,6 @@ class SubmissionReleaserServiceTest(
 
         verify(exactly = 1) { bioWebClient.refreshSubmission("S-BSST0") }
     }
-
-    @Test
-    fun `generate ftp links`() =
-        runTest {
-            val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
-
-            every { releaserRepository.findAllReleased() } returns flowOf(released)
-            coEvery { bioWebClient.generateFtpLinks("S-BSST0") } answers { nothing }
-
-            testInstance.generateFtpLinks()
-            coVerify(exactly = 1) { bioWebClient.generateFtpLinks("S-BSST0") }
-        }
 
     private fun mockNotificationQuery(
         month: Int,

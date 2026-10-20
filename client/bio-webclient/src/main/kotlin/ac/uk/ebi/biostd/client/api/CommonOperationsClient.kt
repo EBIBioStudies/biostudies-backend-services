@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.integration.web.GeneralOperations
 import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
-import ebi.ac.uk.commons.http.ext.put
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
 import org.springframework.web.reactive.function.client.WebClient
@@ -13,7 +11,6 @@ import org.springframework.web.reactive.function.client.awaitBody
 
 private const val GROUP_URL = "/groups"
 private const val PROJECTS_URL = "/projects"
-private const val FTP_URL = "/submissions/ftp"
 
 class CommonOperationsClient(
     private val client: WebClient,
@@ -31,15 +28,6 @@ class CommonOperationsClient(
             .uri(PROJECTS_URL)
             .retrieve()
             .awaitBody()
-
-    override suspend fun generateFtpLinks(accNo: String) {
-        client
-            .post()
-            .uri("$FTP_URL/generate")
-            .bodyValue(linkedMultiValueMapOf("accNo" to accNo))
-            .retrieve()
-            .awaitBodilessEntity()
-    }
 
     override suspend fun createGroup(
         groupName: String,

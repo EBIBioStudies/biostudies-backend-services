@@ -9,11 +9,9 @@ import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedFilePageMap
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedLinkPageMapper
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.model.FileListPath
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -29,12 +27,6 @@ class ExtQuerySubmissionResource(
     private val extPageMapper: ExtendedSubmissionPageMapper,
     private val extSubmissionQueryService: ExtSubmissionQueryService,
 ) {
-    @GetMapping("/{accNo}/referencedFiles/**")
-    suspend fun getReferencedFiles(
-        @PathVariable accNo: String,
-        fileListPath: FileListPath,
-    ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
-
     @GetMapping("/{accNo}/fileList/{*path}")
     suspend fun fileListFiles(
         @PathVariable accNo: String,

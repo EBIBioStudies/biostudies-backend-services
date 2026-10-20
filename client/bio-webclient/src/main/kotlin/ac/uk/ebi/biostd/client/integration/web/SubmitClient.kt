@@ -35,7 +35,6 @@ import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.flow.Flow
 import java.io.File
-import java.time.Instant
 
 interface SubmitClient :
     SubmissionOperations,
@@ -133,10 +132,6 @@ interface SubmissionOperations {
         rootPath: String? = null,
         accNo: String? = null,
     )
-
-    suspend fun getSubmission(accNo: String): SubmissionDto?
-
-    suspend fun getSubmissionJson(accNo: String): String?
 }
 
 interface SecurityOperations {
@@ -166,8 +161,6 @@ interface GeneralOperations {
     suspend fun getGroups(): List<Group>
 
     suspend fun getCollections(): List<Collection>
-
-    suspend fun generateFtpLinks(accNo: String)
 
     suspend fun createGroup(
         groupName: String,
@@ -239,11 +232,6 @@ interface ExtSubmissionOperations {
     )
 
     fun refreshSubmission(accNo: String): SubmissionId
-
-    fun releaseSubmission(
-        accNo: String,
-        releaseDate: Instant,
-    ): SubmissionId
 
     suspend fun generateDoi(accNo: String): SubmissionId
 
@@ -380,9 +368,4 @@ interface SubmissionRequestOperations {
         accNo: String,
         version: Int,
     ): List<String>
-
-    suspend fun archiveSubmissionRequest(
-        accNo: String,
-        version: Int,
-    )
 }

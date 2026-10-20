@@ -47,15 +47,6 @@ class SubmissionReleaserService(
         }
     }
 
-    suspend fun generateFtpLinks() {
-        withContext(Dispatchers.Default) {
-            releaserRepository
-                .findAllReleased()
-                .map { async { generateFtpLinks(it) } }
-                .collect { it.await() }
-        }
-    }
-
     private fun releaseSafely(releaseData: ReleaseData) {
         runCatching { bioWebClient.refreshSubmission(releaseData.accNo) }
             .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
@@ -79,10 +70,5 @@ class SubmissionReleaserService(
     private fun notify(releaseData: ReleaseData) {
         logger.info { "Notifying submission release for ${releaseData.accNo}" }
         eventsPublisherService.subToBePublished(releaseData.accNo, releaseData.owner)
-    }
-
-    private suspend fun generateFtpLinks(releaseData: ReleaseData) {
-        logger.info { "Generating FTP links for submission ${releaseData.accNo}" }
-        bioWebClient.generateFtpLinks(releaseData.accNo)
     }
 }

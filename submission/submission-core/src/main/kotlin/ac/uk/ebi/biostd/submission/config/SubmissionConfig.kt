@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.config
 
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -18,7 +17,6 @@ import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.stats.service.SubmissionStatsService
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -42,20 +40,8 @@ import uk.ac.ebi.events.service.EventsPublisherService
 )
 class SubmissionConfig {
     @Bean
-    fun submissionQueryService(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-        filesRepository: SubmissionFilesPersistenceService,
-        serializationService: SerializationService,
-        toSubmissionMapper: ToSubmissionMapper,
-        toFileListMapper: ToFileListMapper,
-    ): SubmissionQueryService =
-        SubmissionQueryService(
-            submissionPersistenceQueryService,
-            filesRepository,
-            serializationService,
-            toSubmissionMapper,
-            toFileListMapper,
-        )
+    fun submissionQueryService(submissionPersistenceQueryService: SubmissionPersistenceQueryService): SubmissionQueryService =
+        SubmissionQueryService(submissionPersistenceQueryService)
 
     @Bean
     fun submissionService(

@@ -27,12 +27,10 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
-import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.time.Duration
 
@@ -84,33 +82,6 @@ class ExtSubmissionService(
         return refreshed
     }
 
-    suspend fun releaseSubmission(
-        user: String,
-        accNo: String,
-        releaseDate: Instant,
-    ): SubmissionId {
-        logger.info { "$accNo $user Received async release request, accNo='{$accNo}', releaseDate = $releaseDate" }
-        val submission = queryService.getExtByAccNo(accNo, true)
-        val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
-        val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now())
-
-        val toRelease =
-            submission.copy(
-                releaseTime = releaseDate.asOffsetAtStartOfDay(),
-                released = released,
-                version = persistenceService.getNextVersion(accNo),
-            )
-        val request =
-            ExtSubmitRequest(
-                owner = user,
-                newSubmission = false,
-                submission = toRelease,
-            )
-        val releasedSub = submissionSubmitter.createRqt(request)
-        eventsPublisherService.submissionRequest(releasedSub.accNo, releasedSub.version)
-        return releasedSub
-    }
-
     suspend fun generateDoi(
         user: String,
         accNo: String,
@@ -124,22 +95,6 @@ class ExtSubmissionService(
 
         requireNotNull(doi) { "Failed to generate DOI for submission '$accNo'" }
         return submitExtAsync(user, extSub.copy(doi = doi, version = persistenceService.getNextVersion(accNo)))
-    }
-
-    suspend fun submitExt(
-        user: String,
-        sub: ExtSubmission,
-    ): ExtSubmission {
-        logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
-        val submission = processSubmission(user, sub).copy(version = persistenceService.getNextVersion(sub.accNo))
-        val request =
-            ExtSubmitRequest(
-                owner = user,
-                newSubmission = queryService.existByAccNo(sub.accNo),
-                submission = submission,
-            )
-        val (accNo, version) = submissionSubmitter.createRqt(request)
-        return submissionSubmitter.handleRequest(accNo, version)
     }
 
     suspend fun submitExt(
