@@ -206,6 +206,7 @@ java -jar BioStudiesCLI-2.0.jar revokePermission \
 * **ac or --accNo:** The accession to revoke the permission to. The accession must exist.
 
 ### Upload User Files
+
 Upload files to the user folder.
 
 ```
@@ -218,11 +219,28 @@ java -jar BioStudiesCLI-2.0.jar uploadUserFiles \
 ```
 
 #### Arguments
+
 * **s or --server:** BioStudies instance URL.
 * **u or --user:** User that will upload the files.
 * **p or --password:** The user password.
 * **f or --file:** Path of the file to be uploaded.
 * **rp or --relPath:** Relative user folder path where the file will be located.
+* **--datamover:** Use the cluster datamover for large files and wait for the upload to finish.
+
+HTTP is the default upload method. Both methods flatten source subdirectories into the requested destination folder
+and replace files with matching names.
+
+For datamover uploads, place `biostudies-cli.yaml` beside the CLI JAR. Start with
+[`biostudies-cli.example.yaml`](biostudies-cli.example.yaml) and update it for your environment. The source must be
+accessible from the cluster; using an absolute path is recommended.
+
+```sh
+java -jar /path/to/BioStudiesCLI-2.0.jar uploadUserFiles \
+  -s <server> -u <user> -p <password> \
+  -f /shared/source-directory -rp incoming --datamover
+```
+
+The command waits for the upload to finish. If it is interrupted, rerun the same command to resume it.
 
 ### Delete User Files
 Delete files from the user folder.
