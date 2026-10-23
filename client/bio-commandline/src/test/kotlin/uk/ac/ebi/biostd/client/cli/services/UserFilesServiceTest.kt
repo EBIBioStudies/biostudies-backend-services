@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.client.cli.services
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
+import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.io.ext.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -12,6 +13,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.mockkObject
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
@@ -70,6 +72,21 @@ class UserFilesServiceTest(
             testInstance.deleteUserFiles(securityConfig, FILE_NAME, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.deleteFile(FILE_NAME, REL_PATH) }
+        }
+
+    @Test
+    fun `datamover authenticates and resolves profile without uploading file over HTTP`() =
+        runTest {
+            val dataMover = mockk<DataMoverUserFilesService>()
+            val profile = mockk<UserProfile>()
+            val file = tempFolder.createFile(FILE_NAME)
+            coEvery { bioWebClient.getProfile() } returns profile
+            coEvery { dataMover.upload(profile, file, REL_PATH) } returns Unit
+
+            UserFilesService(dataMover).uploadUserFilesDataMover(securityConfig, file, REL_PATH)
+
+            coVerify(exactly = 1) { dataMover.upload(profile, file, REL_PATH) }
+            coVerify(exactly = 0) { bioWebClient.uploadFile(any(), any()) }
         }
 
     private companion object {

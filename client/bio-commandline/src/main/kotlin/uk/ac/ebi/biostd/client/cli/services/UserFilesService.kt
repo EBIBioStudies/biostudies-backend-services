@@ -5,7 +5,20 @@ import uk.ac.ebi.biostd.client.cli.common.getFiles
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import java.io.File
 
-internal class UserFilesService {
+internal class UserFilesService(
+    dataMoverService: DataMoverUserFilesService? = null,
+) {
+    private val dataMoverService by lazy { dataMoverService ?: DataMoverUserFilesService() }
+
+    suspend fun uploadUserFilesDataMover(
+        securityConfig: SecurityConfig,
+        file: File,
+        relPath: String,
+    ) {
+        val profile = bioWebClient(securityConfig).getProfile()
+        dataMoverService.upload(profile, file, relPath)
+    }
+
     suspend fun uploadUserFiles(
         securityConfig: SecurityConfig,
         file: File,

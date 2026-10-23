@@ -1,0 +1,16 @@
+# Copy to biostudies-cli.yaml beside BioStudiesCLI-2.0.jar and edit for your deployment.
+sshServer: slurm-login-host
+# A local key path; relative paths are resolved beside the YAML file.
+sshKey: cluster-key
+# Absolute paths visible from the cluster login host and workers.
+wrapperPath: /cluster/biostudies/wrappers
+logsPath: /cluster/biostudies/logs
+userFilesRoots:
+  # Server filesDirPath and userFtpDirPath respectively. The authenticated
+  # profile supplies the relative secret path, including any FTP root prefix.
+  nfs: /storage/biostudies/user-files
+  ftp: /storage/biostudies/ftp
+# Slurm job time limit in minutes (24 hours by default).
+jobMinutes: 1440
+# Destination group; the SSH account must be able to write files with this group.
+group: biostudies
