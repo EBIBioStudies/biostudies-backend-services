@@ -23,11 +23,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-class UserFilesServiceTest(
+internal class UserFilesServiceTest(
     private val tempFolder: TemporaryFolder,
     @param:MockK private val bioWebClient: BioWebClient,
+    @param:MockK private val dataMoverService: DataMoverUserFilesService,
 ) {
-    private val testInstance = UserFilesService()
+    private val testInstance = UserFilesService(dataMoverService)
     private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
 
     @AfterEach
@@ -46,7 +47,7 @@ class UserFilesServiceTest(
 
             coEvery { bioWebClient.uploadFile(file, REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(securityConfig, file, REL_PATH)
+            testInstance.httpUpload(securityConfig, file, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.uploadFile(file, REL_PATH) }
         }
@@ -59,7 +60,7 @@ class UserFilesServiceTest(
 
             coEvery { bioWebClient.uploadFile(file, REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(securityConfig, dir, REL_PATH)
+            testInstance.httpUpload(securityConfig, dir, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.uploadFile(file, REL_PATH) }
         }
@@ -77,15 +78,14 @@ class UserFilesServiceTest(
     @Test
     fun `datamover authenticates and resolves profile without uploading file over HTTP`() =
         runTest {
-            val dataMover = mockk<DataMoverUserFilesService>()
             val profile = mockk<UserProfile>()
             val file = tempFolder.createFile(FILE_NAME)
             coEvery { bioWebClient.getProfile() } returns profile
-            coEvery { dataMover.upload(profile, file, REL_PATH) } returns Unit
+            coEvery { dataMoverService.upload(profile, file, REL_PATH) } returns Unit
 
-            UserFilesService(dataMover).uploadUserFilesDataMover(securityConfig, file, REL_PATH)
+            testInstance.datamoverUpload(securityConfig, file, REL_PATH)
 
-            coVerify(exactly = 1) { dataMover.upload(profile, file, REL_PATH) }
+            coVerify(exactly = 1) { dataMoverService.upload(profile, file, REL_PATH) }
             coVerify(exactly = 0) { bioWebClient.uploadFile(any(), any()) }
         }
 

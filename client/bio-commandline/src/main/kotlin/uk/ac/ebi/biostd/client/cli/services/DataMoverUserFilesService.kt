@@ -13,9 +13,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 internal class DataMoverUserFilesService(
-    private val config: DataMoverConfig = DataMoverConfig.load(),
-    private val cluster: ClusterClient =
-        SlurmClusterClient.create(config.sshKey.toString(), config.sshServer, config.logsPath, config.wrapperPath),
+    private val config: DataMoverConfig,
 ) {
     suspend fun upload(
         profile: UserProfile,
@@ -30,15 +28,17 @@ internal class DataMoverUserFilesService(
                 minutes = config.jobMinutes,
                 command = transferCommand(source, target, config.group),
             )
+        val clusterClient: ClusterClient =
+            SlurmClusterClient.create(config.sshKey.toString(), config.sshServer, config.logsPath, config.wrapperPath)
 
-        echo("Started transferring files through the datamover")
+        echo("Started transferring user files through the datamover cluster")
         val job =
-            cluster.triggerJobSync(
+            clusterClient.triggerJobSync(
                 jobSpec = jobSpec,
                 checkJobInterval = POLL_INTERVAL,
                 maxDuration = config.jobMinutes.minutes,
             )
-        echo("Finished transferring files. Datamover job ${job.id} completed. Logs: ${job.logsPath}")
+        echo("Finished transferring user files. Datamover job ${job.id} completed. Logs: ${job.logsPath}")
     }
 
     companion object {

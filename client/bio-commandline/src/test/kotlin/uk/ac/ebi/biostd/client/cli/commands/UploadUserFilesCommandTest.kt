@@ -20,27 +20,27 @@ internal class UploadUserFilesCommandTest {
 
     @Test
     fun `HTTP remains default and requires no datamover configuration`() {
-        coEvery { service.uploadUserFiles(security, file, "") } returns Unit
+        coEvery { service.httpUpload(security, file, "") } returns Unit
 
         testInstance.parse(args)
 
-        coVerify(exactly = 1) { service.uploadUserFiles(security, file, "") }
-        coVerify(exactly = 0) { service.uploadUserFilesDataMover(any(), any(), any()) }
+        coVerify(exactly = 1) { service.httpUpload(security, file, "") }
+        coVerify(exactly = 0) { service.datamoverUpload(any(), any(), any()) }
     }
 
     @Test
     fun `datamover flag routes to cluster transfer preserving relative destination`() {
-        coEvery { service.uploadUserFilesDataMover(security, file, "incoming") } returns Unit
+        coEvery { service.datamoverUpload(security, file, "incoming") } returns Unit
 
         testInstance.parse(args + listOf("--datamover", "-rp", "incoming"))
 
-        coVerify(exactly = 1) { service.uploadUserFilesDataMover(security, file, "incoming") }
-        coVerify(exactly = 0) { service.uploadUserFiles(any(), any(), any()) }
+        coVerify(exactly = 1) { service.datamoverUpload(security, file, "incoming") }
+        coVerify(exactly = 0) { service.httpUpload(any(), any(), any()) }
     }
 
     @Test
     fun `datamover failure becomes CLI error retaining original cause`() {
-        coEvery { service.uploadUserFilesDataMover(security, file, "") } throws IllegalStateException("Job 12345 failed")
+        coEvery { service.datamoverUpload(security, file, "") } throws IllegalStateException("Job 12345 failed")
 
         val error = assertThrows<CliktError> { testInstance.parse(args + "--datamover") }
 

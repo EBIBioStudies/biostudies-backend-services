@@ -6,11 +6,9 @@ import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import java.io.File
 
 internal class UserFilesService(
-    dataMoverService: DataMoverUserFilesService? = null,
+    private val dataMoverService: DataMoverUserFilesService,
 ) {
-    private val dataMoverService by lazy { dataMoverService ?: DataMoverUserFilesService() }
-
-    suspend fun uploadUserFilesDataMover(
+    suspend fun datamoverUpload(
         securityConfig: SecurityConfig,
         file: File,
         relPath: String,
@@ -19,7 +17,7 @@ internal class UserFilesService(
         dataMoverService.upload(profile, file, relPath)
     }
 
-    suspend fun uploadUserFiles(
+    suspend fun httpUpload(
         securityConfig: SecurityConfig,
         file: File,
         relPath: String,

@@ -30,17 +30,17 @@ internal class UploadUserFilesCommand(
 
     override fun run() =
         runBlocking {
-            val securityConfig = SecurityConfig(server, user, password)
-            if (datamover) {
-                runCatching {
-                    userFilesService.uploadUserFilesDataMover(securityConfig, File(file), relPath)
-                }.getOrElse { error ->
-                    if (error !is Exception || error is CancellationException) throw error
-                    throw CliktError(error.message ?: "Datamover upload failed", error)
-                }
-            } else {
-                userFilesService.uploadUserFiles(securityConfig, File(file), relPath)
-            }
+            val config = SecurityConfig(server, user, password)
+            if (datamover) datamoverUpload(config) else userFilesService.httpUpload(config, File(file), relPath)
             echo("SUCCESS: User files uploaded")
         }
+
+    private suspend fun datamoverUpload(securityConfig: SecurityConfig) {
+        runCatching {
+            userFilesService.datamoverUpload(securityConfig, File(file), relPath)
+        }.getOrElse { error ->
+            if (error !is Exception || error is CancellationException) throw error
+            throw CliktError(error.message ?: "Datamover upload failed", error)
+        }
+    }
 }
