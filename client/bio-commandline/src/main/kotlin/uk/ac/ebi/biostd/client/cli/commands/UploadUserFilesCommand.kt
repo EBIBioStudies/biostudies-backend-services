@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.default
@@ -39,7 +40,7 @@ internal class UploadUserFilesCommand(
         runCatching {
             userFilesService.datamoverUpload(securityConfig, File(file), relPath)
         }.getOrElse { error ->
-            if (error !is Exception || error is CancellationException) throw error
+            if (error !is Exception || error is CancellationException || error is WebClientException) throw error
             throw CliktError(error.message ?: "Datamover upload failed", error)
         }
     }
