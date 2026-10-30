@@ -1,7 +1,10 @@
 package uk.ac.ebi.biostd.client.cli
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.subcommands
+import uk.ac.ebi.biostd.client.cli.BioStudiesCommandLine.Companion.OPERATIONS
 import uk.ac.ebi.biostd.client.cli.commands.DeleteCommand
 import uk.ac.ebi.biostd.client.cli.commands.DeleteUserFilesCommand
 import uk.ac.ebi.biostd.client.cli.commands.GenerateDoiCommand
@@ -22,9 +25,29 @@ internal class BioStudiesCommandLine : CliktCommand() {
     override fun run() {
         echo("BioStudies CLI")
     }
+
+    companion object {
+        val OPERATIONS =
+            listOf(
+                "submit",
+                "delete",
+                "migrate",
+                "transfer",
+                "generateDoi",
+                "grantPermission",
+                "revokePermission",
+                "deleteUserFiles",
+                "uploadUserFiles",
+                "updateUserEmail",
+                "requestStatus",
+            )
+    }
 }
 
 fun main(args: Array<String>) {
+    installExceptionHandler()
+    validateOperation(args)
+
     val userFilesService = UserFilesService()
     val submissionService = SubmissionService()
     val securityService = SecurityService()
@@ -44,4 +67,24 @@ fun main(args: Array<String>) {
             UpdateUserEmailCommand(submissionService),
             SubmissionRequestStatusCommand(subRequestService),
         ).main(args)
+}
+
+private fun validateOperation(args: Array<String>) {
+    val operation = args.first()
+    require(OPERATIONS.contains(operation)) { throw CliktError("Error: Invalid operation: \"$operation\".") }
+}
+
+private fun installExceptionHandler() {
+    val thread = Thread.currentThread()
+    val defaultHandler = thread.uncaughtExceptionHandler
+    thread.uncaughtExceptionHandler =
+        Thread.UncaughtExceptionHandler { currentThread, error ->
+            when (error) {
+                is CliktError,
+                is WebClientException,
+                -> System.err.println(error)
+
+                else -> defaultHandler.uncaughtException(currentThread, error)
+            }
+        }
 }

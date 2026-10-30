@@ -99,8 +99,8 @@ internal class UserPrivilegesService(
 
     override suspend fun canGrantPermissions(
         user: String,
-        accNo: String,
-    ): Boolean = isSuperUser(user) || isCollectionAdmin(user, accNo)
+        accessTag: String,
+    ): Boolean = isSuperUser(user) || isCollectionAdmin(user, accessTag)
 
     override suspend fun canRevokePermissions(
         user: String,

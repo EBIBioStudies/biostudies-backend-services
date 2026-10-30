@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.files.web.resources
 
+import ac.uk.ebi.biostd.files.service.DataMoverUserFilesService
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -31,6 +32,7 @@ import java.nio.file.Files
 class UserFilesResource(
     private val filesMapper: FilesMapper,
     private val fileServiceFactory: FileServiceFactory,
+    private val dataMoverUserFilesService: DataMoverUserFilesService,
 ) {
     @PostMapping("/files/user/query")
     @ResponseBody
@@ -69,6 +71,14 @@ class UserFilesResource(
         val filesService = fileServiceFactory.forUser(user)
         filesService.uploadFiles(filePath.path, files.toList())
     }
+
+    @PostMapping("/files/user/upload/cluster")
+    @ResponseBody
+    suspend fun uploadFileThroughCluster(
+        @BioUser user: SecurityUser,
+        @RequestParam("filePath") filePath: String,
+        @RequestParam("files") files: String,
+    ): String = dataMoverUserFilesService.upload(user, files, filePath)
 
     @PostMapping("/files/user/delete")
     @ResponseStatus(value = HttpStatus.OK)
