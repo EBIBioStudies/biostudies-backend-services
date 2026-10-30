@@ -20,7 +20,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createOrReplaceFile
-import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -399,13 +399,13 @@ class ResubmissionApiTest(
 
             waitUntil(
                 timeout = 10.seconds,
-            ) { requestRepository.getRequest(accNo, version).status == RequestStatus.INVALID }
+            ) { requestRepository.getRequest(accNo, version).status == INVALID }
 
             val response = webClient.submitAsync(version2, TSV)
             waitForCompletion(timeout = 5.seconds) {
-                val result = webClient.getSubmission(response.accNo)
-                assertThat(result?.status).isEqualTo("INVALID")
-                assertThat(result?.errors).containsExactly(
+                val result = requestRepository.getRequest(response.accNo, response.version)
+                assertThat(result.status).isEqualTo(INVALID)
+                assertThat(result.errors).containsExactly(
                     "File deletion/modifications require admin permission.",
                 )
             }

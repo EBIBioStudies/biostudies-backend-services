@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import com.fasterxml.jackson.annotation.JsonRawValue
-import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.model.Submission
@@ -53,16 +52,6 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
     ): ResponseSubmissionDraft = requestDraftService.getOrCreateRequestDraftFromSubmission(accNo, user.email).asResponseDraft()
-
-    @GetMapping("/{accNo}/content")
-    @ResponseBody
-    suspend fun getSubmissionDraftContent(
-        @BioUser user: SecurityUser,
-        @PathVariable accNo: String,
-    ): ResponseSubmissionDraftContent {
-        val requestDraft = requestDraftService.getRequestDraft(accNo, user.email)
-        return ResponseSubmissionDraftContent(requestDraft.draft!!)
-    }
 
     @DeleteMapping("/{accNo}")
     suspend fun deleteSubmissionDraft(
@@ -128,8 +117,4 @@ internal class ResponseSubmissionDraft(
     val newSubmission: Boolean,
     @JsonRawValue val content: String,
     val modificationTime: OffsetDateTime,
-)
-
-internal class ResponseSubmissionDraftContent(
-    @JsonRawValue @JsonValue val value: String,
 )

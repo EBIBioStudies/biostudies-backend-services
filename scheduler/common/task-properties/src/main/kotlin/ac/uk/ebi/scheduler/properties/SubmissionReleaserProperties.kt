@@ -83,5 +83,4 @@ class SubmissionReleaserProperties : JavaAppProperties {
 enum class ReleaserMode {
     NOTIFY,
     RELEASE,
-    GENERATE_FTP_LINKS,
 }
