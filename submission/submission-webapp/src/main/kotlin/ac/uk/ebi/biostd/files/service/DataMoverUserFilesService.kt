@@ -32,7 +32,7 @@ class DataMoverUserFilesService(
     }
 
     companion object {
-        private const val JOB_MINUTES = 2880 // 60 * 48 (48 hrs)
+        internal const val JOB_MINUTES = 2880 // 60 * 48 (48 hrs)
 
         /**
          * Builds a resumable command that copies the files under [source] into a flattened [target] directory.

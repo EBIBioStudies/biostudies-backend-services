@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.files.service
 
+import ac.uk.ebi.biostd.files.service.DataMoverUserFilesService.Companion.JOB_MINUTES
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.clearAllMocks
@@ -47,7 +48,7 @@ internal class DataMoverUserFilesServiceTest(
 
             assertThat(jobId).isEqualTo(JOB.id)
             assertThat(spec.captured.queue).isEqualTo(DataMoverQueue)
-            assertThat(spec.captured.minutes).isEqualTo(1440)
+            assertThat(spec.captured.minutes).isEqualTo(JOB_MINUTES)
             assertThat(spec.captured.command)
                 .contains("source='$SOURCE'")
                 .contains("target='$USER_FOLDER/$RELATIVE_PATH'")
