@@ -24,7 +24,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.time.Instant
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 
@@ -117,11 +116,6 @@ class ExtSubmissionClient(
     }
 
     override fun refreshSubmission(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
-
-    override fun releaseSubmission(
-        accNo: String,
-        releaseDate: Instant,
-    ): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
 
     override suspend fun generateDoi(accNo: String): SubmissionId = client.postForObject("$EXT_SUBMISSIONS_URL/$accNo/generate-doi")
 

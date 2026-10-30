@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
@@ -31,6 +32,8 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
 import ebi.ac.uk.model.RequestStatus.DRAFT
+import ebi.ac.uk.model.RequestStatus.INVALID
+import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -67,6 +70,7 @@ class SubmissionApiTest(
     @param:Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @param:Autowired val toSubmissionMapper: ToSubmissionMapper,
     @param:Autowired val testMessageService: TestMessageService,
+    @param:Autowired val requestRepository: SubmissionRequestPersistenceService,
     @param:Autowired val submissionRequestRepository: SubmissionRequestRepository,
     @param:LocalServerPort val serverPort: Int,
 ) {
@@ -533,12 +537,11 @@ class SubmissionApiTest(
                         line("File", "missing_file.txt")
                     }.toString()
 
-                val response = webClient.submitAsync(submission, TSV)
-
+                val subV1 = webClient.submitAsync(submission, TSV)
                 waitForCompletion(timeout = 5.seconds) {
-                    val result = webClient.getSubmission(response.accNo)
-                    assertThat(result?.status).isEqualTo("INVALID")
-                    assertThat(result?.errors).containsExactly(
+                    val result = requestRepository.getRequest(subV1.accNo, subV1.version)
+                    assertThat(result.status).isEqualTo(INVALID)
+                    assertThat(result.errors).containsExactly(
                         """
                         The following files could not be found:
                           - missing_file.txt
@@ -551,11 +554,11 @@ class SubmissionApiTest(
                 }
 
                 webClient.uploadFile(tempFolder.createFile("missing_file.txt", "content"))
-                assertThat(webClient.submitFromDraft(accNo)).isSuccessful()
+                val subV2 = webClient.submitAsync(submission, TSV)
                 waitForCompletion(timeout = 5.seconds) {
-                    val result = webClient.getSubmission(response.accNo)
-                    assertThat(result?.status).isEqualTo("PROCESSED")
-                    assertThat(result?.errors).isEmpty()
+                    val result = requestRepository.getRequest(subV2.accNo, subV2.version)
+                    assertThat(result.status).isEqualTo(POST_PROCESSED)
+                    assertThat(result.errors).isEmpty()
                 }
             }
     }

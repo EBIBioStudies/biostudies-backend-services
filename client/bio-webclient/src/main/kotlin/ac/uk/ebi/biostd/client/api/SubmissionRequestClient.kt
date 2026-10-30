@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.integration.web.SubmissionRequestOperations
 import ebi.ac.uk.model.RequestStatus
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 
 private const val SUBMISSION_REQUEST_URL = "/submissions/requests"
@@ -30,15 +29,4 @@ class SubmissionRequestClient(
             .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/errors")
             .retrieve()
             .awaitBody<List<String>>()
-
-    override suspend fun archiveSubmissionRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        client
-            .post()
-            .uri("$SUBMISSION_REQUEST_URL/$accNo/$version/archive")
-            .retrieve()
-            .awaitBodilessEntity()
-    }
 }

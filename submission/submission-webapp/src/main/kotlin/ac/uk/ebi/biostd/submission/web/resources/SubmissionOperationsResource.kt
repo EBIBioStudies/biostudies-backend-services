@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.file.ExcelReader
@@ -27,7 +26,6 @@ import java.nio.charset.Charset
 @PreAuthorize("isAuthenticated()")
 class SubmissionOperationsResource(
     private val submissionsWebHandler: SubmissionsWebHandler,
-    private val submissionReleaser: SubmissionRequestReleaser,
     private val serializationService: SerializationService,
     private val tempFileGenerator: TempFileGenerator,
 ) {
@@ -74,13 +72,6 @@ class SubmissionOperationsResource(
             .ok()
             .contentType(MediaType.TEXT_PLAIN)
             .body(response.toString(Charset.defaultCharset()))
-    }
-
-    @PostMapping("/ftp/generate")
-    suspend fun generateFtpLinks(
-        @RequestParam("accNo", required = true) accNo: String,
-    ) {
-        submissionReleaser.generateFtpLinks(accNo)
     }
 
     @DeleteMapping("/{accNo}")

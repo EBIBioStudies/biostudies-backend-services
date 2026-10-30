@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
 import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
@@ -21,13 +20,9 @@ import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
@@ -36,7 +31,6 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestReleaser(
     private val concurrency: Int,
     private val fileStorageService: FileStorageService,
-    private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
     private val rqtService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -59,15 +53,6 @@ class SubmissionRequestReleaser(
             it.withNewStatus(CHECK_RELEASED)
         }
 
-    /**
-     * Generates/refresh FTP links for a given submission.
-     */
-    suspend fun generateFtpLinks(accNo: String) {
-        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true, includeLinkListLinks = true)
-        require(submission.released) { throw UnreleasedSubmissionException() }
-        generateFtpLinks(submission)
-    }
-
     private suspend fun releaseRequest(
         accNo: String,
         request: SubmissionRequest,
@@ -84,13 +69,18 @@ class SubmissionRequestReleaser(
         suspend fun releaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile {
             val index = releasedFiles.incrementAndGet()
             return when (val file = reqFile.file) {
-                is NfsFile -> reqFile.copy(file = release(sub, index, file), status = RELEASED)
+                is NfsFile -> {
+                    reqFile.copy(file = release(sub, index, file), status = RELEASED)
+                }
+
                 is FireFile -> {
                     val released = if (file.published) file else release(sub, index, file)
                     reqFile.copy(file = released, status = RELEASED)
                 }
 
-                is RequestFile -> error("RequestFile ${file.filePath} can not be released")
+                is RequestFile -> {
+                    error("RequestFile ${file.filePath} can not be released")
+                }
             }
         }
 
@@ -131,13 +121,18 @@ class SubmissionRequestReleaser(
         suspend fun unReleaseFile(reqFile: SubmissionRequestFile): SubmissionRequestFile {
             val index = releasedFiles.incrementAndGet()
             return when (val file = reqFile.file) {
-                is NfsFile -> reqFile.copy(file = unRelease(sub, index, file), status = UNRELEASED)
+                is NfsFile -> {
+                    reqFile.copy(file = unRelease(sub, index, file), status = UNRELEASED)
+                }
+
                 is FireFile -> {
                     val unreleased = if (file.published) unRelease(sub, index, file) else file
                     reqFile.copy(file = unreleased, status = UNRELEASED)
                 }
 
-                is RequestFile -> error("RequestFile ${file.filePath} can not be unreleased")
+                is RequestFile -> {
+                    error("RequestFile ${file.filePath} can not be unreleased")
+                }
             }
         }
 
@@ -160,14 +155,5 @@ class SubmissionRequestReleaser(
         val unreleased = fileStorageService.unReleaseSubmissionFile(sub, file)
         logger.info { "${sub.accNo}, ${sub.owner} Finished suppressing file $idx - ${file.filePath}" }
         return unreleased
-    }
-
-    private suspend fun generateFtpLinks(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        serializationService
-            .filesFlow(sub)
-            .filterNot { it is FireFile && it.published }
-            .collectIndexed { idx, file -> release(sub, idx, file) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 }

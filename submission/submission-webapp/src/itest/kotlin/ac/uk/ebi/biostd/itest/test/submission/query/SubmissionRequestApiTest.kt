@@ -1,16 +1,12 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
@@ -56,29 +52,5 @@ class SubmissionRequestApiTest(
 
             assertSubmit(webClient.submit(sub, TSV)).isSuccessful()
             assertThat(webClient.getSubmissionRequestStatus("S-RQT1", 1)).isEqualTo(POST_PROCESSED)
-        }
-
-    @Test
-    fun `29-2 Archive submission request`() =
-        runTest {
-            val sub =
-                tsv {
-                    line("Submission", "S-RQT2")
-                    line("Title", "Archive Submission Request")
-                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                    line()
-                    line("Study")
-                    line()
-                    line("File", "file_29-2.txt")
-                    line()
-                }.toString()
-
-            webClient.uploadFile(tempFolder.createFile("file_29-2.txt", "29-2 file content"))
-            assertSubmit(webClient.submit(sub, TSV)).isSuccessful()
-            assertThat(webClient.getSubmissionRequestStatus("S-RQT2", 1)).isEqualTo(POST_PROCESSED)
-
-            webClient.archiveSubmissionRequest("S-RQT2", 1)
-            assertThatThrows<WebClientException> { webClient.getSubmissionRequestStatus("S-RQT2", 1) }
-                .hasMessageContaining("The submission request 'S-RQT2', version: 1 was not found")
         }
 }

@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.files.web.common.FileListPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
-import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
@@ -60,11 +58,9 @@ internal class WebConfig(
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
-        argumentResolvers.add(UserPathDescriptorResolver())
         argumentResolvers.add(GroupPathDescriptorResolver())
         argumentResolvers.add(submitterResolver())
         argumentResolvers.add(OnBehalfUserRequestResolver())
-        argumentResolvers.add(FileListPathDescriptorResolver())
     }
 
     override fun addFormatters(registry: FormatterRegistry) {

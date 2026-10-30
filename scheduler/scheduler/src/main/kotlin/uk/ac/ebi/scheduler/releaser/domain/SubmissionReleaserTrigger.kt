@@ -1,7 +1,6 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
 import ac.uk.ebi.scheduler.properties.ReleaserMode
-import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import ac.uk.ebi.scheduler.properties.SubmissionReleaserProperties
@@ -35,11 +34,6 @@ internal class SubmissionReleaserTrigger(
     suspend fun triggerSubmissionReleaseNotifier(debugPort: Int? = null): Job {
         logger.info { "triggering submission release notifier job" }
         return triggerJob(mode = NOTIFY, debugPort)
-    }
-
-    suspend fun triggerFtpLinksGenerator(debugPort: Int? = null): Job {
-        logger.info { "triggering ftp links generator job" }
-        return triggerJob(mode = GENERATE_FTP_LINKS, debugPort)
     }
 
     private suspend fun triggerJob(
