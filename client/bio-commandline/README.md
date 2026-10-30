@@ -228,11 +228,8 @@ java -jar BioStudiesCLI-2.0.jar uploadUserFiles \
 * **--datamover:** Use the cluster datamover for large files and wait for the upload to finish.
 
 HTTP is the default upload method. Both methods flatten source subdirectories into the requested destination folder
-and replace files with matching names.
-
-For datamover uploads, place `biostudies-cli.yaml` beside the CLI JAR. Start with
-[`biostudies-cli.example.yaml`](biostudies-cli.example.yaml) and update it for your environment. The source must be
-accessible from the cluster; using an absolute path is recommended.
+and replace files with matching names. For datamover uploads, the source must be an absolute path accessible from the 
+cluster.
 
 ```sh
 java -jar /path/to/BioStudiesCLI-2.0.jar uploadUserFiles \

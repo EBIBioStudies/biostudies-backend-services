@@ -3,9 +3,7 @@ import Dependencies.CommonsLang3
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.SnakeYaml
 import Projects.BioWebClient
-import Projects.ClusterClient
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsModelExtendedTest
 import Projects.CommonsUtil
@@ -25,14 +23,12 @@ dependencies {
     api(project(CommonsModelExtendedTest))
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsUtil))
-    implementation(project(ClusterClient))
 
     implementation(CliKt)
     implementation(CommonsLang3)
     implementation(KotlinCoroutines)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
-    implementation(SnakeYaml)
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
 

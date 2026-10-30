@@ -59,12 +59,9 @@ class SlurmClusterClient(
         }
 
         return sshClient.runInSession {
-            val status =
-                runningJobStatus()
-                    ?: historicalJobStatus()
-                    ?: error("Could not find status for job $jobId in Slurm cluster")
-            logger.info { "Job $jobId status $status" }
-            status
+            runningJobStatus()
+                ?: historicalJobStatus()
+                ?: error("Could not find status for job $jobId in Slurm cluster")
         }
     }
 
@@ -85,7 +82,9 @@ class SlurmClusterClient(
                 checkInterval = checkJobInterval,
                 timeout = maxDuration,
             ) {
-                val status = jobStatus(job.id)
+                val jobId = job.id
+                val status = jobStatus(jobId)
+                logger.info { "Job $jobId status $status" }
                 return@waitUntil status == COMPLETED_STATUS
             }
         }

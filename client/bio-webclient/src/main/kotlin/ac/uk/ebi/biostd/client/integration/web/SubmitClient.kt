@@ -66,6 +66,13 @@ interface FilesOperations {
         relativePath: String = EMPTY,
     )
 
+    suspend fun uploadFilesThroughCluster(
+        file: File,
+        relativePath: String = EMPTY,
+    ): String
+
+    suspend fun getClusterJobStatus(jobId: String): String
+
     suspend fun downloadFile(
         fileName: String,
         relativePath: String = EMPTY,

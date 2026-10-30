@@ -64,7 +64,7 @@ internal object DoiParameters {
 internal object UploadUserFilesParameters {
     const val FILE_HELP = "Path of the file to be uploaded"
     const val REL_PATH_HELP = "Relative user folder path where the file will be located"
-    const val DATAMOVER_HELP = "Copy cluster-accessible files using a datamover job and wait for completion"
+    const val DATAMOVER_HELP = "Copy an absolute cluster-accessible path using a datamover job and wait for completion"
 }
 
 internal object DeleteUserFilesParameters {

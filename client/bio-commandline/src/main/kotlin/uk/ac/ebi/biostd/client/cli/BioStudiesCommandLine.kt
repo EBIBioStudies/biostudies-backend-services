@@ -16,8 +16,6 @@ import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
 import uk.ac.ebi.biostd.client.cli.commands.TransferCommand
 import uk.ac.ebi.biostd.client.cli.commands.UpdateUserEmailCommand
 import uk.ac.ebi.biostd.client.cli.commands.UploadUserFilesCommand
-import uk.ac.ebi.biostd.client.cli.config.DataMoverConfig
-import uk.ac.ebi.biostd.client.cli.services.DataMoverUserFilesService
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionRequestService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
@@ -50,8 +48,7 @@ fun main(args: Array<String>) {
     installExceptionHandler()
     validateOperation(args)
 
-    val datamoverService = DataMoverUserFilesService(DataMoverConfig.load())
-    val userFilesService = UserFilesService(datamoverService)
+    val userFilesService = UserFilesService()
     val submissionService = SubmissionService()
     val securityService = SecurityService()
     val subRequestService = SubmissionRequestService()

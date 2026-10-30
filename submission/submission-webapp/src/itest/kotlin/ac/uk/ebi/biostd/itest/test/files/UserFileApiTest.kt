@@ -10,12 +10,18 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.UserFileType.FILE
+import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Named
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
@@ -239,6 +245,33 @@ class UserFileApiTest(
             webClient.deleteFile(testPath)
         }
 
+    @Test
+    fun `17-10 upload cluster accessible directory as flattened files`() =
+        runTest {
+            val webClient = getWebClient(serverPort, FilesUser)
+            val source = tempFolder.createDirectory("cluster-source-17-10")
+            val innerFolder = source.resolve("inner").apply { mkdirs() }
+            source.resolve("root.txt").writeText("root content")
+            innerFolder.resolve("inner.txt").writeText("inner content")
+
+            val jobId = webClient.uploadFilesThroughCluster(source, CLUSTER_TARGET)
+            withContext(Dispatchers.Default) {
+                withTimeout(CLUSTER_JOB_TIMEOUT_MILLIS) {
+                    while (true) {
+                        val status = webClient.getClusterJobStatus(jobId)
+                        if (status == "COMPLETED") break
+                        check(status == "RUNNING") { "Cluster upload job $jobId failed with status $status" }
+                        delay(CLUSTER_POLL_MILLIS)
+                    }
+                }
+            }
+
+            assertThat(webClient.listUserFiles(CLUSTER_TARGET))
+                .extracting<String> { it.name }
+                .containsExactlyInAnyOrder("root.txt", "inner.txt")
+            webClient.deleteFile(CLUSTER_TARGET)
+        }
+
     private fun assertFile(
         resultFile: UserFile,
         downloadFile: File,
@@ -272,5 +305,11 @@ class UserFileApiTest(
         override val password = "12345"
         override val superUser = true
         override val storageMode = StorageMode.NFS
+    }
+
+    private companion object {
+        private const val CLUSTER_TARGET = "cluster-target-17-10"
+        private const val CLUSTER_JOB_TIMEOUT_MILLIS = 30_000L
+        private const val CLUSTER_POLL_MILLIS = 100L
     }
 }
