@@ -144,6 +144,7 @@ object TestDependencies {
 }
 
 object Dependencies {
+    const val SnakeYaml = "org.yaml:snakeyaml"
     const val SpringWebFlux = "org.springframework:spring-webflux"
     const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure"
 

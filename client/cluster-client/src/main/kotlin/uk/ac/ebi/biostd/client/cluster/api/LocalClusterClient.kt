@@ -38,7 +38,11 @@ class LocalClusterClient : ClusterClient {
 
     override suspend fun jobStatus(jobId: String): String {
         val process = activeProcess.getValue(jobId.toLong())
-        return if (process.isAlive) "RUNNING" else "DONE"
+        return when {
+            process.isAlive -> "RUNNING"
+            process.exitValue() == 0 -> SlurmClusterClient.COMPLETED_STATUS
+            else -> "FAILED"
+        }
     }
 
     override suspend fun jobLogs(jobId: String): String = jobLogs.getValue(jobId.toLong()).readText()

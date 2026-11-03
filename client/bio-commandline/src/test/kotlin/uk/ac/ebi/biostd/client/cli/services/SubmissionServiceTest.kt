@@ -177,43 +177,41 @@ internal class SubmissionServiceTest(
         }
 
     @Test
-    fun `perform request throw web client exception with null message`() =
+    fun `perform request preserves web client exception with null message`() =
         runTest {
             every { webClientException.message } returns null
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-            val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
-            assertThat(exception).hasMessageStartingWith("WebClientException: ")
+            val exception = assertThrows<WebClientException> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
+            assertThat(exception).isSameAs(webClientException)
         }
 
     @Test
-    fun `perform request throw web client exception with not null message`() =
+    fun `perform request preserves web client exception with message`() =
         runTest {
             every { webClientException.message } returns ERROR_MESSAGE
             every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
 
-            val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
-            assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
+            val exception = assertThrows<WebClientException> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
+            assertThat(exception).isSameAs(webClientException)
         }
 
     @Test
-    fun `perform request throw other exception with null message`() =
+    fun `perform request wraps other exception with null message`() =
         runTest {
-            every { webClientException.message } returns null
-            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws IllegalStateException()
 
             val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
-            assertThat(exception).hasMessageStartingWith("WebClientException: ")
+            assertThat(exception).hasMessageStartingWith("IllegalStateException: ")
         }
 
     @Test
-    fun `perform request throw other exception with not null message`() =
+    fun `perform request wraps other exception with message`() =
         runTest {
-            every { webClientException.message } returns ERROR_MESSAGE
-            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws webClientException
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } throws IllegalStateException(ERROR_MESSAGE)
 
             val exception = assertThrows<PrintMessage> { testInstance.delete(securityConfig, listOf(ACC_NO)) }
-            assertThat(exception).hasMessage("WebClientException: $ERROR_MESSAGE")
+            assertThat(exception).hasMessage("IllegalStateException: $ERROR_MESSAGE")
         }
 
     private companion object {

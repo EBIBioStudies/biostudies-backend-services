@@ -73,6 +73,7 @@ Contains permissions API test.
 | UserFileApiTest | 17-3    | upload download delete file and retrieve in user folder with space |
 | UserFileApiTest | 17-4    | download a binary file                                             |
 | UserFileApiTest | 17-5    | download a text file                                               |
+| UserFileApiTest | 17-10   | upload cluster accessible directory as flattened files             |
 
 ## File List Test Suite
 

@@ -28,6 +28,7 @@ import java.io.File
 
 private const val USER_FILES_URL = "/files/user"
 private const val USER_FOLDER_URL = "/folder/user"
+private const val CLUSTER_URL = "/cluster/job"
 
 internal class UserOperationsClient(
     private val client: WebClient,
@@ -105,6 +106,30 @@ internal class UserFilesClient(
     ) {
         uploadFiles(listOf(file), relativePath)
     }
+
+    override suspend fun uploadFilesThroughCluster(
+        file: File,
+        relativePath: String,
+    ): String {
+        val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+        val body =
+            MultipartBuilder()
+                .add("filePath", relativePath)
+                .add("files", file.absoluteFile.normalize().path)
+                .build()
+
+        return client.postForObjectAsync(
+            "$USER_FILES_URL/upload/cluster",
+            RequestParams(headers, body),
+        )
+    }
+
+    override suspend fun getClusterJobStatus(jobId: String): String =
+        client
+            .get()
+            .uri("$CLUSTER_URL/{jobId}/status", jobId)
+            .retrieve()
+            .awaitBody()
 
     override suspend fun createFolder(
         folderName: String,

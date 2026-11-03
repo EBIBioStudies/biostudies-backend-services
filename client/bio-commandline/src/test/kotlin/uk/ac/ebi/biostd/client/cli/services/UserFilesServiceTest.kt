@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-class UserFilesServiceTest(
+internal class UserFilesServiceTest(
     private val tempFolder: TemporaryFolder,
     @param:MockK private val bioWebClient: BioWebClient,
 ) {
@@ -44,7 +44,7 @@ class UserFilesServiceTest(
 
             coEvery { bioWebClient.uploadFile(file, REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(securityConfig, file, REL_PATH)
+            testInstance.httpUpload(securityConfig, file, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.uploadFile(file, REL_PATH) }
         }
@@ -57,7 +57,7 @@ class UserFilesServiceTest(
 
             coEvery { bioWebClient.uploadFile(file, REL_PATH) } answers { nothing }
 
-            testInstance.uploadUserFiles(securityConfig, dir, REL_PATH)
+            testInstance.httpUpload(securityConfig, dir, REL_PATH)
 
             coVerify(exactly = 1) { bioWebClient.uploadFile(file, REL_PATH) }
         }
@@ -72,9 +72,24 @@ class UserFilesServiceTest(
             coVerify(exactly = 1) { bioWebClient.deleteFile(FILE_NAME, REL_PATH) }
         }
 
+    @Test
+    fun `datamover starts cluster upload and waits until completed`() =
+        runTest {
+            val file = tempFolder.createFile(FILE_NAME)
+            coEvery { bioWebClient.uploadFilesThroughCluster(file, REL_PATH) } returns JOB_ID
+            coEvery { bioWebClient.getClusterJobStatus(JOB_ID) } returnsMany listOf("PENDING", "RUNNING", "COMPLETED")
+
+            testInstance.datamoverUpload(securityConfig, file, REL_PATH)
+
+            coVerify(exactly = 1) { bioWebClient.uploadFilesThroughCluster(file, REL_PATH) }
+            coVerify(exactly = 3) { bioWebClient.getClusterJobStatus(JOB_ID) }
+            coVerify(exactly = 0) { bioWebClient.uploadFile(any(), any()) }
+        }
+
     private companion object {
         private const val DIR_NAME = "test-dir"
         private const val FILE_NAME = "file.txt"
+        private const val JOB_ID = "12345"
         private const val REL_PATH = "relPath"
         private const val PASSWORD = "password"
         private const val SERVER = "server"

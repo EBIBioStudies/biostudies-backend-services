@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.coroutines.waitUntil
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
@@ -39,7 +38,7 @@ class SlurmClusterClient(
         maxDuration: Duration,
     ): Job {
         val job = triggerJobAsync(jobSpec).getOrThrow()
-        logger.info { "Job ${job.id} triggered. ${job.logsPath}. Awaiting completion..." }
+        logger.info { "Triggered job ${job.id}. Logs: ${job.logsPath}. Awaiting completion..." }
         await(job, checkJobInterval, maxDuration)
         return job
     }
@@ -60,12 +59,9 @@ class SlurmClusterClient(
         }
 
         return sshClient.runInSession {
-            val status =
-                runningJobStatus()
-                    ?: historicalJobStatus()
-                    ?: error("Could not find status for job $jobId in Slurm cluster")
-            logger.info { "Job $jobId status $status" }
-            status
+            runningJobStatus()
+                ?: historicalJobStatus()
+                ?: error("Could not find status for job $jobId in Slurm cluster")
         }
     }
 
@@ -86,10 +82,10 @@ class SlurmClusterClient(
                 checkInterval = checkJobInterval,
                 timeout = maxDuration,
             ) {
-                val status = jobStatus(job.id)
-                val completed = status == "COMPLETED"
-                if (completed.orFalse()) logger.info { "Job ${job.id} status is $status. Waiting for completion" }
-                return@waitUntil completed
+                val jobId = job.id
+                val status = jobStatus(jobId)
+                logger.info { "Job $jobId status $status" }
+                return@waitUntil status == COMPLETED_STATUS
             }
         }
     }
@@ -109,6 +105,7 @@ class SlurmClusterClient(
          * Empirically it was found that both -1, 0 means the job was submitted successfully.
          */
         val SUCCESS_EXITS_CODE = setOf(-1, 0)
+        const val COMPLETED_STATUS = "COMPLETED"
 
         fun create(
             sshKey: String,
@@ -123,19 +120,19 @@ class SlurmClusterClient(
                 sshKey = sshKey,
             )
 
-        private fun JobSpec.asParameter(
+        internal fun JobSpec.asParameter(
             wrapperPath: String,
             logsPath: String,
-        ): List<String> {
-            val escapedCommand = command.replace("\"", "\\\"")
-            return buildList {
+        ): List<String> =
+            buildList {
                 add("--cores=$cores")
                 add("--time=${convertMinutesToTimeFormat(minutes)}")
                 add("--mem=$ram")
                 add("--partition=${queue.name}")
-                add("$wrapperPath/slurm_wrapper.sh \"$logsPath\" \"$escapedCommand\"")
+                add("${"$wrapperPath/slurm_wrapper.sh".shellQuoted()} ${logsPath.shellQuoted()} ${command.shellQuoted()}")
             }
-        }
+
+        private fun String.shellQuoted() = "'${replace("'", "'\"'\"'")}'"
 
         @Suppress("MagicNumber")
         fun convertMinutesToTimeFormat(minutes: Int): String {
