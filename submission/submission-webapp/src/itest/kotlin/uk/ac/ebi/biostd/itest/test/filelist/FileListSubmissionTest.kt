@@ -1,0 +1,631 @@
+package uk.ac.ebi.biostd.itest.test.filelist
+
+import ac.uk.ebi.biostd.client.dto.ExtPageRequest
+import ac.uk.ebi.biostd.client.exception.WebClientException
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThatThrows
+import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitMultipartAndWait
+import ebi.ac.uk.dsl.excel.excel
+import ebi.ac.uk.dsl.json.jsonArray
+import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.PersistedExtFile
+import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.paths.FILES_PATH
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import org.apache.commons.io.FileUtils
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.itest.common.SecurityTestService
+import uk.ac.ebi.biostd.itest.entities.SuperUser
+import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.requestFilesPath
+import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
+import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
+import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
+import uk.ac.ebi.biostd.itest.itest.getWebClient
+import java.io.File
+import java.nio.file.Paths
+import java.time.OffsetDateTime
+
+@Import(FilePersistenceConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
+class FileListSubmissionTest(
+    @param:Autowired private val securityTestService: SecurityTestService,
+    @param:Autowired private val subRepository: SubmissionPersistenceQueryService,
+    @param:LocalServerPort val serverPort: Int,
+) {
+    private lateinit var webClient: BioWebClient
+
+    @BeforeAll
+    fun init() =
+        runBlocking {
+            securityTestService.ensureSequence("S-BSST")
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
+        }
+
+    @BeforeEach
+    fun beforeEach() {
+        FileUtils.cleanDirectory(tempFolder)
+    }
+
+    @Test
+    fun `3-1 JSON submission with TSV file list`() =
+        runTest {
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST4"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.tsv"
+                                },
+                            )
+                    }
+                }.toString()
+
+            val fileList =
+                tempFolder.createFile(
+                    "FileList.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("File4.txt", "ABC")
+                    }.toString(),
+                )
+
+            val parameters = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, tempFolder.createFile("File4.txt"))
+
+            val response = webClient.submitMultipartAndWait(submission, JSON, parameters, files)
+
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles(accNo = "S-TEST4", testFile = "File4.txt", fileListName = "FileList")
+        }
+
+    @Test
+    fun `3-2 JSON submission with XSLX file list`() =
+        runTest {
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST5"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.xlsx"
+                                },
+                            )
+                    }
+                }.toString()
+
+            val fileList =
+                excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
+                    sheet("page tab") {
+                        row {
+                            cell("Files")
+                            cell("GEN")
+                        }
+                        row {
+                            cell("File5.txt")
+                            cell("ABC")
+                        }
+                    }
+                }
+
+            val parameters = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, tempFolder.createFile("File5.txt"))
+
+            val response = webClient.submitMultipartAndWait(submission, JSON, parameters, files)
+
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles(accNo = "S-TEST5", testFile = "File5.txt", fileListName = "FileList")
+        }
+
+    @Test
+    fun `3-3 JSON submission with invalid file list format`() =
+        runTest {
+            val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST5"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        }, {
+                            "name" to "ReleaseDate"
+                            "value" to OffsetDateTime.now().toStringDate()
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.txt"
+                                },
+                            )
+                    }
+                }.toString()
+
+            val params = SubmitParameters(storageMode = storageMode)
+            assertThatThrows<WebClientException> {
+                webClient.submitMultipartAndWait(submission, JSON, params, listOf(fileList))
+            }.hasMessageContaining("Unsupported pagetab format: txt")
+        }
+
+    @Test
+    fun `3-4 Filelist Submission with file list inside a folder`() =
+        runTest {
+            val referencedFile = tempFolder.createFile("referenced.txt")
+            val submission =
+                tsv {
+                    line("Submission", "S-TEST6")
+                    line("Title", "Submission With Inner File List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "folder/inner-file-list.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tempFolder.createFile(
+                    "inner-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("referenced.txt", "ABC")
+                    }.toString(),
+                )
+
+            webClient.uploadFile(fileList, "folder")
+            val params = SubmitParameters(storageMode = storageMode)
+            assertThat(webClient.submitMultipartAndWait(submission, TSV, params, listOf(referencedFile))).isSuccessful()
+
+            val extSubmission = webClient.getExtByAccNo("S-TEST6")
+            val referencedFiles = webClient.getFileListFiles(extSubmission.section.fileList!!.filesUrl!!).content
+
+            assertThat(referencedFiles).hasSize(1)
+            val referenced = referencedFiles.first()
+            require(referenced is PersistedExtFile)
+            assertThat(referenced.filePath).isEqualTo("referenced.txt")
+            assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
+            assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
+            assertThat(referenced.md5).isEqualTo(referencedFile.md5())
+        }
+
+    @Test
+    fun `3-5 Filelist Submission with files reusing previous version file list`() =
+        runTest {
+            val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
+
+            fun submission(fileList: String) =
+                tsv {
+                    line("Submission", "S-TEST72")
+                    line("Title", "Reuse Previous Version File List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", fileList)
+                    line()
+                }.toString()
+
+            val fileList =
+                tempFolder.createFile(
+                    "reusable-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("File7.txt", "ABC")
+                    }.toString(),
+                )
+
+            val firstVersion = submission(fileList = "reusable-file-list.tsv")
+            val params = SubmitParameters(storageMode = storageMode)
+            val files = listOf(fileList, referencedFile)
+
+            assertThat(webClient.submitMultipartAndWait(firstVersion, TSV, params, files)).isSuccessful()
+            assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+
+            fileList.delete()
+
+            val secondVersion = submission(fileList = "reusable-file-list.json")
+            assertThat(webClient.submitAndWait(secondVersion, TSV)).isSuccessful()
+            assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+        }
+
+    @Test
+    fun `3-8 Filelist Submission with empty accNo`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "empty-accNo-file-list.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tsv {
+                    line("Files", "GEN")
+                    line("File8.txt", "ABC")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("File8.txt", "file 8 content"),
+                    tempFolder.createFile("empty-accNo-file-list.tsv", fileList),
+                ),
+            )
+
+            val response = webClient.submitAndWait(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            val extSub = subRepository.getExtByAccNo(response.body.accNo)
+            val requestFiles = File("$requestFilesPath/${extSub.accNo}/${extSub.version}")
+
+            assertSubmissionFiles(extSub.accNo, "File8.txt", "empty-accNo-file-list")
+            assertThat(requestFiles).exists()
+            assertThat(requestFiles.listFiles()).anyMatch { it.name.startsWith("empty-accNo-file-list") }
+        }
+
+    @Test
+    fun `3-9 Filelist file Pagination API`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission")
+                    line("Title", "Empty AccNo")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "file-list-3-9.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tsv {
+                    line("Files", "GEN")
+                    line("File391.txt", "391")
+                    line("File392.txt", "392")
+                    line("File393.txt", "393")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("File391.txt", "file 391 content"),
+                    tempFolder.createFile("File392.txt", "file 392 content"),
+                    tempFolder.createFile("File393.txt", "file 393 content"),
+                    tempFolder.createFile("file-list-3-9.tsv", fileList),
+                ),
+            )
+
+            val response = webClient.submitAndWait(submission, TSV)
+            assertThat(response).isSuccessful()
+
+            val accNo = response.body.accNo
+            val files = webClient.getFileListFiles(accNo, "file-list-3-9", ExtPageRequest(limit = 1, offset = 0))
+            assertThat(files.content).hasSize(1)
+            assertThat(files.content.first().filePath).isEqualTo("File391.txt")
+
+            val otherFiles = webClient.getFileListFiles(accNo, "file-list-3-9", ExtPageRequest(limit = 2, offset = 1))
+            assertThat(otherFiles.content).hasSize(2)
+            assertThat(otherFiles.content.first().filePath).isEqualTo("File392.txt")
+            assertThat(otherFiles.content.second().filePath).isEqualTo("File393.txt")
+        }
+
+    @Test
+    fun `3-10 File list reused by sections and elements are de-duplicated`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-TEST310")
+                    line("Title", "Shared File List")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+
+                    line("Study")
+                    line("File List", "shared-file-list.tsv")
+                    line()
+
+                    line("Experiment")
+                    line("File List", "shared-file-list.tsv")
+                    line()
+                }.toString()
+            val fileList =
+                tsv {
+                    line("Files", "Type")
+                    line("file1.txt", "ABC")
+                    line("file1.txt", "ABC")
+                    line("file1.txt", "DEF")
+                    line("file2.txt", "GHI")
+                }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("file1.txt", "file 1"),
+                    tempFolder.createFile("file2.txt", "file 2"),
+                    tempFolder.createFile("shared-file-list.tsv", fileList),
+                ),
+            )
+
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
+
+            val extSub = webClient.getExtByAccNo("S-TEST310")
+            val filesPage = webClient.getFileListFiles("S-TEST310", "shared-file-list", ExtPageRequest())
+            val files = filesPage.content
+            assertThat(files).hasSize(3)
+            assertThat(filesPage.totalElements).isEqualTo(3)
+
+            val duplicated = files.filter { it.filePath == "file1.txt" }
+            assertThat(duplicated).hasSize(2)
+            assertThat(duplicated.map { it.attributes.first().value }).containsExactlyInAnyOrder("ABC", "DEF")
+
+            val unique = files.firstOrNull { it.filePath == "file2.txt" }
+            assertNotNull(unique)
+            assertThat(unique.attributes.first().value).isEqualTo("GHI")
+
+            val pageTabPath = submissionPath.resolve(extSub.relPath).resolve(FILES_PATH)
+            assertThat(pageTabPath.resolve("shared-file-list.tsv")).hasContent(
+                """
+                Files	Type
+                file1.txt	ABC
+                file1.txt	DEF
+                file2.txt	GHI
+                """.trimIndent(),
+            )
+            assertThat(pageTabPath.resolve("shared-file-list.json")).hasContent(
+                """
+                [{"path":"file1.txt","size":6,"attributes":[{"name":"Type","value":"ABC"}],"type":"file"},{"path":"file1.txt","size":6,"attributes":[{"name":"Type","value":"DEF"}],"type":"file"},{"path":"file2.txt","size":6,"attributes":[{"name":"Type","value":"GHI"}],"type":"file"}]
+                """.trimIndent(),
+            )
+        }
+
+    @Nested
+    inner class NegativeCases {
+        @Test
+        fun `3-6 Filelist Submission with an empty file list`() =
+            runTest {
+                val sub =
+                    tsv {
+                        line("Submission", "S-TEST8")
+                        line("Title", "Empty File List")
+                        line("ReleaseDate", "2099-09-21")
+                        line()
+
+                        line("Study")
+                        line("File List", "empty-file-list.tsv")
+                        line()
+                    }.toString()
+
+                val fileList =
+                    tempFolder.createFile(
+                        "empty-file-list.tsv",
+                        tsv {
+                            line("Files", "GEN")
+                        }.toString(),
+                    )
+
+                val params = SubmitParameters(storageMode = storageMode)
+                val files = listOf(fileList)
+
+                val exception = assertThrows<WebClientException> { webClient.submitMultipartAndWait(sub, TSV, params, files) }
+                assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+                assertThat(exception).hasMessageContaining("A file list should contain at least one file")
+            }
+
+        @Test
+        fun `3-7 Filelist Submission with a file list with an empty attribute name`() =
+            runTest {
+                val referencedFile = tempFolder.createFile("File9.txt", "file 9 content")
+                val sub =
+                    tsv {
+                        line("Submission", "S-TEST9")
+                        line("Title", "Empty Attribute Name")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+
+                        line("Study")
+                        line("File List", "no-attr-name-file-list.tsv")
+                        line()
+                    }.toString()
+
+                val fileList =
+                    tempFolder.createFile(
+                        "no-attr-name-file-list.tsv",
+                        tsv {
+                            line("Files", "GEN", "")
+                            line("File9.txt", "ABC", "DEF")
+                        }.toString(),
+                    )
+
+                val params = SubmitParameters(storageMode = storageMode)
+                val files = listOf(fileList, referencedFile)
+                val exception = assertThrows<WebClientException> { webClient.submitMultipartAndWait(sub, TSV, params, files) }
+                assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+                assertThat(exception).hasMessageContaining("Attribute name is required")
+            }
+    }
+
+    private suspend fun assertSubmissionFiles(
+        accNo: String,
+        testFile: String,
+        fileListName: String,
+    ) {
+        val createdSub = subRepository.getExtByAccNo(accNo)
+        val subFolder = "$submissionPath/${createdSub.relPath}"
+
+        if (enableFire) {
+            assertFireSubFiles(createdSub, accNo, subFolder)
+            assertFireFileListFiles(createdSub, fileListName, subFolder)
+        } else {
+            val submissionTabFiles = createdSub.pageTabFiles
+            assertThat(submissionTabFiles).hasSize(2)
+            assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, subFolder))
+
+            val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles
+            assertThat(fileListTabFiles).hasSize(2)
+            assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(fileListName, subFolder))
+        }
+
+        assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
+        assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
+        assertThat(Paths.get("$subFolder/Files/$fileListName.tsv")).exists()
+
+        assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
+        assertThat(Paths.get("$subFolder/${createdSub.accNo}.tsv")).exists()
+    }
+
+    private fun assertFireSubFiles(
+        submission: ExtSubmission,
+        accNo: String,
+        subFolder: String,
+    ) {
+        val submissionTabFiles = submission.pageTabFiles
+        assertThat(submissionTabFiles).hasSize(2)
+
+        val jsonTabFile = submissionTabFiles.first() as FireFile
+        val jsonFile = File("$subFolder/$accNo.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
+        assertThat(jsonTabFile.fireId).isNotNull()
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
+
+        val tsvTabFile = submissionTabFiles.second() as FireFile
+        val tsvFile = File("$subFolder/$accNo.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$accNo.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("$accNo.tsv")
+        assertThat(tsvTabFile.fireId).isNotNull()
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+    }
+
+    private fun assertFireFileListFiles(
+        sub: ExtSubmission,
+        fileListName: String,
+        subFolder: String,
+    ) {
+        val fileListTabFiles = sub.section.fileList!!.pageTabFiles
+        assertThat(fileListTabFiles).hasSize(2)
+
+        val jsonTabFile = fileListTabFiles.first() as FireFile
+        val jsonFile = File("$subFolder/Files/$fileListName.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("$fileListName.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("Files/$fileListName.json")
+        assertThat(jsonTabFile.fireId).isNotNull()
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
+
+        val tsvTabFile = fileListTabFiles.second() as FireFile
+        val tsvFile = File("$subFolder/Files/$fileListName.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.tsv")
+        assertThat(tsvTabFile.fireId).isNotNull()
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+    }
+
+    private fun submissionNfsTabFiles(
+        accNo: String,
+        subFolder: String,
+    ): List<NfsFile> {
+        val jsonPath = "$subFolder/$accNo.json"
+        val tsvPath = "$subFolder/$accNo.tsv"
+        return listOf(
+            createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
+            createNfsFile("$accNo.tsv", "$accNo.tsv", File(tsvPath)),
+        )
+    }
+
+    private fun fileListNfsTabFiles(
+        fileListName: String,
+        subFolder: String,
+    ): List<NfsFile> {
+        val jsonName = "$fileListName.json"
+        val tsvName = "$fileListName.tsv"
+        val jsonFile = File(subFolder).resolve("Files/$jsonName")
+        val tsvFile = File(subFolder).resolve("Files/$tsvName")
+
+        return listOf(
+            createNfsFile(jsonName, "Files/$jsonName", jsonFile),
+            createNfsFile(tsvName, "Files/$tsvName", tsvFile),
+        )
+    }
+}
