@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import uk.ac.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.factory.submissionSpecJson
@@ -26,6 +25,7 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.itest.util.AllInOneSubmissionHelper
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.itest.assertions
+package uk.ac.ebi.biostd.itest.util
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.base.Either

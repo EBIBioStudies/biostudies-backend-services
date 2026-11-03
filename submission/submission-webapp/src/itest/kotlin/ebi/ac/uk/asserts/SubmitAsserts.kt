@@ -75,13 +75,16 @@ suspend fun BioWebClient.submitFromDraftAndWait(draftKey: String): SubmissionRes
 
 private suspend fun BioWebClient.awaitSubmission(submissionId: SubmissionId): SubmissionResult {
     lateinit var status: RequestStatus
+
     waitUntil(timeout = 2.minutes, checkInterval = 100.milliseconds) {
         status = getSubmissionRequestStatus(submissionId.accNo, submissionId.version)
         status == POST_PROCESSED || status == INVALID
     }
+
     require(status == POST_PROCESSED) {
         val errors = getSubmissionRequestErrors(submissionId.accNo, submissionId.version)
         throw WebClientException(BAD_REQUEST, errors.joinToString("\n"))
     }
+
     return SubmissionResult(submissionId, status)
 }
