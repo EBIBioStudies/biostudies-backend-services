@@ -105,7 +105,7 @@ internal class PmcSubmissionSubmitterTest {
                 ),
         )
         wireMockWebServer.stubFor(
-            post(urlEqualTo("/submissions/async/multiple"))
+            post(urlEqualTo("/submissions/multiple"))
                 .withHeader(CONTENT_TYPE, containing(MULTIPART_FORM_DATA))
                 .withMultipartRequestBody(
                     aMultipart()

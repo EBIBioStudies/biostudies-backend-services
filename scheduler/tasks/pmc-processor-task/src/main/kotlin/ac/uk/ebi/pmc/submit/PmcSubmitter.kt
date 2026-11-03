@@ -91,7 +91,7 @@ class PmcSubmitter(
             val params = SubmitParameters(storageMode = StorageMode.NFS, silentMode = true, singleJobMode = true)
             val files = submissions.associate { it.accNo to getSubFiles(it) }
 
-            return bioWebClient.submitMultipartAsync(
+            return bioWebClient.submitMultipart(
                 submissions = submissionsMap,
                 parameters = params,
                 format = "json",

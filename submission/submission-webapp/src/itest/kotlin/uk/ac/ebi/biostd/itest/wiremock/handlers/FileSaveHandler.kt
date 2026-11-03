@@ -1,0 +1,35 @@
+package uk.ac.ebi.biostd.itest.wiremock.handlers
+
+import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.http.RequestMethod
+import com.github.tomakehurst.wiremock.http.ResponseDefinition
+import uk.ac.ebi.biostd.itest.wiremock.FireMockDatabase
+
+class FileSaveHandler(
+    private val fireDB: FireMockDatabase,
+) : RequestHandler {
+    override val method: RequestMethod = RequestMethod.POST
+    override val urlPattern: Regex = FIRE_BASE_URL.toRegex()
+
+    override fun handle(rqt: Request): ResponseDefinition =
+        ResponseDefinition.okForJson(
+            fireDB.saveFile(
+                fileName(rqt),
+                rqt.parts
+                    .first()
+                    .body
+                    .asBytes(),
+            ),
+        )
+
+    private fun fileName(request: Request): String {
+        val string =
+            request
+                .getPart("file")
+                .headers
+                .getHeader("content-disposition")
+                .values()
+                .first()
+        return string.substringAfter("filename=\"").substringBefore("\"")
+    }
+}

@@ -263,7 +263,7 @@ internal class PmcPipelineIntegrationTest(
         private const val SUBMITTED_VERSION = 3
         private const val DATABASE_NAME = "pmc-pipeline-test"
         private const val FILES_URL = "/files/getFileStream/PMC1234567"
-        private const val SUBMIT_URL = "/submissions/async/multiple"
+        private const val SUBMIT_URL = "/submissions/multiple"
         private val FILE_CONTENTS = mapOf("file1.txt" to "first file content", "file2.txt" to "second file content")
         private val wireMockServer = WireMockServer(WireMockConfiguration().dynamicPort())
         private val SUBMISSION_PAGETAB =

@@ -20,7 +20,6 @@ import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.base.nullIfBlank
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.ByPassSourceList
 import ebi.ac.uk.io.sources.FileSourcesList
@@ -40,46 +39,26 @@ class SubmitWebHandler(
     private val extSubService: ExtSubmissionQueryService,
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
-    private val toSubmissionMapper: ToSubmissionMapper,
     private val queryService: SubmissionMetaQueryService,
     private val fileServiceFactory: FileServiceFactory,
     private val requestDraftService: SubmissionRequestDraftService,
     private val appProperties: ApplicationProperties,
 ) {
-    suspend fun submit(request: ContentSubmitWebRequest): Submission {
-        val rqt = buildRequest(request)
-        val extSubmission = subService.submit(rqt)
-        return toSubmissionMapper.toSimpleSubmission(extSubmission)
-    }
-
-    suspend fun submit(request: FileSubmitWebRequest): Submission {
-        uploadSubInputFile(request)
-        val rqt = buildRequest(request)
-        val extSubmission = subService.submit(rqt)
-        return toSubmissionMapper.toSimpleSubmission(extSubmission)
-    }
-
-    suspend fun submit(request: DraftSubmitWebRequest): Submission {
-        val rqt = buildRequest(request)
-        val extSubmission = subService.submit(rqt)
-        return toSubmissionMapper.toSimpleSubmission(extSubmission)
-    }
-
-    suspend fun submitAsync(request: ContentSubmitWebRequest): SubmissionId {
+    suspend fun submit(request: ContentSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         subService.submitAsync(rqt)
 
         return SubmissionId(rqt.accNo, rqt.version)
     }
 
-    suspend fun submitAsync(requests: List<ContentSubmitWebRequest>): List<SubmissionId> {
+    suspend fun submit(requests: List<ContentSubmitWebRequest>): List<SubmissionId> {
         val rqt = requests.map { buildRequest(it) }
         subService.submitAsync(rqt)
 
         return rqt.map { SubmissionId(it.accNo, it.version) }
     }
 
-    suspend fun submitAsync(request: FileSubmitWebRequest): SubmissionId {
+    suspend fun submit(request: FileSubmitWebRequest): SubmissionId {
         uploadSubInputFile(request)
         val rqt = buildRequest(request)
         subService.submitAsync(rqt)
@@ -87,7 +66,7 @@ class SubmitWebHandler(
         return SubmissionId(rqt.accNo, rqt.version)
     }
 
-    suspend fun submitAsync(request: DraftSubmitWebRequest): SubmissionId {
+    suspend fun submit(request: DraftSubmitWebRequest): SubmissionId {
         val rqt = buildRequest(request)
         subService.submitAsync(rqt)
 

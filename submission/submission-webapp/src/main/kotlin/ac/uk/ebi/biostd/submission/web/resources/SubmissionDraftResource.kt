@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import com.fasterxml.jackson.annotation.JsonRawValue
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -83,19 +83,7 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfParameters?,
         @ModelAttribute parameters: SubmitParameters,
-    ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
-        val request = submitRequestBuilder.buildDraftRequest(accNo, user.email, buildRequest)
-        submitWebHandler.submitAsync(request)
-    }
-
-    @PostMapping("/{accNo}/submit/sync")
-    suspend fun submitDraftSync(
-        @PathVariable accNo: String,
-        @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfParameters?,
-        @ModelAttribute parameters: SubmitParameters,
-    ): Submission {
+    ): SubmissionId {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildDraftRequest(accNo, user.email, buildRequest)
         return submitWebHandler.submit(request)
