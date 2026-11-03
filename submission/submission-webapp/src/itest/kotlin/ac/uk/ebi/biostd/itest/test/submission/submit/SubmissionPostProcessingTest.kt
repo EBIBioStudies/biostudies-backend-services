@@ -25,6 +25,7 @@ import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
@@ -153,7 +154,7 @@ class SubmissionPostProcessingTest(
             webClient.uploadFiles(listOf(subFile3), "a")
             webClient.uploadFiles(listOf(subFile4), "b")
 
-            assertThat(webClient.submit(version1, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
+            assertThat(webClient.submitAndWait(version1, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
             waitUntil(10.seconds) { statsDataService.findStatsByAccNo("S-STTS1").isNotEmpty() }
 
             val subV1 = submissionRepository.getExtByAccNo("S-STTS1")
@@ -172,7 +173,7 @@ class SubmissionPostProcessingTest(
             assertThat(webClient.listUserFiles().map { it.name }).doesNotContain("stats file 1.doc")
 
             webClient.uploadFiles(listOf(subFile1))
-            assertThat(webClient.submit(version2, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
+            assertThat(webClient.submitAndWait(version2, TSV, SubmitParameters(storageMode = storageMode))).isSuccessful()
             waitUntil(10.seconds) { statsDataService.findStatsByAccNo("S-STTS1").first().value != expectedFilesSize }
 
             val subV2 = submissionRepository.getExtByAccNo("S-STTS1")
@@ -282,8 +283,8 @@ class SubmissionPostProcessingTest(
                     line()
                 }.toString()
 
-            webClient.submit(submission1, TSV)
-            webClient.submit(submission2, TSV)
+            webClient.submitAndWait(submission1, TSV)
+            webClient.submitAndWait(submission2, TSV)
 
             val original1 = statsDataService.findByAccNo(accNo)
             val original2 = statsDataService.findByAccNo(accNo2)
@@ -326,7 +327,7 @@ class SubmissionPostProcessingTest(
             webClient.uploadFile(tempFolder.createFile("file-list.tsv", fileListContent))
             webClient.uploadFile(tempFolder.createFile("a_file.txt", "file content"), "a-Dir")
             webClient.uploadFile(tempFolder.createFile("statsFile3.pdf", "pdf content"), "a")
-            webClient.submit(submission, TSV, params)
+            webClient.submitAndWait(submission, TSV, params)
 
             val sub = submissionRepository.getExtByAccNo(accNo)
             val pageTabPath = submissionPath.resolve(sub.relPath)
@@ -374,7 +375,7 @@ class SubmissionPostProcessingTest(
 
             val params = if (enableFire) SubmitParameters(storageMode = FIRE) else SubmitParameters(storageMode = NFS)
             webClient.uploadFile(tempFolder.createFile("inner_file.txt", "file content"), "a-Dir")
-            webClient.submit(submission, TSV, params)
+            webClient.submitAndWait(submission, TSV, params)
 
             waitForCompletion(10.seconds) {
                 submissionFilesDocDataRepository.findByAccNoAndVersion(accNo, 1).toList().isNotEmpty()
@@ -414,7 +415,7 @@ class SubmissionPostProcessingTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             waitForCompletion(10.seconds) {
                 submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
             }
@@ -448,7 +449,7 @@ class SubmissionPostProcessingTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(updatedSubmission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(updatedSubmission, TSV)).isSuccessful()
             waitUntil(10.seconds) {
                 doiRegistrationRequests(accNo).any { it.contains("<title>Updated DOI Generation</title>") }
             }
@@ -493,7 +494,7 @@ class SubmissionPostProcessingTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getExtByAccNo(accNo).doi).isNull()
 
             webClient.postProcessDoi(accNo)
@@ -529,7 +530,7 @@ class SubmissionPostProcessingTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             waitForCompletion(10.seconds) {
                 submissionRepository.getExtByAccNo(accNo).doi == "$BS_DOI_ID/$accNo"
             }

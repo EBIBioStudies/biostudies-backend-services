@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
@@ -50,7 +51,7 @@ class SubmissionRequestApiTest(
                     line()
                 }.toString()
 
-            assertSubmit(webClient.submit(sub, TSV)).isSuccessful()
+            assertSubmit(webClient.submitAndWait(sub, TSV)).isSuccessful()
             assertThat(webClient.getSubmissionRequestStatus("S-RQT1", 1)).isEqualTo(POST_PROCESSED)
         }
 }

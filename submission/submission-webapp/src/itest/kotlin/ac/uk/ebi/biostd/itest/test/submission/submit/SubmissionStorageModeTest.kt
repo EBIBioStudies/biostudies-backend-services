@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -79,7 +80,7 @@ class SubmissionStorageModeTest(
             webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
             webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
             assertThat(fireSub.storageMode).isEqualTo(FIRE)
             assertThat(fireSub.version).isEqualTo(1)
@@ -88,7 +89,7 @@ class SubmissionStorageModeTest(
             assertThat(fireSub.section.fileList).isNotNull()
             assertFileListFile(fireSub.section.fileList!!, "file-list-dir.zip", FireFile::class)
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
             assertThat(nfsSub.storageMode).isEqualTo(NFS)
             assertThat(nfsSub.version).isEqualTo(2)
@@ -109,7 +110,7 @@ class SubmissionStorageModeTest(
             webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
             webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
             assertThat(nfsSub.storageMode).isEqualTo(NFS)
             assertThat(nfsSub.version).isEqualTo(1)
@@ -118,7 +119,7 @@ class SubmissionStorageModeTest(
             assertThat(nfsSub.section.fileList).isNotNull()
             assertFileListFile(nfsSub.section.fileList!!, "file-list-dir", NfsFile::class)
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
             assertThat(fireSub.version).isEqualTo(2)
             assertThat(fireSub.storageMode).isEqualTo(FIRE)
@@ -143,7 +144,7 @@ class SubmissionStorageModeTest(
             webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
             webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
             webClient.migrateSubmission("S-STR-MODE-3", FIRE)
@@ -173,7 +174,7 @@ class SubmissionStorageModeTest(
             val (submission, file, fileList, fileListDir, fileListFiles) = createSubmission("S-STR-MODE-4")
             webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
             webClient.uploadFile(fileListFiles.second(), fileListDir.name)
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = FIRE))).isSuccessful()
             val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
             webClient.migrateSubmission("S-STR-MODE-4", NFS)
@@ -203,13 +204,13 @@ class SubmissionStorageModeTest(
             webClient.uploadFiles(listOf(file, fileList, fileListFiles.first()))
             webClient.uploadFile(fileListFiles.second(), fileListDir.name)
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(storageMode = NFS))).isSuccessful()
             val subV1 = submissionRepository.getExtByAccNo("S-STR-MODE-5")
             assertThat(subV1.version).isEqualTo(1)
             assertThat(subV1.storageMode).isEqualTo(NFS)
 
             val params = SubmitParameters(preferredSources = listOf(PreferredSource.SUBMISSION), storageMode = null)
-            assertThat(webClient.submit(submission, TSV, params)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, params)).isSuccessful()
             val subV2 = submissionRepository.getExtByAccNo("S-STR-MODE-5")
             assertThat(subV2.version).isEqualTo(2)
             assertThat(subV2.storageMode).isEqualTo(NFS)

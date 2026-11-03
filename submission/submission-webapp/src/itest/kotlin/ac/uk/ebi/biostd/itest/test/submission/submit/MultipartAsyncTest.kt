@@ -83,7 +83,7 @@ class MultipartAsyncTest(
             val file3 = tempFolder.createFile("file3.txt", "content")
 
             val result =
-                webClient.submitMultipartAsync(
+                webClient.submitMultipart(
                     format = TSV_EXTENSION,
                     submissions = mapOf("S-MULTIPART-ASYNC-001" to submission, "S-MULTIPART-ASYNC-002" to submission2),
                     files =

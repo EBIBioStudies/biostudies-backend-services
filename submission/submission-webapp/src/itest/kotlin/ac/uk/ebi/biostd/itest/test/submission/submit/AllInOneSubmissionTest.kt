@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -54,7 +55,7 @@ class AllInOneSubmissionTest(
             subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submit(submission.readText(), TSV)
+            webClient.submitAndWait(submission.readText(), TSV)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
             if (enableFire) {
@@ -72,7 +73,7 @@ class AllInOneSubmissionTest(
             subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submit(submission.readText(), JSON)
+            webClient.submitAndWait(submission.readText(), JSON)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
             if (enableFire) {

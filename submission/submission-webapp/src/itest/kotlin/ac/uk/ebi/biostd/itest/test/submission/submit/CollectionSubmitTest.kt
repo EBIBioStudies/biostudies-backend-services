@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtCollection
@@ -61,7 +62,7 @@ class CollectionSubmitTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(privateCollection, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(privateCollection, TSV)).isSuccessful()
 
             val submittedCollection = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedCollection.accNo).isEqualTo("PrivateProject")
@@ -88,7 +89,7 @@ class CollectionSubmitTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(publicCollection, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(publicCollection, TSV)).isSuccessful()
 
             val submittedCollection = submissionRepository.getExtByAccNo("PublicProject")
             assertThat(submittedCollection.accNo).isEqualTo("PublicProject")
@@ -121,8 +122,8 @@ class CollectionSubmitTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(aCollection, TSV)).isSuccessful()
-            val exception = assertThrows<WebClientException> { webClient.submit(anotherCollection, TSV) }
+            assertThat(webClient.submitAndWait(aCollection, TSV)).isSuccessful()
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(anotherCollection, TSV) }
             assertThat(exception).hasMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
         }
 }

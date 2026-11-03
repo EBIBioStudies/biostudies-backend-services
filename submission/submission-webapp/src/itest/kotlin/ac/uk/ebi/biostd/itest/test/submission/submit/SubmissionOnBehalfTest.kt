@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -79,7 +80,7 @@ class SubmissionOnBehalfTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val response = onBehalfClient.submit(submissionPagetab, TSV)
+            val response = onBehalfClient.submitAndWait(submissionPagetab, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
@@ -111,7 +112,7 @@ class SubmissionOnBehalfTest(
                 }.toString()
 
             val response =
-                webClient.submit(
+                webClient.submitAndWait(
                     submission,
                     TSV,
                     SubmitParameters(storageMode = storageMode),
@@ -153,7 +154,7 @@ class SubmissionOnBehalfTest(
                 }.toString()
 
             val onBehalfClient = getWebClient(serverPort, SuperUser, onBehalf = RegularUser)
-            val response = onBehalfClient.submit(submission, TSV)
+            val response = onBehalfClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
@@ -189,7 +190,7 @@ class SubmissionOnBehalfTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val response = onBehalfClient.submit(submission, TSV)
+            val response = onBehalfClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
@@ -210,7 +211,7 @@ class SubmissionOnBehalfTest(
                 }.toString()
 
             val anotherUserClient = getWebClient(serverPort, AnotherUser)
-            val response = anotherUserClient.submit(submission, TSV)
+            val response = anotherUserClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
@@ -226,7 +227,7 @@ class SubmissionOnBehalfTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            val updated = onBehalfClient.submit(submissionUpdated, TSV)
+            val updated = onBehalfClient.submitAndWait(submissionUpdated, TSV)
             assertThat(updated).isSuccessful()
 
             val result = submissionRepository.getExtByAccNo(accNo)

@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.TransferLogDataService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.SubmissionTransferOptions
@@ -85,10 +86,10 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub1, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
 
-            assertThat(onBehalfClient.submit(sub2, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub2, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo2).owner).isEqualTo(RegularUser.email)
 
             val options = SubmissionTransferOptions(owner = RegularUser.email, newOwner = ExistingUser.email)
@@ -124,10 +125,10 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub1, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
 
-            assertThat(onBehalfClient.submit(sub2, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub2, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo2).owner).isEqualTo(RegularUser.email)
 
             val options =
@@ -156,7 +157,7 @@ class TransferSubmissionsTest(
 
                     line("Project")
                 }.toString()
-            assertThat(superUserWebClient.submit(collection, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(collection, TSV)).isSuccessful()
             superUserWebClient.grantPermission(ExistingUser.email, collectionAccNo, ADMIN.name)
 
             val submission =
@@ -173,7 +174,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo).owner).isEqualTo(RegularUser.email)
 
             val options =
@@ -204,7 +205,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo).owner).isEqualTo(RegularUser.email)
 
             val options = SubmissionTransferOptions(owner = RegularUser.email, newOwner = ExistingUser.email)
@@ -226,7 +227,7 @@ class TransferSubmissionsTest(
                     line()
                     line("Project")
                 }.toString()
-            assertThat(superUserWebClient.submit(collection, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(collection, TSV)).isSuccessful()
             superUserWebClient.grantPermission(ExistingUser.email, collectionAccNo, ADMIN.name)
 
             val onBehalfClient =
@@ -234,7 +235,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
             assertThat(
-                onBehalfClient.submit(
+                onBehalfClient.submitAndWait(
                     tsv {
                         line("Submission", allowedAccNo)
                         line("Title", "Allowed transfer")
@@ -246,7 +247,7 @@ class TransferSubmissionsTest(
                 ),
             ).isSuccessful()
             assertThat(
-                onBehalfClient.submit(
+                onBehalfClient.submitAndWait(
                     tsv {
                         line("Submission", deniedAccNo)
                         line("Title", "Denied transfer")
@@ -287,7 +288,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub1, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
 
             val options =
@@ -318,7 +319,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub1, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(RegularUser.email)
 
             val options =
@@ -348,7 +349,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, EmailUpdateUser.email)
 
-            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub1, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(EmailUpdateUser.email)
 
             val options =
@@ -379,7 +380,7 @@ class TransferSubmissionsTest(
                     .create("http://localhost:$serverPort")
                     .getAuthenticatedClient(SuperUser.email, SuperUser.password, EmailUpdateExistingUser.email)
 
-            assertThat(onBehalfClient.submit(sub1, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(sub1, TSV)).isSuccessful()
             assertThat(subRepository.getExtByAccNo(accNo1).owner).isEqualTo(EmailUpdateExistingUser.email)
 
             val options =

@@ -19,6 +19,8 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitFromDraftAndWait
 import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -94,7 +96,7 @@ class SubmissionApiTest(
                     releaseDate = OffsetDateTime.now().toStringDate()
                 }
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            webClient.submitAndWait(submission, TSV)
             assertThat(getSimpleSubmission("SimpleAcc1")).isEqualTo(
                 submission("SimpleAcc1") {
                     title = "Simple Submission"
@@ -114,8 +116,7 @@ class SubmissionApiTest(
                     line()
                 }.toString()
 
-            val response = webClient.submit(submission, TSV)
-
+            val response = webClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
             assertThat(getSimpleSubmission(response.body.accNo)).isEqualTo(
                 submission(response.body.accNo) {
@@ -149,7 +150,7 @@ class SubmissionApiTest(
                 "RootPathFolder",
             )
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-12364")).isEqualTo(
                 submission("S-12364") {
                     title = "Sample Submission"
@@ -174,7 +175,7 @@ class SubmissionApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
@@ -189,7 +190,7 @@ class SubmissionApiTest(
         runTest {
             val exception =
                 assertThrows<WebClientException> {
-                    webClient.submit(invalidLinkUrl().toString(), TSV)
+                    webClient.submitAndWait(invalidLinkUrl().toString(), TSV)
                 }
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -207,7 +208,7 @@ class SubmissionApiTest(
 
             val exception =
                 assertThrows<WebClientException> {
-                    webClient.submit(submission)
+                    webClient.submitAndWait(submission)
                 }
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
@@ -235,7 +236,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.createFolder("folder1")
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-500")
 
@@ -263,7 +264,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_16-8.txt", "16-8 file content"))
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-600")
 
@@ -292,7 +293,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_16-9.txt", "16-9 file content"))
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-700")
 
@@ -328,7 +329,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFiles(listOf(file1, file2))
-            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(submission, TSV) }
             val request = submissionRequestRepository.getByAccNoAndStatusNotIn("S-BSST1610", PROCESSED_STATUS)
             val expectedError = "The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif"
             assertThat(exception).hasMessageContaining(expectedError)
@@ -367,7 +368,7 @@ class SubmissionApiTest(
                 }.toString()
 
             webClient.uploadFiles(listOf(file1, file2, fileList))
-            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(submission, TSV) }
             val request = submissionRequestRepository.getByAccNoAndStatusNotIn("S-BSST16101", PROCESSED_STATUS)
             val expectedError = "The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif"
             val expectedFileListError = "Referenced in file list: file-list.tsv"
@@ -394,7 +395,7 @@ class SubmissionApiTest(
                     line()
                 }.toString()
 
-            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(submission, TSV) }
             assertThat(exception).hasMessageContainingAll(
                 "The given file path contains invalid characters: inner/directory/",
                 "For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list",
@@ -426,7 +427,7 @@ class SubmissionApiTest(
 
             webClient.uploadFiles(listOf(file1, file2))
 
-            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(submission, TSV) }
             assertThat(exception).hasMessageContaining(
                 "The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv",
             )
@@ -469,7 +470,7 @@ class SubmissionApiTest(
                     line("File", "simpleFtpFile.txt")
                 }.toString()
 
-            val result = ftpUserWebClient.submit(submission, TSV)
+            val result = ftpUserWebClient.submitAndWait(submission, TSV)
 
             assertThat(result).isSuccessful()
         }
@@ -504,7 +505,7 @@ class SubmissionApiTest(
                     }.toString()
                 webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
 
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val extSub = submissionRepository.getExtByAccNo("S-12366")
                 assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
@@ -537,7 +538,7 @@ class SubmissionApiTest(
                         line("File", "missing_file.txt")
                     }.toString()
 
-                val subV1 = webClient.submitAsync(submission, TSV)
+                val subV1 = webClient.submit(submission, TSV)
                 waitForCompletion(timeout = 5.seconds) {
                     val result = requestRepository.getRequest(subV1.accNo, subV1.version)
                     assertThat(result.status).isEqualTo(INVALID)
@@ -554,7 +555,7 @@ class SubmissionApiTest(
                 }
 
                 webClient.uploadFile(tempFolder.createFile("missing_file.txt", "content"))
-                val subV2 = webClient.submitAsync(submission, TSV)
+                val subV2 = webClient.submit(submission, TSV)
                 waitForCompletion(timeout = 5.seconds) {
                     val result = requestRepository.getRequest(subV2.accNo, subV2.version)
                     assertThat(result.status).isEqualTo(POST_PROCESSED)
@@ -573,7 +574,7 @@ class SubmissionApiTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(testMessageService.findSubmittedMessages(accNo)).isNotNull()
         }
 
@@ -587,7 +588,7 @@ class SubmissionApiTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(silentMode = true))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(silentMode = true))).isSuccessful()
             assertThat(testMessageService.findSubmittedMessages(accNo)).isNull()
         }
 
@@ -607,7 +608,7 @@ class SubmissionApiTest(
 
             val file = tempFolder.createFile("DataFile.PROCESS_ALL.txt", "An example content")
             webClient.uploadFiles(listOf(file))
-            assertThat(webClient.submit(submission, TSV, SubmitParameters(singleJobMode = true))).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV, SubmitParameters(singleJobMode = true))).isSuccessful()
         }
 
     @Test
@@ -635,7 +636,7 @@ class SubmissionApiTest(
             val file = tempFolder.createFile("DataFile.PROCESS_ALL.txt", "An example content")
             webClient.createFolder("inner")
             webClient.uploadFiles(listOf(file), relativePath = "inner")
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo(accNo)
             val subDir = Paths.get("$submissionPath/${submitted.relPath}")
@@ -657,18 +658,18 @@ class SubmissionApiTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            val response = webClient.submit(subV1, TSV)
+            val response = webClient.submitAndWait(subV1, TSV)
             assertThat(response).isSuccessful()
 
             val v1 = submissionRepository.getExtByAccNo(accNo)
             assertThat(v1.version).isEqualTo(1)
 
             val draft = webClient.getSubmissionDraft(accNo).key
-            webClient.submitFromDraft(draft)
+            webClient.submitFromDraftAndWait(draft)
             val v2 = submissionRepository.getExtByAccNo(accNo)
             assertThat(v2.version).isEqualTo(2)
 
-            webClient.submit(subV1, TSV)
+            webClient.submitAndWait(subV1, TSV)
             val v3 = submissionRepository.getExtByAccNo(accNo)
             assertThat(v3.version).isEqualTo(3)
         }

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.web.resources.submit.async
+package ac.uk.ebi.biostd.submission.web.resources.submit
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
@@ -31,10 +31,10 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.MultipartRequest
 
 @RestController
-@RequestMapping("/submissions/async")
+@RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 @Suppress("LongParameterList")
-class MultipartAsyncSubmitResource(
+class MultipartSubmitResource(
     private val submitWebHandler: SubmitWebHandler,
     private val submitRequestBuilder: SubmitRequestBuilder,
     private val tempFileGenerator: TempFileGenerator,
@@ -54,7 +54,7 @@ class MultipartAsyncSubmitResource(
         val request = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, request)
 
-        return submitWebHandler.submitAsync(contentWebRequest)
+        return submitWebHandler.submit(contentWebRequest)
     }
 
     @PostMapping(
@@ -72,7 +72,7 @@ class MultipartAsyncSubmitResource(
         val request = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.TSV, request)
 
-        return submitWebHandler.submitAsync(contentWebRequest)
+        return submitWebHandler.submit(contentWebRequest)
     }
 
     @PostMapping(
@@ -91,7 +91,7 @@ class MultipartAsyncSubmitResource(
         val request = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val fileWebRequest = submitRequestBuilder.buildFileRequest(tempFileGenerator.asFile(file), request)
 
-        return submitWebHandler.submitAsync(fileWebRequest)
+        return submitWebHandler.submit(fileWebRequest)
     }
 
     @PostMapping(
@@ -117,6 +117,6 @@ class MultipartAsyncSubmitResource(
         }
 
         var requests = submissions.map { (key, value) -> asContentRequest(multipartRequest.getFiles(key), value) }
-        return submitWebHandler.submitAsync(requests)
+        return submitWebHandler.submit(requests)
     }
 }

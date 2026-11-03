@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.web.resources.submit.async
+package ac.uk.ebi.biostd.submission.web.resources.submit
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/submissions/async")
+@RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 @Suppress("LongParameterList")
-class SubmitAsyncResource(
+class SubmitResource(
     private val submitWebHandler: SubmitWebHandler,
     private val submitRequestBuilder: SubmitRequestBuilder,
 ) {
@@ -42,7 +42,7 @@ class SubmitAsyncResource(
     ): SubmissionId {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.TSV, buildRequest)
-        return submitWebHandler.submitAsync(request)
+        return submitWebHandler.submit(request)
     }
 
     @PostMapping(
@@ -58,6 +58,6 @@ class SubmitAsyncResource(
     ): SubmissionId {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
-        return submitWebHandler.submitAsync(request)
+        return submitWebHandler.submit(request)
     }
 }

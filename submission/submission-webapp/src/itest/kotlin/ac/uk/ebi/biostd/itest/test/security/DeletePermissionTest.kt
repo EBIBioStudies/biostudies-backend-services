@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -101,7 +102,7 @@ class DeletePermissionTest(
                         .create("http://localhost:$serverPort")
                         .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-                assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+                assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
                 val exception = assertThrows<WebClientException> { superUserWebClient.deleteSubmission("S-DLT1") }
                 assertThat(exception).hasMessageContaining(
                     "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT1",
@@ -124,7 +125,7 @@ class DeletePermissionTest(
                         .create("http://localhost:$serverPort")
                         .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-                assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+                assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val exception = assertThrows<WebClientException> { superUserWebClient.deleteSubmission("S-DLT2") }
                 assertThat(exception).hasMessageContaining(
@@ -156,8 +157,8 @@ class DeletePermissionTest(
 
                 superUserWebClient.uploadFile(tempFolder.createFile("test-file1.txt"))
                 superUserWebClient.uploadFile(tempFolder.createFile("test-file2.txt"))
-                assertThat(superUserWebClient.submit(submission1, TSV)).isSuccessful()
-                assertThat(superUserWebClient.submit(submission2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission1, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission2, TSV)).isSuccessful()
 
                 superUserWebClient.deleteSubmissions(listOf("S-DLT121", "S-DLT122"))
 
@@ -176,9 +177,9 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                superUserWebClient.submit(submission, TSV)
+                superUserWebClient.submitAndWait(submission, TSV)
                 superUserWebClient.deleteSubmission("S-DLT13")
-                superUserWebClient.submit(submission, TSV)
+                superUserWebClient.submitAndWait(submission, TSV)
 
                 val resubmitted = submissionRepository.getExtByAccNo("S-DLT13")
                 assertThat(resubmitted.version).isEqualTo(2)
@@ -198,7 +199,7 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val exception = assertThrows<WebClientException> { regularUserWebClient.deleteSubmission("S-DLT3") }
                 assertThat(exception).hasMessageContaining(
@@ -217,7 +218,7 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
                 val exception = assertThrows<WebClientException> { regularUserWebClient.deleteSubmission("S-DLT4") }
                 assertThat(exception).hasMessageContaining(
                     "The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT4",
@@ -240,7 +241,7 @@ class DeletePermissionTest(
                         .create("http://localhost:$serverPort")
                         .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-                assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+                assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
                 val exception = assertThrows<WebClientException> { regularUserWebClient.deleteSubmission("S-DLT9") }
                 assertThat(exception).hasMessageContaining(
                     "The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT9",
@@ -263,7 +264,7 @@ class DeletePermissionTest(
                         .create("http://localhost:$serverPort")
                         .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-                assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+                assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
                 regularUserWebClient.deleteSubmission("S-DLT10")
                 verifyDeleted("S-DLT10")
             }
@@ -283,7 +284,7 @@ class DeletePermissionTest(
 
                         line("Project")
                     }.toString()
-                assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
             }
 
         @Test
@@ -298,7 +299,7 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(RegularUser.email, "ACollection", DELETE.name)
 
                 regularUserWebClient.deleteSubmission("S-DLT5")
@@ -317,7 +318,7 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(RegularUser.email, "ACollection", DELETE.name)
                 regularUserWebClient.deleteSubmission("S-DLT6")
                 verifyDeleted("S-DLT6")
@@ -335,7 +336,7 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(ExistingUser.email, "ACollection", ADMIN.name)
 
                 val exception = assertThrows<WebClientException> { existingUserWebClient.deleteSubmission("S-DLT7") }
@@ -356,7 +357,7 @@ class DeletePermissionTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
                 superUserWebClient.grantPermission(ExistingUser.email, "ACollection", ADMIN.name)
 
                 val exception = assertThrows<WebClientException> { existingUserWebClient.deleteSubmission("S-DLT8") }
@@ -388,8 +389,8 @@ class DeletePermissionTest(
                         .create("http://localhost:$serverPort")
                         .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-                assertThat(superUserWebClient.submit(submission1, TSV)).isSuccessful()
-                assertThat(onBehalfClient.submit(submission2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(submission1, TSV)).isSuccessful()
+                assertThat(onBehalfClient.submitAndWait(submission2, TSV)).isSuccessful()
 
                 val exception =
                     assertThrows<WebClientException> {

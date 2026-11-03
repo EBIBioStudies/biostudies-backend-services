@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
@@ -171,7 +172,7 @@ class FileListValidationTest(
                 val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
 
                 webClient.uploadFiles(listOf(file1, fileList))
-                webClient.submitMultipart(
+                webClient.submitMultipartAndWait(
                     previousVersion,
                     TSV,
                     SubmitParameters(storageMode = storageMode),

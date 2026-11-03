@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -79,7 +80,7 @@ class SubmissionReleaseSecretKeyTest(
 
             webClient.uploadFile(tempFolder.createFile("file_27-3.txt", "27-3 file content"))
             webClient.uploadFile(tempFolder.createFile("file_27-3_2.txt", "27-3-2 file content"), "27-3_dir")
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE003")
 
@@ -121,7 +122,7 @@ class SubmissionReleaseSecretKeyTest(
 
             webClient.uploadFile(tempFolder.createFile("file_27-4.txt", "27-4 file content"))
             webClient.uploadFile(tempFolder.createFile("file_27-4_2.txt", "27-4-2 file content"), "27-4_dir")
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             // Verify that the submission files are located in the private and not the public directory
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE004")
@@ -154,7 +155,7 @@ class SubmissionReleaseSecretKeyTest(
                     line()
                 }.toString()
             val result =
-                webClient.submit(
+                webClient.submitAndWait(
                     submission2,
                     TSV,
                     SubmitParameters(preferredSources = listOf(PreferredSource.SUBMISSION)),

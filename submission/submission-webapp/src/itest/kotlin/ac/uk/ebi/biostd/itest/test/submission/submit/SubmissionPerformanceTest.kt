@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.FIXED_DELAY_ENV
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
@@ -79,7 +80,7 @@ class SubmissionPerformanceTest(
                     line()
                 }.toString()
 
-            val executionTime = measureTime { webClient.submit(submission, SubmissionFormat.TSV) }
+            val executionTime = measureTime { webClient.submitAndWait(submission, SubmissionFormat.TSV) }
 
             // Execution time is bounded by 9 times the delay on each Fire operation
             val expectedTime = (9.0 * (files * delay)).toLong()

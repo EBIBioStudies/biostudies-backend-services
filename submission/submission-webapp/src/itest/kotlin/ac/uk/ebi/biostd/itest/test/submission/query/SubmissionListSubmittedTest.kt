@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -68,7 +69,7 @@ class SubmissionListSubmittedTest(
                     line("Project")
                 }.toString()
 
-            assertThat(webClient.submit(delayCollection, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(delayCollection, TSV)).isSuccessful()
 
             val submission =
                 tsv {
@@ -82,7 +83,7 @@ class SubmissionListSubmittedTest(
                 }.toString()
 
             launch(UnconfinedTestDispatcher(testScheduler)) {
-                webClient.submitAsync(submission, TSV)
+                webClient.submitAndWait(submission, TSV)
             }
 
             launch(UnconfinedTestDispatcher(testScheduler)) {

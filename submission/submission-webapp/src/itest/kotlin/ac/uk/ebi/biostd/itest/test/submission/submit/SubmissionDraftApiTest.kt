@@ -10,6 +10,8 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitFromDraftAndWait
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
@@ -72,7 +74,7 @@ class SubmissionDraftApiTest(
                         })
                 }.toString()
 
-            superWebClient.submit(pageTab, JSON)
+            superWebClient.submitAndWait(pageTab, JSON)
 
             val draftSubmission = superWebClient.getSubmissionDraft("ABC-123")
             assertThat(draftSubmission.key).isEqualTo(draftSubmission.key)
@@ -131,7 +133,7 @@ class SubmissionDraftApiTest(
 
             val draft = superWebClient.createSubmissionDraft(pageTab)
 
-            superWebClient.submitFromDraft(draft.key)
+            superWebClient.submitFromDraftAndWait(draft.key)
 
             assertThat(superWebClient.getAllSubmissionDrafts()).isEmpty()
         }
@@ -155,7 +157,7 @@ class SubmissionDraftApiTest(
                             "value" to OffsetDateTime.now().toStringDate()
                         })
                 }.toString()
-            superWebClient.submit(pageTab, JSON)
+            superWebClient.submitAndWait(pageTab, JSON)
 
             superWebClient.deleteSubmissionDraft("ABC-128")
 
@@ -165,7 +167,7 @@ class SubmissionDraftApiTest(
     @Test
     fun `12-7 re submit from draft`() =
         runTest {
-            superWebClient.submit(
+            superWebClient.submitAndWait(
                 jsonObj {
                     "accno" to "ABC-129"
                     "type" to "Study"
@@ -208,7 +210,7 @@ class SubmissionDraftApiTest(
 
             superWebClient.updateSubmissionDraft("ABC-129", updatedDraft)
 
-            superWebClient.submitFromDraft("ABC-129")
+            superWebClient.submitFromDraftAndWait("ABC-129")
 
             val version2 = superWebClient.getExtByAccNo("ABC-129")
             assertThat(version2.attributes.first().name).isEqualTo("Source")
@@ -227,7 +229,7 @@ class SubmissionDraftApiTest(
             val accNo = "ABC-130"
             val newSubmission =
                 superWebClient
-                    .submit(
+                    .submitAndWait(
                         jsonObj {
                             "accno" to accNo
                             "attributes" to
@@ -242,7 +244,7 @@ class SubmissionDraftApiTest(
                             "type" to "submission"
                         }.toString(),
                     ).body
-            assertThat(newSubmission.section.type).isEqualTo("Study")
+            assertThat(superWebClient.getExtByAccNo(newSubmission.accNo).section.type).isEqualTo("Study")
 
             val firstVersion = superWebClient.getSubmissionDraft(accNo)
             superWebClient.updateSubmissionDraft(
@@ -263,8 +265,8 @@ class SubmissionDraftApiTest(
             )
 
             val secondVersion = superWebClient.getSubmissionDraft(accNo)
-            val updatedSubmission = superWebClient.submitFromDraft(accNo).body
-            assertThat(updatedSubmission.section.type).isEqualTo("Another")
+            val updatedSubmission = superWebClient.submitFromDraftAndWait(accNo).body
+            assertThat(superWebClient.getExtByAccNo(updatedSubmission.accNo).section.type).isEqualTo("Another")
             assertThat(secondVersion.modificationTime).isAfter(firstVersion.modificationTime)
 
             superWebClient.getSubmissionDraft(accNo)
@@ -310,7 +312,7 @@ class SubmissionDraftApiTest(
                     "type" to "submission"
                 }.toString()
 
-            assertThat(superWebClient.submit(subV1)).isSuccessful()
+            assertThat(superWebClient.submitAndWait(subV1)).isSuccessful()
             superWebClient.getSubmissionDraft(accNo)
             superWebClient.updateSubmissionDraft(
                 accNo,
@@ -343,11 +345,11 @@ class SubmissionDraftApiTest(
                         }
                     "type" to "submission"
                 }.toString()
-            val response = superWebClient.submit(subV2)
+            val response = superWebClient.submitAndWait(subV2)
             assertThat(response).isSuccessful()
 
             val updatedSubmission = response.body
-            assertThat(updatedSubmission.section.type).isEqualTo("Another")
+            assertThat(superWebClient.getExtByAccNo(updatedSubmission.accNo).section.type).isEqualTo("Another")
         }
 
     @Test
@@ -369,7 +371,7 @@ class SubmissionDraftApiTest(
                     "type" to "submission"
                 }.toString()
 
-            assertThat(superWebClient.submit(sub)).isSuccessful()
+            assertThat(superWebClient.submitAndWait(sub)).isSuccessful()
             superWebClient.getSubmissionDraft(accNo)
             requestRepository.setDraftStatus(accNo, SuperUser.email, SUBMITTED, Instant.now())
 
@@ -415,7 +417,7 @@ class SubmissionDraftApiTest(
                     "type" to "submission"
                 }.toString()
 
-            assertThat(superWebClient.submit(sub)).isSuccessful()
+            assertThat(superWebClient.submitAndWait(sub)).isSuccessful()
             superWebClient.getSubmissionDraft(accNo)
             requestRepository.setDraftStatus(accNo, SuperUser.email, SUBMITTED, Instant.now())
 
@@ -436,7 +438,7 @@ class SubmissionDraftApiTest(
                             "value" to OffsetDateTime.now().toStringDate()
                         })
                 }.toString()
-            val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
+            val accNo = regularWebClient.submitAndWait(pageTab, JSON).body.accNo
 
             val newPageTab =
                 jsonObj {
@@ -453,7 +455,7 @@ class SubmissionDraftApiTest(
             val draft = superWebClient.getSubmissionDraft(accNo).key
             superWebClient.updateSubmissionDraft(accNo, newPageTab)
 
-            superWebClient.submitFromDraft(draft)
+            superWebClient.submitFromDraftAndWait(draft)
             val submission = superWebClient.getExtByAccNo(accNo)
             assertThat(submission.attributes.first().name).isEqualTo("Source")
             assertThat(submission.attributes.first().value).isEqualTo("PageTab")
@@ -496,13 +498,13 @@ class SubmissionDraftApiTest(
                         })
                 }
 
-            val accNo = regularWebClient.submit(pageTab, JSON).body.accNo
+            val accNo = regularWebClient.submitAndWait(pageTab, JSON).body.accNo
             val superUserDraft = superWebClient.getSubmissionDraft(accNo).key
             val regularUserDraft = regularWebClient.getSubmissionDraft(accNo).key
 
             // Submit user submission
             regularWebClient.updateSubmissionDraft(accNo, userSubmission.toString())
-            regularWebClient.submitFromDraft(regularUserDraft)
+            regularWebClient.submitFromDraftAndWait(regularUserDraft)
             val submission = superWebClient.getExtByAccNo(accNo)
             assertThat(submission.version).isEqualTo(3)
             assertThat(submission.attributes.first().name).isEqualTo("User")
@@ -510,7 +512,7 @@ class SubmissionDraftApiTest(
 
             // Submit super user submission
             superWebClient.updateSubmissionDraft(accNo, superUserSubmission.toString())
-            superWebClient.submitFromDraft(superUserDraft)
+            superWebClient.submitFromDraftAndWait(superUserDraft)
             val superUserSubmissionResult = superWebClient.getExtByAccNo(accNo)
             assertThat(superUserSubmissionResult.version).isEqualTo(2)
             assertThat(superUserSubmissionResult.attributes.first().name).isEqualTo("User")

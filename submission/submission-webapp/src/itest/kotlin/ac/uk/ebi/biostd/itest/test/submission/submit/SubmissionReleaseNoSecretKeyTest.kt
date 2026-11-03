@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -75,7 +76,7 @@ class SubmissionReleaseNoSecretKeyTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_27-1.txt", "27-1 file content"))
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE001")
 
@@ -105,7 +106,7 @@ class SubmissionReleaseNoSecretKeyTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_27-2.txt", "27-2 file content"))
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-RELEASE002")
 

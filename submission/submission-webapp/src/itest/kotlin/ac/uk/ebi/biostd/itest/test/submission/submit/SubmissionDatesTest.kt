@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -81,7 +82,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(v1, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v1, TSV)).isSuccessful()
                 val creationTime = submissionRepository.getExtByAccNoAndVersion("CREATE-0010", 1).creationTime
 
                 val v2 =
@@ -94,7 +95,7 @@ class SubmissionDatesTest(
                         line("Study")
                         line()
                     }.toString()
-                assertThat(superUserWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion("CREATE-0010", 2)
                 assertThat(v2Extended.creationTime).isEqualTo(creationTime)
             }
@@ -113,7 +114,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(v1, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v1, TSV)).isSuccessful()
                 val modificationTime = submissionRepository.getExtByAccNoAndVersion("MOD-0010", 1).modificationTime
 
                 val v2 =
@@ -126,7 +127,7 @@ class SubmissionDatesTest(
                         line("Study")
                         line()
                     }.toString()
-                assertThat(superUserWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion("MOD-0010", 2)
                 assertThat(v2Extended.modificationTime).isAfter(modificationTime)
             }
@@ -148,7 +149,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val exception = assertThrows<WebClientException> { userWebClient.submit(submission, TSV) }
+                val exception = assertThrows<WebClientException> { userWebClient.submitAndWait(submission, TSV) }
                 assertThat(exception).hasMessage(
                     """
                     {
@@ -181,7 +182,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val submitted = userWebClient.submit(v1, TSV)
+                val submitted = userWebClient.submitAndWait(v1, TSV)
                 assertThat(submitted).isSuccessful()
 
                 val v2 =
@@ -195,7 +196,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val exception = assertThrows<WebClientException> { userWebClient.submit(v2, TSV) }
+                val exception = assertThrows<WebClientException> { userWebClient.submitAndWait(v2, TSV) }
                 assertThat(exception).hasMessage(
                     """
                     {
@@ -228,7 +229,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val submitted = superUserWebClient.submit(v1, TSV)
+                val submitted = superUserWebClient.submitAndWait(v1, TSV)
                 assertThat(submitted).isSuccessful()
 
                 val accNo = submitted.body.accNo
@@ -244,7 +245,7 @@ class SubmissionDatesTest(
                     }.toString()
 
                 superUserWebClient.grantPermission(DefaultUser.email, accNo, UPDATE.name)
-                val exception = assertThrows<WebClientException> { userWebClient.submit(v2, TSV) }
+                val exception = assertThrows<WebClientException> { userWebClient.submitAndWait(v2, TSV) }
                 assertThat(exception).hasMessage(
                     """
                     {
@@ -280,7 +281,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(v1, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v1, TSV)).isSuccessful()
                 val v1Extended = submissionRepository.getExtByAccNoAndVersion("RELEASE-0010", 1)
                 assertThat(v1Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2020-04-24T00:00+00:00"))
 
@@ -294,7 +295,7 @@ class SubmissionDatesTest(
                         line("Study")
                         line()
                     }.toString()
-                assertThat(superUserWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion("RELEASE-0010", 2)
                 assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("1985-04-24T00:00+00:00"))
             }
@@ -313,7 +314,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(v1, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v1, TSV)).isSuccessful()
                 val v1Extended = submissionRepository.getExtByAccNoAndVersion("RELEASE-0020", 1)
                 assertThat(v1Extended.released).isTrue()
                 assertThat(v1Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2020-04-24T00:00+00:00"))
@@ -328,7 +329,7 @@ class SubmissionDatesTest(
                         line("Study")
                         line()
                     }.toString()
-                assertThat(superUserWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion("RELEASE-0020", 2)
                 assertThat(v2Extended.released).isFalse()
                 assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
@@ -348,7 +349,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val submitted = userWebClient.submit(v1, TSV)
+                val submitted = userWebClient.submitAndWait(v1, TSV)
                 assertThat(submitted).isSuccessful()
                 val accNo = submitted.body.accNo
 
@@ -363,7 +364,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
                 assertThat(v2Extended.released).isFalse()
                 assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
@@ -387,7 +388,7 @@ class SubmissionDatesTest(
 
                         line("Project")
                     }.toString()
-                assertThat(superUserWebClient.submit(collection, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(collection, TSV)).isSuccessful()
 
                 securityTestService.ensureUserRegistration(CollectionUser)
 
@@ -417,7 +418,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val v1Submission = colAdminWebClient.submit(v1, TSV)
+                val v1Submission = colAdminWebClient.submitAndWait(v1, TSV)
                 val accNo = v1Submission.body.accNo
                 assertThat(v1Submission).isSuccessful()
 
@@ -435,7 +436,7 @@ class SubmissionDatesTest(
                         line("Study")
                         line()
                     }.toString()
-                assertThat(colAdminWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(colAdminWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
                 assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("1985-04-24T00:00+00:00"))
             }
@@ -459,7 +460,7 @@ class SubmissionDatesTest(
                     }.toString()
 
                 colAdminWebClient.uploadFile(tempFolder.createFile("file_28-10.txt", "28-10 content"))
-                val v1Submission = colAdminWebClient.submit(v1, TSV)
+                val v1Submission = colAdminWebClient.submitAndWait(v1, TSV)
                 val accNo = v1Submission.body.accNo
                 assertThat(v1Submission).isSuccessful()
 
@@ -488,7 +489,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(colAdminWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(colAdminWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Ext = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
                 assertThat(v2Ext.released).isFalse()
                 assertThat(v2Ext.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
@@ -515,7 +516,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                val submitted = userWebClient.submit(v1, TSV)
+                val submitted = userWebClient.submitAndWait(v1, TSV)
                 assertThat(submitted).isSuccessful()
                 val accNo = submitted.body.accNo
 
@@ -530,7 +531,7 @@ class SubmissionDatesTest(
                         line()
                     }.toString()
 
-                assertThat(superUserWebClient.submit(v2, TSV)).isSuccessful()
+                assertThat(superUserWebClient.submitAndWait(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
                 assertThat(v2Extended.released).isFalse()
                 assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))

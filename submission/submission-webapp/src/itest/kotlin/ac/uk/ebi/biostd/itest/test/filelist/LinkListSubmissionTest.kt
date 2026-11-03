@@ -16,6 +16,8 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
@@ -95,7 +97,7 @@ class LinkListSubmissionTest(
 
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(linksList)
-            assertThat(webClient.submitMultipart(submission, TSV, parameters, files)).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(submission, TSV, parameters, files)).isSuccessful()
             assertPageTabFiles(accNo = "S-LLT311", linkListName = "LinkList")
             assertReferencedLinks(accNo = "S-LLT311", linkListName = "LinkList")
 
@@ -201,7 +203,7 @@ class LinkListSubmissionTest(
 
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(linksList)
-            assertThat(webClient.submitMultipart(submission, JSON, parameters, files)).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(submission, JSON, parameters, files)).isSuccessful()
             assertPageTabFiles(accNo = "S-LLT312", linkListName = "LinkList")
             assertReferencedLinks(accNo = "S-LLT312", linkListName = "LinkList")
         }
@@ -232,7 +234,7 @@ class LinkListSubmissionTest(
                 )
 
             val parameters = SubmitParameters(storageMode = storageMode)
-            assertThat(webClient.submitMultipart(subV1, TSV, parameters, listOf(linksListV1))).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(subV1, TSV, parameters, listOf(linksListV1))).isSuccessful()
             linksListV1.delete()
             assertPageTabFiles(accNo = "S-LLT313", linkListName = "LinkList")
             assertReferencedLinks(accNo = "S-LLT313", linkListName = "LinkList")
@@ -261,7 +263,7 @@ class LinkListSubmissionTest(
                 )
 
             webClient.uploadFile(linksListV2)
-            assertThat(webClient.submit(subV2, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(subV2, TSV)).isSuccessful()
 
             val extSubV2 = submissionRepository.getExtByAccNo("S-LLT313")
             assertThat(extSubV2.version).isEqualTo(2)
@@ -298,7 +300,7 @@ class LinkListSubmissionTest(
                 )
 
             val paramsV1 = SubmitParameters(storageMode = storageMode)
-            assertThat(webClient.submitMultipart(subV1, TSV, paramsV1, listOf(linksListV1))).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(subV1, TSV, paramsV1, listOf(linksListV1))).isSuccessful()
             linksListV1.delete()
             assertPageTabFiles(accNo = "S-LLT314", linkListName = "LinkList")
             assertReferencedLinks(accNo = "S-LLT314", linkListName = "LinkList")
@@ -316,7 +318,7 @@ class LinkListSubmissionTest(
                 }.toString()
 
             val paramsV2 = SubmitParameters(preferredSources = listOf(SUBMISSION), storageMode = storageMode)
-            assertThat(webClient.submit(subV2, TSV, paramsV2)).isSuccessful()
+            assertThat(webClient.submitAndWait(subV2, TSV, paramsV2)).isSuccessful()
 
             val extSubV2 = submissionRepository.getExtByAccNo("S-LLT314")
             assertThat(extSubV2.version).isEqualTo(2)
@@ -353,7 +355,7 @@ class LinkListSubmissionTest(
                 ),
             )
 
-            val response = webClient.submit(submission, TSV)
+            val response = webClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
@@ -395,7 +397,7 @@ class LinkListSubmissionTest(
                 }.toString()
 
             webClient.uploadFiles(listOf(tempFolder.createFile("shared-link-list.tsv", linkList)))
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val extSub = webClient.getExtByAccNo("S-LLT326")
             val linksPage = webClient.getLinkListLinks("S-LLT326", "shared-link-list", ExtPageRequest())

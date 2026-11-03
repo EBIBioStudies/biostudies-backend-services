@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -90,7 +91,7 @@ class SubmissionAsyncTest(
                     line()
                 }.toString()
 
-            val (accNo, version) = webClient.submitAsync(submission, TSV)
+            val (accNo, version) = webClient.submit(submission, TSV)
             waitUntil(timeout = 1.seconds) { submissionRepository.existByAccNoAndVersion(accNo, version) }
 
             val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
@@ -117,7 +118,7 @@ class SubmissionAsyncTest(
                     line()
                 }.toString()
 
-            webClient.submit(submission, TSV)
+            webClient.submitAndWait(submission, TSV)
 
             val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
             val extSubmitRequest =
@@ -195,7 +196,7 @@ class SubmissionAsyncTest(
             val file3 = tempFolder.createFile("file3.txt", "content")
 
             val result =
-                webClient.submitMultipartAsync(
+                webClient.submitMultipart(
                     format = TSV_EXTENSION,
                     submissions = mapOf("SMulti-001" to submission, "SMulti-002" to submission2),
                     files = mapOf("SMulti-001" to listOf(file), "SMulti-002" to listOf(file2, file3)),
@@ -253,7 +254,7 @@ class SubmissionAsyncTest(
 
             val exception =
                 assertThrows<WebClientException> {
-                    webClient.submitMultipartAsync(
+                    webClient.submitMultipart(
                         format = TSV_EXTENSION,
                         submissions = mapOf("SMulti-004" to submission1, "SMulti-005" to submission2),
                         files = emptyMap(),

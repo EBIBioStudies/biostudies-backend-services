@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
@@ -104,7 +105,7 @@ class ResubmissionApiTest(
                     ),
                 )
                 webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf", "pdf content")), "a")
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val sub = submissionRepository.getExtByAccNo("S-RSTST1")
                 assertThat(sub.version).isEqualTo(1)
@@ -116,7 +117,7 @@ class ResubmissionApiTest(
                 val v1SubmissionTime = sub.submissionTime
                 val changedFile = tempFolder.resolve("fileSubSection.txt").apply { writeText("newContent") }
                 webClient.uploadFiles(listOf(changedFile))
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val deprecatedVersion = submissionRepository.getExtByAccNoAndVersion("S-RSTST1", -1)
                 assertThat(deprecatedVersion.modificationTime).isEqualTo(v1ModificationTime)
@@ -172,7 +173,7 @@ class ResubmissionApiTest(
                     ),
                 )
                 webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val sub = submissionRepository.getExtByAccNo("S-RSTST2")
                 assertThat(sub.version).isEqualTo(1)
@@ -181,7 +182,7 @@ class ResubmissionApiTest(
                 assertThat(File("$submissionPath/${sub.relPath}/Files/fileSubSection.txt")).hasContent("content")
                 assertThat(File("$submissionPath/${sub.relPath}/Files/a/fileFileList.pdf")).exists()
 
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
                 val subV2 = submissionRepository.getExtByAccNo("S-RSTST2")
                 assertThat(subV2.version).isEqualTo(2)
                 assertThat(File("$submissionPath/${subV2.relPath}/Files/file section.doc")).exists()
@@ -210,11 +211,11 @@ class ResubmissionApiTest(
                     }.toString()
 
                 webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt")), rootPath)
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 webClient.deleteFile(dataFile, rootPath)
 
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             }
     }
 
@@ -281,7 +282,7 @@ class ResubmissionApiTest(
             webClient.uploadFile(tempFolder.createFile("file_5-4-1.txt", "5-4-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-4-2.txt", "5-4-2 file content"))
 
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version1, TSV)).isSuccessful()
             assertSubmission(
                 title = "Public Submission",
                 sectionType = "Experiment",
@@ -314,7 +315,7 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createOrReplaceFile("file-list_5-4.tsv", fileListVersion2))
-            assertThat(webClient.submit(version2, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version2, TSV)).isSuccessful()
             assertSubmission(
                 title = "Public Submission Updated",
                 sectionType = "Experiment Updated",
@@ -339,7 +340,7 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_5-5-1.txt", "5-5-1 file content"))
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version1, TSV)).isSuccessful()
 
             val version2 =
                 tsv {
@@ -356,13 +357,17 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_5-5-2.txt", "5-5-2 file content"))
-            assertThat(webClient.submit(version2, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version2, TSV)).isSuccessful()
 
             val submission = submissionRepository.getExtByAccNo("S-RSTST5", includeFileListFiles = true)
             val section = submission.section
             assertThat(section.files).hasSize(2)
-            assertThat(section.files[0]).hasLeftValueSatisfying { assertThat(it.fileName).isEqualTo("file_5-5-1.txt") }
-            assertThat(section.files[1]).hasLeftValueSatisfying { assertThat(it.fileName).isEqualTo("file_5-5-2.txt") }
+            assertThat(section.files[0]).hasLeftValueSatisfying {
+                assertThat(it.fileName).isEqualTo("file_5-5-1.txt")
+            }
+            assertThat(section.files[1]).hasLeftValueSatisfying {
+                assertThat(it.fileName).isEqualTo("file_5-5-2.txt")
+            }
         }
 
     @Test
@@ -380,7 +385,7 @@ class ResubmissionApiTest(
                 }.toString()
 
             webClient.uploadFile(tempFolder.createFile("file_5_6_1.txt", "5-6-1 file content"))
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version1, TSV)).isSuccessful()
 
             val version2 =
                 tsv {
@@ -395,13 +400,13 @@ class ResubmissionApiTest(
 
             webClient.uploadFile(tempFolder.createFile("file_5_6_2.txt", "5-6-2 file content"))
 
-            val (accNo, version) = webClient.submitAsync(version2, TSV)
+            val (accNo, version) = webClient.submit(version2, TSV)
 
             waitUntil(
                 timeout = 10.seconds,
             ) { requestRepository.getRequest(accNo, version).status == INVALID }
 
-            val response = webClient.submitAsync(version2, TSV)
+            val response = webClient.submit(version2, TSV)
             waitForCompletion(timeout = 5.seconds) {
                 val result = requestRepository.getRequest(response.accNo, response.version)
                 assertThat(result.status).isEqualTo(INVALID)
@@ -431,12 +436,12 @@ class ResubmissionApiTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version1, TSV)).isSuccessful()
 
             webClient.uploadFile(tempFolder.createFile("file2.txt", "file2 content"), "oneFolder")
 
             securityTestService.addPermission(SuperUser.email, accNo, AccessType.DELETE_FILES)
-            assertThat(webClient.submit(version1, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version1, TSV)).isSuccessful()
 
             val sub = submissionRepository.getExtByAccNo(accNo)
 

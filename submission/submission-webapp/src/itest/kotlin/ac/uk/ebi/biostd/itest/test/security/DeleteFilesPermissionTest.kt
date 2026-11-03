@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -99,7 +100,7 @@ class DeleteFilesPermissionTest(
 
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-6-1.txt", "5-6-1 file updated content"))
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-6-2.txt", "5-6-2 file updated content"))
-            webClient.submitAsync(version2, TSV)
+            webClient.submit(version2, TSV)
 
             waitUntil(timeout = 2.seconds) { requestRepository.getRequest(accNo, 2).status == INVALID }
         }
@@ -140,7 +141,7 @@ class DeleteFilesPermissionTest(
             superUserWebClient.grantPermission(RegularUser.email, accNo, AccessType.DELETE_FILES.name)
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
 
-            assertThat(webClient.submit(version2, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version2, TSV)).isSuccessful()
         }
 
     @Test
@@ -183,7 +184,7 @@ class DeleteFilesPermissionTest(
                     line()
                 }.toString()
 
-            webClient.submitAsync(version2, TSV)
+            webClient.submit(version2, TSV)
 
             waitUntil(timeout = 2.seconds) { requestRepository.getRequest(accNo, 2).status == INVALID }
         }
@@ -216,7 +217,7 @@ class DeleteFilesPermissionTest(
                     line()
                 }.toString()
 
-            assertThat(superUserWebClient.submit(collection, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(collection, TSV)).isSuccessful()
             superUserWebClient.grantPermission(RegularUser.email, "Test-Delete-Collection", AccessType.ATTACH.name)
 
             webClient.uploadFile(tempFolder.createFile("file_5-17-1.txt", "5-17-1 file content"))
@@ -239,7 +240,7 @@ class DeleteFilesPermissionTest(
             superUserWebClient.grantPermission(RegularUser.email, "Test-Delete-Collection", AccessType.ADMIN.name)
             webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-17-1.txt", "5-17-1 file updated content"))
 
-            assertThat(webClient.submit(version2, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(version2, TSV)).isSuccessful()
         }
 
     @Nested
@@ -271,12 +272,12 @@ class DeleteFilesPermissionTest(
                         line("Study")
                         line("File", "file_abc.txt")
                     }.toString()
-                assertThat(webClient.submit(version2, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(version2, TSV)).isSuccessful()
             }
     }
 
     private suspend fun BioWebClient.submitAndGetAccNo(submission: String): String {
-        val response = submit(submission, TSV)
+        val response = submitAndWait(submission, TSV)
         assertThat(response).isSuccessful()
 
         return response.body.accNo

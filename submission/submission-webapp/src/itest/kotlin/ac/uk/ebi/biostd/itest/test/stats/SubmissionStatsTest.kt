@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -76,7 +77,7 @@ class SubmissionStatsTest(
                     line()
                 }.toString()
 
-            webClient.submit(submission, TSV)
+            webClient.submitAndWait(submission, TSV)
             waitUntil(10.seconds) { webClient.findByAccNo(accNo).toList().isNotEmpty() }
 
             val stats = webClient.findByAccNo(accNo).toList()
@@ -100,7 +101,7 @@ class SubmissionStatsTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
-            webClient.submit(submission1, TSV)
+            webClient.submitAndWait(submission1, TSV)
 
             val statsRecords =
                 tsv {
@@ -129,7 +130,7 @@ class SubmissionStatsTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                     line()
                 }.toString()
-            webClient.submit(submission1, TSV)
+            webClient.submitAndWait(submission1, TSV)
 
             val statsRecords =
                 tsv {

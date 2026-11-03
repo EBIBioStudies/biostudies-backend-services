@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.date.toStringDate
@@ -96,7 +97,7 @@ class ListCollectionsTest(
                     line()
                 }.toString()
 
-            val response = superUserWebClient.submit(submission, TSV)
+            val response = superUserWebClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             superUserWebClient.grantPermission(DefaultUser.email, response.body.accNo, ATTACH.name)
@@ -126,8 +127,8 @@ class ListCollectionsTest(
                 line("Project")
             }.toString()
 
-        assertThat(superUserWebClient.submit(sampleCollection, TSV)).isSuccessful()
-        assertThat(superUserWebClient.submit(defaultCollection, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submitAndWait(sampleCollection, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submitAndWait(defaultCollection, TSV)).isSuccessful()
     }
 
     private suspend fun setUpUsers() {

@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.date.toStringDate
@@ -66,14 +67,14 @@ class SubmitPermissionTest(
     @Test
     fun `4-1 Superuser creates a collection`() =
         runTest {
-            assertThat(superUserWebClient.submit(collection, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(collection, TSV)).isSuccessful()
         }
 
     @Test
     fun `4-2 Regular user can not create a collection`() =
         runTest {
             assertThrows<WebClientException> {
-                regularUserWebClient.submit(collection, TSV)
+                regularUserWebClient.submitAndWait(collection, TSV)
             }
         }
 
@@ -98,10 +99,10 @@ class SubmitPermissionTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
             val exception =
                 assertThrows<WebClientException> {
-                    regularUserWebClient.submit(submission, TSV)
+                    regularUserWebClient.submitAndWait(submission, TSV)
                 }
             assertThat(
                 exception,
@@ -129,10 +130,10 @@ class SubmitPermissionTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
             superUserWebClient.grantPermission(ExistingUser.email, "TestCollection2", ATTACH.name)
 
-            assertThat(regularUserWebClient.submit(submission, TSV)).isSuccessful()
+            assertThat(regularUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
         }
 
     @Test
@@ -157,10 +158,10 @@ class SubmitPermissionTest(
                 }.toString()
 
             create("http://localhost:$serverPort").registerUser(NewUser.asRegisterRequest())
-            assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
 
             superUserWebClient.grantPermission(NewUser.email, "TestCollection3", ATTACH.name)
-            assertThat(getWebClient(serverPort, NewUser).submit(submission, TSV)).isSuccessful()
+            assertThat(getWebClient(serverPort, NewUser).submitAndWait(submission, TSV)).isSuccessful()
         }
 
     @Test
@@ -184,10 +185,10 @@ class SubmitPermissionTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
             superUserWebClient.grantPermission(ExistingUser.email, "TestCollection4", ADMIN.name)
 
-            assertThat(regularUserWebClient.submit(submission, TSV)).isSuccessful()
+            assertThat(regularUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
         }
 
     @Test
@@ -211,10 +212,10 @@ class SubmitPermissionTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
             superUserWebClient.grantPermission(ExistingUser.email, "TestCollection5", ADMIN.name)
 
-            assertThat(regularUserWebClient.submit(submission, TSV)).isSuccessful()
+            assertThat(regularUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val resubmission =
                 tsv {
@@ -224,7 +225,7 @@ class SubmitPermissionTest(
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
 
-            assertThat(regularUserWebClient.submit(resubmission, TSV)).isSuccessful()
+            assertThat(regularUserWebClient.submitAndWait(resubmission, TSV)).isSuccessful()
         }
 
     @Test
@@ -251,8 +252,8 @@ class SubmitPermissionTest(
             val impersonatedUserClient = getWebClient(serverPort, ImpersonatedUser)
             val onBehalfClient = getWebClient(serverPort, SuperUser, ImpersonatedUser)
 
-            assertThat(superUserWebClient.submit(project, TSV)).isSuccessful()
-            assertThat(onBehalfClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(project, TSV)).isSuccessful()
+            assertThat(onBehalfClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val resubmission =
                 tsv {
@@ -261,7 +262,7 @@ class SubmitPermissionTest(
                     line("Title", "Test Resubmission")
                     line("ReleaseDate", OffsetDateTime.now().toStringDate())
                 }.toString()
-            assertThat(impersonatedUserClient.submit(resubmission, TSV)).isSuccessful()
+            assertThat(impersonatedUserClient.submitAndWait(resubmission, TSV)).isSuccessful()
         }
 
     @Test
@@ -278,7 +279,7 @@ class SubmitPermissionTest(
                     line()
                 }.toString()
 
-            assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val resubmission =
                 tsv {
@@ -291,7 +292,7 @@ class SubmitPermissionTest(
                     line()
                 }.toString()
 
-            val exception = assertThrows<WebClientException> { regularUserWebClient.submit(resubmission, TSV) }
+            val exception = assertThrows<WebClientException> { regularUserWebClient.submitAndWait(resubmission, TSV) }
             assertThat(exception)
                 .hasMessageContaining("The user register_user@ebi.ac.uk is not allowed to update the submission S-SBMT1")
         }
@@ -310,7 +311,7 @@ class SubmitPermissionTest(
                     line()
                 }.toString()
 
-            assertThat(superUserWebClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val resubmission =
                 tsv {
@@ -324,7 +325,7 @@ class SubmitPermissionTest(
                 }.toString()
 
             superUserWebClient.grantPermission(ExistingUser.email, "S-SBMT2", UPDATE.name)
-            assertThat(regularUserWebClient.submit(resubmission, TSV)).isSuccessful()
+            assertThat(regularUserWebClient.submitAndWait(resubmission, TSV)).isSuccessful()
         }
 
     object NewUser : TestUser {

@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -96,7 +97,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             val submitted = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-TEST123"))
             assertThat(submitted).isEqualTo(
                 submission("S-TEST123") {
@@ -128,7 +129,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL123")
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL123")
@@ -242,7 +243,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
 
@@ -357,7 +358,7 @@ class SpecialSubmissionAttributesTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
             assertSubmission(savedSubmission)
@@ -421,7 +422,7 @@ class SpecialSubmissionAttributesTest(
                     }
                 }.toString()
 
-            val exception = assertThrows<WebClientException> { webClient.submit(submission, JSON) }
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(submission, JSON) }
             assertThat(exception).hasMessageContaining("Section tables can't be empty")
         }
 
@@ -455,7 +456,7 @@ class SpecialSubmissionAttributesTest(
                         line()
                     }.toString()
 
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
                 val savedSubmission = submissionRepository.getExtByAccNo("S-STBL129")
                 val pageTabFiles = getPageTabFilesContent(savedSubmission)
                 checkReviewInfoIsHidden(pageTabFiles.first)
@@ -562,7 +563,7 @@ class SpecialSubmissionAttributesTest(
                         line()
                     }.toString()
 
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val savedSubmission = submissionRepository.getExtByAccNo("S-STBL1210")
                 val pageTabFiles = getPageTabFilesContent(savedSubmission)
@@ -597,7 +598,7 @@ class SpecialSubmissionAttributesTest(
                         line()
                     }.toString()
 
-                assertThat(webClient.submit(submission, TSV)).isSuccessful()
+                assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
                 val savedSubmission = submissionRepository.getExtByAccNo("S-STBL1211")
                 val pageTabFiles = getPageTabFilesContent(savedSubmission)

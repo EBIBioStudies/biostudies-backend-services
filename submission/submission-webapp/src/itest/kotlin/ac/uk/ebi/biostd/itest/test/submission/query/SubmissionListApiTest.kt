@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongo
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
@@ -56,13 +58,13 @@ class SubmissionListApiTest(
             regularUserClient = getWebClient(serverPort, RegularUser)
 
             for (idx in 11..20) {
-                assertThat(superUserClient.submit(getSimpleSubmission(idx), TSV)).isSuccessful()
+                assertThat(superUserClient.submitAndWait(getSimpleSubmission(idx), TSV)).isSuccessful()
             }
 
             val params = SubmitParameters(storageMode = storageMode)
             for (idx in 21..31) {
                 val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
-                assertThat(superUserClient.submitMultipart(submission, params)).isSuccessful()
+                assertThat(superUserClient.submitMultipartAndWait(submission, params)).isSuccessful()
             }
 
             superUserClient.deleteSubmission("LIST-API-31")
@@ -171,7 +173,7 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(superUserClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserClient.submitAndWait(submission, TSV)).isSuccessful()
 
             assertFound(keywords = "hello world")
             assertFound(keywords = "world")
@@ -212,7 +214,7 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(regularUserClient.submit(submission, TSV)).isSuccessful()
+            assertThat(regularUserClient.submitAndWait(submission, TSV)).isSuccessful()
 
             assertFound(keywords = "alpha omega")
             assertFound(keywords = "alpha")
@@ -238,7 +240,7 @@ class SubmissionListApiTest(
                     line()
                 }.toString()
 
-            assertThat(superUserClient.submit(submission, TSV)).isSuccessful()
+            assertThat(superUserClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val submissionList =
                 superUserClient.getSubmissions(
@@ -257,7 +259,7 @@ class SubmissionListApiTest(
     @Test
     fun `13-10 latest updated submission should appear first`() =
         runTest {
-            superUserClient.submit(getSimpleSubmission(19), TSV)
+            superUserClient.submitAndWait(getSimpleSubmission(19), TSV)
 
             val submissionList =
                 superUserClient.getSubmissions(

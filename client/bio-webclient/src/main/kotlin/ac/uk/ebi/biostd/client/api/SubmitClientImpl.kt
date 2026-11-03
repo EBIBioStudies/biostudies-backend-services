@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
 import ac.uk.ebi.biostd.client.integration.web.GeneralOperations
 import ac.uk.ebi.biostd.client.integration.web.GroupFilesOperations
-import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.PermissionOperations
 import ac.uk.ebi.biostd.client.integration.web.PostProcessOperations
@@ -30,7 +29,6 @@ internal class SubmitClientImpl(
     SubmissionOperations by SubmissionClient(client),
     SubmitOperations by SubmitClient(client, serializationService),
     MultipartSubmitOperations by MultiPartSubmitClient(client, serializationService),
-    MultipartAsyncSubmitOperations by MultiPartAsyncSubmitClient(client, serializationService),
     GeneralOperations by CommonOperationsClient(client),
     DraftSubmissionOperations by SubmissionDraftClient(client),
     ExtSubmissionOperations by ExtSubmissionClient(client, extSerializationService),

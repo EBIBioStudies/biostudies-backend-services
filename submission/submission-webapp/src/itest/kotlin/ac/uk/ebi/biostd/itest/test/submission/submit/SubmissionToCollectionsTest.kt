@@ -17,6 +17,8 @@ import ebi.ac.uk.api.SubmitAttribute
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -72,7 +74,7 @@ class SubmissionToCollectionsTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             val expected =
                 submission("S-COL-TEST-EXT1") {
                     title = "AccNo Generation Test"
@@ -102,7 +104,7 @@ class SubmissionToCollectionsTest(
                     storageMode = storageMode,
                     attributes = listOf(SubmitAttribute("AttachTo", "Public-Project")),
                 )
-            assertThat(webClient.submitMultipart(submissionFile, params)).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(submissionFile, params)).isSuccessful()
 
             assertThat(getSimpleSubmission("S-COL-TEST1")).isEqualTo(
                 submission("S-COL-TEST1") {
@@ -125,7 +127,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "Public Submission To Private Project")
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(
                 submission("S-PRP1") {
                     title = "Public Submission To Private Project"
@@ -146,7 +148,7 @@ class SubmissionToCollectionsTest(
                     line("Title", "Private submission into public project")
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(
                 submission("S-PUP0") {
                     title = "Private submission into public project"
@@ -168,7 +170,7 @@ class SubmissionToCollectionsTest(
                     line()
                 }.toString()
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
             assertThat(testCollectionValidator.validated).isTrue
             assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(
                 submission("S-VLD0") {
@@ -191,7 +193,7 @@ class SubmissionToCollectionsTest(
                     line()
                 }.toString()
 
-            val exception = assertThrows<WebClientException> { webClient.submit(submission, TSV) }
+            val exception = assertThrows<WebClientException> { webClient.submitAndWait(submission, TSV) }
             assertThat(exception.message!!.contains("Testing failure"))
         }
 
@@ -211,7 +213,7 @@ class SubmissionToCollectionsTest(
                 }.toString()
 
             webClient.grantPermission(RegularUser.email, "Test-Project", ADMIN.name)
-            assertThat(regularClient.submit(submission, TSV)).isSuccessful()
+            assertThat(regularClient.submitAndWait(submission, TSV)).isSuccessful()
         }
 
     @Test
@@ -230,7 +232,7 @@ class SubmissionToCollectionsTest(
                 }.toString()
 
             val errorMessage = "The user regular@ebi.ac.uk is not allowed to submit to Private-Project collection"
-            val exception = assertFailsWith<WebClientException> { regularClient.submit(submission, TSV) }
+            val exception = assertFailsWith<WebClientException> { regularClient.submitAndWait(submission, TSV) }
             assertThat(exception.message!!.contains(errorMessage))
         }
 
@@ -287,11 +289,11 @@ class SubmissionToCollectionsTest(
                 line("Project")
             }.toString()
 
-        assertThat(webClient.submit(testProject, TSV)).isSuccessful()
-        assertThat(webClient.submit(publicProject, TSV)).isSuccessful()
-        assertThat(webClient.submit(privateProject, TSV)).isSuccessful()
-        assertThat(webClient.submit(failCollection, TSV)).isSuccessful()
-        assertThat(webClient.submit(validatedCollection, TSV)).isSuccessful()
+        assertThat(webClient.submitAndWait(testProject, TSV)).isSuccessful()
+        assertThat(webClient.submitAndWait(publicProject, TSV)).isSuccessful()
+        assertThat(webClient.submitAndWait(privateProject, TSV)).isSuccessful()
+        assertThat(webClient.submitAndWait(failCollection, TSV)).isSuccessful()
+        assertThat(webClient.submitAndWait(validatedCollection, TSV)).isSuccessful()
     }
 
     private suspend fun getSimpleSubmission(accNo: String) =

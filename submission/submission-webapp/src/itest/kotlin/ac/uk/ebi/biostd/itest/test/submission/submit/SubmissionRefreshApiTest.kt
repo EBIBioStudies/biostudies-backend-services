@@ -25,6 +25,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
+import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -133,7 +134,7 @@ class SubmissionRefreshApiTest(
         val files = listOf(refreshFile, fileList, fileListFile)
 
         val testSubmission = testSubmission(accNo)
-        webClient.submitMultipart(testSubmission, TSV, params, files)
+        webClient.submitMultipartAndWait(testSubmission, TSV, params, files)
     }
 
     @Test

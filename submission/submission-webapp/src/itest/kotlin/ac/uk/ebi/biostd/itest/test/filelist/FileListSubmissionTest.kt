@@ -19,6 +19,8 @@ import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.submitAndWait
+import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -124,7 +126,7 @@ class FileListSubmissionTest(
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, tempFolder.createFile("File4.txt"))
 
-            val response = webClient.submitMultipart(submission, JSON, parameters, files)
+            val response = webClient.submitMultipartAndWait(submission, JSON, parameters, files)
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles(accNo = "S-TEST4", testFile = "File4.txt", fileListName = "FileList")
@@ -178,7 +180,7 @@ class FileListSubmissionTest(
             val parameters = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, tempFolder.createFile("File5.txt"))
 
-            val response = webClient.submitMultipart(submission, JSON, parameters, files)
+            val response = webClient.submitMultipartAndWait(submission, JSON, parameters, files)
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles(accNo = "S-TEST5", testFile = "File5.txt", fileListName = "FileList")
@@ -218,7 +220,7 @@ class FileListSubmissionTest(
 
             val params = SubmitParameters(storageMode = storageMode)
             assertThatThrows<WebClientException> {
-                webClient.submitMultipart(submission, JSON, params, listOf(fileList))
+                webClient.submitMultipartAndWait(submission, JSON, params, listOf(fileList))
             }.hasMessageContaining("Unsupported pagetab format: txt")
         }
 
@@ -249,7 +251,7 @@ class FileListSubmissionTest(
 
             webClient.uploadFile(fileList, "folder")
             val params = SubmitParameters(storageMode = storageMode)
-            assertThat(webClient.submitMultipart(submission, TSV, params, listOf(referencedFile))).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(submission, TSV, params, listOf(referencedFile))).isSuccessful()
 
             val extSubmission = webClient.getExtByAccNo("S-TEST6")
             val referencedFiles = webClient.getFileListFiles(extSubmission.section.fileList!!.filesUrl!!).content
@@ -293,13 +295,13 @@ class FileListSubmissionTest(
             val params = SubmitParameters(storageMode = storageMode)
             val files = listOf(fileList, referencedFile)
 
-            assertThat(webClient.submitMultipart(firstVersion, TSV, params, files)).isSuccessful()
+            assertThat(webClient.submitMultipartAndWait(firstVersion, TSV, params, files)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
 
             fileList.delete()
 
             val secondVersion = submission(fileList = "reusable-file-list.json")
-            assertThat(webClient.submit(secondVersion, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(secondVersion, TSV)).isSuccessful()
             assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
         }
 
@@ -331,7 +333,7 @@ class FileListSubmissionTest(
                 ),
             )
 
-            val response = webClient.submit(submission, TSV)
+            val response = webClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             val extSub = subRepository.getExtByAccNo(response.body.accNo)
@@ -374,7 +376,7 @@ class FileListSubmissionTest(
                 ),
             )
 
-            val response = webClient.submit(submission, TSV)
+            val response = webClient.submitAndWait(submission, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
@@ -423,7 +425,7 @@ class FileListSubmissionTest(
                 ),
             )
 
-            assertThat(webClient.submit(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitAndWait(submission, TSV)).isSuccessful()
 
             val extSub = webClient.getExtByAccNo("S-TEST310")
             val filesPage = webClient.getFileListFiles("S-TEST310", "shared-file-list", ExtPageRequest())
@@ -483,7 +485,7 @@ class FileListSubmissionTest(
                 val params = SubmitParameters(storageMode = storageMode)
                 val files = listOf(fileList)
 
-                val exception = assertThrows<WebClientException> { webClient.submitMultipart(sub, TSV, params, files) }
+                val exception = assertThrows<WebClientException> { webClient.submitMultipartAndWait(sub, TSV, params, files) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
                 assertThat(exception).hasMessageContaining("A file list should contain at least one file")
             }
@@ -515,7 +517,7 @@ class FileListSubmissionTest(
 
                 val params = SubmitParameters(storageMode = storageMode)
                 val files = listOf(fileList, referencedFile)
-                val exception = assertThrows<WebClientException> { webClient.submitMultipart(sub, TSV, params, files) }
+                val exception = assertThrows<WebClientException> { webClient.submitMultipartAndWait(sub, TSV, params, files) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
                 assertThat(exception).hasMessageContaining("Attribute name is required")
             }
