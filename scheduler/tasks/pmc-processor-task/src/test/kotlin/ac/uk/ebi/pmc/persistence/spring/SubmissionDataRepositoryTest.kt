@@ -8,8 +8,6 @@ import ac.uk.ebi.pmc.persistence.repository.SubmissionDataRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionDocRepository
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -36,6 +34,8 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
 import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS

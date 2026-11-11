@@ -17,8 +17,6 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_ACCNO
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_MODE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_SOURCE_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_UPLOADED
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
@@ -43,6 +41,8 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
 import java.time.Duration.ofSeconds
 
 @ExtendWith(SpringExtension::class)

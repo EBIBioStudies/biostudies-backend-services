@@ -3,13 +3,13 @@ package uk.ac.ebi.io.sources
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.test.createFile
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)

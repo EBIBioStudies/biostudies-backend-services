@@ -1,4 +1,4 @@
-package ebi.ac.uk.asserts
+package uk.ac.ebi.biostd.asserts
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat

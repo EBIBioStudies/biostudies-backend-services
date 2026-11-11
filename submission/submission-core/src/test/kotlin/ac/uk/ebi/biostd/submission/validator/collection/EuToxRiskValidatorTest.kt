@@ -6,7 +6,6 @@ import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
@@ -28,6 +27,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.util.function.Consumer
 

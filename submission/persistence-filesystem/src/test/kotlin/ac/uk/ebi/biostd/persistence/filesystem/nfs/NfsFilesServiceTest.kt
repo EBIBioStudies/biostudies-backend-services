@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.nio.file.Files
 import java.nio.file.Paths
