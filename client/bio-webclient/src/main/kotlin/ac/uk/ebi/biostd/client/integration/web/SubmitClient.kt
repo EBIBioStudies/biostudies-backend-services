@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.dto.ExtPageRequest
 import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
-import ebi.ac.uk.api.ClientResponse
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.api.UserFile
@@ -21,7 +20,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.Group
@@ -42,7 +40,6 @@ interface SubmitClient :
     GroupFilesOperations,
     SubmitOperations,
     MultipartSubmitOperations,
-    MultipartAsyncSubmitOperations,
     GeneralOperations,
     DraftSubmissionOperations,
     ExtSubmissionOperations,
@@ -51,8 +48,6 @@ interface SubmitClient :
     StatsOperations,
     SubmissionRequestOperations,
     UserOperations
-
-typealias SubmissionResponse = ClientResponse<Submission>
 
 interface FilesOperations {
     suspend fun uploadFiles(
@@ -291,73 +286,40 @@ interface SubmitOperations {
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
-    ): SubmissionResponse
+    ): SubmissionId
 
     suspend fun submit(
         submission: String,
         format: SubmissionFormat = JSON,
         submitParameters: SubmitParameters? = null,
         register: OnBehalfParameters? = null,
-    ): SubmissionResponse
-
-    suspend fun submitAsync(
-        submission: String,
-        format: SubmissionFormat = JSON,
-        submitParameters: SubmitParameters? = null,
-        register: OnBehalfParameters? = null,
     ): SubmissionId
 
-    suspend fun submitFromDraftAsync(draftKey: String)
-
-    suspend fun submitFromDraft(
-        draftKey: String,
-        preferredSources: List<PreferredSource>? = null,
-    ): SubmissionResponse
+    suspend fun submitFromDraft(draftKey: String): SubmissionId
 }
 
 interface MultipartSubmitOperations {
     suspend fun submitMultipart(
-        sub: String,
-        format: SubmissionFormat,
-        parameters: SubmitParameters,
-        files: List<File> = emptyList(),
-    ): SubmissionResponse
-
-    suspend fun submitMultipart(
-        sub: Submission,
-        format: SubmissionFormat,
-        parameters: SubmitParameters,
-        files: List<File> = emptyList(),
-    ): SubmissionResponse
-
-    suspend fun submitMultipart(
-        sub: File,
-        parameters: SubmitParameters,
-        files: List<File> = emptyList(),
-    ): SubmissionResponse
-}
-
-interface MultipartAsyncSubmitOperations {
-    suspend fun submitMultipartAsync(
         submission: String,
         format: SubmissionFormat,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
     ): SubmissionId
 
-    suspend fun submitMultipartAsync(
+    suspend fun submitMultipart(
         submission: Submission,
         format: SubmissionFormat,
         parameters: SubmitParameters,
+        files: List<File> = emptyList(),
     ): SubmissionId
 
-    suspend fun submitMultipartAsync(
+    suspend fun submitMultipart(
         submission: File,
         parameters: SubmitParameters,
         files: List<File> = emptyList(),
     ): SubmissionId
 
-    suspend fun submitMultipartAsync(
+    suspend fun submitMultipart(
         submissions: Map<String, String>,
         parameters: SubmitParameters,
         format: String,

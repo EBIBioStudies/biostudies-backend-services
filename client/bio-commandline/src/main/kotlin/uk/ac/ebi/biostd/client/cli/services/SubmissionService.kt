@@ -22,7 +22,7 @@ internal class SubmissionService {
         performRequest {
             val client = bioWebClient(request.securityConfig)
             val (accNo, version) =
-                client.submitMultipartAsync(
+                client.submitMultipart(
                     request.submissionFile,
                     request.parameters,
                     request.files,

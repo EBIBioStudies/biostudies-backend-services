@@ -76,7 +76,7 @@ dependencyManagement {
 }
 
 buildConfig {
-    packageName("ac.uk.ebi.biostd.itest.config")
+    packageName("uk.ac.ebi.biostd.itest.config")
     buildConfigField("TEST_CONTAINERS_S3_MOCK_VERSION", provider { TestContainerS3mockVersion })
     useKotlinOutput {
         topLevelConstants = true
