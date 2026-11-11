@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.asserts.assertThrows
-import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
@@ -32,6 +30,8 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.TestUser

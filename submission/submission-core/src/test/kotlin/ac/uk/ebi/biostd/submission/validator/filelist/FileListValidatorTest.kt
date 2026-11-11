@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -16,7 +15,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
@@ -33,6 +31,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.test.createFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileListValidatorTest(

@@ -23,11 +23,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.model.constants.APPLICATION_JSON
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.toList
@@ -50,6 +47,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.test.createFile
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Duration.ofSeconds

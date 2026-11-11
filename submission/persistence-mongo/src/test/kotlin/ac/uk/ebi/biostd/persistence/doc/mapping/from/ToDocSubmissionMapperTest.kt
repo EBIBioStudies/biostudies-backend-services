@@ -83,14 +83,12 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
-import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -98,6 +96,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.asserts.assertThat
+import uk.ac.ebi.biostd.test.createFile
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)

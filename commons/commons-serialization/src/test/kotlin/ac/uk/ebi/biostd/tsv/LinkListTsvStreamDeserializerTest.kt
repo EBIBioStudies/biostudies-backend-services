@@ -8,7 +8,6 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -18,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.test.createFile
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)

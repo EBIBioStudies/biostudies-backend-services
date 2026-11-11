@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.itest.test.user
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
-import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.MigrateHomeOptions
@@ -19,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser

@@ -1,4 +1,4 @@
-package ebi.ac.uk.test
+package uk.ac.ebi.biostd.test
 
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission

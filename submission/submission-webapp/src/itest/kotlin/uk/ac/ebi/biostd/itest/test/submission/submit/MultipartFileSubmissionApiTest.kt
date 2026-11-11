@@ -8,9 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitAttribute
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.assertThatThrows
-import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -39,6 +36,9 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.asserts.assertThat
+import uk.ac.ebi.biostd.asserts.assertThatThrows
+import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
