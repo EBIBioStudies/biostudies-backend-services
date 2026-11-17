@@ -157,6 +157,8 @@ open class SecurityService(
         password: String,
     ): User {
         user.passwordDigest = securityUtil.getPasswordDigest(password)
+        user.active = true
+        user.activationKey = null
 
         val updatedPassword = userRepository.save(user)
         return profileService.asSecurityUser(updatedPassword).asUser()
