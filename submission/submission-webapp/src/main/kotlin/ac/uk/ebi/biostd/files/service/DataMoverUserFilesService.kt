@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.SIXTEEN_GB
 import java.nio.file.Path
 
 @Service
@@ -25,6 +26,7 @@ class DataMoverUserFilesService(
             JobSpec(
                 queue = DataMoverQueue,
                 minutes = JOB_MINUTES,
+                ram = SIXTEEN_GB,
                 command = transferCommand(source, target, userFolder),
             )
 
