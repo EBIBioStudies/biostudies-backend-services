@@ -11,8 +11,8 @@
 - domain-modeling: requested through grill-with-docs; not installed locally, so the design was modeled from repository code and captured in ADR/glossary docs.
 
 ## Guidelines
-- When a new integration test is added to any class in the `ac.uk.ebi.biostd.itest.test.` package, a new entry should be
- added to `itestsinventory.md`
+- In integration tests, use existing `BioWebClient` and `SecurityWebClient` methods for web requests; do not create additional web clients.
+- When a new integration test is added to any class in the `ac.uk.ebi.biostd.itest.test.` package, a new entry should be added to `itestsinventory.md`
 - When writing pagetab for a test, prefer TSV format
 - Don't create unit tests for the web resource classes (i.e. containing endpoints) unless specifically asked.
 - When writing Kotlin unit tests with MockK:

@@ -364,7 +364,10 @@ internal class SecurityServiceTest(
         @Test
         fun `change password when active user`() =
             runTest {
-                val user = simpleUser.apply { active = true }
+                val user = simpleUser.apply {
+                    active = true
+                    activationKey = ACTIVATION_KEY
+                }
                 val passwordDigest = ByteArray(0)
 
                 every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
@@ -375,6 +378,7 @@ internal class SecurityServiceTest(
 
                 val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
                 assertThat(updated.email).isEqualTo(user.email)
+                assertThat(user.active).isTrue()
                 assertThat(user.activationKey).isNull()
                 assertThat(user.passwordDigest).isEqualTo(passwordDigest)
             }
@@ -383,6 +387,10 @@ internal class SecurityServiceTest(
         fun `change password when inactive user`() =
             runTest {
                 val passwordDigest = ByteArray(0)
+                simpleUser.apply {
+                    active = false
+                    activationKey = ACTIVATION_KEY
+                }
                 every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
                 every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
                 every { securityUtil.getPasswordDigest(password) } returns passwordDigest
@@ -391,6 +399,7 @@ internal class SecurityServiceTest(
 
                 val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
                 assertThat(updated.email).isEqualTo(simpleUser.email)
+                assertThat(simpleUser.active).isTrue()
                 assertThat(simpleUser.activationKey).isNull()
                 assertThat(simpleUser.passwordDigest).isEqualTo(passwordDigest)
             }
