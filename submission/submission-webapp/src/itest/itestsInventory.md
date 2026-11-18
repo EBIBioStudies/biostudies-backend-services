@@ -93,7 +93,7 @@ Contains test related to the file list functionality.
 | FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
 | FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
 | FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |
-| FileListValidationTest | 11-4    | Filelist when missing files                                       |
+| FileListValidationTest | 11-4    | Filelist validation when pagetab is invalid      |
 | FileListValidationTest | 11-5    | Filelist validation when valid filelist                           |
 | FileListValidationTest | 11-6    | Filelist validation when valid filelist with root path            |
 | FileListValidationTest | 11-7    | Filelist validation when valid filelist on behalf another user    |

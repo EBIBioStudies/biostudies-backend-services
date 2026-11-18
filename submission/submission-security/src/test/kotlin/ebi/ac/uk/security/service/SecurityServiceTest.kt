@@ -364,10 +364,11 @@ internal class SecurityServiceTest(
         @Test
         fun `change password when active user`() =
             runTest {
-                val user = simpleUser.apply {
-                    active = true
-                    activationKey = ACTIVATION_KEY
-                }
+                val user =
+                    simpleUser.apply {
+                        active = true
+                        activationKey = ACTIVATION_KEY
+                    }
                 val passwordDigest = ByteArray(0)
 
                 every { userPrivilegesService.allowedCollections(simpleUser.email, ADMIN) } returns emptyList()
