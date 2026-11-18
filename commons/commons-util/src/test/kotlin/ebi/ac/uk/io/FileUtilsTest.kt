@@ -6,8 +6,6 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.test.clean
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -17,6 +15,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.test.clean
+import uk.ac.ebi.biostd.test.createFile
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Files.getPosixFilePermissions

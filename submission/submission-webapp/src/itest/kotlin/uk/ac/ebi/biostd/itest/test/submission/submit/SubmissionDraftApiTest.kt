@@ -5,9 +5,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.submitAndWait
-import ebi.ac.uk.asserts.submitFromDraftAndWait
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
@@ -27,6 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.asserts.assertThat
+import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.asserts.submitFromDraftAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser

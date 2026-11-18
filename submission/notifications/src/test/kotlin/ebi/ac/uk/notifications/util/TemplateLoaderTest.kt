@@ -2,7 +2,6 @@ package ebi.ac.uk.notifications.util
 
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
+import uk.ac.ebi.biostd.test.createFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class TemplateLoaderTest(

@@ -15,9 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.test.basicExtSubmission
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -33,6 +30,9 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.test.FileListFactory.FILE_PATH
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList

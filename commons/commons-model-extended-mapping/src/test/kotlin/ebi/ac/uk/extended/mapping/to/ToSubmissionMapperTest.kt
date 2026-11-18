@@ -10,7 +10,6 @@ import ebi.ac.uk.model.extensions.doi
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -18,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.test.basicExtSubmission
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 

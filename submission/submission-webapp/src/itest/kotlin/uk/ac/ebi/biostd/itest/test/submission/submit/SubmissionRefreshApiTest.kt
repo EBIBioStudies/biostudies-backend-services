@@ -20,7 +20,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.asserts.submitMultipartAndWait
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -55,6 +54,7 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.storageMode

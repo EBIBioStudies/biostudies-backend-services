@@ -27,8 +27,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -66,6 +64,8 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
 import java.io.File
 import java.time.Duration.ofSeconds
 

@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.date.toStringDate
@@ -20,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.asserts.assertThat
+import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.DefaultUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser

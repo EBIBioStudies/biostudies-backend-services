@@ -9,11 +9,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.serverError
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.db.MYSQL_SCHEMA
-import ebi.ac.uk.db.MYSQL_VERSION
-import ebi.ac.uk.db.RABBIT_VERSION
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.ftp.FtpConfig
 import ebi.ac.uk.ftp.FtpServer
@@ -24,6 +19,11 @@ import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName.parse
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.db.MYSQL_SCHEMA
+import uk.ac.ebi.biostd.db.MYSQL_VERSION
+import uk.ac.ebi.biostd.db.RABBIT_VERSION
 import uk.ac.ebi.biostd.itest.common.CHARACTER_SET
 import uk.ac.ebi.biostd.itest.common.COLLATION
 import uk.ac.ebi.biostd.itest.common.FIRE_PASSWORD

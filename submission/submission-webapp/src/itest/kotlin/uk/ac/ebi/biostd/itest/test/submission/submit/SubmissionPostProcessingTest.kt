@@ -13,9 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.assertThrows
-import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
@@ -41,6 +38,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.asserts.assertThat
+import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser

@@ -1,7 +1,5 @@
 package ebi.ac.uk.ftp
 
-import ebi.ac.uk.test.createFile
-import ebi.ac.uk.test.createTempFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.runBlocking
@@ -10,6 +8,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junitpioneer.jupiter.RetryingTest
+import uk.ac.ebi.biostd.test.createFile
+import uk.ac.ebi.biostd.test.createTempFile
 import java.io.File
 import java.nio.file.Paths
 

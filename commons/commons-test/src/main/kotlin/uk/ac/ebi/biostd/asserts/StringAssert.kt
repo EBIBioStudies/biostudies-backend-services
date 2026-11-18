@@ -1,4 +1,4 @@
-package ebi.ac.uk.asserts
+package uk.ac.ebi.biostd.asserts
 
 import ebi.ac.uk.base.remove
 import org.assertj.core.api.AbstractAssert

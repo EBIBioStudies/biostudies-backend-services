@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationServ
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanFactory
+import uk.ac.ebi.biostd.test.basicExtSubmission
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 

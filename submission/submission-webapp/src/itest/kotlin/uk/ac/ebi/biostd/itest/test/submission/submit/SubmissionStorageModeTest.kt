@@ -8,8 +8,6 @@ import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.submitAndWait
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -39,6 +37,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.asserts.assertThat
+import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.fireFtpPath

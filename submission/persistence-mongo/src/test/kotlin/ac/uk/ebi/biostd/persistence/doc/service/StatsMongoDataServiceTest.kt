@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService.Companion.IMAGING_COLLECTION
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
-import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
-import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -33,6 +31,8 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
+import uk.ac.ebi.biostd.db.MONGO_VERSION
 import java.time.Duration.ofSeconds
 import java.time.Instant
 

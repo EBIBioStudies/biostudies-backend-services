@@ -1,4 +1,4 @@
-package ebi.ac.uk.asserts
+package uk.ac.ebi.biostd.asserts
 
 import org.assertj.core.api.Assertions
 import kotlin.contracts.ExperimentalContracts

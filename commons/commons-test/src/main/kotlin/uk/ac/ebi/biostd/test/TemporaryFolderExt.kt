@@ -1,4 +1,4 @@
-package ebi.ac.uk.test
+package uk.ac.ebi.biostd.test
 
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.apache.commons.io.FileUtils

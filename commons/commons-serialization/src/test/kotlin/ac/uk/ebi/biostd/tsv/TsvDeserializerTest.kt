@@ -49,7 +49,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import ebi.ac.uk.asserts.assertThat as assertEither
+import uk.ac.ebi.biostd.asserts.assertThat as assertEither
 
 class TsvDeserializerTest {
     private val deserializer = TsvDeserializer()

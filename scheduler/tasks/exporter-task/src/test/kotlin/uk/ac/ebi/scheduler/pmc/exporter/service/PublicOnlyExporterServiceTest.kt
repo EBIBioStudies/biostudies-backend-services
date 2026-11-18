@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.pmc.exporter.config.BioStudies
 import java.nio.file.Paths
