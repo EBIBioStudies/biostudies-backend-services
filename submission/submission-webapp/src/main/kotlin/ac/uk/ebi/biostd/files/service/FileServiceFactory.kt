@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.files.service
 
+import ac.uk.ebi.biostd.files.exception.UserFolderNotFound
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.service.ftp.FtpFileService
 import ac.uk.ebi.biostd.files.service.nfs.PathFilesService
@@ -7,7 +8,10 @@ import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.nio.file.Files
 
 class FileServiceFactory(private val ftpClient: FtpClient) {
     fun forUserGroup(
@@ -17,12 +21,16 @@ class FileServiceFactory(private val ftpClient: FtpClient) {
         return PathFilesService(getGroupPath(user, groupName))
     }
 
-    fun forUser(user: SecurityUser): FileService {
-        return when (val folder = user.userFolder) {
-            is FtpUserFolder -> FtpFileService(folder.relativePath, ftpClient)
-            is NfsUserFolder -> PathFilesService(folder.path.toFile())
+    suspend fun forUser(user: SecurityUser): FileService =
+        withContext(Dispatchers.IO) {
+            val folder = user.userFolder
+            if (!Files.isDirectory(folder.path)) throw UserFolderNotFound()
+
+            when (folder) {
+                is FtpUserFolder -> FtpFileService(folder.relativePath, ftpClient)
+                is NfsUserFolder -> PathFilesService(folder.path.toFile())
+            }
         }
-    }
 
     private fun getGroupPath(
         user: SecurityUser,

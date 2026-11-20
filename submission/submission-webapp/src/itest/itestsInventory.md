@@ -74,6 +74,7 @@ Contains permissions API test.
 | UserFileApiTest | 17-4    | download a binary file                                             |
 | UserFileApiTest | 17-5    | download a text file                                               |
 | UserFileApiTest | 17-10   | upload cluster accessible directory as flattened files             |
+| UserFileApiTest | 17-11   | reject user file operations for a missing NFS or FTP root           |
 
 ## File List Test Suite
 

@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.files.service
 
+import ac.uk.ebi.biostd.files.exception.UserFolderNotFound
 import ac.uk.ebi.biostd.files.service.DataMoverUserFilesService.Companion.JOB_MINUTES
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.clearAllMocks
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
@@ -26,13 +29,17 @@ import java.nio.file.Path
 @ExtendWith(MockKExtension::class)
 internal class DataMoverUserFilesServiceTest(
     @param:MockK private val clusterClient: ClusterClient,
+    @param:MockK private val ftpClient: FtpClient,
     @param:MockK private val user: SecurityUser,
 ) {
-    private val testInstance = DataMoverUserFilesService(clusterClient)
+    private val testInstance = DataMoverUserFilesService(clusterClient, FileServiceFactory(ftpClient))
+
+    @TempDir
+    private lateinit var userFolder: Path
 
     @BeforeEach
     fun beforeEach() {
-        every { user.userFolder } returns NfsUserFolder(USER_FOLDER, USER_FOLDER)
+        every { user.userFolder } returns NfsUserFolder(userFolder, userFolder)
     }
 
     @AfterEach
@@ -51,7 +58,7 @@ internal class DataMoverUserFilesServiceTest(
             assertThat(spec.captured.minutes).isEqualTo(JOB_MINUTES)
             assertThat(spec.captured.command)
                 .contains("source='$SOURCE'")
-                .contains("target='$USER_FOLDER/$RELATIVE_PATH'")
+                .contains("target='$userFolder/$RELATIVE_PATH'")
                 .contains("find -L \"\$source\" -type f")
                 .contains("--partial-dir=.rsync-partial")
             coVerify(exactly = 1) { clusterClient.triggerJobAsync(any()) }
@@ -75,10 +82,21 @@ internal class DataMoverUserFilesServiceTest(
             coVerify(exactly = 0) { clusterClient.triggerJobAsync(any()) }
         }
 
+    @Test
+    fun `reject a missing user folder before submitting the job`() =
+        runTest {
+            val missingFolder = userFolder.resolve("missing")
+            every { user.userFolder } returns NfsUserFolder(missingFolder, missingFolder)
+
+            val error = assertThrows<UserFolderNotFound> { testInstance.upload(user, SOURCE.toString(), RELATIVE_PATH) }
+
+            assertThat(error).hasMessage("The user folder was not found")
+            coVerify(exactly = 0) { clusterClient.triggerJobAsync(any()) }
+        }
+
     private companion object {
         val JOB = Job(id = "12345", queue = "datamover", logsPath = "/logs/345/12345_OUT")
         val SOURCE: Path = Path.of("/shared/source")
-        val USER_FOLDER: Path = Path.of("/users/ab/secret-a123")
         const val RELATIVE_PATH = "incoming"
     }
 }

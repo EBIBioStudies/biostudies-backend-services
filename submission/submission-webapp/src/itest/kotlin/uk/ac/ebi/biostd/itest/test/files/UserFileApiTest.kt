@@ -23,17 +23,20 @@ import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.core.io.ResourceLoader
+import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.stream.Stream
 
@@ -270,6 +273,49 @@ class UserFileApiTest(
                 .extracting<String> { it.name }
                 .containsExactlyInAnyOrder("root.txt", "inner.txt")
             webClient.deleteFile(CLUSTER_TARGET)
+        }
+
+    @ParameterizedTest(name = "17-11 reject user file operations when the {0} root is missing")
+    @EnumSource(StorageMode::class)
+    fun `17-11 missing user root`(mode: StorageMode) =
+        runTest {
+            val user =
+                object : TestUser {
+                    override val username = "Missing Root $mode User"
+                    override val email = "files-missing-root-${mode.name.lowercase()}@ebi.ac.uk"
+                    override val password = "12345"
+                    override val superUser = false
+                    override val storageMode = mode
+                }
+            securityTestService.ensureUserRegistration(user)
+            val webClient = getWebClient(serverPort, user)
+            val root = securityTestService.getSecurityUser(user.email).userFolder.path
+            assertThat(webClient.listUserFiles()).isEmpty()
+
+            val file = tempFolder.createFile("missing-root-${mode.name}.txt", "Example content")
+            val operations =
+                mapOf<String, suspend () -> Unit>(
+                    "query" to { webClient.listUserFiles() },
+                    "download" to { webClient.downloadFile(file.name) },
+                    "upload" to { webClient.uploadFile(file) },
+                    "cluster upload" to { webClient.uploadFilesThroughCluster(file) },
+                    "delete" to { webClient.deleteFile(file.name) },
+                    "rename" to { webClient.renameFile("", file.name, "renamed.txt") },
+                    "create folder" to { webClient.createFolder("new-folder") },
+                )
+
+            val backup = Files.move(root, root.resolveSibling("${root.fileName}.backup"))
+            try {
+                operations.forEach { (operation, request) ->
+                    val error = runCatching { request() }.exceptionOrNull()
+                    assertThat(error).describedAs(operation).isInstanceOf(WebClientException::class.java)
+                    assertThat((error as WebClientException).statusCode).describedAs(operation).isEqualTo(INTERNAL_SERVER_ERROR)
+                    assertThat(error).hasMessageContaining("The user folder was not found")
+                }
+                assertThat(root).doesNotExist()
+            } finally {
+                Files.move(backup, root)
+            }
         }
 
     private fun assertFile(

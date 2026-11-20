@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
+import ac.uk.ebi.biostd.files.exception.UserFolderNotFound
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
@@ -9,6 +10,8 @@ import mu.KotlinLogging
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -20,6 +23,14 @@ private val logger = KotlinLogging.logger {}
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
 class GeneralExceptionHandler {
+    @ExceptionHandler(UserFolderNotFound::class)
+    fun handleUserFolderNotFound(exception: UserFolderNotFound): ResponseEntity<ValidationTree> =
+        ResponseEntity
+            .internalServerError()
+            // File downloads request application/octet-stream, so set the error format explicitly.
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(handleRuntime(exception))
+
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException::class)

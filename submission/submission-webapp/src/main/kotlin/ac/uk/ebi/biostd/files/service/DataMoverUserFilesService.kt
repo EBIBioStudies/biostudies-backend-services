@@ -11,12 +11,15 @@ import java.nio.file.Path
 @Service
 class DataMoverUserFilesService(
     private val clusterClient: ClusterClient,
+    private val fileServiceFactory: FileServiceFactory,
 ) {
     suspend fun upload(
         user: SecurityUser,
         sourcePath: String,
         relativePath: String,
     ): String {
+        fileServiceFactory.forUser(user)
+
         val source = Path.of(sourcePath).normalize()
         require(source.isAbsolute) { "The cluster source path must be absolute: $sourcePath" }
 
