@@ -22,8 +22,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.skyscreamer.jsonassert.JSONAssert.assertEquals
-import org.skyscreamer.jsonassert.JSONCompareMode
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -110,33 +108,21 @@ class FileListValidationTest(
             }
 
         @Test
-        fun `11-4 Filelist when missing files`() =
+        fun `11-4 Filelist validation when pagetab is invalid`() =
             runTest {
-                val fileList = tempFolder.createFile("InvalidNfsFileList.json", FILE_LIST_CONTENT)
+                val content =
+                    tsv {
+                        line("Files", "Type", "")
+                        line("File1.txt", "test", "value")
+                    }.toString()
+                val fileList = tempFolder.createFile("InvalidFileList.tsv", content)
 
                 webClient.uploadFile(fileList)
 
                 val exception = assertThrows<WebClientException> { webClient.validateFileList(fileList.name) }
                 assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-                val expectedError =
-                    jsonObj {
-                        "log" to
-                            jsonObj {
-                                "level" to "ERROR"
-                                "message" to
-                                    """
-                                    The following files could not be found:
-                                      - Plate1.tif
-                                    List of available sources:
-                                      - Provided Db files
-                                      - biostudies-mgmt-filelist-v@ebi.ac.uk user files
-                                    """.trimIndent()
-                                "subnodes" to jsonArray()
-                            }
-                        "status" to "FAIL"
-                    }
+                assertThat(exception).hasMessageContaining("Attribute name is required")
 
-                assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
                 webClient.deleteFile(fileList.name)
             }
     }

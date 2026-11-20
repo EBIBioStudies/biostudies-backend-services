@@ -8,9 +8,6 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.errors.FilesProcessingException
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.SourcesList
@@ -28,7 +25,6 @@ import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.asserts.assertThrows
@@ -37,7 +33,6 @@ import uk.ac.ebi.biostd.test.createFile
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileListValidatorTest(
     private val tempFolder: TemporaryFolder,
-    @param:MockK private val extFile: ExtFile,
     @param:MockK private val source: FilesSource,
     @param:MockK private val fileSourcesService: FileSourcesService,
     @param:MockK private val submissionQueryService: SubmissionPersistenceQueryService,
@@ -45,11 +40,6 @@ class FileListValidatorTest(
     private val serializationService = SerializationConfig.serializationService()
     private val filesSource = SourcesList(listOf(source))
     private val testInstance = FileListValidator(fileSourcesService, serializationService, submissionQueryService)
-
-    @BeforeEach
-    fun beforeEach() {
-        coEvery { source.getExtFile("ref.txt", "file", listOf(ExtAttribute("Type", "test"))) } returns extFile
-    }
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -90,7 +80,7 @@ class FileListValidatorTest(
     }
 
     @Test
-    fun `invalid file list`(
+    fun `valid file list with missing referenced files`(
         @MockK submitter: SecurityUser,
         @MockK extSubmission: ExtSubmission,
     ) = runTest {
@@ -100,7 +90,6 @@ class FileListValidatorTest(
         coEvery { source.getFileList("fail.xlsx") } returns invalid
         coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
         coEvery { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
-        coEvery { source.getExtFile("ghost.txt", "file", listOf(ExtAttribute("Type", "fail"))) } returns null
 
         excel(invalid) {
             sheet("page tab") {
@@ -120,7 +109,7 @@ class FileListValidatorTest(
         }
 
         val request = FileListValidationRequest(null, null, "fail.xlsx", submitter, null)
-        assertThrows<FilesProcessingException> { testInstance.validateFileList(request) }
+        testInstance.validateFileList(request)
 
         val fileSourceRequest = fileSourcesSlot.captured
         assertThat(fileSourceRequest.files).isNull()
