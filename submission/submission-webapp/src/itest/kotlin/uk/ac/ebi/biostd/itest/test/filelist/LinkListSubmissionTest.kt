@@ -10,8 +10,6 @@ import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -38,6 +36,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.enableFire

@@ -9,8 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.coroutines.waitForCompletion
 import ebi.ac.uk.coroutines.waitUntil
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createOrReplaceFile
 import ebi.ac.uk.model.RequestStatus.INVALID
@@ -31,6 +29,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser

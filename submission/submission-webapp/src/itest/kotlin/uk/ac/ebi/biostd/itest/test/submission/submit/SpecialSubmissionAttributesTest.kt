@@ -14,8 +14,6 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
@@ -51,6 +49,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener

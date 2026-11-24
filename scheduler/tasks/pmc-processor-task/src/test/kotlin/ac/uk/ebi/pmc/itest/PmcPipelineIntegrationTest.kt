@@ -35,8 +35,6 @@ import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.gZipTo
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
@@ -66,6 +64,8 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import java.io.File
 import java.time.Duration.ofSeconds
 

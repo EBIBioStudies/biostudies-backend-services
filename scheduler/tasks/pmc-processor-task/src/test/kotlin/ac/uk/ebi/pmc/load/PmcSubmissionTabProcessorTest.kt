@@ -1,13 +1,13 @@
 package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.common.SerializationConfig
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 
 internal class PmcSubmissionTabProcessorTest {
     private val processor = PmcSubmissionTabProcessor(SerializationConfig.serializationService())

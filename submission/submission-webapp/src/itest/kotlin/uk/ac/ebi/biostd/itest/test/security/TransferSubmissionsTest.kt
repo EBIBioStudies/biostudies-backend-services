@@ -11,8 +11,6 @@ import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.EMAIL_UPDATE
 import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.TRANSFER
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.TransferLogDataService
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
@@ -28,6 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.ExistingUser
 import uk.ac.ebi.biostd.itest.entities.RegularUser

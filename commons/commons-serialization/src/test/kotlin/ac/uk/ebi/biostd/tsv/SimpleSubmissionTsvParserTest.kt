@@ -5,13 +5,13 @@ import ac.uk.ebi.biostd.tsv.serialization.ACC_NO_KEY
 import ac.uk.ebi.biostd.tsv.serialization.ROOT_PATH_KEY
 import ac.uk.ebi.biostd.tsv.serialization.TITLE_KEY
 import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 
 class SimpleSubmissionTsvParserTest {
     private val testInstance: TsvSerializer = TsvSerializer()

@@ -2,8 +2,6 @@ package uk.ac.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
@@ -17,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient

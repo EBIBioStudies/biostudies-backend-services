@@ -1,4 +1,4 @@
-package ebi.ac.uk.dsl.tsv
+package uk.ac.ebi.biostd.dsl.tsv
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

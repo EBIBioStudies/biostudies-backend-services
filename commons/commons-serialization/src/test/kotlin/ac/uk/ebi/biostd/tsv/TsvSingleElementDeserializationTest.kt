@@ -6,14 +6,14 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 
 class TsvSingleElementDeserializationTest {
     private val deserializer = TsvDeserializer()

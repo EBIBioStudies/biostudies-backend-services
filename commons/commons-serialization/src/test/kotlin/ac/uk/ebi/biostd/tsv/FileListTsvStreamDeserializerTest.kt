@@ -2,9 +2,6 @@ package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
-import ebi.ac.uk.dsl.tsv.Tsv
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
@@ -17,6 +14,9 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.dsl.tsv.Tsv
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.test.createFile
 import java.io.File
 

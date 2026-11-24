@@ -33,8 +33,6 @@ import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.BioFile
@@ -49,6 +47,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import uk.ac.ebi.biostd.dsl.tsv.line
+import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.asserts.assertThat as assertEither
 
 class TsvDeserializerTest {
