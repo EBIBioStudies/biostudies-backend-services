@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.AttributeDetail
 import uk.ac.ebi.biostd.base.nullIfBlank
-import uk.ac.ebi.serialization.extensions.findNode
-import uk.ac.ebi.serialization.extensions.getNode
+import uk.ac.ebi.biostd.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 
 internal class AttributeDetailJsonDeserializer : StdDeserializer<AttributeDetail>(AttributeDetail::class.java) {
     override fun deserialize(

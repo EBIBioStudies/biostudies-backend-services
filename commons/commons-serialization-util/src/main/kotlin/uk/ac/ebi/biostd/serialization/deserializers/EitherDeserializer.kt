@@ -1,4 +1,4 @@
-package uk.ac.ebi.serialization.deserializers
+package uk.ac.ebi.biostd.serialization.deserializers
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.BeanProperty

@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.io.use
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream

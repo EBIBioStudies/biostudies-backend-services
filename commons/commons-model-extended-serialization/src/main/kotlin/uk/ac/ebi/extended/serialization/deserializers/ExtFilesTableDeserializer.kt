@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
-import uk.ac.ebi.serialization.extensions.convertOrDefault
 
 class ExtFilesTableDeserializer : JsonDeserializer<ExtFileTable>() {
     override fun deserialize(

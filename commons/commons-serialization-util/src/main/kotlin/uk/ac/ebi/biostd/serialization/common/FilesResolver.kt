@@ -1,4 +1,4 @@
-package uk.ac.ebi.serialization.common
+package uk.ac.ebi.biostd.serialization.common
 
 import uk.ac.ebi.biostd.io.ext.createTempFile
 import java.io.File

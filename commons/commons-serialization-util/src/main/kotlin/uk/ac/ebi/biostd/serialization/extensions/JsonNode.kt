@@ -1,4 +1,4 @@
-package uk.ac.ebi.serialization.extensions
+package uk.ac.ebi.biostd.serialization.extensions
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.NullNode

@@ -1,4 +1,4 @@
-package uk.ac.ebi.serialization.serializers
+package uk.ac.ebi.biostd.serialization.serializers
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider

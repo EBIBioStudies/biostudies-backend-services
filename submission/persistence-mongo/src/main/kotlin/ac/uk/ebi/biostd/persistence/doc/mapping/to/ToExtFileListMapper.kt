@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.coroutines.every
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
 private val logger = KotlinLogging.logger {}

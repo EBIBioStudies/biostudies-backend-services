@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.serialization.extensions.deserializeAsFlow
 import uk.ac.ebi.biostd.test.createFile
 import uk.ac.ebi.biostd.util.collections.second
-import uk.ac.ebi.serialization.extensions.deserializeAsFlow
 
 @ExtendWith(TemporaryFolderExtension::class)
 class FileListDeserializerTest(

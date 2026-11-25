@@ -16,8 +16,8 @@ import ebi.ac.uk.model.constants.SubFields.ATTRIBUTES
 import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.SECTION
 import uk.ac.ebi.biostd.base.like
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.findNode
 
 internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
     override fun deserialize(

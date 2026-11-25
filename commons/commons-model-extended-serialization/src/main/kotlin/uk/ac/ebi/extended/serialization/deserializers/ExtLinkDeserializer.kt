@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtLink
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.URL
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.getNode
 
 class ExtLinkDeserializer : JsonDeserializer<ExtLink>() {
     override fun deserialize(

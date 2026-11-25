@@ -1,4 +1,4 @@
-package uk.ac.ebi.serialization.common
+package uk.ac.ebi.biostd.serialization.common
 
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension

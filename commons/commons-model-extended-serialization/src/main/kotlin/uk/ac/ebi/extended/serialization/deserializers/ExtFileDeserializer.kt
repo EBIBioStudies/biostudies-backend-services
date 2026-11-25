@@ -14,6 +14,9 @@ import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
@@ -28,9 +31,6 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TY
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SOURCE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
-import uk.ac.ebi.serialization.extensions.getNode
 import java.nio.file.Paths
 
 class ExtFileDeserializer : JsonDeserializer<ExtFile>() {

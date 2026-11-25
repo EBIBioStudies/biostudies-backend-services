@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.LinkFields
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.getNode
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 
 internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
     override fun deserialize(

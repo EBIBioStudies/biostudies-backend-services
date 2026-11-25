@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.biostd.base.Either.Companion.right
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.constants.ExtType.FilesTable
@@ -25,7 +26,6 @@ import uk.ac.ebi.extended.serialization.constants.ExtType.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.RequestFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Section
 import uk.ac.ebi.extended.serialization.constants.ExtType.SectionsTable
-import uk.ac.ebi.serialization.extensions.getNode
 
 class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
     override fun deserialize(

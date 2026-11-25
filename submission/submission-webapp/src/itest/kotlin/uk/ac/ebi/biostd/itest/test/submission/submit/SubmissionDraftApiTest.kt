@@ -30,8 +30,8 @@ import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.serialization.extensions.getProperty
 import uk.ac.ebi.biostd.util.date.toStringDate
-import uk.ac.ebi.serialization.extensions.getProperty
 import java.time.Instant
 import java.time.OffsetDateTime
 

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.test.beans
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import uk.ac.ebi.serialization.common.FilesResolver
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import java.nio.file.Files
 
 @Configuration

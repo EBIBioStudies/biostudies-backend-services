@@ -22,13 +22,13 @@ import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
 import uk.ac.ebi.fire.client.integration.web.S3Config
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import uk.ac.ebi.io.config.FilesSourceConfig
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import kotlin.time.Duration.Companion.minutes
 

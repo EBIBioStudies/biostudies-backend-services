@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFileList
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
-import uk.ac.ebi.serialization.extensions.getNode
 import java.io.File
 
 class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {

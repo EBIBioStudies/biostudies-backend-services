@@ -32,13 +32,13 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.test.FileListFactory.FILE_PATH
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
 import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration
 
 @Testcontainers

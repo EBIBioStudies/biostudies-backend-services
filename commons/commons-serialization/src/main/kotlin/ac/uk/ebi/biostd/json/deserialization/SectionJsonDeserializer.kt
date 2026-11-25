@@ -13,8 +13,8 @@ import ebi.ac.uk.model.constants.SectionFields.FILES
 import ebi.ac.uk.model.constants.SectionFields.LINKS
 import ebi.ac.uk.model.constants.SectionFields.SUBSECTIONS
 import ebi.ac.uk.model.constants.SectionFields.TYPE
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.findNode
 
 internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
     override fun deserialize(

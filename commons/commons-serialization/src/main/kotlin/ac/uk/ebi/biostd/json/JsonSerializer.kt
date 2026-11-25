@@ -33,11 +33,11 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import kotlinx.coroutines.flow.Flow
 import uk.ac.ebi.biostd.base.Either
-import uk.ac.ebi.serialization.deserializers.EitherDeserializer
-import uk.ac.ebi.serialization.extensions.deserializeAsFlow
-import uk.ac.ebi.serialization.extensions.serializeFlow
-import uk.ac.ebi.serialization.extensions.serializeList
-import uk.ac.ebi.serialization.serializers.EitherSerializer
+import uk.ac.ebi.biostd.serialization.deserializers.EitherDeserializer
+import uk.ac.ebi.biostd.serialization.extensions.deserializeAsFlow
+import uk.ac.ebi.biostd.serialization.extensions.serializeFlow
+import uk.ac.ebi.biostd.serialization.extensions.serializeList
+import uk.ac.ebi.biostd.serialization.serializers.EitherSerializer
 import java.io.InputStream
 import java.io.OutputStream
 

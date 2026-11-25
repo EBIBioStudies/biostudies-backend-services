@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.common.FilesResolver
 
 @Configuration
 class ToExtSubmissionConfig {

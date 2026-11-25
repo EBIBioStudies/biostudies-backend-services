@@ -9,14 +9,14 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.base.nullIfBlank
 import uk.ac.ebi.biostd.base.orFalse
+import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
+import uk.ac.ebi.biostd.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.getNode
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_NAME_ATTRS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_REFERENCE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_VALUE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_VAL_ATTRS
-import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
-import uk.ac.ebi.serialization.extensions.getNode
 
 class ExtAttributeDeserializer : JsonDeserializer<ExtAttribute>() {
     override fun deserialize(

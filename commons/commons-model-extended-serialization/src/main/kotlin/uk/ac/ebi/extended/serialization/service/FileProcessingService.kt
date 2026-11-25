@@ -11,8 +11,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.biostd.io.use
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.biostd.util.collections.mapLeft
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
 /**
