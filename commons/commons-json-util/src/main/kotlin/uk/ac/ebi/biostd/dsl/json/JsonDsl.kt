@@ -1,4 +1,4 @@
-package ebi.ac.uk.dsl.json
+package uk.ac.ebi.biostd.dsl.json
 
 interface JsonVal
 

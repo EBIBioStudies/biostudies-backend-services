@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
@@ -42,6 +41,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.dsl.json.jsonObj
 import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.temporal.ChronoUnit

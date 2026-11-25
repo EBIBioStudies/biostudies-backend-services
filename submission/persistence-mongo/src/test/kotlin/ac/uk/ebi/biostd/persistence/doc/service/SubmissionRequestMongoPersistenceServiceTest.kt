@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.FileSourceType.USER
 import ebi.ac.uk.extended.model.createNfsFile
@@ -53,6 +52,7 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.Instant

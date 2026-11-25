@@ -28,9 +28,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
@@ -64,6 +61,9 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.dsl.json.toJsonQuote
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import java.io.File

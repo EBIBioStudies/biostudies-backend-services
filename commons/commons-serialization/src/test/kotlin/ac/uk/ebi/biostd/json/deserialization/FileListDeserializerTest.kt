@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -12,6 +10,8 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.test.createFile
 import uk.ac.ebi.serialization.extensions.deserializeAsFlow
 

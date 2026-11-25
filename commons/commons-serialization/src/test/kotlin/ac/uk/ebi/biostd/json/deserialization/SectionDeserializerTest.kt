@@ -2,13 +2,13 @@ package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.model.Section
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonObj
 
 class SectionDeserializerTest {
     private val testInstance = JsonSerializer.mapper

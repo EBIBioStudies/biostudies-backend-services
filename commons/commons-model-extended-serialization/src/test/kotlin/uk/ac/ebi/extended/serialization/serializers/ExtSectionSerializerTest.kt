@@ -1,10 +1,6 @@
 package uk.ac.ebi.extended.serialization.serializers
 
 import ebi.ac.uk.base.Either
-import ebi.ac.uk.dsl.json.JsonNull
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonNull
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -24,6 +20,10 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.dsl.json.JsonNull
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonNull
+import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
 import uk.ac.ebi.extended.serialization.service.createExtFileList

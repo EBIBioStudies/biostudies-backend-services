@@ -1,8 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -18,6 +16,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(TemporaryFolderExtension::class)

@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.io.ext.gZipTo
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.util.collections.second
@@ -52,6 +51,7 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.dsl.json.toJsonQuote
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Duration.ofSeconds
 

@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.itest.factory
 
 import com.jayway.jsonpath.matchers.JsonPathMatchers.isJson
 import com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath
-import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
@@ -13,6 +12,7 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.util.date.toStringDate
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import uk.ac.ebi.biostd.dsl.json.jsonArray
 import java.time.OffsetDateTime.now
 
 internal val expectedAllInOneJsonFileList =

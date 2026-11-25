@@ -1,10 +1,10 @@
-package ebi.ac.uk.dsl.json
+package uk.ac.ebi.biostd.dsl.json
 
-import ebi.ac.uk.dsl.json.JsonDslTest.Companion.TestEnum.TEST
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.json.JsonDslTest.Companion.TestEnum.TEST
 
 class JsonDslTest {
     @Nested

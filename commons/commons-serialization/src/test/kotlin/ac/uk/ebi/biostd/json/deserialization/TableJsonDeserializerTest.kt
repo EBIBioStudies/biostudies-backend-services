@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.BioFile
@@ -12,6 +11,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.json.jsonArray
 
 private const val ATTR_NAME = "attr1"
 private const val ATTR_VAL = "attr1 value"
