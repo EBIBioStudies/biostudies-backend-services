@@ -18,11 +18,11 @@ import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
-import ebi.ac.uk.util.date.toStringInstant
-import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.util.date.toStringInstant
+import uk.ac.ebi.biostd.util.web.optionalQueryParam
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"

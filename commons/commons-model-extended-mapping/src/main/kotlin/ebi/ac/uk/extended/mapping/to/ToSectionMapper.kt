@@ -1,13 +1,13 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.AUTHOR_TYPE
 import ebi.ac.uk.model.constants.ORG_TYPES
-import ebi.ac.uk.util.collections.mapRigh
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.util.collections.mapRigh
 
 class ToSectionMapper(
     private val toFileListMapper: ToFileListMapper,

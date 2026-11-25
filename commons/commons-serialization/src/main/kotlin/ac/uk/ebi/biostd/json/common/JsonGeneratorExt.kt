@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.json.common
 
-import ebi.ac.uk.base.applyIfNotBlank
-import ebi.ac.uk.base.ifTrue
+import uk.ac.ebi.biostd.base.applyIfNotBlank
+import uk.ac.ebi.biostd.base.ifTrue
 import com.fasterxml.jackson.core.JsonGenerator as JsonGen
 
 /**

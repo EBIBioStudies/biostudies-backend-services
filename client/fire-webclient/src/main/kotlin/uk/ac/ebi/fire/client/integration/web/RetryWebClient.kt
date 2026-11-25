@@ -1,6 +1,6 @@
 package uk.ac.ebi.fire.client.integration.web
 
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 

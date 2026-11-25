@@ -7,7 +7,6 @@ import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.extended.model.ExtUser
-import ebi.ac.uk.io.KFiles
 import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.FilePath
 import ebi.ac.uk.model.FolderStats
@@ -24,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToFlux
+import uk.ac.ebi.biostd.io.KFiles
 import java.io.File
 
 private const val USER_FILES_URL = "/files/user"

@@ -4,11 +4,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.HARD_LINKS
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.MOVE
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.io.ext.createNewFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -22,6 +17,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.io.ext.createDirectory
+import uk.ac.ebi.biostd.io.ext.createFile
+import uk.ac.ebi.biostd.io.ext.createNewFile
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.test.clean
 import java.nio.file.Files
 import kotlin.io.path.createDirectories

@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.submission.util
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
 import ebi.ac.uk.model.AccNumber
-import ebi.ac.uk.util.regex.firstGroup
-import ebi.ac.uk.util.regex.match
-import ebi.ac.uk.util.regex.secondGroup
+import uk.ac.ebi.biostd.util.regex.firstGroup
+import uk.ac.ebi.biostd.util.regex.match
+import uk.ac.ebi.biostd.util.regex.secondGroup
 import java.util.regex.Matcher
 
 private const val ACC_PATTERN = "\\!\\{%s\\}"

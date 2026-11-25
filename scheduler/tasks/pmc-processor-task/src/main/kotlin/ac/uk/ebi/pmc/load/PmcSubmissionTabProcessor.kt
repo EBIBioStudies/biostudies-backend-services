@@ -5,13 +5,13 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.tsv.deserialization.chunks.TsvChunkGenerator
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
-import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.LinkFields.LINK
 import ebi.ac.uk.model.constants.SectionFields.LINKS
 import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.SUBMISSION
-import ebi.ac.uk.util.regex.getGroup
+import uk.ac.ebi.biostd.base.like
+import uk.ac.ebi.biostd.util.regex.getGroup
 import java.time.LocalDate
 
 /**

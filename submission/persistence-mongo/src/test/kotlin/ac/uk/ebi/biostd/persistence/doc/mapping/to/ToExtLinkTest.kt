@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.assertExtLink
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLink
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLinkTable
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.base.Either.Companion.right
-import ebi.ac.uk.util.collections.ifLeft
-import ebi.ac.uk.util.collections.ifRight
-import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.base.Either.Companion.right
+import uk.ac.ebi.biostd.util.collections.ifLeft
+import uk.ac.ebi.biostd.util.collections.ifRight
+import uk.ac.ebi.biostd.util.collections.second
 
 class ToExtLinkTest {
     @Test

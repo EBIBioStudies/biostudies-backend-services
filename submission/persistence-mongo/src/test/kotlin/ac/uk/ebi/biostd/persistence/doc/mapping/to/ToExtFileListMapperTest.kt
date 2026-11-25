@@ -8,11 +8,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILE_LIST
 import ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.fireDocFile
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.newFile
-import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
@@ -26,6 +21,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.newFile
+import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.util.collections.second
+import uk.ac.ebi.biostd.util.collections.third
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.files
 import uk.ac.ebi.serialization.common.FilesResolver

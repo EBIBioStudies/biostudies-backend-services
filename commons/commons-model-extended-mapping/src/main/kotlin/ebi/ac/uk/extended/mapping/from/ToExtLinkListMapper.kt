@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.io.use
 import ebi.ac.uk.model.LinkList
 import ebi.ac.uk.model.canonicalName
 import kotlinx.coroutines.flow.asFlow
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File

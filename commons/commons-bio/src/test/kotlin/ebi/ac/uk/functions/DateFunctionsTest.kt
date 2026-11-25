@@ -2,6 +2,7 @@ package ebi.ac.uk.functions
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.functions.secondsToInstant
 import java.time.Instant
 
 internal class DateFunctionsTest {

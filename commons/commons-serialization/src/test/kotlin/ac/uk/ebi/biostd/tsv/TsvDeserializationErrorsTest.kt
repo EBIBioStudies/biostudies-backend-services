@@ -17,13 +17,13 @@ import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import uk.ac.ebi.biostd.dsl.tsv.Tsv
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 
 class TsvDeserializationErrorsTest {

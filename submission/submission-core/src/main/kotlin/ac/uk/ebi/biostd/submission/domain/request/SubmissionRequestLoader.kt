@@ -6,8 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
-import ebi.ac.uk.coroutines.chunked
-import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -17,9 +15,6 @@ import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.hasMd5
-import ebi.ac.uk.io.ext.createTempFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.LOADED
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +23,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.chunked
+import uk.ac.ebi.biostd.coroutines.concurrently
+import uk.ac.ebi.biostd.io.ext.createTempFile
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 

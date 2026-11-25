@@ -22,9 +22,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.newFile
-import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -34,6 +31,9 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.newFile
+import uk.ac.ebi.biostd.io.ext.size
 import java.io.File
 import java.time.ZoneOffset
 

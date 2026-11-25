@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.files.web.common
 
-import ebi.ac.uk.base.removeFirstOccurrence
 import ebi.ac.uk.model.GroupPath
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
@@ -8,6 +7,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
+import uk.ac.ebi.biostd.base.removeFirstOccurrence
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
 

@@ -11,11 +11,11 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
 import ebi.ac.uk.extended.model.allSectionsFiles
-import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.util.collections.ifNotEmpty
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 

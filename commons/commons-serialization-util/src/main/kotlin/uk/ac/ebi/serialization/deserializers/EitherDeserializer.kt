@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import ebi.ac.uk.base.Either
-import ebi.ac.uk.base.Either.Left
-import ebi.ac.uk.base.Either.Right
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.base.Either.Left
+import uk.ac.ebi.biostd.base.Either.Right
 
 /**
  * Either deserializer, try to deserialize each either wrapper type to get the correct representation.

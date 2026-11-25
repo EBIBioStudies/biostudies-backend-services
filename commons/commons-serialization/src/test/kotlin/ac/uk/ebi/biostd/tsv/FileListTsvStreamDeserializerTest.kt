@@ -2,10 +2,8 @@ package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
-import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.asFlow
@@ -17,7 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.dsl.tsv.Tsv
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.io.ext.createTempFile
 import uk.ac.ebi.biostd.test.createFile
+import uk.ac.ebi.biostd.util.collections.second
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)

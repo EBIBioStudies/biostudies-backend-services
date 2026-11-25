@@ -20,7 +20,6 @@ import ebi.ac.uk.extended.model.FileSourceType.USER
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.PersistedExtFile
-import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import io.mockk.Called
 import io.mockk.clearAllMocks
@@ -37,6 +36,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files

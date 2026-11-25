@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
-import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
@@ -39,6 +38,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.waitUntil
 import uk.ac.ebi.events.service.EventsPublisherService
 import kotlin.time.Duration
 

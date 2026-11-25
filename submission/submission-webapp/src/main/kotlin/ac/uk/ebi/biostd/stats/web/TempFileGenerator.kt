@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.stats.web
 
-import ebi.ac.uk.io.FileUtils
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.io.FileUtils
 import java.io.File
 import java.nio.file.Paths
 import java.time.Clock

@@ -9,11 +9,11 @@ import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.TABLE_HEADER_CAN_NOT_BE_BLANK
-import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.util.collections.trimTrailingIndexedWhile
-import ebi.ac.uk.util.collections.trimTrailingWhile
+import uk.ac.ebi.biostd.base.isNotBlank
+import uk.ac.ebi.biostd.util.collections.trimTrailingIndexedWhile
+import uk.ac.ebi.biostd.util.collections.trimTrailingWhile
 
 internal inline fun validate(
     value: Boolean,

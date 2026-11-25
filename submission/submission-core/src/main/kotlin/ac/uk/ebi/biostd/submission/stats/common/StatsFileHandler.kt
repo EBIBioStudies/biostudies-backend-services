@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.submission.stats.common
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
-import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.util.collections.second
 import java.io.File
 
 private val logger = KotlinLogging.logger {}

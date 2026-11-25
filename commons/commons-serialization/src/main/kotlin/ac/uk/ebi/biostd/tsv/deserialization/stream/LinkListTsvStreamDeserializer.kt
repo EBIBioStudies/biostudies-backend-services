@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
-import ebi.ac.uk.util.collections.destructure
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.util.collections.destructure
 import java.io.InputStream
 import java.io.OutputStream
 

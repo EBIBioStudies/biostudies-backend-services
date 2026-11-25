@@ -1,15 +1,15 @@
 package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.base.Either.Companion.right
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {

@@ -13,18 +13,18 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
-import ebi.ac.uk.base.like
-import ebi.ac.uk.base.nullIfBlank
-import ebi.ac.uk.base.scape
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
 import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.model.constants.TABLE_REGEX
-import ebi.ac.uk.util.collections.findThird
-import ebi.ac.uk.util.collections.split
-import ebi.ac.uk.util.regex.findGroup
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVRecord
+import uk.ac.ebi.biostd.base.like
+import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.base.scape
+import uk.ac.ebi.biostd.util.collections.findThird
+import uk.ac.ebi.biostd.util.collections.split
+import uk.ac.ebi.biostd.util.regex.findGroup
 import java.io.StringReader
 import java.util.Queue
 

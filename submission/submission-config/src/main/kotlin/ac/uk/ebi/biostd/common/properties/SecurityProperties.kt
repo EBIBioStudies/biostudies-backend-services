@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.common.properties
 
-import ebi.ac.uk.coroutines.RetryConfig
 import org.springframework.boot.context.properties.NestedConfigurationProperty
+import uk.ac.ebi.biostd.coroutines.RetryConfig
 
 data class SecurityProperties(
     val captchaKey: String = "",

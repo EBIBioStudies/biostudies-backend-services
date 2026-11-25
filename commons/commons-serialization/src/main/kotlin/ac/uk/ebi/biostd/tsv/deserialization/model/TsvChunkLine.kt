@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
-import ebi.ac.uk.util.collections.findSecond
+import uk.ac.ebi.biostd.util.collections.findSecond
 
 class TsvChunkLine(
     val index: Int,

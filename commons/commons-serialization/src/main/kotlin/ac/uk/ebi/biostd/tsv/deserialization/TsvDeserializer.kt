@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.chunks.ChunkProcessor
 import ac.uk.ebi.biostd.tsv.deserialization.chunks.TsvChunkGenerator
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.collections.ifNotEmpty
+import uk.ac.ebi.biostd.util.collections.ifNotEmpty
 
 internal class TsvDeserializer(
     private val chunkProcessor: ChunkProcessor = ChunkProcessor(),

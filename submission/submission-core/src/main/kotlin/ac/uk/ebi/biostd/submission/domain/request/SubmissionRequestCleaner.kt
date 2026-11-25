@@ -11,8 +11,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ebi.ac.uk.coroutines.chunked
-import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
@@ -21,6 +19,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.chunked
+import uk.ac.ebi.biostd.coroutines.concurrently
 
 private val logger = KotlinLogging.logger {}
 

@@ -2,9 +2,6 @@ package uk.ac.ebi.biostd.client.cli.services
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
-import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.coroutines.FOREVER
-import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.INVALID
@@ -12,8 +9,11 @@ import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.SubmissionTransferOptions
+import uk.ac.ebi.biostd.base.isNotBlank
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.coroutines.FOREVER
+import uk.ac.ebi.biostd.coroutines.waitUntil
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions")

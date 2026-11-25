@@ -6,8 +6,8 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.COLLECTION_TYPE
 import ebi.ac.uk.model.constants.SubFields
-import ebi.ac.uk.util.date.asIsoTime
-import ebi.ac.uk.util.date.fromIsoTime
+import uk.ac.ebi.biostd.util.date.asIsoTime
+import uk.ac.ebi.biostd.util.date.fromIsoTime
 import java.time.OffsetDateTime
 
 const val SUBMISSION_EXTENSIONS = "ebi.ac.uk.model.extensions.SubExtKt"

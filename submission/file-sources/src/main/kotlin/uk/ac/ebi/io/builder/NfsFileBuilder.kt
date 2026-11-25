@@ -4,7 +4,7 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.NOT_CALCULATED_MD5
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.size
+import uk.ac.ebi.biostd.io.ext.size
 import java.io.File
 
 internal fun createFile(

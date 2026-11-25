@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.events
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import ebi.ac.uk.util.date.asIsoTime
+import uk.ac.ebi.biostd.util.date.asIsoTime
 import java.io.Serializable
 import java.time.OffsetDateTime
 

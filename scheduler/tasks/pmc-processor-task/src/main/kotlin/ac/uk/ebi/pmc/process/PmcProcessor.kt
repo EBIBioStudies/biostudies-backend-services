@@ -8,7 +8,6 @@ import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
-import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -16,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.concurrently
 import java.io.File
 import java.nio.file.Paths
 

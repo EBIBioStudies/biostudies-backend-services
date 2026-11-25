@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.coroutines.RetryConfig
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
@@ -16,6 +14,8 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import uk.ac.ebi.biostd.coroutines.RetryConfig
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.scheduler.pmc.exporter.ExporterExecutor

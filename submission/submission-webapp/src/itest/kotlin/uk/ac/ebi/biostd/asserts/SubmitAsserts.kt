@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
@@ -15,6 +14,7 @@ import ebi.ac.uk.model.SubmissionId
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import uk.ac.ebi.biostd.coroutines.waitUntil
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes

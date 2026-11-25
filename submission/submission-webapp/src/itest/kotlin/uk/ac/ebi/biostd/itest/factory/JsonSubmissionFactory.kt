@@ -9,10 +9,10 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.util.date.toStringDate
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime.now
 
 internal val expectedAllInOneJsonFileList =

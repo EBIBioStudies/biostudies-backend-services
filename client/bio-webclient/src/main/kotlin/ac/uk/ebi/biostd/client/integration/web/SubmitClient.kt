@@ -12,7 +12,6 @@ import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtPage
@@ -32,6 +31,7 @@ import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.base.EMPTY
 import java.io.File
 
 interface SubmitClient :

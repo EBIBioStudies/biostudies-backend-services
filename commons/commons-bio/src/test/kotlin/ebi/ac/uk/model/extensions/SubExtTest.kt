@@ -8,11 +8,11 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
-import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
-import ebi.ac.uk.util.date.asIsoTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.util.collections.second
+import uk.ac.ebi.biostd.util.collections.third
+import uk.ac.ebi.biostd.util.date.asIsoTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 

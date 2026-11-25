@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.tsv.serialization
 
-import ebi.ac.uk.base.EMPTY
+import uk.ac.ebi.biostd.base.EMPTY
 
 internal const val TITLE_KEY = "Title"
 internal const val ACC_NO_KEY = "Submission"

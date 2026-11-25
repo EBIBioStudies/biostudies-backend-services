@@ -16,8 +16,6 @@ import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM_VALUE
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.PASSWORD_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.USER_PARAM
-import ebi.ac.uk.coroutines.RetryConfig
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -46,6 +44,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import uk.ac.ebi.biostd.coroutines.RetryConfig
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC

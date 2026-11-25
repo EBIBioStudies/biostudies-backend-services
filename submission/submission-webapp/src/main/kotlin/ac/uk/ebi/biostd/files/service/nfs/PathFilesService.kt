@@ -5,15 +5,15 @@ import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
 import ac.uk.ebi.biostd.files.utils.transferTo
 import ebi.ac.uk.api.UserFileType
-import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWXRWX___
-import ebi.ac.uk.io.RW_RW____
-import ebi.ac.uk.io.ext.listFilesOrEmpty
-import ebi.ac.uk.io.ext.size
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.io.FileUtils
+import uk.ac.ebi.biostd.io.Permissions
+import uk.ac.ebi.biostd.io.RWXRWX___
+import uk.ac.ebi.biostd.io.RW_RW____
+import uk.ac.ebi.biostd.io.ext.listFilesOrEmpty
+import uk.ac.ebi.biostd.io.ext.size
 import java.io.File
 
 class PathFilesService internal constructor(

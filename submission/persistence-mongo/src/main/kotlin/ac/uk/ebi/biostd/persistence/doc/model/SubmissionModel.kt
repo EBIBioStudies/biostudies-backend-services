@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_FILES
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_FILE_LIST_FILES
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_LINK_LIST_LINKS
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_STATS
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import uk.ac.ebi.biostd.base.Either
 import java.time.Instant
 
 val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName

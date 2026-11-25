@@ -1,9 +1,6 @@
 package uk.ac.ebi.scheduler.pmc.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
-import ebi.ac.uk.coroutines.concurrently
-import ebi.ac.uk.coroutines.every
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
@@ -11,6 +8,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.coroutines.concurrently
+import uk.ac.ebi.biostd.coroutines.every
 import uk.ac.ebi.scheduler.pmc.exporter.cli.BioStudiesFtpClient
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.pmc.exporter.mapping.toLink

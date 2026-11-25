@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.asserts
 
-import ebi.ac.uk.base.Either
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.base.Either
 
 fun <A, B> assertThat(option: Either<A, B>): EitherAssert<A, B> {
     return EitherAssert(option)

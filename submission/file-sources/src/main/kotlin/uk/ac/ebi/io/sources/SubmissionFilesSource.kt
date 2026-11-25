@@ -1,7 +1,6 @@
 package uk.ac.ebi.io.sources
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.base.ensureSuffix
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -13,6 +12,7 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.typeSafeCopy
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.constants.FileFields
+import uk.ac.ebi.biostd.base.ensureSuffix
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 

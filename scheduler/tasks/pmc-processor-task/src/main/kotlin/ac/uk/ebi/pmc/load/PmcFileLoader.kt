@@ -1,15 +1,15 @@
 package ac.uk.ebi.pmc.load
 
-import ebi.ac.uk.base.Either
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.base.Either.Companion.right
-import ebi.ac.uk.functions.milisToInstant
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.base.Either.Companion.right
+import uk.ac.ebi.biostd.functions.milisToInstant
 import java.io.File
 import java.io.FileInputStream
 import java.io.FilenameFilter

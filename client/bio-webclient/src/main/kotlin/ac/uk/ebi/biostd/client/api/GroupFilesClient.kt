@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.GroupFilesOperations
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
-import ebi.ac.uk.io.KFiles
 import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.GroupPath
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -17,6 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToFlux
+import uk.ac.ebi.biostd.io.KFiles
 import java.io.File
 
 private const val GROUP_FILES_URL = "/files/groups"

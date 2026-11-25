@@ -9,7 +9,7 @@ import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.util.date.isBeforeOrEqual
+import uk.ac.ebi.biostd.util.date.isBeforeOrEqual
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC

@@ -6,9 +6,9 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.constants.SubFields.REVIEW_TYPE
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.extended.serialization.service.TrackSection
 import uk.ac.ebi.extended.serialization.service.iterateSections
 import java.io.File

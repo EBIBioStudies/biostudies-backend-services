@@ -1,6 +1,5 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -9,9 +8,10 @@ import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.io.use
-import ebi.ac.uk.util.collections.mapLeft
 import kotlinx.coroutines.flow.map
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.io.use
+import uk.ac.ebi.biostd.util.collections.mapLeft
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 

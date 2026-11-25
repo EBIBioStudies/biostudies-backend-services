@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.io.use
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.canonicalName
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File

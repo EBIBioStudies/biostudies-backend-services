@@ -3,8 +3,6 @@ package uk.ac.ebi.biostd.itest.test.user
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
-import ebi.ac.uk.coroutines.waitUntil
-import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import kotlinx.coroutines.runBlocking
@@ -19,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.coroutines.waitUntil
+import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser

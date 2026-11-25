@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.web
 
-import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.security.integration.components.SecurityFilter
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -14,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
+import uk.ac.ebi.biostd.base.isNotBlank
 
 const val HEADER_NAME = "X-Session-Token"
 const val COOKIE_NAME = "BIOSTDSESS"

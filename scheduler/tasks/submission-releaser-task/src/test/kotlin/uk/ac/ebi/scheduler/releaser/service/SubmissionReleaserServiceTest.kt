@@ -6,8 +6,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReque
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.util.date.asOffsetAtEndOfDay
-import ebi.ac.uk.util.date.toDate
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.every
@@ -21,6 +19,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.util.date.asOffsetAtEndOfDay
+import uk.ac.ebi.biostd.util.date.toDate
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -116,7 +116,7 @@ class SubmissionReleaserServiceTest(
     }
 
     private fun mockExtensionFunctions() {
-        mockkStatic("ebi.ac.uk.util.date.OffsetDateTimeKt")
+        mockkStatic("uk.ac.ebi.biostd.util.date.OffsetDateTimeKt")
         mockkStatic("ac.uk.ebi.biostd.client.extensions.BioWebClientExtKt")
         mockkStatic("ebi.ac.uk.extended.model.ExtSubmissionExtensionsKt")
     }

@@ -13,15 +13,11 @@ import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
-import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.DOI
@@ -34,6 +30,10 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.base.isNotBlank
+import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.io.FileUtils
 import java.nio.file.Files
 import java.time.Instant
 

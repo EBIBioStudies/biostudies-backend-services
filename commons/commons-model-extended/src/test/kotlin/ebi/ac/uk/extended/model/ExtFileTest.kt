@@ -2,10 +2,6 @@ package ebi.ac.uk.extended.model
 
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.newFile
-import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -14,6 +10,10 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import uk.ac.ebi.biostd.io.ext.createDirectory
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.newFile
+import uk.ac.ebi.biostd.io.ext.size
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFileTest(

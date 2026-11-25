@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
-import ebi.ac.uk.util.collections.destructure
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.util.collections.destructure
 import java.io.InputStream
 import java.io.OutputStream
 

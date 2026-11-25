@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.pmc
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.FOUND_LINKS
 import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.NO_LINKS
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.client.pmc.PmcAnalisisRequest
 import ebi.ac.uk.client.pmc.PmcClient
 import ebi.ac.uk.client.pmc.PmcFile
@@ -16,8 +15,6 @@ import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allSectionsFiles
-import ebi.ac.uk.io.KFiles
-import ebi.ac.uk.util.collections.indexOf
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -27,6 +24,9 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.io.KFiles
+import uk.ac.ebi.biostd.util.collections.indexOf
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 import kotlin.io.path.outputStream

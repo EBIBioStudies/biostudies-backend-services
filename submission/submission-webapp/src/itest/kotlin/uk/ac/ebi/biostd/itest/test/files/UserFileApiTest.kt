@@ -6,9 +6,6 @@ import ac.uk.ebi.biostd.common.properties.StorageMode
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.UserFileType.FILE
-import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.io.ext.md5
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -31,6 +28,9 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.core.io.ResourceLoader
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.io.ext.createDirectory
+import uk.ac.ebi.biostd.io.ext.createFile
+import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder

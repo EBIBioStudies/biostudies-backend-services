@@ -6,9 +6,9 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.util.collections.second
 
 class SectionExtTest {
     @Test

@@ -32,7 +32,6 @@ import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.io.ext.gZipTo
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBFORMAT
@@ -66,6 +65,7 @@ import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.dsl.json.toJsonQuote
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.io.ext.gZipTo
 import java.io.File
 import java.time.Duration.ofSeconds
 

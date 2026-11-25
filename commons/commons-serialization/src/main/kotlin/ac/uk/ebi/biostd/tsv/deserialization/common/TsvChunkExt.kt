@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.tsv.deserialization.common
 
 import ac.uk.ebi.biostd.tsv.SECTION_TABLE_OP
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.util.collections.findSecond
-import ebi.ac.uk.util.collections.second
+import uk.ac.ebi.biostd.base.orFalse
+import uk.ac.ebi.biostd.util.collections.findSecond
+import uk.ac.ebi.biostd.util.collections.second
 
 internal fun TsvChunk.findId(): String? = if (header.findSecond().isNullOrEmpty()) null else header.second()
 

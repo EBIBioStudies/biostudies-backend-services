@@ -1,6 +1,6 @@
 package ebi.ac.uk.model
 
-import ebi.ac.uk.util.collections.indexOf
+import uk.ac.ebi.biostd.util.collections.indexOf
 
 interface Attributable {
     var attributes: List<Attribute>

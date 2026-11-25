@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import ebi.ac.uk.util.date.fromIsoTime
+import uk.ac.ebi.biostd.util.date.fromIsoTime
 import java.time.OffsetDateTime
 
 class OffsetDateTimeDeserializer : JsonDeserializer<OffsetDateTime>() {

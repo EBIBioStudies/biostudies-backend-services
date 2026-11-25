@@ -14,8 +14,6 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -38,6 +36,8 @@ import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.util.collections.second
+import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 

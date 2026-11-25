@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.filesystem.extensions
 
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWXR_XR_X
-import ebi.ac.uk.io.RWXR_X__X
-import ebi.ac.uk.io.RW_R__R__
+import uk.ac.ebi.biostd.io.Permissions
+import uk.ac.ebi.biostd.io.RWXR_XR_X
+import uk.ac.ebi.biostd.io.RWXR_X__X
+import uk.ac.ebi.biostd.io.RW_R__R__
 import java.nio.file.attribute.PosixFilePermission
 
 /**

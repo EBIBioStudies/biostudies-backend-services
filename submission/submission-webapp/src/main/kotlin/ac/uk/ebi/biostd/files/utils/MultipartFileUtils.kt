@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.files.utils
 
-import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWXRWX___
-import ebi.ac.uk.io.RW_RW____
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.io.FileUtils
+import uk.ac.ebi.biostd.io.Permissions
+import uk.ac.ebi.biostd.io.RWXRWX___
+import uk.ac.ebi.biostd.io.RW_RW____
 import java.nio.file.Path
 
 internal fun transferTo(

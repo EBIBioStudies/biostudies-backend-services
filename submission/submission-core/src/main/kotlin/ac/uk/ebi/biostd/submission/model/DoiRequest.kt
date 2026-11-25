@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.model
 
-import ebi.ac.uk.util.collections.ifNotEmpty
 import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
+import uk.ac.ebi.biostd.util.collections.ifNotEmpty
 
 data class Contributor(
     val name: String?,

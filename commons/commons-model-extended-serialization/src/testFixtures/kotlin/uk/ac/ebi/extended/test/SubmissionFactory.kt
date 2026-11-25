@@ -2,7 +2,6 @@
 
 package uk.ac.ebi.extended.test
 
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -13,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.FireFile
+import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 object SectionFactory {

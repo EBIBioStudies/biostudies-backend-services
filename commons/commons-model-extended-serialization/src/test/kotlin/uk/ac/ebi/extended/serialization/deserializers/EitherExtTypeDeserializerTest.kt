@@ -1,7 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
@@ -9,17 +8,18 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.ifLeft
-import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.util.collections.ifLeft
+import uk.ac.ebi.biostd.util.collections.ifRight
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(TemporaryFolderExtension::class)

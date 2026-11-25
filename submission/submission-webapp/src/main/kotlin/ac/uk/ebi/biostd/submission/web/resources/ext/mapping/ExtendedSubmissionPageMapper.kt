@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.submission.web.resources.ext.mapping
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.util.web.optionalQueryParam
 import java.net.URI
 
 class ExtendedSubmissionPageMapper(

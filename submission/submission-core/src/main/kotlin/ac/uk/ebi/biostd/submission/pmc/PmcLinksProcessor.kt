@@ -10,13 +10,13 @@ import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.NO_LINKS
 import ac.uk.ebi.biostd.submission.pmc.LinksProcessingResult.ERROR
 import ac.uk.ebi.biostd.submission.pmc.LinksProcessingResult.SUCCESS
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor.Companion.CHUNK_SIZE
-import ebi.ac.uk.coroutines.chunked
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.chunked
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
 

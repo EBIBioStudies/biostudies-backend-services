@@ -57,7 +57,6 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationServ
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtLinkListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
@@ -74,6 +73,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService

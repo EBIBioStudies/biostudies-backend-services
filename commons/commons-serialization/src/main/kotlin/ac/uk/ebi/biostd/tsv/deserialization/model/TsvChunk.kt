@@ -16,7 +16,7 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.FileFields
-import ebi.ac.uk.util.collections.findSecond
+import uk.ac.ebi.biostd.util.collections.findSecond
 
 sealed class TsvChunk(
     lines: List<TsvChunkLine>,

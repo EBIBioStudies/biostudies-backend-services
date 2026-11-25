@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.checkFileListExtension
 import ebi.ac.uk.errors.FilesProcessingException
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.util.file.ExcelReader.asTsv
+import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.util.file.ExcelReader.asTsv
 import java.io.File
 
 object PageTabFileReader {

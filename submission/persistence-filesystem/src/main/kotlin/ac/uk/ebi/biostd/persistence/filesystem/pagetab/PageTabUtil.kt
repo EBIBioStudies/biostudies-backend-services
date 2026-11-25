@@ -12,9 +12,9 @@ import ebi.ac.uk.extended.model.ExtLinkList
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allLinkList
-import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.ext.newFile
+import uk.ac.ebi.biostd.io.FileUtils
+import uk.ac.ebi.biostd.io.Permissions
+import uk.ac.ebi.biostd.io.ext.newFile
 import java.io.File
 
 class PageTabUtil(

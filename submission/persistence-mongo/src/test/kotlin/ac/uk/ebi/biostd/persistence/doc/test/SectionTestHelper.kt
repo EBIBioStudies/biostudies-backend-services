@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribut
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLink
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.base.Either.Companion.right
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.base.Either.Companion.right
 
 internal const val SECT_ACC_NO = "SECT-001"
 internal const val SECT_TYPE = "Study"

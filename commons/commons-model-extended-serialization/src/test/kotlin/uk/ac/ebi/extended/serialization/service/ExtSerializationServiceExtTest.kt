@@ -1,7 +1,5 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFileList
@@ -20,6 +18,8 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.base.Either.Companion.right
 import java.io.File
 import java.time.OffsetDateTime
 

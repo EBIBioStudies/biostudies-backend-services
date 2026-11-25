@@ -6,8 +6,6 @@ import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.coroutines.chunked
-import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.collect
@@ -16,6 +14,8 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.chunked
+import uk.ac.ebi.biostd.coroutines.concurrently
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.ExperimentalTime

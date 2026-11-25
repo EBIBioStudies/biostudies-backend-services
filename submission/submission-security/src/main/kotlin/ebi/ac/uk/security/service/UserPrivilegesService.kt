@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
+import uk.ac.ebi.biostd.base.orFalse
 
 @SuppressWarnings("TooManyFunctions")
 internal class UserPrivilegesService(

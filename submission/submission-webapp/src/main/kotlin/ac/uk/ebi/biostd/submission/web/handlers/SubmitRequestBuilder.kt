@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.submission.model.SubmissionConfig
 import ac.uk.ebi.biostd.submission.model.SubmissionFilesConfig
 import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import uk.ac.ebi.biostd.base.orFalse
 import java.io.File
 
 class SubmitRequestBuilder(

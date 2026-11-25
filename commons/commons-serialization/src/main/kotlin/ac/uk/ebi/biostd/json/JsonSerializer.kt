@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.BioFile
@@ -33,6 +32,7 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.serialization.deserializers.EitherDeserializer
 import uk.ac.ebi.serialization.extensions.deserializeAsFlow
 import uk.ac.ebi.serialization.extensions.serializeFlow

@@ -2,11 +2,11 @@ package uk.ac.ebi.extended.serialization.deserializers
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class ExtSectionsTableDeserializerTest {

@@ -21,9 +21,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NF
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import ebi.ac.uk.base.Either
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
+import uk.ac.ebi.biostd.base.Either
 
 @SuppressWarnings("LongParameterList")
 class DocSectionConverter(

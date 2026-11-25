@@ -27,9 +27,9 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
-import ebi.ac.uk.util.date.isBeforeOrEqual
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.util.date.isBeforeOrEqual
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.OffsetDateTime
 import kotlin.time.Duration

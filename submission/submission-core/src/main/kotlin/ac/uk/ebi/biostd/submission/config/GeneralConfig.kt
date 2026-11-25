@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.coroutines.RetryConfig
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.ftp.RetryFtpClient
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -22,6 +20,8 @@ import org.springframework.context.annotation.Import
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
+import uk.ac.ebi.biostd.coroutines.RetryConfig
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig

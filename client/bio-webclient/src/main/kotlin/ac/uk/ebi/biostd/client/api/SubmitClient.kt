@@ -17,12 +17,12 @@ import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.util.web.optionalQueryParam
 
 internal class SubmitClient(
     private val client: WebClient,

@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.asserts
 
-import ebi.ac.uk.base.remove
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.base.remove
 
 private val LINE_BREAK_SPACES_REGEX = "[\\n\\r\\s]+".toRegex()
 

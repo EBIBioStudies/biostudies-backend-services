@@ -1,6 +1,6 @@
 package uk.ac.ebi.fire.client.model
 
-import ebi.ac.uk.base.orFalse
+import uk.ac.ebi.biostd.base.orFalse
 
 data class FireApiFile(
     val objectId: Number,

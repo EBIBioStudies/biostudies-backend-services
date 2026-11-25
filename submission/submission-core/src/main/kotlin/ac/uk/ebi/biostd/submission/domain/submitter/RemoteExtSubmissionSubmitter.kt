@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
-import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.SubmissionId
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.coroutines.waitUntil
 import kotlin.time.Duration
 
 private val logger = KotlinLogging.logger {}

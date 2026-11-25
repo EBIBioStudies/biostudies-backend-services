@@ -1,6 +1,6 @@
 package uk.ac.ebi.serialization.common
 
-import ebi.ac.uk.io.ext.createTempFile
+import uk.ac.ebi.biostd.io.ext.createTempFile
 import java.io.File
 import java.nio.file.Files
 

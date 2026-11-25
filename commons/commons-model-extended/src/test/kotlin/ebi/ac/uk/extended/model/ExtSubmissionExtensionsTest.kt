@@ -1,12 +1,12 @@
 package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import java.time.OffsetDateTime
 import java.time.ZoneOffset

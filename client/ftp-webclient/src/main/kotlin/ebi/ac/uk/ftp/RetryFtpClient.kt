@@ -1,7 +1,7 @@
 package ebi.ac.uk.ftp
 
-import ebi.ac.uk.coroutines.SuspendRetryTemplate
 import org.apache.commons.net.ftp.FTPFile
+import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path

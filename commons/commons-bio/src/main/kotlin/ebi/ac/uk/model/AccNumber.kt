@@ -1,6 +1,6 @@
 package ebi.ac.uk.model
 
-import ebi.ac.uk.base.EMPTY
+import uk.ac.ebi.biostd.base.EMPTY
 
 /**
  * Represents a submission accession number which include a pattern a numeric value.

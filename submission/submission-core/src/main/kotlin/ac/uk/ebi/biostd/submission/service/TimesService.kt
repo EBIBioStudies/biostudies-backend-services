@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.util.date.atStartOfDay
-import ebi.ac.uk.util.date.isBeforeOrEqual
+import uk.ac.ebi.biostd.util.date.atStartOfDay
+import uk.ac.ebi.biostd.util.date.isBeforeOrEqual
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime

@@ -4,8 +4,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.RequestMethod
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
-import ebi.ac.uk.util.regex.getGroup
 import uk.ac.ebi.biostd.itest.wiremock.FireMockDatabase
+import uk.ac.ebi.biostd.util.regex.getGroup
 import java.net.HttpURLConnection
 
 class DownloadHandler(

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.base.nullIfBlank
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.base.orFalse
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_NAME_ATTRS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_REFERENCE

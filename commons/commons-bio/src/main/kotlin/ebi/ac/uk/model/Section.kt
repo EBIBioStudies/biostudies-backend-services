@@ -1,8 +1,8 @@
 package ebi.ac.uk.model
 
-import ebi.ac.uk.base.Either
-import ebi.ac.uk.util.collections.addLeft
-import ebi.ac.uk.util.collections.addRight
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.util.collections.addLeft
+import uk.ac.ebi.biostd.util.collections.addRight
 import java.util.Objects
 
 @Suppress("LongParameterList")

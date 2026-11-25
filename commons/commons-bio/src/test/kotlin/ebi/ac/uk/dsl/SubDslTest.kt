@@ -1,6 +1,5 @@
 package ebi.ac.uk.dsl
 
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.BioFile
@@ -11,6 +10,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.base.Either
 
 class SubDslTest {
     @Test

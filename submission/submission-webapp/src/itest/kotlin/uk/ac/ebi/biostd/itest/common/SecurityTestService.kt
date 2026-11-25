@@ -8,12 +8,12 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.service.SecurityService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.itest.entities.TestUser
 
 class SecurityTestService(

@@ -12,8 +12,6 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.io.RWXRWX___
-import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -59,6 +57,8 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.io.RWXRWX___
+import uk.ac.ebi.biostd.io.RWX__X___
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path

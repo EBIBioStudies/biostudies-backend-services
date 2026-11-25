@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.itest.wiremock
 
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.itest.wiremock.handlers.FireException
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile

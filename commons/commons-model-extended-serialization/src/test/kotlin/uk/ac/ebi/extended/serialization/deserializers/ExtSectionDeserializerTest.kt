@@ -3,9 +3,6 @@ package uk.ac.ebi.extended.serialization.deserializers
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.util.collections.ifLeft
-import ebi.ac.uk.util.collections.ifRight
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -13,6 +10,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.util.collections.ifLeft
+import uk.ac.ebi.biostd.util.collections.ifRight
+import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import kotlin.test.assertNotNull

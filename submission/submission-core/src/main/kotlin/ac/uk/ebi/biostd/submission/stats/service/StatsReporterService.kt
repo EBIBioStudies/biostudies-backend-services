@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.submission.stats.service
 import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ac.uk.ebi.biostd.persistence.common.model.CollectionStatsReport
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
-import ebi.ac.uk.util.collections.second
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.util.collections.second
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths

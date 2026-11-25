@@ -1,9 +1,9 @@
 package ebi.ac.uk.notifications.util
 
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.util.collections.firstOrElse
 import org.apache.commons.io.IOUtils
 import org.springframework.core.io.ResourceLoader
+import uk.ac.ebi.biostd.util.collections.firstOrElse
 import java.nio.charset.Charset
 
 internal const val DEFAULT_TEMPLATE = "Default"

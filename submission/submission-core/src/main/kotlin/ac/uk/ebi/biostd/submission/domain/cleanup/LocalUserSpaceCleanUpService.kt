@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.N
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.NotificationType.FIRST_WARNING
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.NotificationType.SECOND_WARNING
 import ebi.ac.uk.extended.events.CleanUpNotification
-import ebi.ac.uk.io.ext.isEmpty
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +16,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.io.ext.isEmpty
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.LocalDate
 import java.time.LocalDateTime

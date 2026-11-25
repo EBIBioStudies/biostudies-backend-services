@@ -1,0 +1,83 @@
+package uk.ac.ebi.biostd.util.collections
+
+import java.util.LinkedList
+
+private const val NO_FOUND = -1
+
+/**
+ * Remove element from the tail of the list while condition is match.
+ */
+fun <T> List<T>.trimTrailingWhile(predicate: (T) -> Boolean): List<T> {
+    var lastIndex = this.lastIndex
+    while (lastIndex > 0 && predicate(this[lastIndex])) {
+        lastIndex--
+    }
+    return subList(0, lastIndex + 1)
+}
+
+/**
+ * Remove element from the tail of the list while condition is match.
+ */
+fun <T> List<T>.trimTrailingIndexedWhile(predicate: (Int, T) -> Boolean): List<T> {
+    var lastIndex = this.lastIndex
+    while (lastIndex > 0 && predicate(lastIndex, this[lastIndex])) {
+        lastIndex--
+    }
+    return subList(0, lastIndex + 1)
+}
+
+/**
+ * Return the first element paired with the remaining list after it.
+ */
+fun <T> List<T>.destructure(): Pair<T, List<T>> = first() to drop(1)
+
+/**
+ * Replace the given element by the element matching predicate.
+ */
+fun <T> List<T>.replace(
+    element: T,
+    predicate: (T) -> Boolean,
+): List<T> {
+    val index = indexOf(predicate)
+    if (index != null) {
+        val list = toMutableList()
+        list[index] = element
+        return list
+    }
+
+    return this
+}
+
+/**
+ * Return the index of first element which predicate evaluation is true. Null if element is not found.
+ */
+inline fun <T> List<T>.indexOf(predicate: (T) -> Boolean): Int? {
+    for ((index, item) in this.withIndex()) {
+        if (predicate(item)) return index
+    }
+
+    return null
+}
+
+/**
+ * Split the list into a list of list using the current predicate true condition. Note that elements when predicate is
+ * true are not included in the result lists.
+ */
+fun <T : Any> List<T>.split(predicate: (T) -> Boolean): List<List<T>> = split(LinkedList(), this, predicate)
+
+private tailrec fun <T : Any> split(
+    result: MutableList<List<T>>,
+    input: List<T>,
+    predicate: (T) -> Boolean,
+): List<List<T>> {
+    val index = input.indexOfFirst(predicate)
+    val head = input.slice(0 until index)
+    val tail = input.slice(index + 1 until input.size)
+
+    return when {
+        head.isEmpty() && tail.isEmpty() -> result
+        index == NO_FOUND -> result.apply { add(tail) }
+        head.isEmpty() -> split(result, tail, predicate)
+        else -> split(result.apply { add(head) }, tail, predicate)
+    }
+}

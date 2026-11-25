@@ -1,11 +1,11 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
-import ebi.ac.uk.coroutines.waitUntil
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
 import uk.ac.ebi.biostd.client.cluster.common.toSlurmJob
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.coroutines.waitUntil
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 import kotlin.time.Duration

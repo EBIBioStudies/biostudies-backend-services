@@ -1,8 +1,8 @@
 package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.base.Either
 import java.io.File
 import java.time.OffsetDateTime
 

@@ -1,17 +1,16 @@
 package uk.ac.ebi.biostd.itest.util
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.itest.factory.allInOneSubmission
 import uk.ac.ebi.biostd.itest.factory.assertAllInOneSubmissionJson
 import uk.ac.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
@@ -19,6 +18,7 @@ import uk.ac.ebi.biostd.itest.factory.expectedAllInOneJsonFileList
 import uk.ac.ebi.biostd.itest.factory.expectedAllInOneJsonInnerFileList
 import uk.ac.ebi.biostd.itest.factory.expectedAllInOneTsvFileList
 import uk.ac.ebi.biostd.itest.factory.expectedAllInOneTsvInnerFileList
+import uk.ac.ebi.biostd.util.collections.second
 import java.io.File
 import java.nio.file.Paths
 

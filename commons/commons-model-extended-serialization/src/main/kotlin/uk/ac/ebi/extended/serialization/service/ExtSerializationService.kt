@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -22,6 +21,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer

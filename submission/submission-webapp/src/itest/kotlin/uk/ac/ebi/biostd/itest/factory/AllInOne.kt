@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.itest.factory
 
-import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.io.ext.createOrReplaceFile
+import uk.ac.ebi.biostd.base.EMPTY
+import uk.ac.ebi.biostd.io.ext.createOrReplaceFile
 import java.io.File
 
 data class SubmissionSpec(

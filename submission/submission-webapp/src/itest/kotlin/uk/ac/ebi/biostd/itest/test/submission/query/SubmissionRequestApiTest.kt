@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.itest.test.submission.query
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
-import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -20,6 +19,7 @@ import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 import uk.ac.ebi.biostd.asserts.assertThat as assertSubmit
 

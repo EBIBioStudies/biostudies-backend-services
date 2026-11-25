@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
 import java.io.File
 
 fun createNfsFile(

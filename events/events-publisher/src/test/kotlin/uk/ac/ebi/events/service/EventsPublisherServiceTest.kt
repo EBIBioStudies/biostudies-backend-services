@@ -11,7 +11,6 @@ import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
-import ebi.ac.uk.util.date.asIsoTime
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -25,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.util.date.asIsoTime
 import uk.ac.ebi.events.config.EventsProperties
 import java.time.OffsetDateTime
 import java.time.ZoneOffset

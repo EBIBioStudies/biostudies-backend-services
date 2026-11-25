@@ -11,8 +11,8 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.RequestFile
-import ebi.ac.uk.io.ext.md5
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.io.ext.md5
 import java.io.File
 
 internal const val TEST_FILENAME = "file.txt"

@@ -7,20 +7,20 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
-import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.ifLeft
-import ebi.ac.uk.util.collections.ifRight
-import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.base.Either.Companion.right
+import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.util.collections.ifLeft
+import uk.ac.ebi.biostd.util.collections.ifRight
+import uk.ac.ebi.biostd.util.collections.second
+import uk.ac.ebi.biostd.util.collections.third
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {

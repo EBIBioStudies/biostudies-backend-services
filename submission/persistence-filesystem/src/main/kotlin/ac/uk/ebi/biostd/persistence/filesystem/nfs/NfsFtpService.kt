@@ -8,13 +8,13 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWXR_XR_X
-import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import uk.ac.ebi.biostd.io.FileUtils
+import uk.ac.ebi.biostd.io.Permissions
+import uk.ac.ebi.biostd.io.RWXR_XR_X
+import uk.ac.ebi.biostd.io.RW_R__R__
 import java.nio.file.Path
 
 class NfsFtpService(

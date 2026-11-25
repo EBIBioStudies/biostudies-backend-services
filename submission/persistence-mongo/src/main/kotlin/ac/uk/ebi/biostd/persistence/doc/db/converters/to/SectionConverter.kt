@@ -21,8 +21,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import ebi.ac.uk.base.Either
 import org.bson.Document
+import uk.ac.ebi.biostd.base.Either
 
 @Suppress("LongParameterList")
 class SectionConverter(

@@ -11,7 +11,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.util.date.toStringDate
+import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 
 fun allInOneSubmission(accNo: String) =

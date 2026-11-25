@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.NON_IMAGING_REPORT_NAME
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.PUBLIC_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.TOTAL_REPORT_DIR
-import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -28,6 +26,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.io.ext.createDirectory
+import uk.ac.ebi.biostd.io.ext.createFile
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
