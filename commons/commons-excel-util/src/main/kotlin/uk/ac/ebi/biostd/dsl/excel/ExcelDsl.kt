@@ -1,4 +1,4 @@
-package ebi.ac.uk.dsl.excel
+package uk.ac.ebi.biostd.dsl.excel
 
 import java.io.File
 

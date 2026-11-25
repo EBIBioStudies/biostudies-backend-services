@@ -1,6 +1,5 @@
 package ebi.ac.uk.util.file
 
-import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.util.date.toStringDate
 import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -8,6 +7,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.dsl.excel.excel
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import java.io.File

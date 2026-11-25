@@ -1,4 +1,4 @@
-package ebi.ac.uk.dsl.excel
+package uk.ac.ebi.biostd.dsl.excel
 
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.streaming.SXSSFRow

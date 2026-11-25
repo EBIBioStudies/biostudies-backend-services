@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitAttribute
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.coroutines.waitUntil
-import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -37,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.assertThatThrows
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.dsl.excel.excel
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
