@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.handlers.api
 
-import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
 import io.mockk.every
@@ -11,6 +10,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.ext.getForObject
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(MockKExtension::class)

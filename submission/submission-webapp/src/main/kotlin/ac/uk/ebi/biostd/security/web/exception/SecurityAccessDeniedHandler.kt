@@ -2,12 +2,12 @@ package ac.uk.ebi.biostd.security.web.exception
 
 import ac.uk.ebi.biostd.security.web.dto.SecurityError
 import com.fasterxml.jackson.databind.ObjectMapper
-import ebi.ac.uk.commons.http.servlet.write
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler
+import uk.ac.ebi.biostd.commons.http.servlet.write
 
 private const val ACCESS_DENIED_ERROR = "Authenticated user does not have not access the given resource."
 

@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.doc.service.NotificationLogMongoDataService
 import ac.uk.ebi.biostd.persistence.integration.config.NotificationPersistenceConfig
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import ebi.ac.uk.notifications.service.RtNotificationService
@@ -36,6 +35,7 @@ import org.springframework.core.io.ResourceLoader
 import org.springframework.http.codec.ClientCodecConfigurer
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration

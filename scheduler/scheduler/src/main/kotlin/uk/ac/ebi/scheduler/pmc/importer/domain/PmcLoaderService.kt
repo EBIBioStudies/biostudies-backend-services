@@ -6,8 +6,6 @@ import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import ac.uk.ebi.scheduler.properties.PmcMode.PROCESS
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
-import ebi.ac.uk.commons.http.slack.NotificationsSender
-import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.EIGHT_CORES
@@ -16,6 +14,8 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.EIGHT_GB
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
+import uk.ac.ebi.biostd.commons.http.slack.Report
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp

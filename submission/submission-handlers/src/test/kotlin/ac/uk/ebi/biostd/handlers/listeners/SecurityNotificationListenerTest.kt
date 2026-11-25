@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.handlers.listeners
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
-import ebi.ac.uk.commons.http.slack.Alert
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
@@ -23,6 +21,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.commons.http.slack.Alert
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 
 @ExtendWith(MockKExtension::class)
 class SecurityNotificationListenerTest(

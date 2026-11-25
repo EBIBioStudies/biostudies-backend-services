@@ -1,4 +1,4 @@
-package ebi.ac.uk.commons.http
+package uk.ac.ebi.biostd.commons.http
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper

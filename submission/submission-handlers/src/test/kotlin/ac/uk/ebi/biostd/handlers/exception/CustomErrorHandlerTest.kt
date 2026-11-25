@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.handlers.exception
 import ac.uk.ebi.biostd.handlers.common.HANDLERS_SUBSYSTEM
 import ac.uk.ebi.biostd.handlers.common.SYSTEM_NAME
 import ac.uk.ebi.biostd.handlers.exception.CustomErrorHandler.Companion.ERROR_MESSAGE
-import ebi.ac.uk.commons.http.slack.Alert
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -14,6 +12,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.AmqpRejectAndDontRequeueException
+import uk.ac.ebi.biostd.commons.http.slack.Alert
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class)

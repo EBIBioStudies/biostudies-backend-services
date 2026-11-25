@@ -1,4 +1,4 @@
-package ebi.ac.uk.commons.http.ext
+package uk.ac.ebi.biostd.commons.http.ext
 
 import org.springframework.http.HttpHeaders
 

@@ -1,4 +1,4 @@
-package ebi.ac.uk.commons.http.slack
+package uk.ac.ebi.biostd.commons.http.slack
 
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

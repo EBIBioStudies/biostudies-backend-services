@@ -17,7 +17,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 @ExtendWith(MockKExtension::class)
 class CleanUpNotificationListenerTest(
     @param:MockK private val rabbitTemplate: RabbitTemplate,
-    @param:MockK private val notificationsSender: ebi.ac.uk.commons.http.slack.NotificationsSender,
+    @param:MockK private val notificationsSender: uk.ac.ebi.biostd.commons.http.slack.NotificationsSender,
     @param:MockK private val notificationService: CleanUpNotificationService,
     @param:MockK private val notificationErrorService: NotificationLogDataService,
 ) {

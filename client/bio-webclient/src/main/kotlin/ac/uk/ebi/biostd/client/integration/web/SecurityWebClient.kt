@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.client.integration.web
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.post
-import ebi.ac.uk.commons.http.ext.postForObject
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.ext.RequestParams
+import uk.ac.ebi.biostd.commons.http.ext.post
+import uk.ac.ebi.biostd.commons.http.ext.postForObject
 
 class SecurityWebClient private constructor(
     private val baseUrl: String,

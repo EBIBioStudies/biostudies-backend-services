@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import com.fasterxml.jackson.databind.ObjectMapper
-import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -26,6 +25,7 @@ import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.commons.http.JacksonFactory
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 

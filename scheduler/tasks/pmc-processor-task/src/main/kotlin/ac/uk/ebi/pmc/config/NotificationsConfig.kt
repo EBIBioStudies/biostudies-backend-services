@@ -1,11 +1,11 @@
 package ac.uk.ebi.pmc.config
 
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 
 @Configuration
 internal class NotificationsConfig {

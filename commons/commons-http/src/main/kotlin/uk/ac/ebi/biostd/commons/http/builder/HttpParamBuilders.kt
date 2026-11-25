@@ -1,4 +1,4 @@
-package ebi.ac.uk.commons.http.builder
+package uk.ac.ebi.biostd.commons.http.builder
 
 import org.springframework.http.HttpHeaders
 import org.springframework.util.LinkedMultiValueMap

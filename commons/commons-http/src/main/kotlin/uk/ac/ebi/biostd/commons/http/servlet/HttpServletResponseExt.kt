@@ -1,4 +1,4 @@
-package ebi.ac.uk.commons.http.servlet
+package uk.ac.ebi.biostd.commons.http.servlet
 
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus

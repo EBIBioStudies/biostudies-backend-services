@@ -1,9 +1,6 @@
 package ebi.ac.uk.notifications.api
 
 import ac.uk.ebi.biostd.common.properties.RtConfig
-import ebi.ac.uk.commons.http.builder.httpHeadersOf
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.retrieveBlocking
 import ebi.ac.uk.notifications.exception.InvalidResponseException
 import ebi.ac.uk.notifications.exception.InvalidTicketIdException
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -11,6 +8,9 @@ import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.commons.http.builder.httpHeadersOf
+import uk.ac.ebi.biostd.commons.http.ext.RequestParams
+import uk.ac.ebi.biostd.commons.http.ext.retrieveBlocking
 
 class RtClient(
     private val rtConfig: RtConfig,

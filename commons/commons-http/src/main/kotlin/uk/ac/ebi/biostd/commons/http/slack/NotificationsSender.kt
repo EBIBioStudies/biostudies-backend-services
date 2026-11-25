@@ -1,12 +1,12 @@
-package ebi.ac.uk.commons.http.slack
+package uk.ac.ebi.biostd.commons.http.slack
 
-import ebi.ac.uk.commons.http.builder.httpHeadersOf
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.builder.httpHeadersOf
+import uk.ac.ebi.biostd.commons.http.ext.RequestParams
+import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
 
 class NotificationsSender(
     private val client: WebClient,

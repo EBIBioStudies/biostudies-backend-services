@@ -9,14 +9,14 @@ import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import ac.uk.ebi.scheduler.properties.PmcMode.PROCESS
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
-import ebi.ac.uk.commons.http.slack.Alert
-import ebi.ac.uk.commons.http.slack.NotificationsSender
-import ebi.ac.uk.commons.http.slack.Report
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.beans.factory.getBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
+import uk.ac.ebi.biostd.commons.http.slack.Alert
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
+import uk.ac.ebi.biostd.commons.http.slack.Report
 
 private const val SYSTEM = "PMC_PROCESSOR"
 private val logger = KotlinLogging.logger {}

@@ -1,4 +1,4 @@
-package ebi.ac.uk.commons.http.slack
+package uk.ac.ebi.biostd.commons.http.slack
 
 internal data class Notification(val text: String, val attachments: List<Attachment> = emptyList())
 

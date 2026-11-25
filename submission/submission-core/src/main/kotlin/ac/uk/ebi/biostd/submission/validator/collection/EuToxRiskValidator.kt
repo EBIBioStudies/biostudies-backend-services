@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.submission.validator.collection
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -15,6 +13,8 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.ext.RequestParams
+import uk.ac.ebi.biostd.commons.http.ext.postForObject
 import uk.ac.ebi.biostd.util.collections.ifNotEmpty
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File

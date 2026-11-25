@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.handlers.common.HANDLERS_SUBSYSTEM
 import ac.uk.ebi.biostd.handlers.common.SYSTEM_NAME
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.SECURITY_NOTIFICATIONS_QUEUE
-import ebi.ac.uk.commons.http.slack.Alert
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
@@ -16,6 +14,8 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.commons.http.slack.Alert
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 
 private val logger = KotlinLogging.logger {}
 

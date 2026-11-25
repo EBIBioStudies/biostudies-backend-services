@@ -1,10 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.deleteAsync
-import ebi.ac.uk.commons.http.ext.getForObjectAsync
-import ebi.ac.uk.commons.http.ext.postForObjectAsync
-import ebi.ac.uk.commons.http.ext.putForObjectAsync
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_FOUND
@@ -13,6 +8,11 @@ import org.springframework.web.client.RestOperations
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+import uk.ac.ebi.biostd.commons.http.ext.RequestParams
+import uk.ac.ebi.biostd.commons.http.ext.deleteAsync
+import uk.ac.ebi.biostd.commons.http.ext.getForObjectAsync
+import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
+import uk.ac.ebi.biostd.commons.http.ext.putForObjectAsync
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File

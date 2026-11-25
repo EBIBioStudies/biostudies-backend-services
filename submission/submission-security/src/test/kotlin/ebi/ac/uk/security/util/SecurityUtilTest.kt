@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.InstanceKeys
 import ac.uk.ebi.biostd.persistence.model.DbSecurityToken
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.adminUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.commons.http.JacksonFactory
 import java.util.Optional
 
 private const val TOKEN_HASH = "ABC123"

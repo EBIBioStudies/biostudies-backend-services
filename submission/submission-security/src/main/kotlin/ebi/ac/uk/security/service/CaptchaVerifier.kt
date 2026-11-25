@@ -1,9 +1,9 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
-import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.security.integration.exception.InvalidCaptchaException
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.ext.postForObject
 import java.net.URI
 
 internal val VERIFY_URL = URI.create("https://www.google.com/recaptcha/api/siteverify")

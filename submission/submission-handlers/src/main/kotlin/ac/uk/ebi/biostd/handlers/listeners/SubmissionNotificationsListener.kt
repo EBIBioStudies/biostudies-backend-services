@@ -10,8 +10,6 @@ import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
-import ebi.ac.uk.commons.http.slack.Alert
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.extended.events.FailedRequestMessage
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -20,6 +18,8 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.commons.http.slack.Alert
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 
 class SubmissionNotificationsListener(
     private val rabbitTemplate: RabbitTemplate,

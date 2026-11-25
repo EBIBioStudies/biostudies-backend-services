@@ -3,8 +3,6 @@ package uk.ac.ebi.scheduler.pmc.exporter.domain
 import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
-import ebi.ac.uk.commons.http.slack.NotificationsSender
-import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -25,6 +23,8 @@ import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTY_FOUR_GB
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
+import uk.ac.ebi.biostd.commons.http.slack.Report
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.BioStudies
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties

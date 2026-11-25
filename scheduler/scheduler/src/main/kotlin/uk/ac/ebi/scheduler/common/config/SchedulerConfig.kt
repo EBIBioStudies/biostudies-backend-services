@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.common.config
 
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -8,6 +7,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 import uk.ac.ebi.scheduler.common.config.NotificationsConfig.Companion.PMC_NOTIFICATIONS_SENDER
 import uk.ac.ebi.scheduler.common.config.NotificationsConfig.Companion.SCHEDULER_NOTIFICATIONS_SENDER
 import uk.ac.ebi.scheduler.common.properties.AppProperties

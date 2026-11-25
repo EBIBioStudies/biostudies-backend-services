@@ -1,11 +1,11 @@
 package uk.ac.ebi.scheduler.common.config
 
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 
 @Configuration
