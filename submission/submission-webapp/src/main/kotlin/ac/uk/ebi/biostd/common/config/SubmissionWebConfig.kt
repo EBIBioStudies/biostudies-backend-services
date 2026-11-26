@@ -36,11 +36,11 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedFilePageMapper
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedLinkPageMapper
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI

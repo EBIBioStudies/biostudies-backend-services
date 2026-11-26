@@ -7,9 +7,9 @@ import com.fasterxml.jackson.core.JsonEncoding.UTF8
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.isCollection
 import uk.ac.ebi.biostd.integration.SerializationService

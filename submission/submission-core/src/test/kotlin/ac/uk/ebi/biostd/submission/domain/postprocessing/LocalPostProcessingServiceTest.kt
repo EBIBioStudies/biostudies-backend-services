@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.DoiService
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import io.mockk.Called
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
 import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE

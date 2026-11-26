@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
@@ -16,6 +15,7 @@ import uk.ac.ebi.biostd.errors.CircularReferenceException
 import uk.ac.ebi.biostd.errors.FilesProcessingException
 import uk.ac.ebi.biostd.errors.InvalidPathException
 import uk.ac.ebi.biostd.exception.InvalidFileListException
+import uk.ac.ebi.biostd.extended.mapping.from.ToExtSectionMapper
 import uk.ac.ebi.biostd.extended.model.ExtFileType
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.PersistedExtFile

@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
-import ebi.ac.uk.extended.mapping.from.toExtAttributes
+import uk.ac.ebi.biostd.extended.mapping.from.ToExtSectionMapper
+import uk.ac.ebi.biostd.extended.mapping.from.toExtAttributes
 import uk.ac.ebi.biostd.extended.model.ExtCollection
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod

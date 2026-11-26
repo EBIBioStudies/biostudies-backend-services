@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.DoiService
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.biostd.coroutines.concurrently
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
 import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE

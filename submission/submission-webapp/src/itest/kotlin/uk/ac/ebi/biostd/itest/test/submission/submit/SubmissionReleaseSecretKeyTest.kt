@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -23,6 +22,7 @@ import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.sources.PreferredSource
 import uk.ac.ebi.biostd.itest.common.SecurityTestService

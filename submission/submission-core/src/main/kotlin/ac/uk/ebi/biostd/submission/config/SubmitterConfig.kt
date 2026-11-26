@@ -56,10 +56,6 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationServ
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
-import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
-import ebi.ac.uk.extended.mapping.from.ToExtLinkListMapper
-import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.beans.factory.BeanFactory
@@ -72,6 +68,10 @@ import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.extended.mapping.from.ToExtFileListMapper
+import uk.ac.ebi.biostd.extended.mapping.from.ToExtLinkListMapper
+import uk.ac.ebi.biostd.extended.mapping.from.ToExtSectionMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.biostd.integration.SerializationService

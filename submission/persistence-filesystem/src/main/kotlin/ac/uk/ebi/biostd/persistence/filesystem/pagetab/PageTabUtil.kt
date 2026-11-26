@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
-import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToFileListMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToLinkListMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtFileList
 import uk.ac.ebi.biostd.extended.model.ExtLinkList
 import uk.ac.ebi.biostd.extended.model.ExtSubmission

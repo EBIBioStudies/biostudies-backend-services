@@ -12,12 +12,12 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
-import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.biostd.extended.mapping.to.ToFileListMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToLinkListMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver

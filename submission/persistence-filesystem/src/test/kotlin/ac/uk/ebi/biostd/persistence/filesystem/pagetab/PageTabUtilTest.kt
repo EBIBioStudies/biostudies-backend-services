@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
-import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -14,6 +11,9 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.mapping.to.ToFileListMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToLinkListMapper
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY

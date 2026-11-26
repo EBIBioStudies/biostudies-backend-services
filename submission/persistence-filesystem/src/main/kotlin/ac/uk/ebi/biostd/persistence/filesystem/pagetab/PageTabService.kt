@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.PageTabService
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper.Companion.DOUBLE_BLIND
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper.Companion.DOUBLE_BLIND
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.ExtSubmission

@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -31,6 +30,7 @@ import uk.ac.ebi.biostd.dsl.section
 import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 import uk.ac.ebi.biostd.extended.model.ExtFile

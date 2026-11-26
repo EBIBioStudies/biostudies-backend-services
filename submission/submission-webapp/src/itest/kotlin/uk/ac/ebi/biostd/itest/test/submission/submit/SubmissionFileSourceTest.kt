@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -35,6 +34,7 @@ import uk.ac.ebi.biostd.dsl.section
 import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFileType
 import uk.ac.ebi.biostd.extended.model.FireFile

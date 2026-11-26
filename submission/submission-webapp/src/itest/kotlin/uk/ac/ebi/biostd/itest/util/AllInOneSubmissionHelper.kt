@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.itest.util
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.assertj.core.api.Assertions.assertThat
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod
 import uk.ac.ebi.biostd.extended.model.FireFile
