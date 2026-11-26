@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.isCollection
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.isCollection
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import java.nio.file.Files
 import java.nio.file.Paths

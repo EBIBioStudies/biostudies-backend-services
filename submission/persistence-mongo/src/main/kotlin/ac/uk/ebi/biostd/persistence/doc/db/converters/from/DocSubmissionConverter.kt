@@ -30,9 +30,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ebi.ac.uk.extended.model.StorageMode
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
+import uk.ac.ebi.biostd.extended.model.StorageMode
 
 class DocSubmissionConverter(
     private val docFileConverter: DocFileConverter,

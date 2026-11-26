@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.HARD_LINKS
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.MOVE
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.Permissions
 import uk.ac.ebi.biostd.io.RWXR_XR_X

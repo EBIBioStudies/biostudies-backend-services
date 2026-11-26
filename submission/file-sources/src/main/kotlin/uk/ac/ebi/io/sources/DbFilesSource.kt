@@ -1,9 +1,5 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.FileFields.DB_ID
@@ -11,6 +7,10 @@ import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
 import ebi.ac.uk.model.constants.FileFields.DB_PUBLISHED
 import ebi.ac.uk.model.constants.FileFields.DB_SIZE
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.FireFile
 import java.io.File
 
 /**

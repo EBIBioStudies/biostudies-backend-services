@@ -6,12 +6,12 @@ import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.PMC_SUBMISSIONS
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT
 import ac.uk.ebi.biostd.persistence.doc.model.CollectionNames.SUB_RQT_FILES
 import com.mongodb.DBObject
-import ebi.ac.uk.extended.model.FileSourceType
 import ebi.ac.uk.model.RequestStatus
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.query.Update
+import uk.ac.ebi.biostd.extended.model.FileSourceType
 import java.time.Instant
 
 @Document(collection = SUB_RQT)

@@ -5,13 +5,13 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger

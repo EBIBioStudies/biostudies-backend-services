@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
@@ -8,6 +7,7 @@ import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.io.File
 

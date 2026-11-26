@@ -9,10 +9,6 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.SubmitAttribute
 import ebi.ac.uk.api.SubmitParameters
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.createNfsFile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -34,6 +30,10 @@ import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size

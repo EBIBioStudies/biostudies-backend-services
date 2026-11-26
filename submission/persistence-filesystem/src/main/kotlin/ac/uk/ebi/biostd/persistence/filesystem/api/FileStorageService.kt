@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import java.nio.file.Path
 
 interface FileStorageService {

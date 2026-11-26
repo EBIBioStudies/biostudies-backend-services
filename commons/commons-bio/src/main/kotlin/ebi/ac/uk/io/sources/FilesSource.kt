@@ -1,7 +1,7 @@
 package ebi.ac.uk.io.sources
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
 import java.io.File
 
 enum class PreferredSource { SUBMISSION, USER_SPACE }

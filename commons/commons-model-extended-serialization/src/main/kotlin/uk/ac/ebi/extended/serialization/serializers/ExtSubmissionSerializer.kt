@@ -3,9 +3,9 @@ package uk.ac.ebi.extended.serialization.serializers
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
-import ebi.ac.uk.extended.model.ExtAccessTag
-import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.web.util.UriUtils.encodePath
+import uk.ac.ebi.biostd.extended.model.ExtAccessTag
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACCESS_TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES

@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.boot.configurationprocessor.json.JSONException
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 
 class ExtAttributeDetailConverterTest {
     private val testInstance = ExtAttributeDetailConverter()

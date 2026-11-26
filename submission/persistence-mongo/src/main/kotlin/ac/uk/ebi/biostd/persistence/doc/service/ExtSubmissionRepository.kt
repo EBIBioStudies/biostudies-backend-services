@@ -8,12 +8,12 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocLinkListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allFileList
-import ebi.ac.uk.extended.model.allLinkList
 import kotlinx.coroutines.flow.collect
 import mu.KotlinLogging
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.allFileList
+import uk.ac.ebi.biostd.extended.model.allLinkList
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 private val logger = KotlinLogging.logger {}

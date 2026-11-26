@@ -1,7 +1,5 @@
 package ebi.ac.uk.notifications.service
 
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.computedTitle
 import ebi.ac.uk.notifications.integration.templates.NotificationSubjectModel
 import ebi.ac.uk.notifications.integration.templates.NotificationSubjectTemplate
 import ebi.ac.uk.notifications.integration.templates.SubmissionReleaseModel
@@ -10,6 +8,8 @@ import ebi.ac.uk.notifications.integration.templates.SuccessfulSubmissionModel
 import ebi.ac.uk.notifications.integration.templates.SuccessfulSubmissionTemplate
 import ebi.ac.uk.notifications.util.TemplateLoader
 import uk.ac.ebi.biostd.base.EMPTY
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.computedTitle
 import uk.ac.ebi.biostd.util.date.toStringDate
 
 internal const val FROM = "biostudies@ebi.ac.uk"

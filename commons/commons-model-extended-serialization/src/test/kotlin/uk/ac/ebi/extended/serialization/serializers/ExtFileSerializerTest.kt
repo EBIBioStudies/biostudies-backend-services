@@ -1,12 +1,5 @@
 package uk.ac.ebi.extended.serialization.serializers
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FileSourceType.SUBMISSION
-import ebi.ac.uk.extended.model.FileSourceType.USER
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -14,6 +7,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.FileSourceType.SUBMISSION
+import uk.ac.ebi.biostd.extended.model.FileSourceType.USER
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

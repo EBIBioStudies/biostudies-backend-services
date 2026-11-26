@@ -1,15 +1,15 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.RequestFile
-import ebi.ac.uk.extended.model.asFireFile
-import ebi.ac.uk.extended.model.expectedFirePath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.RequestFile
+import uk.ac.ebi.biostd.extended.model.asFireFile
+import uk.ac.ebi.biostd.extended.model.expectedFirePath
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.nio.file.Files

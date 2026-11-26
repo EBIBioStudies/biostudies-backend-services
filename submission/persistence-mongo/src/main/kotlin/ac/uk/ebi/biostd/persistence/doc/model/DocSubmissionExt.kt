@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.title
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.util.date.isBeforeOrEqual
 import java.time.LocalDate
 import java.time.OffsetDateTime

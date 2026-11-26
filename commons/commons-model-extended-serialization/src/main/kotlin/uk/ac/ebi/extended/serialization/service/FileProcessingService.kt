@@ -1,15 +1,15 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.biostd.util.collections.mapLeft

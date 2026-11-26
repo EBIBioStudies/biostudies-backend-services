@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 
 internal interface FtpService {
     suspend fun releaseSubmissionFile(

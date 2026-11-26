@@ -13,11 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.PersistedExtFile
-import ebi.ac.uk.extended.model.StorageMode.FIRE
-import ebi.ac.uk.extended.model.StorageMode.NFS
-import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.paths.FILES_PATH
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -38,6 +33,11 @@ import uk.ac.ebi.biostd.coroutines.waitForCompletion
 import uk.ac.ebi.biostd.coroutines.waitUntil
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.PersistedExtFile
+import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
+import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
+import uk.ac.ebi.biostd.extended.model.allPageTabFiles
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.itest.common.SecurityTestService

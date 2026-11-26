@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmissionRequest
-import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.toList
@@ -34,6 +33,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import java.time.Duration.ofSeconds
 
 @ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)

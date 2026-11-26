@@ -4,11 +4,11 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
-import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
 
 @Suppress("LongParameterList")
 class ToExtSectionMapper(

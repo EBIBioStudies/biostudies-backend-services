@@ -1,6 +1,5 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
@@ -10,6 +9,7 @@ import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.ROOT_PATH
 import ebi.ac.uk.model.constants.SubFields.TITLE
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 
 class ToSubmissionMapper(
     private val toSectionMapper: ToSectionMapper,

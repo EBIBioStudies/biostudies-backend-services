@@ -19,7 +19,6 @@ import ac.uk.ebi.biostd.submission.model.method
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.ByPassSourceList
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
@@ -29,6 +28,7 @@ import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
 import ebi.ac.uk.paths.FolderType
 import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 

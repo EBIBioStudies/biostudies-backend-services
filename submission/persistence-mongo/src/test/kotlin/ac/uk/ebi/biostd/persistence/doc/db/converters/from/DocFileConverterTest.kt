@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.fireDocFileClass
 import ac.uk.ebi.biostd.persistence.doc.model.nfsDocFileClass
-import ebi.ac.uk.extended.model.ExtFileType.DIR
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -23,6 +22,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
 
 @ExtendWith(MockKExtension::class)
 internal class DocFileConverterTest(

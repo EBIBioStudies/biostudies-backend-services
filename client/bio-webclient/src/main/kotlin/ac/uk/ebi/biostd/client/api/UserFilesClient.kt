@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.common.MultipartBuilder
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
 import ac.uk.ebi.biostd.client.integration.web.UserOperations
 import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.model.DirFilePath
 import ebi.ac.uk.model.FilePath
 import ebi.ac.uk.model.FolderStats
@@ -23,6 +22,7 @@ import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToFlux
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
+import uk.ac.ebi.biostd.extended.model.ExtUser
 import uk.ac.ebi.biostd.io.KFiles
 import java.io.File
 

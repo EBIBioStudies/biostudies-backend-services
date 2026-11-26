@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext.mapping
 
 import ac.uk.ebi.biostd.submission.domain.extended.ExtFileListFilesRequest
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.WebExtPage
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.WebExtPage
 import java.net.URI
 
 class ExtendedFilePageMapper(

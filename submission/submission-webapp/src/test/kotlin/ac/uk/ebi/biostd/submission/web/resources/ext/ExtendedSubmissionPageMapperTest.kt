@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubPageRequest
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.WebExtPage
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.WebExtPage
 import java.net.URI
 
 private const val BASE = "http://localhost:8080"

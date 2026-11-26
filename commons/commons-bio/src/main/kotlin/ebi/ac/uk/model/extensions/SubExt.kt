@@ -1,11 +1,11 @@
 package ebi.ac.uk.model.extensions
 
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.COLLECTION_TYPE
 import ebi.ac.uk.model.constants.SubFields
+import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 import uk.ac.ebi.biostd.util.date.asIsoTime
 import uk.ac.ebi.biostd.util.date.fromIsoTime
 import java.time.OffsetDateTime

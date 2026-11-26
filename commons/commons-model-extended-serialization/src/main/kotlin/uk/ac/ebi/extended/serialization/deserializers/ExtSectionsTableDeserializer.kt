@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import ebi.ac.uk.extended.model.ExtSectionTable
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 

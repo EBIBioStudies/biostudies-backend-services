@@ -1,8 +1,8 @@
 package ebi.ac.uk.notifications.util
 
-import ebi.ac.uk.extended.model.ExtSubmission
 import org.apache.commons.io.IOUtils
 import org.springframework.core.io.ResourceLoader
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.util.collections.firstOrElse
 import java.nio.charset.Charset
 

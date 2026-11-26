@@ -5,12 +5,6 @@ import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
-import ebi.ac.uk.extended.events.RequestCleaned
-import ebi.ac.uk.extended.events.RequestFinalized
-import ebi.ac.uk.extended.events.RequestMessage
-import ebi.ac.uk.extended.events.RequestPersisted
-import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SubmissionMessage
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -24,6 +18,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.extended.events.RequestCleaned
+import uk.ac.ebi.biostd.extended.events.RequestFinalized
+import uk.ac.ebi.biostd.extended.events.RequestMessage
+import uk.ac.ebi.biostd.extended.events.RequestPersisted
+import uk.ac.ebi.biostd.extended.events.SecurityNotification
+import uk.ac.ebi.biostd.extended.events.SubmissionMessage
 import uk.ac.ebi.biostd.util.date.asIsoTime
 import uk.ac.ebi.events.config.EventsProperties
 import java.time.OffsetDateTime

@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.from
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtLinkList
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
 
 class ToDocLinkListMapper {
     internal fun convert(extLinkList: ExtLinkList): DocLinkList {

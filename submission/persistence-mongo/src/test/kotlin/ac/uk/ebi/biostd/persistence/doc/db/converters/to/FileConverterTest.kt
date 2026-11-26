@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NF
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -21,6 +19,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
 
 @ExtendWith(MockKExtension::class)
 internal class FileConverterTest(

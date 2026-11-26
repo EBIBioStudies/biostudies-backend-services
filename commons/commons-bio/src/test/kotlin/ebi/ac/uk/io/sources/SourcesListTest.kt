@@ -1,8 +1,6 @@
 package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.errors.InvalidPathException
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.constants.FileFields.DIRECTORY_TYPE
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import io.mockk.clearAllMocks
@@ -15,6 +13,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
 import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class)

@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.convertValue
-import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.findNode
 import uk.ac.ebi.biostd.serialization.extensions.getNode

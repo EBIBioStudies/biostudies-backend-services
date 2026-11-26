@@ -9,7 +9,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.serverError
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.ftp.FtpConfig
 import ebi.ac.uk.ftp.FtpServer
 import ebi.ac.uk.ftp.SslConfig
@@ -24,6 +23,7 @@ import uk.ac.ebi.biostd.db.MONGO_VERSION
 import uk.ac.ebi.biostd.db.MYSQL_SCHEMA
 import uk.ac.ebi.biostd.db.MYSQL_VERSION
 import uk.ac.ebi.biostd.db.RABBIT_VERSION
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.itest.common.CHARACTER_SET
 import uk.ac.ebi.biostd.itest.common.COLLATION
 import uk.ac.ebi.biostd.itest.common.FIRE_PASSWORD

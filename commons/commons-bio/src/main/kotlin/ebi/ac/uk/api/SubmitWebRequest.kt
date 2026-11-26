@@ -1,7 +1,7 @@
 package ebi.ac.uk.api
 
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
+import uk.ac.ebi.biostd.extended.model.StorageMode
 
 data class OnBehalfParameters(
     val userEmail: String,

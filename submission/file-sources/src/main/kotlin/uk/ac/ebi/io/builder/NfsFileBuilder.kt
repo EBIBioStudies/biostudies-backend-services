@@ -1,9 +1,9 @@
 package uk.ac.ebi.io.builder
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFileType
-import ebi.ac.uk.extended.model.NOT_CALCULATED_MD5
-import ebi.ac.uk.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFileType
+import uk.ac.ebi.biostd.extended.model.NOT_CALCULATED_MD5
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.ext.size
 import java.io.File
 

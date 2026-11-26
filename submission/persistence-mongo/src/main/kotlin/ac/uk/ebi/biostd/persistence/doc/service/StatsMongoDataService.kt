@@ -27,7 +27,6 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -46,6 +45,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import java.time.Instant
 import org.springframework.data.domain.PageRequest as DataPageRequest
 

@@ -5,13 +5,13 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.RequestFile
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.io.ext.md5
 import java.io.File
 

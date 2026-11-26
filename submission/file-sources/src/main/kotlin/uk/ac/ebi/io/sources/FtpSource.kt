@@ -1,13 +1,13 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.constants.FileFields
 import org.apache.commons.net.ftp.FTPFile
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Path

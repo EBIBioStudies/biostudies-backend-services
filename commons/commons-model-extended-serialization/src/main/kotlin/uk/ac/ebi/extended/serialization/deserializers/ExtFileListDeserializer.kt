@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtFileList
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.findNode
 import uk.ac.ebi.biostd.serialization.extensions.getNode

@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 
-import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
-import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.ExtCollection
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod.PAGE_TAB
+import uk.ac.ebi.biostd.extended.model.ExtTag
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 

@@ -1,10 +1,6 @@
 package ebi.ac.uk.notifications.service
 
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
-import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
-import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
-import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.notifications.model.Email
 import ebi.ac.uk.notifications.util.TemplateLoader
 import io.mockk.clearAllMocks
@@ -17,6 +13,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.events.SecurityNotification
+import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.ACTIVATION
+import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
+import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.PASSWORD_RESET
 
 @ExtendWith(MockKExtension::class)
 class SecurityNotificationServiceTest(

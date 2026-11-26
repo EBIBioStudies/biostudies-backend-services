@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
-import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.ExtTag
+import uk.ac.ebi.biostd.extended.model.ExtCollection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod
+import uk.ac.ebi.biostd.extended.model.ExtTag
 import java.time.ZoneOffset.UTC
 
 class ToExtSubmissionMapper(

@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
@@ -23,6 +22,7 @@ import uk.ac.ebi.biostd.client.cli.common.splitPreferredSources
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import uk.ac.ebi.biostd.extended.model.StorageMode
 
 internal class SubmitCommand(
     private val submissionService: SubmissionService,

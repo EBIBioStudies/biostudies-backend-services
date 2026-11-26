@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.client.api.EXT_SUBMISSIONS_URL
 import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmitClient
-import ebi.ac.uk.extended.model.ExtPage
-import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -15,6 +13,8 @@ import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtPage
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 
 @ExtendWith(MockKExtension::class)
 class BioWebClientExtTest(

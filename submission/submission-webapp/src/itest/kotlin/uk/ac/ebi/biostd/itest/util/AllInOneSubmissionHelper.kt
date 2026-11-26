@@ -2,13 +2,13 @@ package uk.ac.ebi.biostd.itest.util
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.createNfsFile
 import org.assertj.core.api.Assertions.assertThat
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.itest.factory.allInOneSubmission

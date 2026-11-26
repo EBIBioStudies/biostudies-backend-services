@@ -1,16 +1,5 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.toList
@@ -20,6 +9,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.base.Either.Companion.left
 import uk.ac.ebi.biostd.base.Either.Companion.right
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtCollection
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod
+import uk.ac.ebi.biostd.extended.model.ExtTag
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import java.io.File
 import java.time.OffsetDateTime
 

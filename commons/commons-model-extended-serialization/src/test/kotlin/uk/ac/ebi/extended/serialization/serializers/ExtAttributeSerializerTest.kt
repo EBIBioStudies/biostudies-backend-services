@@ -1,11 +1,11 @@
 package uk.ac.ebi.extended.serialization.serializers
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class ExtAttributeSerializerTest {

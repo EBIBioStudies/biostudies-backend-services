@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtLinkTable
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkTable
 
 internal fun DocLink.toExtLink(): ExtLink = ExtLink(url, attributes.toExtAttributes())
 

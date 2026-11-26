@@ -1,17 +1,5 @@
 package uk.ac.ebi.extended.serialization.serializers
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -22,6 +10,18 @@ import uk.ac.ebi.biostd.dsl.json.JsonNull
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonNull
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtLinkTable
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

@@ -5,13 +5,13 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.commons.OffsetBasedPageRequest
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkTable
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import java.time.OffsetDateTime
 
 class ExtSubmissionQueryService(

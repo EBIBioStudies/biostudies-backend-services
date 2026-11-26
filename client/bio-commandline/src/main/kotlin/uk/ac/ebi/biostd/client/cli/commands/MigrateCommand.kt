@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.client.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -12,6 +11,7 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.ACC_NO
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import uk.ac.ebi.biostd.extended.model.StorageMode
 
 internal class MigrateCommand(
     private val submissionService: SubmissionService,

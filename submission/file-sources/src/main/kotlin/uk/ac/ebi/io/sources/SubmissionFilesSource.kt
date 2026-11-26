@@ -1,18 +1,18 @@
 package uk.ac.ebi.io.sources
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileSourceType.SUBMISSION
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.RequestFile
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.typeSafeCopy
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.constants.FileFields
 import uk.ac.ebi.biostd.base.ensureSuffix
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.FileSourceType.SUBMISSION
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.RequestFile
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.typeSafeCopy
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 

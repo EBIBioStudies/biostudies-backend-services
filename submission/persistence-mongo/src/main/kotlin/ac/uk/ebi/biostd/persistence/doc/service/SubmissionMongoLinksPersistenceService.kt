@@ -3,12 +3,12 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionLinksPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.LinkListDocLinkDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtLink
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 
 class SubmissionMongoLinksPersistenceService(
     private val linkListDocLinkDocDataRepository: LinkListDocLinkDocDataRepository,

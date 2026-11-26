@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
-import ebi.ac.uk.extended.model.ExtFileType
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -24,6 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.extended.model.ExtFileType
 import java.time.Duration
 
 @ExtendWith(SpringExtension::class)

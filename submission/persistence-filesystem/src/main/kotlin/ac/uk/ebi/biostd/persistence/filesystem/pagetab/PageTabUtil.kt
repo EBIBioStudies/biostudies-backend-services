@@ -7,11 +7,11 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allFileList
-import ebi.ac.uk.extended.model.allLinkList
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.allFileList
+import uk.ac.ebi.biostd.extended.model.allLinkList
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.Permissions
 import uk.ac.ebi.biostd.io.ext.newFile

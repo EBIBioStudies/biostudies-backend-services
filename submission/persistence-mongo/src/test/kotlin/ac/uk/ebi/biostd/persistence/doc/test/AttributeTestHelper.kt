@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 
 private const val ATTR_NAME = "Test Attribute"
 private const val ATTR_VALUE = "Test Value"

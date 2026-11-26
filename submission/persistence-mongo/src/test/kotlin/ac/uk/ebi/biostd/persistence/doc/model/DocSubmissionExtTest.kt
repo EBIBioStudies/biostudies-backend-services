@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.persistence.doc.model
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
-import ebi.ac.uk.extended.model.allSections
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.extended.model.allSections
 import uk.ac.ebi.biostd.test.basicExtSubmission
 
 class DocSubmissionExtTest {

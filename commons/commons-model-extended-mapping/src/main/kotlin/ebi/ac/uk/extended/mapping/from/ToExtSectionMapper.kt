@@ -1,12 +1,12 @@
 package ebi.ac.uk.extended.mapping.from
 
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.constants.SECTION_RESERVED_ATTRS
 import uk.ac.ebi.biostd.base.biMap
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
 
 class ToExtSectionMapper(
     private val toExtFileListMapper: ToExtFileListMapper,

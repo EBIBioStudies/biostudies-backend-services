@@ -118,6 +118,6 @@ class SubmissionReleaserServiceTest(
     private fun mockExtensionFunctions() {
         mockkStatic("uk.ac.ebi.biostd.util.date.OffsetDateTimeKt")
         mockkStatic("ac.uk.ebi.biostd.client.extensions.BioWebClientExtKt")
-        mockkStatic("ebi.ac.uk.extended.model.ExtSubmissionExtensionsKt")
+        mockkStatic("uk.ac.ebi.biostd.extended.model.ExtSubmissionExtensionsKt")
     }
 }

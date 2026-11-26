@@ -1,6 +1,6 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtFile
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.outputStream

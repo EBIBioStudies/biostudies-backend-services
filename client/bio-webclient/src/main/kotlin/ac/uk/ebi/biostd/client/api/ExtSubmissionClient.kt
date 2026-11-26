@@ -3,12 +3,6 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.dto.ExtPageRequest
 import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtPage
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -21,6 +15,12 @@ import uk.ac.ebi.biostd.commons.http.ext.getForObject
 import uk.ac.ebi.biostd.commons.http.ext.post
 import uk.ac.ebi.biostd.commons.http.ext.postForObject
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtPage
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.WebExtPage
 import uk.ac.ebi.biostd.util.date.toStringInstant
 import uk.ac.ebi.biostd.util.web.optionalQueryParam
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

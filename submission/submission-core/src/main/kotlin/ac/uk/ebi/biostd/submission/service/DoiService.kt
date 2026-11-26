@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.DOI
@@ -33,6 +32,7 @@ import uk.ac.ebi.biostd.commons.http.builder.linkedMultiValueMapOf
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.io.FileUtils
 import java.nio.file.Files
 import java.time.Instant

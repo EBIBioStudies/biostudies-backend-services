@@ -8,15 +8,15 @@ import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedFilePageMapper
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedLinkPageMapper
 import ac.uk.ebi.biostd.submission.web.resources.ext.mapping.ExtendedSubmissionPageMapper
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.WebExtPage
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.WebExtPage
 
 @RestController
 @RequestMapping("/submissions/extended")

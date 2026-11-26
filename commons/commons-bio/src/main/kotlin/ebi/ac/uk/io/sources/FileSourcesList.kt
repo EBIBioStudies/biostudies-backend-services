@@ -2,9 +2,9 @@ package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.errors.InvalidPathException
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.RequestFile
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.RequestFile
 import java.io.File
 
 /**

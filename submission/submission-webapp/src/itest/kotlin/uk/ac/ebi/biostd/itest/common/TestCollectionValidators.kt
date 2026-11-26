@@ -2,8 +2,8 @@ package uk.ac.ebi.biostd.itest.common
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.delay
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 
 class TestCollectionValidator : CollectionValidator {
     var validated = false

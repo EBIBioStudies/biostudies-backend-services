@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.ac.ebi.biostd.base.orFalse
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.StorageMode
 
 @RestController
 @RequestMapping("/submissions/extended")

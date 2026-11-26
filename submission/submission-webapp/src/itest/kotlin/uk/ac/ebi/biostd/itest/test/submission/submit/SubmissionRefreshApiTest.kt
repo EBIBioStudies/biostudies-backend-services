@@ -24,7 +24,6 @@ import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
@@ -53,6 +52,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser

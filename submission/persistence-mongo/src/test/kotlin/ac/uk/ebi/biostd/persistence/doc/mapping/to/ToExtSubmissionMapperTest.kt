@@ -17,11 +17,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.TAG_VALUE
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -31,6 +26,11 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.newFile
 import uk.ac.ebi.biostd.io.ext.size

@@ -1,10 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -19,6 +14,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.test.basicExtSubmission

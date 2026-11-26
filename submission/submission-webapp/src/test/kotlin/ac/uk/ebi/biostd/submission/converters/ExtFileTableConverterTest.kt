@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -14,6 +12,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.OutputStream
 

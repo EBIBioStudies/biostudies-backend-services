@@ -83,10 +83,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -94,6 +90,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.test.createFile
 import uk.ac.ebi.biostd.util.collections.second

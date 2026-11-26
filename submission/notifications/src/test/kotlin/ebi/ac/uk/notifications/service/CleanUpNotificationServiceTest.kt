@@ -1,7 +1,6 @@
 package ebi.ac.uk.notifications.service
 
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
-import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.model.Email
 import ebi.ac.uk.notifications.util.TemplateLoader
 import io.mockk.clearAllMocks
@@ -14,6 +13,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.events.CleanUpNotification
 
 private const val TEST_EMAIL = "test@ebi.ac.uk"
 private const val BBC_EMAIL = "test-2@ebi.ac.uk"

@@ -17,9 +17,6 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidMigrationTargetException
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.model.SubmissionTransferOptions
 import ebi.ac.uk.model.extensions.doi
@@ -29,6 +26,9 @@ import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegisteredException
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.isCollection
 import uk.ac.ebi.biostd.util.date.isBeforeOrEqual
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.OffsetDateTime

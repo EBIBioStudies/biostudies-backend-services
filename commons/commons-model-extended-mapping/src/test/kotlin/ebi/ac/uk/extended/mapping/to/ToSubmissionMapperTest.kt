@@ -1,7 +1,5 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
@@ -17,6 +15,8 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtCollection
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC

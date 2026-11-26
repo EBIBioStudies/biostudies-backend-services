@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.SourcesList
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.io.builder.FilesSourceListBuilder

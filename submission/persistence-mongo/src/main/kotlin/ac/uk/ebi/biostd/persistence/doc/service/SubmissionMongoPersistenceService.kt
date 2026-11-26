@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ebi.ac.uk.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import kotlin.math.absoluteValue
 
 internal class SubmissionMongoPersistenceService(

@@ -13,11 +13,6 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFileType
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.PersistedExtFile
-import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.constants.FileFields.DB_ID
@@ -49,6 +44,11 @@ import uk.ac.ebi.biostd.asserts.submitFromDraftAndWait
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFileType
+import uk.ac.ebi.biostd.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.PersistedExtFile
+import uk.ac.ebi.biostd.extended.model.allSectionsFiles
 import uk.ac.ebi.biostd.io.ext.allSubFiles
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile

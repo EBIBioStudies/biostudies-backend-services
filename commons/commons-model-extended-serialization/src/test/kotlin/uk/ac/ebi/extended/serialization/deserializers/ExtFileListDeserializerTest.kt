@@ -1,10 +1,10 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.extended.model.ExtFileList
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.extended.model.ExtFileList
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME

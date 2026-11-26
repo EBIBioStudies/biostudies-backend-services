@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 
-import ebi.ac.uk.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import java.io.File
 
 const val ROOT_FILE_LIST_FILE_NAME = "fileName1.txt"

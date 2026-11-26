@@ -1,7 +1,5 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.constants.FileFields.DB_ID
 import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
@@ -12,6 +10,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
 
 class DbFilesSourceTest {
     @Test

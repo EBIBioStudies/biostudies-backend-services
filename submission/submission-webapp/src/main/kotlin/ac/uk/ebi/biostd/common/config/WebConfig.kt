@@ -11,8 +11,6 @@ import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
 import ac.uk.ebi.biostd.submission.converters.SubmitAttributeConverter
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.format.FormatterRegistry
@@ -23,6 +21,8 @@ import org.springframework.security.web.method.annotation.AuthenticationPrincipa
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Clock
 

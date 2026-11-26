@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.HARD_LINKS
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.MOVE
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -17,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.createNewFile

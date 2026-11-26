@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.itest.common
 
-import ebi.ac.uk.extended.events.SubmissionMessage
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.core.ParameterizedTypeReference
+import uk.ac.ebi.biostd.extended.events.SubmissionMessage
 import uk.ac.ebi.biostd.itest.common.TestConfig.Companion.SUBMISSION_SUBMITTED_QUEUE
 
 class TestMessageService(

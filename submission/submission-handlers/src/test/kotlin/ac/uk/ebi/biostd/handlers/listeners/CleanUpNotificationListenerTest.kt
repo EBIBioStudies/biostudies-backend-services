@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
-import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.extended.events.CleanUpNotification
 
 @ExtendWith(MockKExtension::class)
 class CleanUpNotificationListenerTest(

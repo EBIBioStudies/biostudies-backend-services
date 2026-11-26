@@ -8,10 +8,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
+import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import java.time.Instant
 
 internal const val SUB_ACC_NO = "S-TEST123"

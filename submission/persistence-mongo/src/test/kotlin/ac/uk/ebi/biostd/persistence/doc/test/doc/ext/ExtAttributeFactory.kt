@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtAttributeDetail
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 
 const val SUBMISSION_ATTRIBUTE_NAME = "name"
 const val SUBMISSION_ATTRIBUTE_VALUE = "value"

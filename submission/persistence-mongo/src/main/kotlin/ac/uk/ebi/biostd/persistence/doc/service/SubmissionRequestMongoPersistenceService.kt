@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFilesChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.Companion.DRAFT_STATUS
@@ -29,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
 import java.io.File

@@ -2,9 +2,6 @@ package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
@@ -27,6 +24,9 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.createNfsFile
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.util.function.Consumer

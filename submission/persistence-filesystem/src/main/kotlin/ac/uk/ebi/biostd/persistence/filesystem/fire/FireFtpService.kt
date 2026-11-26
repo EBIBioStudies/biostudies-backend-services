@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.FireFile
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.fire.client.integration.web.FireClient
 
 class FireFtpService(

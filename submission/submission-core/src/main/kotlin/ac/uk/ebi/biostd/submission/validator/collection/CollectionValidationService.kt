@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.isCollection
 import org.springframework.beans.factory.BeanFactory
 import uk.ac.ebi.biostd.base.ifFalse
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.isCollection
 
 class CollectionValidationService(
     private val beanFactory: BeanFactory,

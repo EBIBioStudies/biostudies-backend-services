@@ -13,9 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asSubmittedRequest
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.RequestStatus.SUBMITTED
 import ebi.ac.uk.model.constants.ProcessingStatus.INVALID
@@ -27,6 +24,9 @@ import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.ZoneOffset.UTC
 import kotlin.math.max

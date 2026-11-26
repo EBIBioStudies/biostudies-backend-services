@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileSourceType
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.FileSourceType
 
 /**
  * Represents a file associated with a submission request.

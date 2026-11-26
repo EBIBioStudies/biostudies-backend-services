@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.C
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.NOTIFICATION_ERROR
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.WARNING_SUBJECT
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService.Companion.WARNING_TEMPLATE
-import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -33,6 +32,7 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.extended.events.CleanUpNotification
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path

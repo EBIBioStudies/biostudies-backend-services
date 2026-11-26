@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ebi.ac.uk.extended.model.WebExtPage
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
+import uk.ac.ebi.biostd.extended.model.WebExtPage
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.reflect.full.isSuperclassOf
 

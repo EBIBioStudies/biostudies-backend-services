@@ -12,13 +12,6 @@ import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtPage
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtUser
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.Group
@@ -32,6 +25,13 @@ import ebi.ac.uk.model.UpdateResult
 import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.flow.Flow
 import uk.ac.ebi.biostd.base.EMPTY
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtPage
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtUser
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.WebExtPage
 import java.io.File
 
 interface SubmitClient :

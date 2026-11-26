@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.security.web
 
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService
-import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.components.SecurityQueryService
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.extended.model.ExtUser
 
 @RestController
 @RequestMapping("/security/users")

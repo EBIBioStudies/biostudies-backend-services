@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
-import ebi.ac.uk.extended.model.ExtLink
 import org.assertj.core.api.Assertions.assertThat
+import uk.ac.ebi.biostd.extended.model.ExtLink
 
 private const val TEST_URL = "http://mylink.org"
 

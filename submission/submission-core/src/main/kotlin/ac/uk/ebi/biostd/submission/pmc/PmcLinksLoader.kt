@@ -9,12 +9,6 @@ import ebi.ac.uk.client.pmc.PmcFile
 import ebi.ac.uk.client.pmc.PmcFileLink
 import ebi.ac.uk.client.pmc.SubmissionResult.ANALISIS_IN_PROGRESS
 import ebi.ac.uk.client.pmc.SubmissionResult.OK
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtLinkList
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allSectionsFiles
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,6 +19,12 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.allSectionsFiles
 import uk.ac.ebi.biostd.io.KFiles
 import uk.ac.ebi.biostd.util.collections.indexOf
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

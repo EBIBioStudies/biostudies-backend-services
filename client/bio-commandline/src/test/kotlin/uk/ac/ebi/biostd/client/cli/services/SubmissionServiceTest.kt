@@ -6,9 +6,6 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.extended.model.ExtUser
-import ebi.ac.uk.extended.model.StorageMode.FIRE
-import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.SubmissionId
@@ -31,6 +28,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.extended.model.ExtUser
+import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
+import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionServiceTest(

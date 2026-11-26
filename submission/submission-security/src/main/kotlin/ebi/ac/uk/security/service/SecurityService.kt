@@ -10,11 +10,6 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
-import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
-import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
-import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.extended.events.UrgentNotification
 import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
@@ -40,6 +35,11 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.coroutines.FOREVER
+import uk.ac.ebi.biostd.extended.events.SecurityNotification
+import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.ACTIVATION
+import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
+import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.PASSWORD_RESET
+import uk.ac.ebi.biostd.extended.events.UrgentNotification
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.RWXRWX___
 import uk.ac.ebi.biostd.io.RWX__X___

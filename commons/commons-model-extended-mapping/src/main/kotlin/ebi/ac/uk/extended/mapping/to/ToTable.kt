@@ -1,9 +1,9 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.LinksTable
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtLinkTable
 
 internal const val TO_TABLE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToTableKt"
 

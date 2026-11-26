@@ -12,9 +12,6 @@ import ebi.ac.uk.errors.CircularReferenceException
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.errors.InvalidPathException
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
-import ebi.ac.uk.extended.model.ExtFileType
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.PersistedExtFile
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.RequestStatus.FILES_VALIDATED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
@@ -23,6 +20,9 @@ import ebi.ac.uk.security.integration.components.SecurityQueryService
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.extended.model.ExtFileType
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.PersistedExtFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.extensions
 
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.io.Permissions
 import uk.ac.ebi.biostd.io.RWXR_XR_X
 import uk.ac.ebi.biostd.io.RWXR_X__X

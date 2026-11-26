@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.test
 
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
-import ebi.ac.uk.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod.PAGE_TAB
+import uk.ac.ebi.biostd.extended.model.StorageMode
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 

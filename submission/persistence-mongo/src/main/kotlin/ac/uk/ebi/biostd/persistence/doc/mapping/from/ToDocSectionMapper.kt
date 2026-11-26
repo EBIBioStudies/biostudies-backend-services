@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
 import org.bson.types.ObjectId
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
 
 typealias EitherList<A, B> = List<Either<A, B>>
 

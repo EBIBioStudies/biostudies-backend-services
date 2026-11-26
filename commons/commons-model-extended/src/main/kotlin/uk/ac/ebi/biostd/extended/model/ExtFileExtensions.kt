@@ -1,0 +1,55 @@
+package uk.ac.ebi.biostd.extended.model
+
+import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
+import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
+import java.io.File
+
+val ExtFile.storageMode: StorageMode
+    get() =
+        when (this) {
+            is NfsFile -> NFS
+            is FireFile -> FIRE
+            is RequestFile -> error("RequestFile does not have an storage mode")
+        }
+
+fun ExtFile.typeSafeCopy(
+    attributes: List<ExtAttribute>,
+    sourceType: FileSourceType?,
+): ExtFile =
+    when (this) {
+        is FireFile -> copy(attributes = attributes, sourceType = sourceType)
+        is NfsFile -> copy(attributes = attributes, sourceType = sourceType)
+        is RequestFile -> copy(attributes = attributes, sourceType = sourceType)
+    }
+
+fun NfsFile.asFireFile(
+    fireId: String,
+    firePath: String,
+    published: Boolean,
+): FireFile =
+    FireFile(
+        fireId,
+        firePath,
+        published,
+        filePath,
+        relPath,
+        md5,
+        size,
+        type,
+        attributes,
+    )
+
+const val NOT_CALCULATED_MD5 = "NOT_CALCULATED"
+val NfsFile.hasMd5 get() = md5 != NOT_CALCULATED_MD5
+
+fun FireFile.asNfsFile(file: File): NfsFile =
+    NfsFile(
+        filePath,
+        relPath,
+        file,
+        file.absolutePath,
+        md5,
+        size,
+        attributes = attributes,
+        type = type,
+    )

@@ -2,11 +2,11 @@ package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.PageTabService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper.Companion.DOUBLE_BLIND
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.SubFields.REVIEW_TYPE
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.extended.serialization.service.TrackSection

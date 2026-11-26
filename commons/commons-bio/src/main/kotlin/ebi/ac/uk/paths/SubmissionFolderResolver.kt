@@ -1,6 +1,6 @@
 package ebi.ac.uk.paths
 
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import java.nio.file.Path
 
 const val FILES_PATH = "Files"

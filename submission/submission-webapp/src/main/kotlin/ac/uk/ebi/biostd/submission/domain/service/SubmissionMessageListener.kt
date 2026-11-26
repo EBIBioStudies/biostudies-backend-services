@@ -3,22 +3,22 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
-import ebi.ac.uk.extended.events.RequestCheckedReleased
-import ebi.ac.uk.extended.events.RequestCleaned
-import ebi.ac.uk.extended.events.RequestCreated
-import ebi.ac.uk.extended.events.RequestFilesCopied
-import ebi.ac.uk.extended.events.RequestFilesValidated
-import ebi.ac.uk.extended.events.RequestFinalized
-import ebi.ac.uk.extended.events.RequestIndexed
-import ebi.ac.uk.extended.events.RequestLoaded
-import ebi.ac.uk.extended.events.RequestMessage
-import ebi.ac.uk.extended.events.RequestPersisted
-import ebi.ac.uk.extended.events.RequestToCleanIndexed
-import ebi.ac.uk.extended.events.RequestValidated
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
+import uk.ac.ebi.biostd.extended.events.RequestCheckedReleased
+import uk.ac.ebi.biostd.extended.events.RequestCleaned
+import uk.ac.ebi.biostd.extended.events.RequestCreated
+import uk.ac.ebi.biostd.extended.events.RequestFilesCopied
+import uk.ac.ebi.biostd.extended.events.RequestFilesValidated
+import uk.ac.ebi.biostd.extended.events.RequestFinalized
+import uk.ac.ebi.biostd.extended.events.RequestIndexed
+import uk.ac.ebi.biostd.extended.events.RequestLoaded
+import uk.ac.ebi.biostd.extended.events.RequestMessage
+import uk.ac.ebi.biostd.extended.events.RequestPersisted
+import uk.ac.ebi.biostd.extended.events.RequestToCleanIndexed
+import uk.ac.ebi.biostd.extended.events.RequestValidated
 import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}

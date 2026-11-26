@@ -1,12 +1,12 @@
 package ebi.ac.uk.extended.mapping.from
 
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 
 @ExtendWith(MockKExtension::class)
 internal class ToExtAttributeTest {

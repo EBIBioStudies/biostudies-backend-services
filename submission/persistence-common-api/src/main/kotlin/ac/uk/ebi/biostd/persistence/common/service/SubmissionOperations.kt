@@ -8,10 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +15,10 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.query.Meta.CursorOption
 import org.springframework.data.mongodb.repository.Meta
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import java.time.Instant
 import java.time.temporal.TemporalAmount
 

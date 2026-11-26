@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService.Companion.IMAGING_COLLECTION
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
-import ebi.ac.uk.extended.model.StorageMode.FIRE
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -33,6 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import java.time.Duration.ofSeconds
 import java.time.Instant
 

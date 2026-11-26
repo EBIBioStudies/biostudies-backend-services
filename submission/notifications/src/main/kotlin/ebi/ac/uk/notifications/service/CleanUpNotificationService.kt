@@ -1,11 +1,11 @@
 package ebi.ac.uk.notifications.service
 
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
-import ebi.ac.uk.extended.events.CleanUpNotification
 import ebi.ac.uk.notifications.integration.templates.CleanUpNotificationModel
 import ebi.ac.uk.notifications.integration.templates.CleanUpNotificationTemplate
 import ebi.ac.uk.notifications.model.Email
 import ebi.ac.uk.notifications.util.TemplateLoader
+import uk.ac.ebi.biostd.extended.events.CleanUpNotification
 
 class CleanUpNotificationService(
     private val templateLoader: TemplateLoader,

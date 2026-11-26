@@ -1,14 +1,14 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allFileList
-import ebi.ac.uk.extended.model.allPageTabFiles
-import ebi.ac.uk.extended.model.allSectionsFiles
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.allFileList
+import uk.ac.ebi.biostd.extended.model.allPageTabFiles
+import uk.ac.ebi.biostd.extended.model.allSectionsFiles
 
 /**
  * Returns a flow with all the files of a submission. Pagetab files are retrieved first, followed by section files

@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.paths.FolderType
 import ebi.ac.uk.paths.FolderType.FTP
 import ebi.ac.uk.paths.FolderType.NFS
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import java.nio.file.Path
 import java.nio.file.Paths
 
