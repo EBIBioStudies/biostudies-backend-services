@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionFilesDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.paths.FILES_PATH
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -26,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.asserts.submitAndWait
@@ -50,6 +49,7 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.paths.FILES_PATH
 import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 import kotlin.time.Duration.Companion.minutes

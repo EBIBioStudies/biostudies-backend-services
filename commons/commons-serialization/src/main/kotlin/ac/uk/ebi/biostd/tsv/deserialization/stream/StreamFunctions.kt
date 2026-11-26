@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.tsv.deserialization.stream
 import ac.uk.ebi.biostd.tsv.TAB
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
-import ebi.ac.uk.model.Attribute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.withContext
 import uk.ac.ebi.biostd.io.ext.asFlow
+import uk.ac.ebi.biostd.model.Attribute
 import uk.ac.ebi.biostd.util.collections.destructure
 import java.io.BufferedWriter
 import java.io.InputStream

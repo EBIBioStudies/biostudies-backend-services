@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.paths.SubmissionFolderResolver
 import io.mockk.Called
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -37,6 +36,7 @@ import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.PersistedExtFile
 import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files

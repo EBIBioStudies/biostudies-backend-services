@@ -1,7 +1,5 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.BioFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
@@ -18,6 +16,8 @@ import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.BioFile
 import uk.ac.ebi.biostd.test.createFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

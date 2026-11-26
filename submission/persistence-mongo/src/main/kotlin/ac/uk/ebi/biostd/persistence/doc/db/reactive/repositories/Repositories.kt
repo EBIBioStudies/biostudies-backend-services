@@ -18,8 +18,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.LinkListDocLink
 import ac.uk.ebi.biostd.persistence.doc.model.PmcDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.PmcSubmissionStatus
-import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
@@ -28,6 +26,8 @@ import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.Update
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import uk.ac.ebi.biostd.model.RequestStatus
+import uk.ac.ebi.biostd.model.SubmissionId
 import java.time.Instant
 
 interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats, ObjectId> {

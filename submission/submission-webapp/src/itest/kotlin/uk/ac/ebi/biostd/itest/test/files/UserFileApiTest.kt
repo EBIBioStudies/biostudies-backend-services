@@ -3,9 +3,6 @@ package uk.ac.ebi.biostd.itest.test.files
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
-import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.api.UserFileType.DIR
-import ebi.ac.uk.api.UserFileType.FILE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -28,6 +25,9 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.core.io.ResourceLoader
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.api.UserFile
+import uk.ac.ebi.biostd.api.UserFileType.DIR
+import uk.ac.ebi.biostd.api.UserFileType.FILE
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.md5

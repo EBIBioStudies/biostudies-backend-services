@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.AttributeDetail
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.SectionsTable
 
 private const val ATTR_NAME = "attr1"
 private const val ATTR_VAL = "attr1 value"

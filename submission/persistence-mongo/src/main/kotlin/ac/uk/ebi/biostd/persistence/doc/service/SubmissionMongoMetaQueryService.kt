@@ -8,10 +8,10 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.constants.SubFields
-import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
-import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSED
+import uk.ac.ebi.biostd.model.constants.SubFields
+import uk.ac.ebi.biostd.model.constants.SubFields.ACC_NO_TEMPLATE
+import uk.ac.ebi.biostd.model.constants.SubFields.COLLECTION_VALIDATOR
 import java.time.ZoneOffset.UTC
 
 class SubmissionMongoMetaQueryService(

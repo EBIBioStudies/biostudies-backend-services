@@ -2,14 +2,14 @@ package ac.uk.ebi.pmc.process.util
 
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.utils.retry
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.allFiles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import uk.ac.ebi.biostd.coroutines.concurrently
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.extensions.allFiles
 import java.io.File
 
 /**

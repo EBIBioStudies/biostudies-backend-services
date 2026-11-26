@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.submission.stats.common.StatsFileHandler
-import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.model.UpdateResult
 import java.io.File
 
 class SubmissionStatsService(

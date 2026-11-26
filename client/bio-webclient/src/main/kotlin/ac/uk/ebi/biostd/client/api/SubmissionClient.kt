@@ -1,10 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
-import ebi.ac.uk.api.dto.SubmissionDto
-import ebi.ac.uk.model.constants.ACC_NO
-import ebi.ac.uk.model.constants.FILE_LIST_NAME
-import ebi.ac.uk.model.constants.ROOT_PATH
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import org.springframework.util.LinkedMultiValueMap
@@ -13,6 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.api.dto.SubmissionDto
+import uk.ac.ebi.biostd.model.constants.ACC_NO
+import uk.ac.ebi.biostd.model.constants.FILE_LIST_NAME
+import uk.ac.ebi.biostd.model.constants.ROOT_PATH
 
 internal const val SUBMISSIONS_URL = "/submissions"
 

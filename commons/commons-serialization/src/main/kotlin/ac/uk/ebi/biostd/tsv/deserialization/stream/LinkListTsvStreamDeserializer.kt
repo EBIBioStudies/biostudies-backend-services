@@ -4,9 +4,9 @@ import ac.uk.ebi.biostd.tsv.TAB
 import ac.uk.ebi.biostd.validation.INVALID_LINKS_TABLE
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.constants.TableFields.LINKS_TABLE
 import uk.ac.ebi.biostd.util.collections.destructure
 import java.io.InputStream
 import java.io.OutputStream

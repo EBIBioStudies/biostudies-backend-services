@@ -1,13 +1,5 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.attachTo
-import ebi.ac.uk.model.extensions.doi
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.model.extensions.title
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -17,6 +9,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtCollection
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.extensions.attachTo
+import uk.ac.ebi.biostd.model.extensions.doi
+import uk.ac.ebi.biostd.model.extensions.releaseDate
+import uk.ac.ebi.biostd.model.extensions.rootPath
+import uk.ac.ebi.biostd.model.extensions.title
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC

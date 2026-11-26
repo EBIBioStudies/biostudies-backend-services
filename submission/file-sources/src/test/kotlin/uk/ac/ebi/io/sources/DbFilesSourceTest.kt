@@ -1,10 +1,5 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.model.constants.FileFields.DB_ID
-import ebi.ac.uk.model.constants.FileFields.DB_MD5
-import ebi.ac.uk.model.constants.FileFields.DB_PATH
-import ebi.ac.uk.model.constants.FileFields.DB_PUBLISHED
-import ebi.ac.uk.model.constants.FileFields.DB_SIZE
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -12,6 +7,11 @@ import org.junit.jupiter.api.Test
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.model.constants.FileFields.DB_ID
+import uk.ac.ebi.biostd.model.constants.FileFields.DB_MD5
+import uk.ac.ebi.biostd.model.constants.FileFields.DB_PATH
+import uk.ac.ebi.biostd.model.constants.FileFields.DB_PUBLISHED
+import uk.ac.ebi.biostd.model.constants.FileFields.DB_SIZE
 
 class DbFilesSourceTest {
     @Test

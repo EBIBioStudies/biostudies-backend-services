@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.paths.FILES_PATH
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -38,6 +37,7 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.paths.FILES_PATH
 import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 import kotlin.time.Duration.Companion.milliseconds

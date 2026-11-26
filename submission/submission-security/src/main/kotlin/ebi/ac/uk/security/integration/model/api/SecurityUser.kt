@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.integration.model.api
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
-import ebi.ac.uk.model.User
+import uk.ac.ebi.biostd.model.User
 import java.nio.file.Path
 import java.time.LocalDateTime
 

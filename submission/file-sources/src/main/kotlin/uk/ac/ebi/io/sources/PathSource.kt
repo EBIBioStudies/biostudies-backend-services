@@ -1,12 +1,12 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.constants.FileFields.DIRECTORY_TYPE
 import uk.ac.ebi.biostd.base.remove
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.FileSourceType.USER
 import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.io.sources.FilesSource
+import uk.ac.ebi.biostd.model.constants.FileFields.DIRECTORY_TYPE
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Files

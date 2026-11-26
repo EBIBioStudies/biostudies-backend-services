@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.files.model
 
-import ebi.ac.uk.api.UserFileType
+import uk.ac.ebi.biostd.api.UserFileType
 
 data class FilesSpec(val files: List<UserFile>)
 

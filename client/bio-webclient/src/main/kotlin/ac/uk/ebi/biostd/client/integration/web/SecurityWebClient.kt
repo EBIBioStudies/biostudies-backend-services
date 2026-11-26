@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.api.security.UserProfile
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.api.security.LoginRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.UserProfile
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.post
 import uk.ac.ebi.biostd.commons.http.ext.postForObject

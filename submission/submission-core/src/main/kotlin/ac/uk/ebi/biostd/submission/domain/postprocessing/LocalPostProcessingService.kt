@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
@@ -35,6 +34,7 @@ import uk.ac.ebi.biostd.extended.model.PersistedExtFile
 import uk.ac.ebi.biostd.extended.model.allSectionsFiles
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.ext.md5
+import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.time.Instant

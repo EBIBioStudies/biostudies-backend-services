@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import uk.ac.ebi.biostd.model.AttributeDetail
 
 class AttributeDetailDeserializerTest {
     private val testInstance = JsonSerializer.mapper

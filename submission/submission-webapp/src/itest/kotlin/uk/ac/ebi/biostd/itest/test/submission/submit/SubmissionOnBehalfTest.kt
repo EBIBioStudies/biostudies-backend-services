@@ -8,12 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.model.extensions.title
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -25,8 +20,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.io.ext.createDirectory
@@ -40,6 +38,8 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.extensions.releaseDate
+import uk.ac.ebi.biostd.model.extensions.title
 import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 

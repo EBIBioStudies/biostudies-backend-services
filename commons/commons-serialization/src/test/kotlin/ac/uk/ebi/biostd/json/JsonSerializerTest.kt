@@ -1,9 +1,6 @@
 package ac.uk.ebi.biostd.json
 
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Submission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.toList
@@ -11,6 +8,9 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Submission
 
 @ExtendWith(TemporaryFolderExtension::class)
 class JsonSerializerTest(

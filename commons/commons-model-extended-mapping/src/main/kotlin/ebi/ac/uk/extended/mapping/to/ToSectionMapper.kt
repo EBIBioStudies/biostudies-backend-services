@@ -1,12 +1,12 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.constants.AUTHOR_TYPE
-import ebi.ac.uk.model.constants.ORG_TYPES
 import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.ExtSectionTable
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.SectionsTable
+import uk.ac.ebi.biostd.model.constants.AUTHOR_TYPE
+import uk.ac.ebi.biostd.model.constants.ORG_TYPES
 import uk.ac.ebi.biostd.util.collections.mapRigh
 
 class ToSectionMapper(

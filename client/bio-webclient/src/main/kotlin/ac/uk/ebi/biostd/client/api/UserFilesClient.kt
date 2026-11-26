@@ -3,12 +3,6 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.common.MultipartBuilder
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
 import ac.uk.ebi.biostd.client.integration.web.UserOperations
-import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.model.DirFilePath
-import ebi.ac.uk.model.FilePath
-import ebi.ac.uk.model.FolderStats
-import ebi.ac.uk.model.MigrateHomeOptions
-import ebi.ac.uk.model.RenameFilePath
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.buffer.DataBuffer
@@ -20,10 +14,16 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToFlux
+import uk.ac.ebi.biostd.api.UserFile
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
 import uk.ac.ebi.biostd.extended.model.ExtUser
 import uk.ac.ebi.biostd.io.KFiles
+import uk.ac.ebi.biostd.model.DirFilePath
+import uk.ac.ebi.biostd.model.FilePath
+import uk.ac.ebi.biostd.model.FolderStats
+import uk.ac.ebi.biostd.model.MigrateHomeOptions
+import uk.ac.ebi.biostd.model.RenameFilePath
 import java.io.File
 
 private const val USER_FILES_URL = "/files/user"

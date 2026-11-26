@@ -19,7 +19,6 @@ import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingServ
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
 import ac.uk.ebi.biostd.submission.pmc.ProcessConfig
-import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.CommandLineRunner
@@ -34,6 +33,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
+import uk.ac.ebi.biostd.model.SubmissionId
 import kotlin.system.exitProcess
 
 @SpringBootApplication

@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.HARD_LINKS
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.MOVE
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
-import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import uk.ac.ebi.biostd.extended.model.ExtFile
@@ -15,6 +14,7 @@ import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.Permissions
 import uk.ac.ebi.biostd.io.RWXR_XR_X
 import uk.ac.ebi.biostd.io.RW_R__R__
+import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import java.nio.file.Path
 
 class NfsFtpService(

@@ -8,14 +8,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields.ACC_NO
-import ebi.ac.uk.model.constants.SubFields.ATTRIBUTES
-import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
-import ebi.ac.uk.model.constants.SubFields.SECTION
 import uk.ac.ebi.biostd.base.like
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.constants.SubFields.ACC_NO
+import uk.ac.ebi.biostd.model.constants.SubFields.ATTRIBUTES
+import uk.ac.ebi.biostd.model.constants.SubFields.RELEASE_DATE
+import uk.ac.ebi.biostd.model.constants.SubFields.SECTION
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.findNode
 

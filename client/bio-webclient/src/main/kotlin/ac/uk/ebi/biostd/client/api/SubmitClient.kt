@@ -4,24 +4,24 @@ import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
-import ebi.ac.uk.api.OnBehalfParameters.Companion.REGISTER_PARAM
-import ebi.ac.uk.api.OnBehalfParameters.Companion.USER_NAME_PARAM
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.api.SubmitParameters.Companion.PREFERRED_SOURCES
-import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
-import ebi.ac.uk.api.SubmitParameters.Companion.SINGLE_JOB_MODE
-import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionId
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
+import uk.ac.ebi.biostd.api.OnBehalfParameters.Companion.REGISTER_PARAM
+import uk.ac.ebi.biostd.api.OnBehalfParameters.Companion.USER_NAME_PARAM
+import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.PREFERRED_SOURCES
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.SILENT_MODE
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.SINGLE_JOB_MODE
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.STORAGE_MODE
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.util.web.optionalQueryParam
 
 internal class SubmitClient(

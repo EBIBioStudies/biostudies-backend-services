@@ -5,12 +5,6 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.model.constants.APPLICATION_JSON
-import ebi.ac.uk.model.constants.SUBMISSION_TYPE
-import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -20,6 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.model.SubmissionId
+import uk.ac.ebi.biostd.model.constants.APPLICATION_JSON
+import uk.ac.ebi.biostd.model.constants.SUBMISSION_TYPE
+import uk.ac.ebi.biostd.model.constants.TEXT_PLAIN
 
 @RestController
 @RequestMapping("/submissions")

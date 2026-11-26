@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
-import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
-import ebi.ac.uk.model.RequestStatus.PROCESSED
+import uk.ac.ebi.biostd.model.RequestStatus.POST_PROCESSED
+import uk.ac.ebi.biostd.model.RequestStatus.PROCESSED
 
 class SubmissionRequestPostProcessor(
     private val requestService: SubmissionRequestPersistenceService,

@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.test
 
-import ebi.ac.uk.dsl.attribute
-import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.link
-import ebi.ac.uk.dsl.linksTable
-import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.sectionsTable
-import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.model.extensions.title
+import uk.ac.ebi.biostd.dsl.attribute
+import uk.ac.ebi.biostd.dsl.file
+import uk.ac.ebi.biostd.dsl.filesTable
+import uk.ac.ebi.biostd.dsl.link
+import uk.ac.ebi.biostd.dsl.linksTable
+import uk.ac.ebi.biostd.dsl.section
+import uk.ac.ebi.biostd.dsl.sectionsTable
+import uk.ac.ebi.biostd.dsl.submission
+import uk.ac.ebi.biostd.model.AttributeDetail
+import uk.ac.ebi.biostd.model.extensions.releaseDate
+import uk.ac.ebi.biostd.model.extensions.rootPath
+import uk.ac.ebi.biostd.model.extensions.title
 
 fun createVenousBloodMonocyte() =
     submission("S-IHECRE00000919.1") {

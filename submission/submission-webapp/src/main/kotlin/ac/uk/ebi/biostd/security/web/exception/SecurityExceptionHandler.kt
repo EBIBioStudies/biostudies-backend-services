@@ -1,9 +1,5 @@
 package ac.uk.ebi.biostd.security.web.exception
 
-import ebi.ac.uk.errors.ValidationNode
-import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
-import ebi.ac.uk.errors.ValidationTree
-import ebi.ac.uk.errors.ValidationTreeStatus.FAIL
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.InvalidCaptchaException
 import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
@@ -21,6 +17,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
+import uk.ac.ebi.biostd.errors.ValidationNode
+import uk.ac.ebi.biostd.errors.ValidationNodeStatus.ERROR
+import uk.ac.ebi.biostd.errors.ValidationTree
+import uk.ac.ebi.biostd.errors.ValidationTreeStatus.FAIL
 
 @ControllerAdvice
 class SecurityExceptionHandler {

@@ -1,0 +1,110 @@
+package uk.ac.ebi.biostd.io.sources
+
+import uk.ac.ebi.biostd.errors.FilesProcessingException
+import uk.ac.ebi.biostd.errors.InvalidPathException
+import uk.ac.ebi.biostd.extended.model.ExtAttribute
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.RequestFile
+import java.io.File
+
+/**
+ * Regex pattern used to match the suggested charset for S3 keys described at:
+ * https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+ *
+ * - Avoid relative paths (./ or ../)
+ * - Avoid trailing slashes
+ * - Allow any alphanumeric character (a-z | A-Z | 0-9)
+ * - Allow any of the following special characters:
+ *     - Exclamation point [!]
+ *     - Hyphen [-]
+ *     - Underscore [_]
+ *     - Period [.]
+ *     - Asterisk [*]
+ *     - Single quote [']
+ *     - Open parenthesis [ ( ]
+ *     - Close parenthesis [ ) ]
+ *     - Space [ ]
+ */
+
+private val validPathPattern =
+    buildString {
+        append("^") // Start of the line
+        append("(?!\\./)") // Negative lookahead to exclude "./"
+        append("(?!.*/\$)") // Negative lookahead to exclude "/" at the end
+        append("(?!.*\\.\\./)") // Negative lookahead to exclude occurrences of "../"
+        append("[0-9A-Za-z!\\-_*'(). /]+") // Character set allowing specified characters
+        append("\$") // End of the line
+    }.trimIndent().toRegex()
+
+interface FileSourcesList {
+    suspend fun findExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+        fileListName: String? = null,
+    ): ExtFile?
+
+    suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+        fileListName: String? = null,
+    ): ExtFile
+
+    fun sourcesDescription(): String
+
+    suspend fun getFileList(
+        path: String,
+        fileListName: String? = null,
+    ): File?
+}
+
+class ByPassSourceList(
+    private val fileSourcesList: FileSourcesList,
+) : FileSourcesList by fileSourcesList {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+        fileListName: String?,
+    ): ExtFile = RequestFile(path, attributes, type)
+}
+
+class SourcesList(
+    val sources: List<FilesSource>,
+) : FileSourcesList {
+    override suspend fun findExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+        fileListName: String?,
+    ): ExtFile? {
+        validatePath(path, fileListName)
+        return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
+    }
+
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<ExtAttribute>,
+        fileListName: String?,
+    ): ExtFile = findExtFile(path, type, attributes, fileListName) ?: throw FilesProcessingException(path, this, fileListName)
+
+    override fun sourcesDescription(): String = sources.joinToString(separator = "\n") { "  - ${it.description}" }
+
+    override suspend fun getFileList(
+        path: String,
+        fileListName: String?,
+    ): File? {
+        validatePath(path, fileListName)
+        return sources.firstNotNullOfOrNull { it.getFileList(path) }
+    }
+
+    private fun validatePath(
+        path: String,
+        fileListName: String?,
+    ) {
+        val canSkipCheck = sources.any { it.javaClass == AdminUpdateFilesSource::class.java }
+        require(canSkipCheck || validPathPattern.matches(path)) { throw InvalidPathException(path, fileListName) }
+    }
+}

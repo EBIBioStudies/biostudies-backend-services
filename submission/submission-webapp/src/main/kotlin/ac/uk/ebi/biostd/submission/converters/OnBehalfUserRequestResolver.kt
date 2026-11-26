@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
-import ebi.ac.uk.api.OnBehalfParameters.Companion.REGISTER_PARAM
-import ebi.ac.uk.api.OnBehalfParameters.Companion.USER_NAME_PARAM
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.api.OnBehalfParameters.Companion.ON_BEHALF_PARAM
+import uk.ac.ebi.biostd.api.OnBehalfParameters.Companion.REGISTER_PARAM
+import uk.ac.ebi.biostd.api.OnBehalfParameters.Companion.USER_NAME_PARAM
 import uk.ac.ebi.biostd.base.orFalse
 import java.net.URLDecoder
 import kotlin.text.Charsets.UTF_8

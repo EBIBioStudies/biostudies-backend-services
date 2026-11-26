@@ -20,11 +20,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import ebi.ac.uk.model.constants.APPLICATION_JSON
-import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
-import ebi.ac.uk.model.constants.SUBFORMAT
-import ebi.ac.uk.model.constants.SUBMISSIONS
-import ebi.ac.uk.model.constants.TEXT_PLAIN
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.toList
@@ -53,6 +48,11 @@ import uk.ac.ebi.biostd.db.MONGO_VERSION
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.dsl.json.toJsonQuote
+import uk.ac.ebi.biostd.model.constants.APPLICATION_JSON
+import uk.ac.ebi.biostd.model.constants.MULTIPART_FORM_DATA
+import uk.ac.ebi.biostd.model.constants.SUBFORMAT
+import uk.ac.ebi.biostd.model.constants.SUBMISSIONS
+import uk.ac.ebi.biostd.model.constants.TEXT_PLAIN
 import uk.ac.ebi.biostd.test.createFile
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Duration.ofSeconds

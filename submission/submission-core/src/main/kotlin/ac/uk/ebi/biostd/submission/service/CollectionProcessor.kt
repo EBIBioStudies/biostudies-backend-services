@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternExcep
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitCollectionsException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import uk.ac.ebi.biostd.model.extensions.accNoTemplate
 
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is required for collections"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"

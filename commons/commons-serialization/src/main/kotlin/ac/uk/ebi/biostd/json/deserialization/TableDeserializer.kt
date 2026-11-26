@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.Table
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.SectionsTable
+import uk.ac.ebi.biostd.model.Table
 
 internal abstract class TableDeserializer<T : Any, S : Table<T>>(
     private val itemType: Class<T>,

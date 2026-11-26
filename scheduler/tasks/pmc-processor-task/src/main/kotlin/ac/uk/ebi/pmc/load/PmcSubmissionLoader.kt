@@ -4,8 +4,6 @@ import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.InputFilesService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcMode
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SUB_SEPARATOR
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -14,6 +12,8 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.base.splitIgnoringEmpty
 import uk.ac.ebi.biostd.coroutines.concurrently
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.constants.SUB_SEPARATOR
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()

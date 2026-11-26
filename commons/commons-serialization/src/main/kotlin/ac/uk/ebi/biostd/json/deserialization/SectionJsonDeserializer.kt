@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.constants.SectionFields.ACC_NO
-import ebi.ac.uk.model.constants.SectionFields.ATTRIBUTES
-import ebi.ac.uk.model.constants.SectionFields.FILES
-import ebi.ac.uk.model.constants.SectionFields.LINKS
-import ebi.ac.uk.model.constants.SectionFields.SUBSECTIONS
-import ebi.ac.uk.model.constants.SectionFields.TYPE
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.constants.SectionFields.ACC_NO
+import uk.ac.ebi.biostd.model.constants.SectionFields.ATTRIBUTES
+import uk.ac.ebi.biostd.model.constants.SectionFields.FILES
+import uk.ac.ebi.biostd.model.constants.SectionFields.LINKS
+import uk.ac.ebi.biostd.model.constants.SectionFields.SUBSECTIONS
+import uk.ac.ebi.biostd.model.constants.SectionFields.TYPE
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.findNode
 

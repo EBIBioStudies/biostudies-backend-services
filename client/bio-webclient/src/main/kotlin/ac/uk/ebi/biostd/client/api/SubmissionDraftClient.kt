@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.DraftSubmissionOperations
-import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.model.WebSubmissionDraft
 
 private const val SUBMISSION_DRAFT_URL = "/submissions/drafts"
 

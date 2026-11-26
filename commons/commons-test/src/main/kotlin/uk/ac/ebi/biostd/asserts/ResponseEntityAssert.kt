@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.asserts
 
-import ebi.ac.uk.api.ClientResponse
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.http.HttpStatus
+import uk.ac.ebi.biostd.api.ClientResponse
 
 fun <T> assertThat(response: ClientResponse<T>): ResponseEntityAssert<T> = ResponseEntityAssert(response)
 

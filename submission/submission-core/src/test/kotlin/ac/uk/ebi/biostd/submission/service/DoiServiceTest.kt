@@ -16,11 +16,6 @@ import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM_VALUE
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.PASSWORD_PARAM
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.USER_PARAM
-import ebi.ac.uk.dsl.attribute
-import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
-import ebi.ac.uk.model.extensions.title
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -45,7 +40,12 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.dsl.attribute
+import uk.ac.ebi.biostd.dsl.section
+import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.model.constants.MULTIPART_FORM_DATA
+import uk.ac.ebi.biostd.model.extensions.title
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC

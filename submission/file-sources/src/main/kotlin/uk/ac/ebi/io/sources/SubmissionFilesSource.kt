@@ -1,8 +1,6 @@
 package uk.ac.ebi.io.sources
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.constants.FileFields
 import uk.ac.ebi.biostd.base.ensureSuffix
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFile
@@ -13,6 +11,8 @@ import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.typeSafeCopy
+import uk.ac.ebi.biostd.io.sources.FilesSource
+import uk.ac.ebi.biostd.model.constants.FileFields
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 

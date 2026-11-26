@@ -1,6 +1,5 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.test.runTest
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.model.constants.FileFields.FILE_TYPE
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)

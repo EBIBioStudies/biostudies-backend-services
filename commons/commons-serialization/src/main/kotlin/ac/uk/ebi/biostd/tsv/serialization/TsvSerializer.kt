@@ -1,20 +1,20 @@
 package ac.uk.ebi.biostd.tsv.serialization
 
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Header
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.Table
-import ebi.ac.uk.model.constants.SectionFields.FILE_LIST
-import ebi.ac.uk.model.constants.SectionFields.LINK_LIST
-import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
-import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 import uk.ac.ebi.biostd.base.isNotBlank
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Header
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.SectionsTable
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.Table
+import uk.ac.ebi.biostd.model.constants.SectionFields.FILE_LIST
+import uk.ac.ebi.biostd.model.constants.SectionFields.LINK_LIST
+import uk.ac.ebi.biostd.model.constants.TableFields.FILES_TABLE
+import uk.ac.ebi.biostd.model.constants.TableFields.LINKS_TABLE
 
 class TsvSerializer {
     fun <T> serialize(element: T): String {

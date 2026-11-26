@@ -5,7 +5,6 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import ebi.ac.uk.model.SubmissionTransferOptions
 import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -16,6 +15,7 @@ import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.TARGET_OWNER
 import uk.ac.ebi.biostd.client.cli.common.TransferenceParameters.USER_NAME
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import uk.ac.ebi.biostd.model.SubmissionTransferOptions
 
 internal class TransferCommand(
     private val subService: SubmissionService,

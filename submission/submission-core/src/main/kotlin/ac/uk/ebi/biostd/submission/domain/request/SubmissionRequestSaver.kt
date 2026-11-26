@@ -4,11 +4,11 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
-import ebi.ac.uk.model.RequestStatus.PERSISTED
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.typeSafeCopy
+import uk.ac.ebi.biostd.model.RequestStatus.CHECK_RELEASED
+import uk.ac.ebi.biostd.model.RequestStatus.PERSISTED
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
 

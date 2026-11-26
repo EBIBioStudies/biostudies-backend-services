@@ -13,13 +13,6 @@ import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields.DOI
-import ebi.ac.uk.model.constants.SubFields.TITLE
-import ebi.ac.uk.model.extensions.allSections
-import ebi.ac.uk.model.extensions.isAuthor
-import ebi.ac.uk.model.extensions.isOrganization
 import mu.KotlinLogging
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -34,6 +27,13 @@ import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.io.FileUtils
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.constants.SubFields.DOI
+import uk.ac.ebi.biostd.model.constants.SubFields.TITLE
+import uk.ac.ebi.biostd.model.extensions.allSections
+import uk.ac.ebi.biostd.model.extensions.isAuthor
+import uk.ac.ebi.biostd.model.extensions.isOrganization
 import java.nio.file.Files
 import java.time.Instant
 

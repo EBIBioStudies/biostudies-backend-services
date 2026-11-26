@@ -1,15 +1,15 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
-import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
-import ebi.ac.uk.model.constants.SubFields.DOI
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
-import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
-import ebi.ac.uk.model.constants.SubFields.ROOT_PATH
-import ebi.ac.uk.model.constants.SubFields.TITLE
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.constants.SubFields.ATTACH_TO
+import uk.ac.ebi.biostd.model.constants.SubFields.COLLECTION_VALIDATOR
+import uk.ac.ebi.biostd.model.constants.SubFields.DOI
+import uk.ac.ebi.biostd.model.constants.SubFields.PUBLIC_ACCESS_TAG
+import uk.ac.ebi.biostd.model.constants.SubFields.RELEASE_DATE
+import uk.ac.ebi.biostd.model.constants.SubFields.ROOT_PATH
+import uk.ac.ebi.biostd.model.constants.SubFields.TITLE
 
 class ToSubmissionMapper(
     private val toSectionMapper: ToSectionMapper,

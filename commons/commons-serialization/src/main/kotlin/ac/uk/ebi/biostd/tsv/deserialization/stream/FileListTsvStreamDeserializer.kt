@@ -4,9 +4,9 @@ import ac.uk.ebi.biostd.tsv.TAB
 import ac.uk.ebi.biostd.validation.INVALID_FILES_TABLE
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.constants.TableFields.FILES_TABLE
 import uk.ac.ebi.biostd.util.collections.destructure
 import java.io.InputStream
 import java.io.OutputStream

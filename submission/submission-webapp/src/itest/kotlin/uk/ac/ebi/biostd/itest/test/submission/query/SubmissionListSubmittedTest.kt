@@ -5,9 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.model.RequestStatus.SUBMITTED
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -32,6 +29,9 @@ import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.RequestStatus.SUBMITTED
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSED
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSING
 import uk.ac.ebi.biostd.util.collections.second
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC

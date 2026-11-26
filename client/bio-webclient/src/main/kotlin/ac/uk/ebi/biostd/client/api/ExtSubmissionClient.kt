@@ -3,9 +3,6 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.dto.ExtPageRequest
 import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
-import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.model.SubmissionTransferOptions
-import ebi.ac.uk.model.constants.SUBMISSION
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.util.UriComponentsBuilder
@@ -21,6 +18,9 @@ import uk.ac.ebi.biostd.extended.model.ExtPage
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.WebExtPage
+import uk.ac.ebi.biostd.model.SubmissionId
+import uk.ac.ebi.biostd.model.SubmissionTransferOptions
+import uk.ac.ebi.biostd.model.constants.SUBMISSION
 import uk.ac.ebi.biostd.util.date.toStringInstant
 import uk.ac.ebi.biostd.util.web.optionalQueryParam
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

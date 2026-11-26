@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.dto
 
-import ebi.ac.uk.api.SubmitParameters
+import uk.ac.ebi.biostd.api.SubmitParameters
 import java.io.File
 
 internal data class SubmissionRequest(

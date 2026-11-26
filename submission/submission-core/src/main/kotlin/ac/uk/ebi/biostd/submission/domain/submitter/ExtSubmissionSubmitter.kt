@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
-import ebi.ac.uk.model.SubmissionId
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.model.SubmissionId
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 

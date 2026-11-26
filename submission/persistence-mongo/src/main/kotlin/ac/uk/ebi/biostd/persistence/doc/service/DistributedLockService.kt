@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.lock.DistributedLockExecutor
-import ebi.ac.uk.model.SubmissionId
+import uk.ac.ebi.biostd.model.SubmissionId
 import java.time.Duration
 
 class DistributedLockService internal constructor(

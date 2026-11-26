@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
-import ebi.ac.uk.model.constants.ProcessingStatus
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus
 import java.time.OffsetDateTime
 
 /**

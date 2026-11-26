@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocRequestProcessing
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.model.RequestStatus.CLEANED
-import ebi.ac.uk.model.RequestStatus.REQUESTED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -42,6 +40,8 @@ import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
 import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.extended.model.FileSourceType
+import uk.ac.ebi.biostd.model.RequestStatus.CLEANED
+import uk.ac.ebi.biostd.model.RequestStatus.REQUESTED
 import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.temporal.ChronoUnit

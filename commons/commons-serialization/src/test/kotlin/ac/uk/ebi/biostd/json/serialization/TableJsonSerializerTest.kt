@@ -5,19 +5,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.Table
-import ebi.ac.uk.model.constants.FileFields
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
 import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.SectionsTable
+import uk.ac.ebi.biostd.model.Table
+import uk.ac.ebi.biostd.model.constants.FileFields
 
 class TableJsonSerializerTest {
     private val testInstance = createSerializer()

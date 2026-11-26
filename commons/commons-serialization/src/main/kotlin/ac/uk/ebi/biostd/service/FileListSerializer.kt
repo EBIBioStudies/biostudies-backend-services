@@ -4,17 +4,17 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.getFileListFile
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
-import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FileList
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinkList
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.allSections
-import ebi.ac.uk.model.extensions.fileListName
-import ebi.ac.uk.model.extensions.linkListName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import uk.ac.ebi.biostd.io.sources.FileSourcesList
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FileList
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinkList
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.extensions.allSections
+import uk.ac.ebi.biostd.model.extensions.fileListName
+import uk.ac.ebi.biostd.model.extensions.linkListName
 import java.io.InputStream
 
 internal class FileListSerializer(

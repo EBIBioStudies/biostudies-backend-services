@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ebi.ac.uk.model.RequestStatus
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
+import uk.ac.ebi.biostd.model.RequestStatus
 
 internal class SubmissionRequestService {
     suspend fun getRequestStatus(

@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToCollectionException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import uk.ac.ebi.biostd.model.AccNumber
 
 const val DEFAULT_PATTERN = "!{S-BSST}"
 const val PATH_DIGITS = 3

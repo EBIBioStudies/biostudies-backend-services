@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.integration
 
-import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.io.sources.FileSourcesList
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.Submission
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream

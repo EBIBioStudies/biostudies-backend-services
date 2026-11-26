@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import mu.KotlinLogging
@@ -25,6 +24,7 @@ import uk.ac.ebi.biostd.extended.model.PersistedExtFile
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.allPageTabFiles
 import uk.ac.ebi.biostd.extended.model.storageMode
+import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlowExt
 import java.util.concurrent.atomic.AtomicInteger

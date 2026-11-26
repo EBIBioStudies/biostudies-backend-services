@@ -14,15 +14,15 @@ import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.SerializationException
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.Submission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import uk.ac.ebi.biostd.dsl.tsv.Tsv
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 

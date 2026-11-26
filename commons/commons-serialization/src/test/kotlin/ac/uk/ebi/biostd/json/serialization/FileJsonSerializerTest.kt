@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.constants.FileFields
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.constants.FileFields
 
 class FileJsonSerializerTest {
     private val testInstance = createSerializer()

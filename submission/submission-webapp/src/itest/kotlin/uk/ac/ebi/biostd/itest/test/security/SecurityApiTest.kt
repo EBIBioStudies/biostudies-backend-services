@@ -4,9 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.api.security.ChangePasswordRequest
-import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.service.SecurityService
 import kotlinx.coroutines.test.runTest
@@ -19,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.api.security.ChangePasswordRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.ResetPasswordRequest
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.FtpSuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser

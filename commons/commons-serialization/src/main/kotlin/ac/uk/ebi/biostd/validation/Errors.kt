@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.validation
 
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import com.google.common.collect.Multimap
-import ebi.ac.uk.model.Submission
+import uk.ac.ebi.biostd.model.Submission
 
 const val CHUNK_SIZE_ERROR_MSG = "Several page tab elements detected. Exactly one element must be provided"
 

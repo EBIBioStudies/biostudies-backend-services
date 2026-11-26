@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
-import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.GroupFolder
@@ -14,6 +13,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserFolder
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import uk.ac.ebi.biostd.model.FolderStats
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths

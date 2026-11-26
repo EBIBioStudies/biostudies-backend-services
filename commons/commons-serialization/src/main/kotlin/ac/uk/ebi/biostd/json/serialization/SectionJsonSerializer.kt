@@ -6,11 +6,11 @@ import ac.uk.ebi.biostd.json.common.writeObj
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.constants.SectionFields
-import ebi.ac.uk.model.constants.SectionFields.FILE_LIST
-import ebi.ac.uk.model.constants.SectionFields.LINK_LIST
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.constants.SectionFields
+import uk.ac.ebi.biostd.model.constants.SectionFields.FILE_LIST
+import uk.ac.ebi.biostd.model.constants.SectionFields.LINK_LIST
 
 internal class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
     override fun serialize(

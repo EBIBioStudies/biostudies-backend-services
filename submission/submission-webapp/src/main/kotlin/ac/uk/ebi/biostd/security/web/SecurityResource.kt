@@ -1,16 +1,5 @@
 package ac.uk.ebi.biostd.security.web
 
-import ebi.ac.uk.api.security.ActivateByEmailRequest
-import ebi.ac.uk.api.security.ChangePasswordRequest
-import ebi.ac.uk.api.security.CheckUserRequest
-import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.LogoutRequest
-import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.api.security.ResetPasswordRequest
-import ebi.ac.uk.api.security.RetryActivationRequest
-import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -26,6 +15,17 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.api.security.ActivateByEmailRequest
+import uk.ac.ebi.biostd.api.security.ChangePasswordRequest
+import uk.ac.ebi.biostd.api.security.CheckUserRequest
+import uk.ac.ebi.biostd.api.security.LoginRequest
+import uk.ac.ebi.biostd.api.security.LogoutRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.ResetPasswordRequest
+import uk.ac.ebi.biostd.api.security.RetryActivationRequest
+import uk.ac.ebi.biostd.api.security.UserProfile
+import uk.ac.ebi.biostd.model.User
+import uk.ac.ebi.biostd.model.constants.APPLICATION_JSON
 
 @RestController
 @RequestMapping("/auth", produces = [APPLICATION_JSON])

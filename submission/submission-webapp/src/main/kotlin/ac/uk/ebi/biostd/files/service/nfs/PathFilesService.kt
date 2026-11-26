@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
 import ac.uk.ebi.biostd.files.utils.transferTo
-import ebi.ac.uk.api.UserFileType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.api.UserFileType
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.Permissions
 import uk.ac.ebi.biostd.io.RWXRWX___

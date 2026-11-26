@@ -7,9 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReque
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.model.RequestStatus.POST_PROCESSED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -23,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.coroutines.waitUntil
@@ -38,6 +36,7 @@ import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.listFilesOrEmpty
+import uk.ac.ebi.biostd.io.sources.PreferredSource
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.fireFtpPath
@@ -46,6 +45,7 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.privateNfsSubmission
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.publicNfsSubmissionPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.RequestStatus.POST_PROCESSED
 import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File

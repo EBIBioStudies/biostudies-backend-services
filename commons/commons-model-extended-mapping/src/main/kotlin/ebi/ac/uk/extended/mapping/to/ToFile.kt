@@ -1,12 +1,12 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.constants.FILES_RESERVED_ATTRS
 
 internal const val TO_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileKt"
 

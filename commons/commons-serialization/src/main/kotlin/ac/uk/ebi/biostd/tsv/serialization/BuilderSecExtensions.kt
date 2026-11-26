@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.tsv.serialization
 
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Link
 import uk.ac.ebi.biostd.base.isNotBlank
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Link
 
 internal const val LINK_KEY = "Link"
 internal const val FILE_KEY = "File"

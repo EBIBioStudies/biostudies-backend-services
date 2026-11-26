@@ -5,11 +5,11 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
-import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING_STATUS
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.take
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
+import uk.ac.ebi.biostd.model.RequestStatus.Companion.PROCESSING_STATUS
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

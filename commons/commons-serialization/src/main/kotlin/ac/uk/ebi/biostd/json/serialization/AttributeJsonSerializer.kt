@@ -7,10 +7,10 @@ import ac.uk.ebi.biostd.json.common.writeObj
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.constants.AttributeDetails
-import ebi.ac.uk.model.constants.AttributeFields
 import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.constants.AttributeDetails
+import uk.ac.ebi.biostd.model.constants.AttributeFields
 
 internal class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
     override fun isEmpty(

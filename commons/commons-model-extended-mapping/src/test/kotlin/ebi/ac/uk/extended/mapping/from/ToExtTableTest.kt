@@ -1,7 +1,5 @@
 package ebi.ac.uk.extended.mapping.from
 
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -10,6 +8,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
 
 @ExtendWith(MockKExtension::class)
 class ToExtTableTest {

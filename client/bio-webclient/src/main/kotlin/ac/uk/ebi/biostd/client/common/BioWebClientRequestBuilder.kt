@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.client.common
 
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.api.SubmitParameters.Companion.SILENT_MODE
-import ebi.ac.uk.api.SubmitParameters.Companion.SINGLE_JOB_MODE
-import ebi.ac.uk.api.SubmitParameters.Companion.STORAGE_MODE
-import ebi.ac.uk.model.constants.ATTRIBUTES
-import ebi.ac.uk.model.constants.FILES
-import ebi.ac.uk.model.constants.PREFERRED_SOURCES
-import ebi.ac.uk.model.constants.SUBFORMAT
-import ebi.ac.uk.model.constants.SUBMISSION
-import ebi.ac.uk.model.constants.SUBMISSIONS
 import org.springframework.core.io.FileSystemResource
 import org.springframework.util.LinkedMultiValueMap
+import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.SILENT_MODE
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.SINGLE_JOB_MODE
+import uk.ac.ebi.biostd.api.SubmitParameters.Companion.STORAGE_MODE
+import uk.ac.ebi.biostd.model.constants.ATTRIBUTES
+import uk.ac.ebi.biostd.model.constants.FILES
+import uk.ac.ebi.biostd.model.constants.PREFERRED_SOURCES
+import uk.ac.ebi.biostd.model.constants.SUBFORMAT
+import uk.ac.ebi.biostd.model.constants.SUBMISSION
+import uk.ac.ebi.biostd.model.constants.SUBMISSIONS
 import java.io.File
 
 internal fun multipartBody(

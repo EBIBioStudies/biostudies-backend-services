@@ -1,15 +1,15 @@
 package ebi.ac.uk.security.integration.components
 
-import ebi.ac.uk.api.security.ActivateByEmailRequest
-import ebi.ac.uk.api.security.ChangePasswordRequest
-import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.api.security.ResetPasswordRequest
-import ebi.ac.uk.api.security.RetryActivationRequest
-import ebi.ac.uk.model.MigrateHomeOptions
-import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import uk.ac.ebi.biostd.api.security.ActivateByEmailRequest
+import uk.ac.ebi.biostd.api.security.ChangePasswordRequest
+import uk.ac.ebi.biostd.api.security.LoginRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.ResetPasswordRequest
+import uk.ac.ebi.biostd.api.security.RetryActivationRequest
+import uk.ac.ebi.biostd.model.MigrateHomeOptions
+import uk.ac.ebi.biostd.model.User
 
 interface ISecurityService {
     suspend fun registerUser(request: RegisterRequest): SecurityUser

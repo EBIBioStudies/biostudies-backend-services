@@ -3,10 +3,6 @@ package ac.uk.ebi.biostd.submission.web.exception
 import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
-import ebi.ac.uk.errors.ValidationNode
-import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
-import ebi.ac.uk.errors.ValidationTree
-import ebi.ac.uk.errors.ValidationTreeStatus.FAIL
 import mu.KotlinLogging
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -15,6 +11,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
+import uk.ac.ebi.biostd.errors.ValidationNode
+import uk.ac.ebi.biostd.errors.ValidationNodeStatus.ERROR
+import uk.ac.ebi.biostd.errors.ValidationTree
+import uk.ac.ebi.biostd.errors.ValidationTreeStatus.FAIL
 
 private val logger = KotlinLogging.logger {}
 

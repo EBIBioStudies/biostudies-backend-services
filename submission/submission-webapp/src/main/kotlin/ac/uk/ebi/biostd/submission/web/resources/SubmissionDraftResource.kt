@@ -9,9 +9,6 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import com.fasterxml.jackson.annotation.JsonRawValue
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.model.SubmissionId
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.model.SubmissionId
 import java.time.OffsetDateTime
 
 @RestController

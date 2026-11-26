@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
-import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.INVALID
-import ebi.ac.uk.model.RequestStatus.REQUESTED
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.io.sources.PreferredSource
+import uk.ac.ebi.biostd.model.RequestStatus
+import uk.ac.ebi.biostd.model.RequestStatus.INVALID
+import uk.ac.ebi.biostd.model.RequestStatus.REQUESTED
 import java.io.File
 import java.time.OffsetDateTime
 

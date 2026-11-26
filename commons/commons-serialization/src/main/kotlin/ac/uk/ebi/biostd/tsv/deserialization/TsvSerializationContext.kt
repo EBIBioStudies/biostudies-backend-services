@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.Submission
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.Submission
 
 @Suppress("TooManyFunctions")
 internal class TsvSerializationContext {

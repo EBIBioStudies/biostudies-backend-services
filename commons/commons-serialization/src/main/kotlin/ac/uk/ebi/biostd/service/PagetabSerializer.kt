@@ -7,10 +7,10 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.Submission
 import java.io.InputStream
 import java.io.OutputStream
 

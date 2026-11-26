@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.json.common.writeObj
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SUBMISSION
-import ebi.ac.uk.model.constants.SubFields
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.constants.SUBMISSION
+import uk.ac.ebi.biostd.model.constants.SubFields
 
 internal class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
     override fun serialize(

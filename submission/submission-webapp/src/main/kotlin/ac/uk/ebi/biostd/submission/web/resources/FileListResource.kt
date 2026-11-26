@@ -4,15 +4,15 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidationRequest
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
-import ebi.ac.uk.api.OnBehalfParameters
-import ebi.ac.uk.model.constants.ACC_NO
-import ebi.ac.uk.model.constants.FILE_LIST_NAME
-import ebi.ac.uk.model.constants.ROOT_PATH
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.model.constants.ACC_NO
+import uk.ac.ebi.biostd.model.constants.FILE_LIST_NAME
+import uk.ac.ebi.biostd.model.constants.ROOT_PATH
 
 @RestController
 @RequestMapping("/submissions/fileLists")

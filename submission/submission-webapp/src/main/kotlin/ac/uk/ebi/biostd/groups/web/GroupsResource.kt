@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.groups.web
 
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ebi.ac.uk.api.dto.UserGroupDto
-import ebi.ac.uk.model.Group
 import ebi.ac.uk.security.exception.GroupsGroupDescriptionMustNotBeNullException
 import ebi.ac.uk.security.exception.GroupsGroupNameMustNotBeNullException
 import ebi.ac.uk.security.exception.GroupsUserNameMustNotBeNullException
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.api.dto.UserGroupDto
+import uk.ac.ebi.biostd.model.Group
 
 @RestController
 @PreAuthorize("isAuthenticated()")

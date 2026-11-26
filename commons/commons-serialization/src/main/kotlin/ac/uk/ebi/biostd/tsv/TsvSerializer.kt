@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
 import ac.uk.ebi.biostd.tsv.deserialization.stream.LinkListTsvStreamDeserializer
 import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.Submission
 import java.io.InputStream
 import java.io.OutputStream
 

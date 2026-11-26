@@ -3,10 +3,6 @@ package ac.uk.ebi.biostd.files.web.resources
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.model.DirFilePath
-import ebi.ac.uk.model.FilePath
-import ebi.ac.uk.model.RenameFilePath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
@@ -20,6 +16,10 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.api.UserFile
+import uk.ac.ebi.biostd.model.DirFilePath
+import uk.ac.ebi.biostd.model.FilePath
+import uk.ac.ebi.biostd.model.RenameFilePath
 
 @RestController
 @PreAuthorize("isAuthenticated()")

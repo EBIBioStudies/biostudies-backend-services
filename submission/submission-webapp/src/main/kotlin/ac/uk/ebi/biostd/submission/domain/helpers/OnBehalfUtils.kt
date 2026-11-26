@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
-import ebi.ac.uk.api.OnBehalfParameters
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import uk.ac.ebi.biostd.api.OnBehalfParameters
 import uk.ac.ebi.biostd.base.orFalse
 
 class OnBehalfUtils(

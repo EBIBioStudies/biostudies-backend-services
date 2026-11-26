@@ -15,8 +15,6 @@ import ac.uk.ebi.pmc.persistence.repository.SubFileDataRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionDataRepository
 import ac.uk.ebi.pmc.persistence.utils.PmcUtils
 import ac.uk.ebi.scheduler.properties.PmcMode
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -25,6 +23,8 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.SubmissionId
 import java.io.File
 
 private val logger = KotlinLogging.logger {}

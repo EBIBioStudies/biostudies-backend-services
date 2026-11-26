@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.constants.FileFields.ATTRIBUTES
-import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
-import ebi.ac.uk.model.constants.FileFields.PATH
-import ebi.ac.uk.model.constants.FileFields.TYPE
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.constants.FileFields.ATTRIBUTES
+import uk.ac.ebi.biostd.model.constants.FileFields.FILE_TYPE
+import uk.ac.ebi.biostd.model.constants.FileFields.PATH
+import uk.ac.ebi.biostd.model.constants.FileFields.TYPE
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.findNode
 import uk.ac.ebi.biostd.serialization.extensions.getNode

@@ -7,11 +7,6 @@ import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
-import ebi.ac.uk.model.SubmissionMethod
-import ebi.ac.uk.model.constants.SUBMISSION_RESERVED_ATTRIBUTES
-import ebi.ac.uk.model.extensions.isCollection
-import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.model.extensions.title
 import uk.ac.ebi.biostd.extended.model.ExtCollection
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionMethod
@@ -19,6 +14,11 @@ import uk.ac.ebi.biostd.extended.model.ExtTag
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
+import uk.ac.ebi.biostd.model.SubmissionMethod
+import uk.ac.ebi.biostd.model.constants.SUBMISSION_RESERVED_ATTRIBUTES
+import uk.ac.ebi.biostd.model.extensions.isCollection
+import uk.ac.ebi.biostd.model.extensions.rootPath
+import uk.ac.ebi.biostd.model.extensions.title
 import java.util.UUID
 
 private const val DEFAULT_SCHEMA_VERSION = "1.0"

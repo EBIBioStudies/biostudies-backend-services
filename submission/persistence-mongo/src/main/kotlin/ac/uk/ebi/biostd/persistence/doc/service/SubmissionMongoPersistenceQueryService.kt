@@ -13,11 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asSubmittedRequest
-import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.SUBMITTED
-import ebi.ac.uk.model.constants.ProcessingStatus.INVALID
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -27,6 +22,11 @@ import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.model.RequestStatus
+import uk.ac.ebi.biostd.model.RequestStatus.SUBMITTED
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus.INVALID
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSED
+import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSING
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.ZoneOffset.UTC
 import kotlin.math.max

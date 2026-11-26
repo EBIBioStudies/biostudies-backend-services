@@ -21,11 +21,11 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_RELEASE_DATE
 import ac.uk.ebi.biostd.validation.REQUIRED_ROOT_SECTION
 import ac.uk.ebi.biostd.validation.REQUIRED_SUBMISSION
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
-import ebi.ac.uk.model.constants.SubFields.SUBMISSION
 import uk.ac.ebi.biostd.base.like
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.constants.SubFields.RELEASE_DATE
+import uk.ac.ebi.biostd.model.constants.SubFields.SUBMISSION
 
 internal class ChunkProcessor {
     fun getSubmission(tsvChunk: TsvChunk): Submission {

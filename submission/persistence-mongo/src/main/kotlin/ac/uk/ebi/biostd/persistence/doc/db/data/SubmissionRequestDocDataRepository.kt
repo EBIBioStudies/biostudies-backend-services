@@ -45,10 +45,6 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates
-import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.RequestStatus.Companion.ACTIVE_STATUS
-import ebi.ac.uk.model.RequestStatus.Companion.PROCESSED_STATUS
-import ebi.ac.uk.model.RequestStatus.DRAFT
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -77,6 +73,10 @@ import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.data.mongodb.core.updateFirst
 import org.springframework.data.mongodb.core.updateMulti
 import org.springframework.data.mongodb.core.upsert
+import uk.ac.ebi.biostd.model.RequestStatus
+import uk.ac.ebi.biostd.model.RequestStatus.Companion.ACTIVE_STATUS
+import uk.ac.ebi.biostd.model.RequestStatus.Companion.PROCESSED_STATUS
+import uk.ac.ebi.biostd.model.RequestStatus.DRAFT
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 

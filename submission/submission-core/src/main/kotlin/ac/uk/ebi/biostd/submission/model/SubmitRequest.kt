@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.model
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
-import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.io.sources.FileSourcesList
+import uk.ac.ebi.biostd.io.sources.PreferredSource
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.SubmissionMethod
 import java.io.File
 
 data class SubmitRequest(

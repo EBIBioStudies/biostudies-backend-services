@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.itest.entities
 
 import ac.uk.ebi.biostd.common.properties.StorageMode
-import ebi.ac.uk.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
 
 interface TestUser {
     val username: String

@@ -4,14 +4,6 @@ import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.api.security.ActivateByEmailRequest
-import ebi.ac.uk.api.security.ChangePasswordRequest
-import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.api.security.ResetPasswordRequest
-import ebi.ac.uk.api.security.RetryActivationRequest
-import ebi.ac.uk.model.MigrateHomeOptions
-import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -31,6 +23,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.api.security.ActivateByEmailRequest
+import uk.ac.ebi.biostd.api.security.ChangePasswordRequest
+import uk.ac.ebi.biostd.api.security.LoginRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.ResetPasswordRequest
+import uk.ac.ebi.biostd.api.security.RetryActivationRequest
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -43,6 +41,8 @@ import uk.ac.ebi.biostd.extended.events.UrgentNotification
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.RWXRWX___
 import uk.ac.ebi.biostd.io.RWX__X___
+import uk.ac.ebi.biostd.model.MigrateHomeOptions
+import uk.ac.ebi.biostd.model.User
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths

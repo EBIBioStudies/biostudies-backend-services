@@ -2,11 +2,11 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
-import ebi.ac.uk.model.Collection
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import uk.ac.ebi.biostd.model.Collection
 
 class CollectionService(
     private val collectionSqlDataService: CollectionDataService,

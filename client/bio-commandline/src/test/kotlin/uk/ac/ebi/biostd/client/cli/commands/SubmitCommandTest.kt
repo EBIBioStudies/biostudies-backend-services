@@ -2,8 +2,6 @@ package uk.ac.ebi.biostd.client.cli.commands
 
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.io.sources.PreferredSource
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -16,10 +14,12 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.io.sources.PreferredSource
 import uk.ac.ebi.biostd.test.clean
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

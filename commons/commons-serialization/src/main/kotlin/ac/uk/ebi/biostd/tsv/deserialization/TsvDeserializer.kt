@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.tsv.deserialization
 import ac.uk.ebi.biostd.tsv.deserialization.chunks.ChunkProcessor
 import ac.uk.ebi.biostd.tsv.deserialization.chunks.TsvChunkGenerator
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
-import ebi.ac.uk.model.Submission
+import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.biostd.util.collections.ifNotEmpty
 
 internal class TsvDeserializer(

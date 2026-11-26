@@ -19,16 +19,16 @@ import ac.uk.ebi.biostd.submission.model.method
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.io.sources.ByPassSourceList
-import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.model.extensions.attachTo
-import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.model.extensions.withAttributes
-import ebi.ac.uk.paths.FolderType
 import uk.ac.ebi.biostd.base.nullIfBlank
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.io.sources.ByPassSourceList
+import uk.ac.ebi.biostd.io.sources.FileSourcesList
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.SubmissionId
+import uk.ac.ebi.biostd.model.extensions.attachTo
+import uk.ac.ebi.biostd.model.extensions.rootPath
+import uk.ac.ebi.biostd.model.extensions.withAttributes
+import uk.ac.ebi.biostd.paths.FolderType
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 

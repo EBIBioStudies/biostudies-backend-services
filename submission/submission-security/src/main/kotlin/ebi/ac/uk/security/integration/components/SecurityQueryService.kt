@@ -1,8 +1,8 @@
 package ebi.ac.uk.security.integration.components
 
-import ebi.ac.uk.model.FolderStats
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import uk.ac.ebi.biostd.model.FolderStats
 
 interface SecurityQueryService {
     fun existsByEmail(

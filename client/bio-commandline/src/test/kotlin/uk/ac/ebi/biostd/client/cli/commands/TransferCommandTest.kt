@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import ebi.ac.uk.model.SubmissionTransferOptions
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import uk.ac.ebi.biostd.model.SubmissionTransferOptions
 
 @ExtendWith(MockKExtension::class)
 internal class TransferCommandTest(

@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.SubmissionRequestOperations
-import ebi.ac.uk.model.RequestStatus
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
+import uk.ac.ebi.biostd.model.RequestStatus
 
 private const val SUBMISSION_REQUEST_URL = "/submissions/requests"
 

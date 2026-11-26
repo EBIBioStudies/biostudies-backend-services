@@ -6,13 +6,13 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
-import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.errors.ValidationNode
-import ebi.ac.uk.errors.ValidationNodeStatus
-import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
-import ebi.ac.uk.errors.ValidationTreeStatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.submission
+import uk.ac.ebi.biostd.errors.ValidationNode
+import uk.ac.ebi.biostd.errors.ValidationNodeStatus
+import uk.ac.ebi.biostd.errors.ValidationNodeStatus.ERROR
+import uk.ac.ebi.biostd.errors.ValidationTreeStatus
 
 class SerializationExceptionHandlerTest {
     private val testInstance = SerializationExceptionHandler()

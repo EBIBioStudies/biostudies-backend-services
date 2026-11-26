@@ -11,11 +11,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.model.RequestStatus.DRAFT
-import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.model.RequestStatus.DRAFT
+import uk.ac.ebi.biostd.model.extensions.attachTo
 import java.time.Instant
 import java.time.ZoneOffset.UTC
 

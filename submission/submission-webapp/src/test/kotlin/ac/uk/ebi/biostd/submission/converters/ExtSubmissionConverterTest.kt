@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -15,6 +14,7 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.OutputStream
 

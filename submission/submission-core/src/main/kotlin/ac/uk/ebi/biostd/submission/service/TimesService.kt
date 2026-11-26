@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
-import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import uk.ac.ebi.biostd.model.extensions.releaseDate
 import uk.ac.ebi.biostd.util.date.atStartOfDay
 import uk.ac.ebi.biostd.util.date.isBeforeOrEqual
 import java.time.Instant

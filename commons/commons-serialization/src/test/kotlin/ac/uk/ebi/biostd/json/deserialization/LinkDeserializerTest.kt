@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.json.deserialization
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.Link
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.Link
 
 class LinkDeserializerTest {
     private val testInstance = JsonSerializer.mapper

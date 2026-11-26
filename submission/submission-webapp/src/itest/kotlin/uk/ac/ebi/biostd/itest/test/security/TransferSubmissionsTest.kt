@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.EMAIL_UPDATE
 import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.TRANSFER
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.TransferLogDataService
-import ebi.ac.uk.model.SubmissionTransferOptions
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -33,6 +32,7 @@ import uk.ac.ebi.biostd.itest.entities.RegularUser
 import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.SubmissionTransferOptions
 import uk.ac.ebi.biostd.util.date.toStringDate
 import java.time.OffsetDateTime
 

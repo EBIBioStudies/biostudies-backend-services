@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd
 
 import ac.uk.ebi.biostd.common.SerializationConfig
 import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.model.BioFile
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.runBlocking
+import uk.ac.ebi.biostd.model.BioFile
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.outputStream

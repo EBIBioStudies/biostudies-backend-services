@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.files.web.common
 
 import ac.uk.ebi.biostd.files.model.FilesSpec
-import ebi.ac.uk.api.UserFile
+import uk.ac.ebi.biostd.api.UserFile
 import kotlin.io.path.Path
 import ac.uk.ebi.biostd.files.model.UserFile as UserFolderFile
 

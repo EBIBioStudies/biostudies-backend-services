@@ -10,8 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
-import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -33,6 +31,8 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
+import uk.ac.ebi.biostd.model.constants.SubFields.ACC_NO_TEMPLATE
+import uk.ac.ebi.biostd.model.constants.SubFields.COLLECTION_VALIDATOR
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
 import java.time.ZoneOffset.UTC

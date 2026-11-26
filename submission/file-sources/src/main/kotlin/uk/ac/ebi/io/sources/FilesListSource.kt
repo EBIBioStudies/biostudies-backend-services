@@ -1,8 +1,8 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.io.sources.FilesSource
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.io.sources.FilesSource
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
 

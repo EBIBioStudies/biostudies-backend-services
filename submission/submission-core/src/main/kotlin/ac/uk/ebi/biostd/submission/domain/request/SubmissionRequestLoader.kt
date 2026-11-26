@@ -6,8 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
-import ebi.ac.uk.model.RequestStatus.INDEXED
-import ebi.ac.uk.model.RequestStatus.LOADED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -28,6 +26,8 @@ import uk.ac.ebi.biostd.extended.model.hasMd5
 import uk.ac.ebi.biostd.io.ext.createTempFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.model.RequestStatus.INDEXED
+import uk.ac.ebi.biostd.model.RequestStatus.LOADED
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 

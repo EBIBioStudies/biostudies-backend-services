@@ -2,13 +2,13 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
-import ebi.ac.uk.model.SubmissionId
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Scheduled
 import uk.ac.ebi.biostd.coroutines.chunked
+import uk.ac.ebi.biostd.model.SubmissionId
 import java.time.Duration
 
 private val logger = KotlinLogging.logger {}

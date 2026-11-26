@@ -1,9 +1,9 @@
 package ebi.ac.uk.extended.mapping.from
 
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.AttributeDetail
 
 internal const val TO_EXT_ATTRIBUTE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtAttributeKt"
 

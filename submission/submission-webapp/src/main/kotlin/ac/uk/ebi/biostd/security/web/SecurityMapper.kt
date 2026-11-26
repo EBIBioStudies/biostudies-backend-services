@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.security.web
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
-import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import uk.ac.ebi.biostd.api.security.UserProfile
+import uk.ac.ebi.biostd.model.constants.SubFields.PUBLIC_ACCESS_TAG
 
 class SecurityMapper {
     fun toUserProfile(userInfo: UserInfo): UserProfile =

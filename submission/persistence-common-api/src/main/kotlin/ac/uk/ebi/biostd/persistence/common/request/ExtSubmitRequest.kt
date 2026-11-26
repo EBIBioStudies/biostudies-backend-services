@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.request
 
-import ebi.ac.uk.io.sources.PreferredSource
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.io.sources.PreferredSource
 import java.io.File
 
 data class ExtSubmitRequest(

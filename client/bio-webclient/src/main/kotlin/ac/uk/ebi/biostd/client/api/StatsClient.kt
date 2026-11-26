@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.StatsOperations
-import ebi.ac.uk.model.SubmissionStat
-import ebi.ac.uk.model.UpdateResult
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
@@ -13,6 +11,8 @@ import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToFlow
 import uk.ac.ebi.biostd.commons.http.builder.httpHeadersOf
 import uk.ac.ebi.biostd.commons.http.builder.linkedMultiValueMapOf
+import uk.ac.ebi.biostd.model.SubmissionStat
+import uk.ac.ebi.biostd.model.UpdateResult
 import java.io.File
 
 private const val STATS_URL = "/stats"

@@ -2,12 +2,12 @@ package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.validation.InvalidElementException
-import ebi.ac.uk.model.Submission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.model.Submission
 
 class SubmissionJsonDeserializerTest {
     private val testInstance = JsonSerializer.mapper

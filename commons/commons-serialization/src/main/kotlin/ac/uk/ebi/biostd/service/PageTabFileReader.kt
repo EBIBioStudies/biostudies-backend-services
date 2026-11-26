@@ -4,9 +4,9 @@ import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.checkFileListExtension
-import ebi.ac.uk.errors.FilesProcessingException
-import ebi.ac.uk.io.sources.FileSourcesList
+import uk.ac.ebi.biostd.errors.FilesProcessingException
 import uk.ac.ebi.biostd.io.ext.size
+import uk.ac.ebi.biostd.io.sources.FileSourcesList
 import uk.ac.ebi.biostd.util.file.ExcelReader.asTsv
 import java.io.File
 

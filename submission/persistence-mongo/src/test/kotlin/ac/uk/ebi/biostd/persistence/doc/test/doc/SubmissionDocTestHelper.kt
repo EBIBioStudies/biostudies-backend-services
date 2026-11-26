@@ -11,10 +11,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.model.RequestStatus.REQUESTED
 import org.bson.types.ObjectId
 import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.model.RequestStatus.REQUESTED
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

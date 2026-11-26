@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.SubPermissions
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
-import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -17,6 +16,7 @@ import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.FileUtils.copyOrReplaceFile
 import uk.ac.ebi.biostd.io.FileUtils.getOrCreateFolder
 import uk.ac.ebi.biostd.io.ext.notExist
+import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files

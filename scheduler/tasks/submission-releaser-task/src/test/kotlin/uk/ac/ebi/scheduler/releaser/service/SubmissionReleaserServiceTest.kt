@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
-import ebi.ac.uk.model.RequestStatus
-import ebi.ac.uk.model.SubmissionId
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.every
@@ -19,6 +17,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.model.RequestStatus
+import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.util.date.asOffsetAtEndOfDay
 import uk.ac.ebi.biostd.util.date.toDate
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes

@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ebi.ac.uk.model.Link
 import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.model.Link
 
 internal const val TO_LINK_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToLinkKt"
 

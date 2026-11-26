@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-import ebi.ac.uk.errors.FilesProcessingException
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.SourcesList
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -10,6 +7,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.errors.FilesProcessingException
+import uk.ac.ebi.biostd.io.sources.FilesSource
+import uk.ac.ebi.biostd.io.sources.SourcesList
 
 @ExtendWith(MockKExtension::class)
 internal class FilesProcessingExceptionTest(

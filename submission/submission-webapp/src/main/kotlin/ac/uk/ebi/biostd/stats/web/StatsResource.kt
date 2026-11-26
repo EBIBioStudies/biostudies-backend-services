@@ -2,9 +2,6 @@ package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.stats.service.SubmissionStatsService
-import ebi.ac.uk.model.SubmissionStat
-import ebi.ac.uk.model.UpdateResult
-import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -19,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.model.SubmissionStat
+import uk.ac.ebi.biostd.model.UpdateResult
+import uk.ac.ebi.biostd.model.constants.MULTIPART_FORM_DATA
 
 @RestController
 @RequestMapping("/stats")

@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.SourcesList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -28,6 +26,8 @@ import uk.ac.ebi.biostd.dsl.excel.excel
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.io.sources.FilesSource
+import uk.ac.ebi.biostd.io.sources.SourcesList
 import uk.ac.ebi.biostd.test.createFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

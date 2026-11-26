@@ -1,10 +1,6 @@
 package ac.uk.ebi.pmc.process.util
 
 import ac.uk.ebi.pmc.client.PmcApi
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.SUBMISSION_EXTENSIONS
-import ebi.ac.uk.model.extensions.allFiles
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -17,6 +13,10 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.extensions.SUBMISSION_EXTENSIONS
+import uk.ac.ebi.biostd.model.extensions.allFiles
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileDownloaderTest(

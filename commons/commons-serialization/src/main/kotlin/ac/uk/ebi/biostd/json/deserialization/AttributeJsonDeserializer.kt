@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.model.Attribute
 import uk.ac.ebi.biostd.base.nullIfBlank
 import uk.ac.ebi.biostd.base.orFalse
+import uk.ac.ebi.biostd.model.Attribute
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.findNode
 import uk.ac.ebi.biostd.serialization.extensions.getNode

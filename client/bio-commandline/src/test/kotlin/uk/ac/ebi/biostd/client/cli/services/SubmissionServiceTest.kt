@@ -5,11 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
-import ebi.ac.uk.model.RequestStatus.PROCESSED
-import ebi.ac.uk.model.SubmissionId
-import ebi.ac.uk.model.SubmissionTransferOptions
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -25,12 +20,17 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.extended.model.ExtUser
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
+import uk.ac.ebi.biostd.io.sources.PreferredSource.SUBMISSION
+import uk.ac.ebi.biostd.model.RequestStatus.PROCESSED
+import uk.ac.ebi.biostd.model.SubmissionId
+import uk.ac.ebi.biostd.model.SubmissionTransferOptions
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionServiceTest(

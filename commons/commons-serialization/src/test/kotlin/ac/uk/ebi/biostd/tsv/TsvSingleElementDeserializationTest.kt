@@ -1,19 +1,19 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
-import ebi.ac.uk.dsl.attribute
-import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.link
-import ebi.ac.uk.dsl.linksTable
-import ebi.ac.uk.model.BioFile
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.dsl.attribute
+import uk.ac.ebi.biostd.dsl.file
+import uk.ac.ebi.biostd.dsl.filesTable
+import uk.ac.ebi.biostd.dsl.link
+import uk.ac.ebi.biostd.dsl.linksTable
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
 
 class TsvSingleElementDeserializationTest {
     private val deserializer = TsvDeserializer()

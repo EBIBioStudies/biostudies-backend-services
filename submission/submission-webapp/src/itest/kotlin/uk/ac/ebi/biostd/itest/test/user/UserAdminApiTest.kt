@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.itest.test.user
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
-import ebi.ac.uk.model.MigrateHomeOptions
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -24,6 +23,7 @@ import uk.ac.ebi.biostd.itest.entities.SuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.MigrateHomeOptions
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
 import java.time.Instant

@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.api.SubmitParameters
-import ebi.ac.uk.paths.FILES_PATH
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.apache.commons.io.FileUtils
@@ -26,6 +24,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.assertThatThrows
 import uk.ac.ebi.biostd.asserts.assertThrows
@@ -53,6 +52,7 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.paths.FILES_PATH
 import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.biostd.util.date.toStringDate
 import java.io.File

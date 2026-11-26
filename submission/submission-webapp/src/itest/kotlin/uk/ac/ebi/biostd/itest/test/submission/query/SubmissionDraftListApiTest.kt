@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.itest.test.submission.query
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.model.WebSubmissionDraft
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -19,6 +18,7 @@ import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.WebSubmissionDraft
 import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.biostd.util.collections.third
 

@@ -6,11 +6,11 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
-import ebi.ac.uk.model.RequestStatus.DRAFT
-import ebi.ac.uk.model.RequestStatus.SUBMITTED
-import ebi.ac.uk.model.SubmissionId
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.model.RequestStatus.DRAFT
+import uk.ac.ebi.biostd.model.RequestStatus.SUBMITTED
+import uk.ac.ebi.biostd.model.SubmissionId
 import java.time.Instant
 
 private val logger = KotlinLogging.logger {}

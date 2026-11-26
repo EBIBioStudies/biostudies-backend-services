@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.GeneralOperations
-import ebi.ac.uk.api.dto.UserGroupDto
-import ebi.ac.uk.api.security.UserProfile
-import ebi.ac.uk.model.Collection
-import ebi.ac.uk.model.Group
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
+import uk.ac.ebi.biostd.api.dto.UserGroupDto
+import uk.ac.ebi.biostd.api.security.UserProfile
+import uk.ac.ebi.biostd.model.Collection
+import uk.ac.ebi.biostd.model.Group
 
 private const val GROUP_URL = "/groups"
 private const val PROJECTS_URL = "/projects"

@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.model.SubmissionFilterRequest
 import ac.uk.ebi.biostd.submission.web.model.asFilter
-import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.api.dto.SubmissionDto
 
 @RestController
 @RequestMapping("/submissions")

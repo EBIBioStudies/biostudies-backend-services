@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternExcep
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitCollectionsException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.model.extensions.accNoTemplate
 
 @ExtendWith(MockKExtension::class)
 class CollectionProcessorTest(

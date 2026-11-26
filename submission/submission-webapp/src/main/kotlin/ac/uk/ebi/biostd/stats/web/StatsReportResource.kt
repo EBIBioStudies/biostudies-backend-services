@@ -8,10 +8,10 @@ import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.NON_IMAGING_REPORT_NAME
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.PUBLIC_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.TOTAL_REPORT_DIR
-import ebi.ac.uk.model.constants.TEXT_PLAIN
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.model.constants.TEXT_PLAIN
 import java.nio.file.Paths
 
 @RestController

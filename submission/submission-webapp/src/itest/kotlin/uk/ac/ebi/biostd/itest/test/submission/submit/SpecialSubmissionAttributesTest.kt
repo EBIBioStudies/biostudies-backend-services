@@ -9,14 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.model.extensions.allSections
-import ebi.ac.uk.model.extensions.isAuthor
-import ebi.ac.uk.model.extensions.isOrganization
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.model.extensions.title
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -35,6 +28,8 @@ import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.base.Either
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.dsl.section
+import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
@@ -54,6 +49,11 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.pageTabFallbackPath
 import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import uk.ac.ebi.biostd.itest.itest.getWebClient
+import uk.ac.ebi.biostd.model.extensions.allSections
+import uk.ac.ebi.biostd.model.extensions.isAuthor
+import uk.ac.ebi.biostd.model.extensions.isOrganization
+import uk.ac.ebi.biostd.model.extensions.releaseDate
+import uk.ac.ebi.biostd.model.extensions.title
 import uk.ac.ebi.biostd.util.collections.ifRight
 import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.biostd.util.date.toStringDate

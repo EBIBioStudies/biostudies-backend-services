@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.util
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
-import ebi.ac.uk.model.AccNumber
+import uk.ac.ebi.biostd.model.AccNumber
 import uk.ac.ebi.biostd.util.regex.firstGroup
 import uk.ac.ebi.biostd.util.regex.match
 import uk.ac.ebi.biostd.util.regex.secondGroup

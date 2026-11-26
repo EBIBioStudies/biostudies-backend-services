@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
-import ebi.ac.uk.model.constants.SectionFields
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.model.constants.SectionFields
 
 class DocSectionExtTest {
     @Test

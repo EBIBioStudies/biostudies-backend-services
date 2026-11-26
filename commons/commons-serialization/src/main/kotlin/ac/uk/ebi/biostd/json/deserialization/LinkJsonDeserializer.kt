@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constants.ATTRIBUTES
-import ebi.ac.uk.model.constants.LinkFields
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.constants.ATTRIBUTES
+import uk.ac.ebi.biostd.model.constants.LinkFields
 import uk.ac.ebi.biostd.serialization.extensions.convertOrDefault
 import uk.ac.ebi.biostd.serialization.extensions.getNode
 
