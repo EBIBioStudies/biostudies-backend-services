@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
-import ac.uk.ebi.biostd.exception.InvalidFormatException
-import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ac.uk.ebi.biostd.validation.SerializationException
 import com.fasterxml.jackson.databind.JsonMappingException
 import mu.KotlinLogging
 import org.springframework.core.Ordered
@@ -16,6 +13,9 @@ import uk.ac.ebi.biostd.errors.ValidationNode
 import uk.ac.ebi.biostd.errors.ValidationNodeStatus.ERROR
 import uk.ac.ebi.biostd.errors.ValidationTree
 import uk.ac.ebi.biostd.errors.ValidationTreeStatus.FAIL
+import uk.ac.ebi.biostd.exception.InvalidFormatException
+import uk.ac.ebi.biostd.tsv.deserialization.model.TsvChunk
+import uk.ac.ebi.biostd.validation.SerializationException
 
 private val logger = KotlinLogging.logger {}
 

@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
@@ -22,6 +20,8 @@ import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.model.RequestStatus.SUBMITTED
 import uk.ac.ebi.biostd.model.constants.ProcessingStatus.INVALID

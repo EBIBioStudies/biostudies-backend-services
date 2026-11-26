@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.resources.submit
 
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
@@ -21,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.MultipartRequest
 import uk.ac.ebi.biostd.api.OnBehalfParameters
 import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.model.constants.FILES
 import uk.ac.ebi.biostd.model.constants.MULTIPART_FORM_DATA

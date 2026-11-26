@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
-import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
-import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import mu.KotlinLogging
 import org.springframework.core.Ordered
@@ -15,6 +13,8 @@ import uk.ac.ebi.biostd.errors.ValidationNode
 import uk.ac.ebi.biostd.errors.ValidationNodeStatus.ERROR
 import uk.ac.ebi.biostd.errors.ValidationTree
 import uk.ac.ebi.biostd.errors.ValidationTreeStatus.FAIL
+import uk.ac.ebi.biostd.exception.EmptyPageTabFileException
+import uk.ac.ebi.biostd.exception.InvalidFileListException
 
 private val logger = KotlinLogging.logger {}
 

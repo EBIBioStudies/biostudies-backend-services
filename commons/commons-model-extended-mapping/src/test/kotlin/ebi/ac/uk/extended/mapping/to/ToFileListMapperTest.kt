@@ -1,7 +1,5 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -18,6 +16,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.model.BioFile
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

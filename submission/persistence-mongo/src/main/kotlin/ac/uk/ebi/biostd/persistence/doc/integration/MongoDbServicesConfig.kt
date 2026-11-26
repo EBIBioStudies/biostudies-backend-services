@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
@@ -29,6 +28,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService

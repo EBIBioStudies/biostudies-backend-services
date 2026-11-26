@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.config
 
-import ac.uk.ebi.biostd.common.SerializationConfig
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.load.LoaderConfig
@@ -20,7 +18,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
+import uk.ac.ebi.biostd.integration.SerializationService
 
 @Configuration
 @Import(

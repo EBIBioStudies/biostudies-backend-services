@@ -1,0 +1,15 @@
+package uk.ac.ebi.biostd.validation
+
+internal const val REQUIRED_SUBMISSION = "Expected to find block type of submission"
+internal const val REQUIRED_LINK_URL = "Link Url is required"
+internal const val REQUIRED_FILE_PATH = "File Path is required"
+internal const val REQUIRED_ATTR_NAME = "Attribute name is required"
+internal const val REQUIRED_ROOT_SECTION = "Root Section type is required"
+internal const val REQUIRED_RELEASE_DATE = "ReleaseDate is required"
+internal const val MISPLACED_ATTR_NAME = "Attribute name qualifier must be after a valid attribute"
+internal const val MISPLACED_ATTR_VAL = "Attribute value qualifier must be after a valid attribute"
+internal const val REQUIRED_TABLE_ROWS = "Tables must have at least one row"
+internal const val INVALID_TABLE_ROW = "A row table can't have more attributes than the table header"
+internal const val TABLE_HEADER_CAN_NOT_BE_BLANK = "Table headers can't be blank"
+internal const val INVALID_FILES_TABLE = "First header value should be 'Files'"
+internal const val INVALID_LINKS_TABLE = "First header value should be 'Links'"

@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.persistence.domain
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.pmc.persistence.docs.SubFileDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
@@ -23,6 +21,8 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON
 import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.biostd.model.SubmissionId
 import java.io.File

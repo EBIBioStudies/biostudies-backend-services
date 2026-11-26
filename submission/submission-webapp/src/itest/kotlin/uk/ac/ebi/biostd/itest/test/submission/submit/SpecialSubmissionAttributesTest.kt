@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
@@ -42,6 +41,7 @@ import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.ExtSectionTable
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.PersistedExtFile
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.io.ext.createOrReplaceFile
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser

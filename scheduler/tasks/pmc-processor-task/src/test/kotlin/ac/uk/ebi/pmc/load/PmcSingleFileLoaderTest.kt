@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.ACC_NO
 import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.SUB_ATTRIBUTES
@@ -49,6 +47,8 @@ import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.db.MINIMUM_RUNNING_TIME
 import uk.ac.ebi.biostd.db.MONGO_VERSION
 import uk.ac.ebi.biostd.dsl.json.toJsonQuote
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.ext.gZipTo
 import uk.ac.ebi.biostd.model.constants.APPLICATION_JSON
 import uk.ac.ebi.biostd.util.collections.second

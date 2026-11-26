@@ -1,0 +1,28 @@
+package uk.ac.ebi.biostd.json.deserialization
+
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.node.TextNode
+import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.common.NAME
+import uk.ac.ebi.biostd.common.VALUE
+import uk.ac.ebi.biostd.model.AttributeDetail
+import uk.ac.ebi.biostd.serialization.extensions.findNode
+import uk.ac.ebi.biostd.serialization.extensions.getNode
+
+internal class AttributeDetailJsonDeserializer : StdDeserializer<AttributeDetail>(AttributeDetail::class.java) {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): AttributeDetail {
+        val mapper = jp.codec as ObjectMapper
+        val node: JsonNode = mapper.readTree(jp)
+        val name = node.getNode<TextNode>(NAME).textValue()
+        val value = node.findNode<TextNode>(VALUE)?.textValue().nullIfBlank()
+
+        return AttributeDetail(name, value)
+    }
+}

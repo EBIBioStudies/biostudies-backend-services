@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentRequestDraftException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
@@ -14,6 +12,8 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import uk.ac.ebi.biostd.model.RequestStatus.DRAFT
 import uk.ac.ebi.biostd.model.extensions.attachTo
 import java.time.Instant

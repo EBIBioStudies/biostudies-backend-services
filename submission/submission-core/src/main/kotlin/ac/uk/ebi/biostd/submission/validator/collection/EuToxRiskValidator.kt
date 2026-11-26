@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
@@ -15,6 +14,7 @@ import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.allSectionsFiles
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import uk.ac.ebi.biostd.util.collections.ifNotEmpty
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File

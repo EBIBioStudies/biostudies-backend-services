@@ -1,0 +1,23 @@
+package uk.ac.ebi.biostd.tsv.deserialization.model
+
+import uk.ac.ebi.biostd.util.collections.findSecond
+
+class TsvChunkLine(
+    val index: Int,
+    private val rawLines: List<String?> = emptyList(),
+) : List<String?> by rawLines {
+    val rawValues: List<String?>
+        get() {
+            return rawLines.drop(1)
+        }
+
+    val name: String?
+        get() {
+            return rawLines.first()
+        }
+
+    val value: String?
+        get() {
+            return rawLines.findSecond()
+        }
+}

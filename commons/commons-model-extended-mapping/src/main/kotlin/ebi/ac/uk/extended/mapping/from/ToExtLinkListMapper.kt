@@ -1,15 +1,15 @@
 package ebi.ac.uk.extended.mapping.from
 
-import ac.uk.ebi.biostd.exception.InvalidFileListException
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.exception.InvalidFileListException
 import uk.ac.ebi.biostd.extended.model.ExtLink
 import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.biostd.model.LinkList
 import uk.ac.ebi.biostd.model.canonicalName

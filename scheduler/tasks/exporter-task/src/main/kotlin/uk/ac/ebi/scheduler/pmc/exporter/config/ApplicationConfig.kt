@@ -2,8 +2,6 @@ package uk.ac.ebi.scheduler.pmc.exporter.config
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.common.SerializationConfig
-import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
@@ -14,8 +12,10 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

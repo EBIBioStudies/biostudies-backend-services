@@ -1,0 +1,62 @@
+package uk.ac.ebi.biostd.json.deserialization
+
+import com.fasterxml.jackson.module.kotlin.readValue
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.dsl.section
+import uk.ac.ebi.biostd.json.JsonSerializer
+import uk.ac.ebi.biostd.model.Section
+
+class SectionDeserializerTest {
+    private val testInstance = JsonSerializer.mapper
+
+    @Test
+    fun `deserialize with wrong acc no type`() {
+        val invalidJson =
+            jsonObj {
+                "accno" to jsonArray(1, 2, 3)
+            }.toString()
+
+        val node = "{\"accno\":[1,2,3]}"
+        val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<Section>(invalidJson) }
+        assertThat(exception.message).isEqualTo(
+            "Expecting node: '$node', property: 'accno' to be of type 'TextNode' but 'ArrayNode' was found instead",
+        )
+    }
+
+    @Test
+    fun `deserialize study submission`() {
+        val json =
+            jsonObj {
+                "accno" to "abc123"
+                "type" to "Study"
+            }.toString()
+
+        assertThat(testInstance.readValue<Section>(json)).isEqualTo(section("Study") { accNo = "abc123" })
+    }
+
+    @Test
+    fun `deserialize with null acc number`() {
+        val json =
+            jsonObj {
+                "accno" to null
+                "type" to "Study"
+            }.toString()
+
+        assertThat(testInstance.readValue<Section>(json)).isEqualTo(section("Study") { })
+    }
+
+    @Test
+    fun `deserialize generic type`() {
+        val json =
+            jsonObj {
+                "accno" to "abc123"
+                "type" to "Compound"
+            }.toString()
+
+        assertThat(testInstance.readValue<Section>(json)).isEqualTo(section("Compound") { accNo = "abc123" })
+    }
+}

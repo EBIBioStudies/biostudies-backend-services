@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.itest
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.persistence.docs.InputFileStatus
@@ -59,6 +57,8 @@ import uk.ac.ebi.biostd.dsl.section
 import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON
 import uk.ac.ebi.biostd.io.ext.gZipTo
 import uk.ac.ebi.biostd.model.constants.APPLICATION_JSON
 import uk.ac.ebi.biostd.model.constants.MULTIPART_FORM_DATA

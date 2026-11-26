@@ -1,13 +1,13 @@
 package ebi.ac.uk.extended.mapping.to
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.biostd.extended.model.ExtLink
 import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.biostd.model.Link
 import uk.ac.ebi.biostd.model.LinkList

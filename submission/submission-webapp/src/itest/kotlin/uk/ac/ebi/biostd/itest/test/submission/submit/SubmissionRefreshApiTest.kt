@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
@@ -39,6 +38,7 @@ import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.createFileList
 import uk.ac.ebi.biostd.dsl.attribute
 import uk.ac.ebi.biostd.dsl.file
 import uk.ac.ebi.biostd.dsl.section

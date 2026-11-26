@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -42,6 +41,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 

@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.common.multipartBody
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmitOperations
-import ac.uk.ebi.biostd.integration.SerializationService
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
@@ -15,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.commons.http.builder.httpHeadersOf
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.biostd.model.SubmissionId
 import java.io.File

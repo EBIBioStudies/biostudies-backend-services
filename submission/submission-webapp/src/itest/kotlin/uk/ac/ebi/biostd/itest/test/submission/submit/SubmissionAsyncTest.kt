@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV_EXTENSION
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -31,6 +30,7 @@ import uk.ac.ebi.biostd.dsl.section
 import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.TSV_EXTENSION
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.SuperUser

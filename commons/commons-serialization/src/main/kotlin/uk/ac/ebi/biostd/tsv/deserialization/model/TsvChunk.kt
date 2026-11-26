@@ -1,0 +1,126 @@
+package uk.ac.ebi.biostd.tsv.deserialization.model
+
+import uk.ac.ebi.biostd.common.validatedFilePath
+import uk.ac.ebi.biostd.model.BioFile
+import uk.ac.ebi.biostd.model.FilesTable
+import uk.ac.ebi.biostd.model.Link
+import uk.ac.ebi.biostd.model.LinksTable
+import uk.ac.ebi.biostd.model.Section
+import uk.ac.ebi.biostd.model.SectionsTable
+import uk.ac.ebi.biostd.model.constants.FileFields
+import uk.ac.ebi.biostd.tsv.deserialization.common.asTable
+import uk.ac.ebi.biostd.tsv.deserialization.common.findId
+import uk.ac.ebi.biostd.tsv.deserialization.common.getIdOrElse
+import uk.ac.ebi.biostd.tsv.deserialization.common.getType
+import uk.ac.ebi.biostd.tsv.deserialization.common.toAttributes
+import uk.ac.ebi.biostd.tsv.deserialization.common.validate
+import uk.ac.ebi.biostd.util.collections.findSecond
+import uk.ac.ebi.biostd.validation.InvalidElementException
+import uk.ac.ebi.biostd.validation.REQUIRED_LINK_URL
+
+sealed class TsvChunk(
+    lines: List<TsvChunkLine>,
+) {
+    val header: TsvChunkLine = lines.first()
+    val lines: List<TsvChunkLine> = lines.drop(1)
+
+    val startIndex: Int
+        get(): Int {
+            return header.index
+        }
+
+    val endIndex: Int
+        get(): Int {
+            return lines.lastIndex
+        }
+}
+
+internal class LinkChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    fun asLink(): Link {
+        val linkUrl = getIdOrElse(InvalidElementException(REQUIRED_LINK_URL))
+        val attributes = toAttributes(lines)
+        return Link(linkUrl, attributes)
+    }
+}
+
+class FileChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    fun asFile(): BioFile {
+        val fileName = validatedFilePath(header.findSecond())
+        val attributes = toAttributes(lines)
+        val type = attributes.find { it.name == FileFields.TYPE.value }?.value
+        return BioFile(fileName, attributes = attributes, type = type ?: FileFields.FILE_TYPE.value)
+    }
+}
+
+internal class LinksTableChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    fun asTable() =
+        LinksTable(
+            asTable(this) { url, attributes ->
+                validate(url != null) { throw InvalidElementException(REQUIRED_LINK_URL) }
+                Link(url!!, attributes)
+            },
+        )
+}
+
+internal class FileTableChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    fun asTable() =
+        FilesTable(
+            asTable(this) { name, attributes ->
+                BioFile(validatedFilePath(name), attributes = attributes)
+            },
+        )
+}
+
+internal sealed class SectionTableChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    open fun asTable() =
+        SectionsTable(
+            asTable(this) { accNo, attributes ->
+                Section(
+                    type = this.getType(),
+                    accNo = accNo,
+                    attributes = attributes,
+                )
+            },
+        )
+}
+
+internal class RootSectionTableChunk(
+    body: List<TsvChunkLine>,
+) : SectionTableChunk(body)
+
+internal class SubSectionTableChunk(
+    body: List<TsvChunkLine>,
+    val parent: String,
+) : SectionTableChunk(body) {
+    override fun asTable() =
+        SectionsTable(
+            asTable(this) { accNo, attributes ->
+                Section(this.getType(), accNo, attributes = attributes, parentAccNo = parent)
+            },
+        )
+}
+
+internal sealed class SectionChunk(
+    body: List<TsvChunkLine>,
+) : TsvChunk(body) {
+    fun asSection() = Section(type = getType(), accNo = findId(), attributes = toAttributes(lines))
+}
+
+internal class RootSubSectionChunk(
+    body: List<TsvChunkLine>,
+) : SectionChunk(body)
+
+internal class SubSectionChunk(
+    body: List<TsvChunkLine>,
+    val parent: String,
+) : SectionChunk(body)

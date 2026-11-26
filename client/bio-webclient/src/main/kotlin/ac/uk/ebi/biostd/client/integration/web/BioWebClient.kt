@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.api.SubmitClientImpl
-import ac.uk.ebi.biostd.common.SerializationConfig
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 
 private const val ON_BEHALF_PARAM = "onBehalf"

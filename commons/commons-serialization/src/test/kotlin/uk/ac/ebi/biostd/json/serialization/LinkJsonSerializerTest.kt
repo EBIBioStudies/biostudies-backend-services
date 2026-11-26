@@ -1,0 +1,51 @@
+package uk.ac.ebi.biostd.json.serialization
+
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.junit.jupiter.api.Test
+import org.skyscreamer.jsonassert.JSONAssert
+import org.skyscreamer.jsonassert.JSONCompareMode
+import uk.ac.ebi.biostd.dsl.json.jsonArray
+import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.model.Attribute
+import uk.ac.ebi.biostd.model.Link
+
+class LinkJsonSerializerTest {
+    private val testInstance = createSerializer()
+    private val link = Link(url = "url", attributes = listOf(Attribute("attr name", "attr value")))
+
+    @Test
+    fun `serialize Link`() {
+        val json = testInstance.writeValueAsString(link)
+        val expected =
+            jsonObj {
+                "url" to "url"
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "attr name"
+                            "value" to "attr value"
+                            "reference" to false
+                        },
+                    )
+            }
+
+        JSONAssert.assertEquals("invalid link json", json, expected.toString(), JSONCompareMode.LENIENT)
+    }
+
+    companion object {
+        fun createSerializer(): ObjectMapper {
+            val module = SimpleModule()
+            module.addSerializer(Link::class.java, LinkJsonSerializer())
+
+            return jacksonObjectMapper().apply {
+                registerModule(module)
+                setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            }
+        }
+    }
+}

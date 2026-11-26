@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -16,6 +14,8 @@ import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.TEXT_PLAIN
 import org.springframework.http.MediaType.TEXT_XML
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.model.Submission
 import java.io.OutputStream
 

@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
-import ac.uk.ebi.biostd.integration.SerializationService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
@@ -20,6 +19,7 @@ import uk.ac.ebi.biostd.api.SubmitParameters.Companion.SINGLE_JOB_MODE
 import uk.ac.ebi.biostd.api.SubmitParameters.Companion.STORAGE_MODE
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.util.web.optionalQueryParam

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CleanUpLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
@@ -73,6 +72,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.events.service.EventsPublisherService

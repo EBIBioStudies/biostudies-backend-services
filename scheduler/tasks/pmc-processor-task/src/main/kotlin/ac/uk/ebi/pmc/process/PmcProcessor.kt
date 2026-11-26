@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
@@ -15,6 +13,8 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.coroutines.concurrently
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.model.Submission
 import java.io.File
 import java.nio.file.Paths

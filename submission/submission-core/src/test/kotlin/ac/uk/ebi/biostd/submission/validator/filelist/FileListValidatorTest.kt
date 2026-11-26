@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
-import ac.uk.ebi.biostd.common.SerializationConfig
-import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -22,9 +20,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.biostd.dsl.excel.excel
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
+import uk.ac.ebi.biostd.exception.InvalidFileListException
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.io.sources.FilesSource
 import uk.ac.ebi.biostd.io.sources.SourcesList

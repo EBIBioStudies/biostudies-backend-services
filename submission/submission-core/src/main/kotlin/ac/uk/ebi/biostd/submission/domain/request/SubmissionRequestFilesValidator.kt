@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -16,6 +15,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.biostd.errors.CircularReferenceException
 import uk.ac.ebi.biostd.errors.FilesProcessingException
 import uk.ac.ebi.biostd.errors.InvalidPathException
+import uk.ac.ebi.biostd.exception.InvalidFileListException
 import uk.ac.ebi.biostd.extended.model.ExtFileType
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.PersistedExtFile

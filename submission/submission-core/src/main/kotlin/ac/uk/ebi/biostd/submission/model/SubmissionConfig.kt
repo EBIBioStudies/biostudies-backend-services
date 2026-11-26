@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.model
 
-import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.sources.PreferredSource
 import uk.ac.ebi.biostd.model.SubmissionMethod
 import java.io.File

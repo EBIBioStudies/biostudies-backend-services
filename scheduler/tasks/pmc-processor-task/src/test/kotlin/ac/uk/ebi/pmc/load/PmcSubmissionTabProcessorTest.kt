@@ -1,9 +1,9 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.common.SerializationConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.model.extensions.releaseDate

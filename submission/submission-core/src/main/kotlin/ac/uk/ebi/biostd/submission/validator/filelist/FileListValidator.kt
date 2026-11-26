@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
-import ac.uk.ebi.biostd.exception.InvalidFileListException
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.service.PageTabFileReader.getFileListFile
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEmpty
+import uk.ac.ebi.biostd.exception.InvalidFileListException
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.sources.FileSourcesList
 import uk.ac.ebi.biostd.paths.FolderType
+import uk.ac.ebi.biostd.service.PageTabFileReader.getFileListFile
 import java.io.InputStream
 
 class FileListValidator(

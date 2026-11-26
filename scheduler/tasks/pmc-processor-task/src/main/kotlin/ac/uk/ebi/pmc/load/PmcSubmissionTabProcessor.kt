@@ -1,16 +1,16 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.tsv.deserialization.chunks.TsvChunkGenerator
-import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import uk.ac.ebi.biostd.base.like
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.model.Submission
 import uk.ac.ebi.biostd.model.constants.LinkFields.LINK
 import uk.ac.ebi.biostd.model.constants.SectionFields.LINKS
 import uk.ac.ebi.biostd.model.constants.SubFields.RELEASE_DATE
 import uk.ac.ebi.biostd.model.constants.SubFields.SUBMISSION
+import uk.ac.ebi.biostd.tsv.deserialization.chunks.TsvChunkGenerator
+import uk.ac.ebi.biostd.tsv.deserialization.model.TsvChunk
+import uk.ac.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import uk.ac.ebi.biostd.util.regex.getGroup
 import java.time.LocalDate
 

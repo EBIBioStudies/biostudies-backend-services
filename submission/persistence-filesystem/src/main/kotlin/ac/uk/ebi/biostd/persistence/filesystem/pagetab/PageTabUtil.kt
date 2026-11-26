@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToLinkListMapper
@@ -12,6 +9,9 @@ import uk.ac.ebi.biostd.extended.model.ExtLinkList
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.allFileList
 import uk.ac.ebi.biostd.extended.model.allLinkList
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.TSV
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.Permissions
 import uk.ac.ebi.biostd.io.ext.newFile

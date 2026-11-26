@@ -3,8 +3,6 @@ package uk.ac.ebi.scheduler.pmc.exporter.service
 import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
 import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -21,6 +19,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import uk.ac.ebi.biostd.test.basicExtSubmission
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.pmc.exporter.config.BioStudies

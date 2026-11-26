@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.resources.submit
 
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import uk.ac.ebi.biostd.api.OnBehalfParameters
 import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.model.constants.APPLICATION_JSON
 import uk.ac.ebi.biostd.model.constants.SUBMISSION_TYPE

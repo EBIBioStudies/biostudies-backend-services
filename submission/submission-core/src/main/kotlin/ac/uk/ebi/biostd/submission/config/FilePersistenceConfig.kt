@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.doc.integration.ToSubmissionConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
@@ -19,6 +18,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient

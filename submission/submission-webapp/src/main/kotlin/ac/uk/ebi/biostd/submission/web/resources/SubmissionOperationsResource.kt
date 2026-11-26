@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.biostd.integration.SerializationService
+import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.util.file.ExcelReader
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
