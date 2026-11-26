@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.util.date.asOffsetAtEndOfDay
 import uk.ac.ebi.biostd.util.date.asOffsetAtStartOfDay

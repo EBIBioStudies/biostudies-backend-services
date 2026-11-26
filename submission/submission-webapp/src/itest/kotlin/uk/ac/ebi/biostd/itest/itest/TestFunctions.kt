@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.itest.itest
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
 import uk.ac.ebi.biostd.itest.entities.TestUser
 
 fun getWebClient(

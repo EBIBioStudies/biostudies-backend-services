@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.files
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig
 import kotlinx.coroutines.test.runTest
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.api.UserFile
 import uk.ac.ebi.biostd.api.UserFileType
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.TestUser

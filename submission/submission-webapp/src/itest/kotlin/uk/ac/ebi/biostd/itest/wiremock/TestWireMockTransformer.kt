@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.itest.wiremock
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
@@ -11,6 +10,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import uk.ac.ebi.biostd.client.exception.WebClientException
 import uk.ac.ebi.biostd.itest.wiremock.handlers.DeleteHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.DownloadHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.FileSaveHandler

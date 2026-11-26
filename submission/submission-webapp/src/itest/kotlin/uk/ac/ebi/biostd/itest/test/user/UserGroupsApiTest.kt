@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.user
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import kotlinx.coroutines.runBlocking
@@ -16,6 +14,8 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThrows
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.TestUser
 import uk.ac.ebi.biostd.itest.itest.getWebClient

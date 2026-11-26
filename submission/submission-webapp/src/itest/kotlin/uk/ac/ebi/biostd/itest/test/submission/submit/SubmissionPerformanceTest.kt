@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -17,6 +15,8 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.io.ext.createFile

@@ -1,0 +1,158 @@
+package uk.ac.ebi.biostd.client.api
+
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.springframework.core.io.FileSystemResource
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
+import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToFlux
+import uk.ac.ebi.biostd.api.UserFile
+import uk.ac.ebi.biostd.client.common.MultipartBuilder
+import uk.ac.ebi.biostd.client.integration.web.FilesOperations
+import uk.ac.ebi.biostd.client.integration.web.UserOperations
+import uk.ac.ebi.biostd.commons.http.ext.RequestParams
+import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
+import uk.ac.ebi.biostd.extended.model.ExtUser
+import uk.ac.ebi.biostd.io.KFiles
+import uk.ac.ebi.biostd.model.DirFilePath
+import uk.ac.ebi.biostd.model.FilePath
+import uk.ac.ebi.biostd.model.FolderStats
+import uk.ac.ebi.biostd.model.MigrateHomeOptions
+import uk.ac.ebi.biostd.model.RenameFilePath
+import java.io.File
+
+private const val USER_FILES_URL = "/files/user"
+private const val USER_FOLDER_URL = "/folder/user"
+private const val CLUSTER_URL = "/cluster/job"
+
+internal class UserOperationsClient(
+    private val client: WebClient,
+) : UserOperations {
+    override suspend fun getExtUser(email: String): ExtUser =
+        client
+            .get()
+            .uri("/security/users/extended/$email")
+            .retrieve()
+            .awaitBody<ExtUser>()
+
+    override suspend fun getUserHomeStats(email: String): FolderStats =
+        client
+            .get()
+            .uri("/security/users/$email/home-stats")
+            .retrieve()
+            .awaitBody<FolderStats>()
+
+    override suspend fun migrateUser(
+        email: String,
+        options: MigrateHomeOptions,
+    ) {
+        client
+            .post()
+            .uri("/security/users/$email/migrate")
+            .body(BodyInserters.fromValue(options))
+            .retrieve()
+            .awaitBodilessEntity()
+    }
+}
+
+internal class UserFilesClient(
+    private val client: WebClient,
+) : FilesOperations {
+    override suspend fun downloadFile(
+        fileName: String,
+        relativePath: String,
+    ): File {
+        val tempFile = KFiles.createTempFile(fileName)
+        val response =
+            client
+                .post()
+                .uri("$USER_FILES_URL/download")
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .body(BodyInserters.fromValue(DirFilePath(relativePath, fileName)))
+                .retrieve()
+                .bodyToFlux<DataBuffer>()
+        DataBufferUtils.write(response, tempFile).awaitFirstOrNull()
+
+        return tempFile.toFile()
+    }
+
+    override suspend fun listUserFiles(relativePath: String): List<UserFile> {
+        val body = FilePath(relativePath)
+        return client.postForObjectAsync("$USER_FILES_URL/query", RequestParams(body = body))
+    }
+
+    override suspend fun uploadFiles(
+        files: List<File>,
+        relativePath: String,
+    ) {
+        val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+        val body =
+            MultipartBuilder()
+                .add("filePath", relativePath)
+                .addAll("files", files.map { FileSystemResource(it) })
+                .build()
+
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/upload", RequestParams(headers, body))
+    }
+
+    override suspend fun uploadFile(
+        file: File,
+        relativePath: String,
+    ) {
+        uploadFiles(listOf(file), relativePath)
+    }
+
+    override suspend fun uploadFilesThroughCluster(
+        file: File,
+        relativePath: String,
+    ): String {
+        val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+        val body =
+            MultipartBuilder()
+                .add("filePath", relativePath)
+                .add("files", file.absoluteFile.normalize().path)
+                .build()
+
+        return client.postForObjectAsync(
+            "$USER_FILES_URL/upload/cluster",
+            RequestParams(headers, body),
+        )
+    }
+
+    override suspend fun getClusterJobStatus(jobId: String): String =
+        client
+            .get()
+            .uri("$CLUSTER_URL/{jobId}/status", jobId)
+            .retrieve()
+            .awaitBody()
+
+    override suspend fun createFolder(
+        folderName: String,
+        relativePath: String,
+    ) {
+        val body = DirFilePath(relativePath, folderName)
+        client.postForObjectAsync<Unit>("$USER_FOLDER_URL/create", RequestParams(body = body))
+    }
+
+    override suspend fun deleteFile(
+        fileName: String,
+        relativePath: String,
+    ) {
+        val body = DirFilePath(relativePath, fileName)
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/delete", RequestParams(body = body))
+    }
+
+    override suspend fun renameFile(
+        relativePath: String,
+        originalName: String,
+        newName: String,
+    ) {
+        val body = RenameFilePath(relativePath, originalName, newName)
+        client.postForObjectAsync<Unit>("$USER_FILES_URL/rename", RequestParams(body = body))
+    }
+}

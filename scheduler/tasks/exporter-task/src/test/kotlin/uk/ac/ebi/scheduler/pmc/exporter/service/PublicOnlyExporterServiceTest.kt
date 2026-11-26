@@ -1,8 +1,5 @@
 package uk.ac.ebi.scheduler.pmc.exporter.service
 
-import ac.uk.ebi.biostd.client.dto.ExtSubPageQuery
-import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -16,6 +13,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.dto.ExtSubPageQuery
+import uk.ac.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
@@ -66,7 +66,7 @@ class PublicOnlyExporterServiceTest(
     }
 
     private fun mockBioWebClient() {
-        mockkStatic("ac.uk.ebi.biostd.client.extensions.BioWebClientExtKt")
+        mockkStatic("uk.ac.ebi.biostd.client.extensions.BioWebClientExtKt")
         every {
             bioWebClient.getExtSubmissionsAsSequence(eq(ExtSubPageQuery(released = true, limit = 1)))
         } returns sequenceOf(basicExtSubmission)

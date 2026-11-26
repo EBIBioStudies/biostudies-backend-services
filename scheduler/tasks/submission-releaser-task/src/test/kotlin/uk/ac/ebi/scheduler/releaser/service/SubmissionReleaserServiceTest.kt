@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.util.date.asOffsetAtEndOfDay
@@ -117,7 +117,7 @@ class SubmissionReleaserServiceTest(
 
     private fun mockExtensionFunctions() {
         mockkStatic("uk.ac.ebi.biostd.util.date.OffsetDateTimeKt")
-        mockkStatic("ac.uk.ebi.biostd.client.extensions.BioWebClientExtKt")
+        mockkStatic("uk.ac.ebi.biostd.client.extensions.BioWebClientExtKt")
         mockkStatic("uk.ac.ebi.biostd.extended.model.ExtSubmissionExtensionsKt")
     }
 }

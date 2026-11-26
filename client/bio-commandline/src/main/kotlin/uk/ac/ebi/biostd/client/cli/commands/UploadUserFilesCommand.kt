@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.default
@@ -17,6 +16,7 @@ import uk.ac.ebi.biostd.client.cli.common.UploadUserFilesParameters.FILE_HELP
 import uk.ac.ebi.biostd.client.cli.common.UploadUserFilesParameters.REL_PATH_HELP
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.UserFilesService
+import uk.ac.ebi.biostd.client.exception.WebClientException
 import java.io.File
 
 internal class UploadUserFilesCommand(

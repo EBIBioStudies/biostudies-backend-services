@@ -1,0 +1,340 @@
+package uk.ac.ebi.biostd.client.integration.web
+
+import kotlinx.coroutines.flow.Flow
+import uk.ac.ebi.biostd.api.OnBehalfParameters
+import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.api.UserFile
+import uk.ac.ebi.biostd.api.dto.SubmissionDto
+import uk.ac.ebi.biostd.api.dto.UserGroupDto
+import uk.ac.ebi.biostd.api.security.LoginRequest
+import uk.ac.ebi.biostd.api.security.RegisterRequest
+import uk.ac.ebi.biostd.api.security.UserProfile
+import uk.ac.ebi.biostd.base.EMPTY
+import uk.ac.ebi.biostd.client.dto.ExtPageRequest
+import uk.ac.ebi.biostd.client.dto.ExtSubPageQuery
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtPage
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.model.ExtUser
+import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.model.WebExtPage
+import uk.ac.ebi.biostd.model.Collection
+import uk.ac.ebi.biostd.model.FolderStats
+import uk.ac.ebi.biostd.model.Group
+import uk.ac.ebi.biostd.model.MigrateHomeOptions
+import uk.ac.ebi.biostd.model.RequestStatus
+import uk.ac.ebi.biostd.model.Submission
+import uk.ac.ebi.biostd.model.SubmissionId
+import uk.ac.ebi.biostd.model.SubmissionStat
+import uk.ac.ebi.biostd.model.SubmissionTransferOptions
+import uk.ac.ebi.biostd.model.UpdateResult
+import uk.ac.ebi.biostd.model.WebSubmissionDraft
+import java.io.File
+
+interface SubmitClient :
+    SubmissionOperations,
+    FilesOperations,
+    GroupFilesOperations,
+    SubmitOperations,
+    MultipartSubmitOperations,
+    GeneralOperations,
+    DraftSubmissionOperations,
+    ExtSubmissionOperations,
+    PostProcessOperations,
+    PermissionOperations,
+    StatsOperations,
+    SubmissionRequestOperations,
+    UserOperations
+
+interface FilesOperations {
+    suspend fun uploadFiles(
+        files: List<File>,
+        relativePath: String = EMPTY,
+    )
+
+    suspend fun uploadFile(
+        file: File,
+        relativePath: String = EMPTY,
+    )
+
+    suspend fun uploadFilesThroughCluster(
+        file: File,
+        relativePath: String = EMPTY,
+    ): String
+
+    suspend fun getClusterJobStatus(jobId: String): String
+
+    suspend fun downloadFile(
+        fileName: String,
+        relativePath: String = EMPTY,
+    ): File
+
+    suspend fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
+
+    suspend fun deleteFile(
+        fileName: String,
+        relativePath: String = EMPTY,
+    )
+
+    suspend fun renameFile(
+        relativePath: String,
+        originalName: String,
+        newName: String,
+    )
+
+    suspend fun createFolder(
+        folderName: String,
+        relativePath: String = EMPTY,
+    )
+}
+
+interface GroupFilesOperations {
+    suspend fun uploadGroupFiles(
+        groupName: String,
+        files: List<File>,
+        relativePath: String = EMPTY,
+    )
+
+    suspend fun downloadGroupFile(
+        groupName: String,
+        fileName: String,
+        relativePath: String = EMPTY,
+    ): File
+
+    suspend fun listGroupFiles(
+        groupName: String,
+        relativePath: String = EMPTY,
+    ): List<UserFile>
+
+    suspend fun deleteGroupFile(
+        groupName: String,
+        fileName: String,
+        relativePath: String = EMPTY,
+    )
+
+    suspend fun createGroupFolder(
+        groupName: String,
+        folderName: String,
+        relativePath: String = EMPTY,
+    )
+}
+
+interface SubmissionOperations {
+    suspend fun deleteSubmission(accNo: String)
+
+    suspend fun deleteSubmissions(submissions: List<String>)
+
+    suspend fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
+
+    suspend fun validateFileList(
+        fileListPath: String,
+        rootPath: String? = null,
+        accNo: String? = null,
+    )
+}
+
+interface SecurityOperations {
+    fun getAuthenticatedClient(
+        user: String,
+        password: String,
+        onBehalf: String? = null,
+    ): BioWebClient
+
+    fun login(loginRequest: LoginRequest): UserProfile
+
+    fun registerUser(registerRequest: RegisterRequest)
+}
+
+interface UserOperations {
+    suspend fun getExtUser(email: String): ExtUser
+
+    suspend fun getUserHomeStats(email: String): FolderStats
+
+    suspend fun migrateUser(
+        email: String,
+        options: MigrateHomeOptions,
+    )
+}
+
+interface GeneralOperations {
+    suspend fun getGroups(): List<Group>
+
+    suspend fun getCollections(): List<Collection>
+
+    suspend fun createGroup(
+        groupName: String,
+        groupDescription: String,
+    ): UserGroupDto
+
+    suspend fun addUserInGroup(
+        groupName: String,
+        userName: String,
+    )
+
+    suspend fun getProfile(): UserProfile
+}
+
+interface StatsOperations {
+    fun findByAccNo(accNo: String): Flow<SubmissionStat>
+
+    fun findByType(type: String): Flow<SubmissionStat>
+
+    suspend fun findByTypeAndAccNo(
+        type: String,
+        accNo: String,
+    ): SubmissionStat
+
+    suspend fun incrementStats(
+        type: String,
+        statsFile: File,
+    ): UpdateResult
+}
+
+interface DraftSubmissionOperations {
+    suspend fun getAllSubmissionDrafts(
+        limit: Int = 15,
+        offset: Int = 0,
+    ): List<WebSubmissionDraft>
+
+    suspend fun getSubmissionDraft(accNo: String): WebSubmissionDraft
+
+    suspend fun deleteSubmissionDraft(accNo: String)
+
+    suspend fun updateSubmissionDraft(
+        accNo: String,
+        content: String,
+    )
+
+    suspend fun createSubmissionDraft(content: String): WebSubmissionDraft
+}
+
+@Suppress("TooManyFunctions")
+interface ExtSubmissionOperations {
+    fun getExtSubmissions(extPageQuery: ExtSubPageQuery): ExtPage
+
+    fun getExtSubmissionsPage(pageUrl: String): ExtPage
+
+    fun getExtByAccNo(
+        accNo: String,
+        includeFileList: Boolean = false,
+    ): ExtSubmission
+
+    suspend fun getFileListFiles(filesUrl: String): WebExtPage<ExtFile>
+
+    fun submitExtAsync(extSubmission: ExtSubmission)
+
+    fun submitExt(extSubmission: ExtSubmission): ExtSubmission
+
+    fun migrateSubmission(
+        accNo: String,
+        target: StorageMode,
+    )
+
+    fun refreshSubmission(accNo: String): SubmissionId
+
+    suspend fun generateDoi(accNo: String): SubmissionId
+
+    suspend fun transferSubmissions(options: SubmissionTransferOptions)
+
+    suspend fun transferEmailUpdate(options: SubmissionTransferOptions)
+
+    suspend fun getFileListFiles(
+        accNo: String,
+        fileList: String,
+        page: ExtPageRequest,
+    ): WebExtPage<ExtFile>
+
+    suspend fun getLinkListLinks(
+        accNo: String,
+        linkList: String,
+        page: ExtPageRequest,
+    ): WebExtPage<ExtLink>
+}
+
+interface PostProcessOperations {
+    suspend fun postProcess(accNo: String)
+
+    suspend fun recalculateStats(accNo: String)
+
+    suspend fun copyPageTab(accNo: String)
+
+    suspend fun indexInnerFiles(accNo: String)
+
+    suspend fun postProcessDoi(accNo: String)
+}
+
+interface PermissionOperations {
+    suspend fun grantPermission(
+        user: String,
+        accNo: String,
+        accessType: String,
+    )
+
+    suspend fun revokePermission(
+        user: String,
+        accNo: String,
+        accessType: String,
+    )
+}
+
+interface SubmitOperations {
+    suspend fun submit(
+        submission: Submission,
+        format: SubmissionFormat = JSON,
+        submitParameters: SubmitParameters? = null,
+        register: OnBehalfParameters? = null,
+    ): SubmissionId
+
+    suspend fun submit(
+        submission: String,
+        format: SubmissionFormat = JSON,
+        submitParameters: SubmitParameters? = null,
+        register: OnBehalfParameters? = null,
+    ): SubmissionId
+
+    suspend fun submitFromDraft(draftKey: String): SubmissionId
+}
+
+interface MultipartSubmitOperations {
+    suspend fun submitMultipart(
+        submission: String,
+        format: SubmissionFormat,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
+    ): SubmissionId
+
+    suspend fun submitMultipart(
+        submission: Submission,
+        format: SubmissionFormat,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
+    ): SubmissionId
+
+    suspend fun submitMultipart(
+        submission: File,
+        parameters: SubmitParameters,
+        files: List<File> = emptyList(),
+    ): SubmissionId
+
+    suspend fun submitMultipart(
+        submissions: Map<String, String>,
+        parameters: SubmitParameters,
+        format: String,
+        files: Map<String, List<File>>,
+    ): List<SubmissionId>
+}
+
+interface SubmissionRequestOperations {
+    suspend fun getSubmissionRequestStatus(
+        accNo: String,
+        version: Int,
+    ): RequestStatus
+
+    suspend fun getSubmissionRequestErrors(
+        accNo: String,
+        version: Int,
+    ): List<String>
+}

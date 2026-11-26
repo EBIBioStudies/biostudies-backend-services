@@ -1,13 +1,13 @@
 package uk.ac.ebi.scheduler.pmc.exporter.config
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
 import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate

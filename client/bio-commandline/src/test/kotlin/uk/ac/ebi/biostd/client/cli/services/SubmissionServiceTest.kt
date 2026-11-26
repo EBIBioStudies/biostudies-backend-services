@@ -1,9 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -24,6 +20,10 @@ import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import uk.ac.ebi.biostd.extended.model.ExtUser
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.extended.model.StorageMode.NFS

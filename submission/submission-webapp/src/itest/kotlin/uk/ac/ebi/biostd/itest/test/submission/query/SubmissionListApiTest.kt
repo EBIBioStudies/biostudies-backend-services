@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.submission.query
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
@@ -21,6 +19,8 @@ import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThat
 import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.io.ext.createFile

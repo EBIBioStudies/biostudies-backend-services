@@ -1,8 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -18,6 +15,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import uk.ac.ebi.biostd.io.ext.createFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

@@ -1,9 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.filelist
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import kotlinx.coroutines.runBlocking
@@ -24,6 +20,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
+import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.dsl.tsv.line

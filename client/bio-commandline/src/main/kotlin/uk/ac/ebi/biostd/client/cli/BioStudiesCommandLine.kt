@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.subcommands
@@ -20,6 +19,7 @@ import uk.ac.ebi.biostd.client.cli.services.SecurityService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionRequestService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import uk.ac.ebi.biostd.client.cli.services.UserFilesService
+import uk.ac.ebi.biostd.client.exception.WebClientException
 
 internal class BioStudiesCommandLine : CliktCommand() {
     override fun run() {

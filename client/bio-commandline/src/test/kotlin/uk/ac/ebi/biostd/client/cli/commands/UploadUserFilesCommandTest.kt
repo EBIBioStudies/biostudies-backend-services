@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import com.github.ajalt.clikt.core.CliktError
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.UserFilesService
+import uk.ac.ebi.biostd.client.exception.WebClientException
 import java.io.File
 
 @ExtendWith(MockKExtension::class)

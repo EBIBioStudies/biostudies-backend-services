@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.submission.query
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -13,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.submitAndWait
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService

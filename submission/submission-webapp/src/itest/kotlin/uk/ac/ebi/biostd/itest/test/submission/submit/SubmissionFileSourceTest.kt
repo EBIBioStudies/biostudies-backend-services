@@ -1,8 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -29,6 +26,9 @@ import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.asserts.submitFromDraftAndWait
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.dsl.file
 import uk.ac.ebi.biostd.dsl.section
 import uk.ac.ebi.biostd.dsl.submission

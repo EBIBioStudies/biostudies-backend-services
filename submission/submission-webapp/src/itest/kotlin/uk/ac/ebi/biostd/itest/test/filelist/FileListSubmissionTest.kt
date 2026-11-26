@@ -1,10 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.filelist
 
-import ac.uk.ebi.biostd.client.dto.ExtPageRequest
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import kotlinx.coroutines.runBlocking
@@ -30,6 +25,11 @@ import uk.ac.ebi.biostd.asserts.assertThatThrows
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.asserts.submitMultipartAndWait
+import uk.ac.ebi.biostd.client.dto.ExtPageRequest
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.dsl.excel.excel
 import uk.ac.ebi.biostd.dsl.json.jsonArray
 import uk.ac.ebi.biostd.dsl.json.jsonObj

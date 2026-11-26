@@ -1,14 +1,14 @@
 package uk.ac.ebi.biostd.asserts
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import uk.ac.ebi.biostd.api.OnBehalfParameters
 import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat
+import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.coroutines.waitUntil
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.model.RequestStatus.INVALID

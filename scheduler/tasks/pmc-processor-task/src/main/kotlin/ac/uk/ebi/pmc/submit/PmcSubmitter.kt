@@ -1,6 +1,5 @@
 package ac.uk.ebi.pmc.submit
 
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
 import ac.uk.ebi.pmc.persistence.domain.ErrorsService
 import ac.uk.ebi.pmc.persistence.domain.SubmissionService
@@ -12,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.api.SubmitParameters
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.coroutines.chunked
 import uk.ac.ebi.biostd.coroutines.concurrently
 import uk.ac.ebi.biostd.extended.model.StorageMode

@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.files
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,6 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.api.UserFile
 import uk.ac.ebi.biostd.api.UserFileType.DIR
 import uk.ac.ebi.biostd.api.UserFileType.FILE
+import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.md5
