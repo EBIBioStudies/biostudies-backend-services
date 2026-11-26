@@ -7,10 +7,10 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.EventsPublisherConfig
 import uk.ac.ebi.events.service.EventsPublisherService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 class JmsPublishingConfig(

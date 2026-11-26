@@ -14,7 +14,7 @@ import org.bson.types.ObjectId
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.allFileList
 import uk.ac.ebi.biostd.extended.model.allLinkList
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 private val logger = KotlinLogging.logger {}
 private const val PERSISTENCE_CHUNK_SIZE = 100

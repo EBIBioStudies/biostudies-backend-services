@@ -19,12 +19,12 @@ import uk.ac.ebi.biostd.exception.InvalidFileListException
 import uk.ac.ebi.biostd.extended.model.ExtFileType
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.PersistedExtFile
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.filesFlow
 import uk.ac.ebi.biostd.io.sources.FileSourcesList
 import uk.ac.ebi.biostd.model.RequestStatus.FILES_VALIDATED
 import uk.ac.ebi.biostd.model.RequestStatus.REQUESTED
 import uk.ac.ebi.biostd.paths.FolderType
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 

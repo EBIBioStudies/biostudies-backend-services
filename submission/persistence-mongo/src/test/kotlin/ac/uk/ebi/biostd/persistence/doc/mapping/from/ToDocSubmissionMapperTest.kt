@@ -94,11 +94,11 @@ import uk.ac.ebi.biostd.extended.model.ExtFileTable
 import uk.ac.ebi.biostd.extended.model.ExtSectionTable
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.createNfsFile
+import uk.ac.ebi.biostd.extended.serialization.service.createExtFileList
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.test.createFile
 import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.biostd.util.collections.third
-import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToDocSubmissionMapperTest(

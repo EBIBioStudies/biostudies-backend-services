@@ -15,10 +15,10 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.extended.serialization.integration.ExtSerializationConfig
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
-import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.scheduler.pmc.exporter.ExporterExecutor
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcDataRepository
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository

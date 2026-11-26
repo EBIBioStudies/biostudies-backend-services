@@ -14,7 +14,7 @@ import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 @EnableScheduling
 @Configuration

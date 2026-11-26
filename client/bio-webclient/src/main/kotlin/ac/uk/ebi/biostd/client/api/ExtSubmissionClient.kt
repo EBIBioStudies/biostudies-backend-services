@@ -18,12 +18,12 @@ import uk.ac.ebi.biostd.extended.model.ExtPage
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.WebExtPage
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.model.SubmissionId
 import uk.ac.ebi.biostd.model.SubmissionTransferOptions
 import uk.ac.ebi.biostd.model.constants.SUBMISSION
 import uk.ac.ebi.biostd.util.date.toStringInstant
 import uk.ac.ebi.biostd.util.web.optionalQueryParam
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 

@@ -99,7 +99,7 @@ internal class FireFilesServiceTest(
     inner class CleanSubmissionFiles {
         @BeforeEach
         fun beforeEach() {
-            mockkStatic("uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt")
+            mockkStatic("uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationServiceExtKt")
         }
 
         @Test

@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestFilesDocDataRep
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 class SubmissionRequestFilesMongoPersistenceService(
     private val extSerializationService: ExtSerializationService,

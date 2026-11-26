@@ -5,7 +5,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
 import org.springframework.web.util.UriComponentsBuilder
 import uk.ac.ebi.biostd.common.SerializationConfig
-import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
+import uk.ac.ebi.biostd.extended.serialization.integration.ExtSerializationConfig
 
 private const val ON_BEHALF_PARAM = "onBehalf"
 private const val AUTH_HEADER = "X-SESSION-TOKEN"

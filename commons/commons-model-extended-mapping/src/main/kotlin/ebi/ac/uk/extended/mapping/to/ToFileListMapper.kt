@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.biostd.model.BioFile
 import uk.ac.ebi.biostd.model.FileList
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream

@@ -1,0 +1,139 @@
+package uk.ac.ebi.biostd.extended.serialization.service
+
+import kotlinx.coroutines.flow.map
+import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.model.ExtFileTable
+import uk.ac.ebi.biostd.extended.model.ExtLink
+import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.model.ExtSection
+import uk.ac.ebi.biostd.extended.model.ExtSectionTable
+import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.io.use
+import uk.ac.ebi.biostd.serialization.common.FilesResolver
+import uk.ac.ebi.biostd.util.collections.mapLeft
+import java.io.File
+
+/**
+ * Allow to process the given section, and it subsections by updating a specific attribute or modified data
+ * structure.
+ * Note that the submission tree is iterated from leaf sections (section with no subsections) to parents to avoid
+ * update a section that has an updated child.
+ *
+ * @param section the section to iterate recursively.
+ * @param process process function to apply to each section.
+ * @return an instance of @UpdatedSection indicating if section was changed or not.
+ */
+fun iterateSections(
+    section: ExtSection,
+    process: (file: ExtSection) -> TrackSection,
+): TrackSection {
+    val sections = section.sections.map { either -> either.mapLeft { iterateSections(it, process) } }
+    val (hasChanged, processedSection) = process(section)
+    val changed = hasChanged || sections.any { either -> either.fold({ it.changed }, { false }) }
+
+    return TrackSection(
+        changed,
+        if (changed) processedSection.copy(sections = sections.mapLeft { it.section }) else section,
+    )
+}
+
+typealias ProcessFunction = suspend (file: ExtFile) -> ExtFile
+
+typealias ProcessLinkFunction = suspend (link: ExtLink) -> ExtLink
+
+class FileProcessingService(
+    private val serializationService: ExtSerializationService,
+    private val fileResolver: FilesResolver,
+) {
+    suspend fun processFiles(
+        submission: ExtSubmission,
+        processFile: ProcessFunction,
+    ): ExtSubmission {
+        val newSection =
+            processSectionFiles(
+                submission.accNo,
+                submission.version,
+                submission.section,
+            ) { processFile(it) }
+        return submission.copy(
+            section = newSection,
+            pageTabFiles = submission.pageTabFiles.map { processFile(it) },
+        )
+    }
+
+    private suspend fun processSectionFiles(
+        subAccNo: String,
+        subVersion: Int,
+        section: ExtSection,
+        processFile: ProcessFunction,
+    ): ExtSection =
+        section.copy(
+            files = section.files.map { processFiles(it, processFile) },
+            fileList = section.fileList?.let { processFileList(subAccNo, subVersion, it, processFile) },
+            linkList = section.linkList?.let { processLinkList(it, processFile) },
+            sections = section.sections.map { processSections(it, subAccNo, subVersion, processFile) },
+        )
+
+    private suspend fun processFileList(
+        subAccNo: String,
+        subVersion: Int,
+        fileList: ExtFileList,
+        processFile: ProcessFunction,
+    ): ExtFileList {
+        val newFileList = fileResolver.createRequestTempFile(subAccNo, subVersion, fileList.fileName)
+        return fileList.copy(
+            file = copyFile(fileList.file, newFileList, processFile),
+            pageTabFiles = fileList.pageTabFiles.map { processFile(it) },
+        )
+    }
+
+    private suspend fun processLinkList(
+        linkList: ExtLinkList,
+        processFile: ProcessFunction,
+    ): ExtLinkList =
+        linkList.copy(
+            file = linkList.file,
+            pageTabFiles = linkList.pageTabFiles.map { processFile(it) },
+        )
+
+    private suspend fun copyFile(
+        inputFile: File,
+        outputFile: File,
+        processFile: ProcessFunction,
+    ): File {
+        use(
+            inputFile.inputStream(),
+            outputFile.outputStream(),
+        ) { input, output ->
+            val files = serializationService.deserializeFileListAsFlow(input)
+            serializationService.serialize(files.map { processFile(it) }, output)
+        }
+
+        return outputFile
+    }
+
+    private suspend fun processFiles(
+        either: Either<ExtFile, ExtFileTable>,
+        processFile: ProcessFunction,
+    ) = either.bimap(
+        { extFile -> processFile(extFile) },
+        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) },
+    )
+
+    private suspend fun processSections(
+        subSection: Either<ExtSection, ExtSectionTable>,
+        subAccNo: String,
+        subVersion: Int,
+        processFile: ProcessFunction,
+    ) = subSection.bimap(
+        { processSectionFiles(subAccNo, subVersion, it, processFile) },
+        { it.copy(sections = it.sections.map { sub -> processSectionFiles(subAccNo, subVersion, sub, processFile) }) },
+    )
+}
+
+data class TrackSection(
+    val changed: Boolean,
+    val section: ExtSection,
+)

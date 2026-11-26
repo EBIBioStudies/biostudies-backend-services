@@ -73,11 +73,11 @@ import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.data.mongodb.core.updateFirst
 import org.springframework.data.mongodb.core.updateMulti
 import org.springframework.data.mongodb.core.upsert
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.model.RequestStatus.Companion.ACTIVE_STATUS
 import uk.ac.ebi.biostd.model.RequestStatus.Companion.PROCESSED_STATUS
 import uk.ac.ebi.biostd.model.RequestStatus.DRAFT
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 
 @Suppress("TooManyFunctions")

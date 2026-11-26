@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.integration.SubFormat.Companion.JSON
 import uk.ac.ebi.biostd.model.RequestStatus
@@ -27,7 +28,6 @@ import uk.ac.ebi.biostd.model.RequestStatus.SUBMITTED
 import uk.ac.ebi.biostd.model.constants.ProcessingStatus.INVALID
 import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSED
 import uk.ac.ebi.biostd.model.constants.ProcessingStatus.PROCESSING
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.ZoneOffset.UTC
 import kotlin.math.max
 

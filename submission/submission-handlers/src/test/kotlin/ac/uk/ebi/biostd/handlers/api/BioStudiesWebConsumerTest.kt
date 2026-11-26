@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.commons.http.ext.getForObject
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.ExtUser
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(MockKExtension::class)
 class BioStudiesWebConsumerTest(

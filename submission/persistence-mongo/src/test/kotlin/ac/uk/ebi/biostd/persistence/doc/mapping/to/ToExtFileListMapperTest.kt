@@ -21,14 +21,14 @@ import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.ExtFile
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.files
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.newFile
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.biostd.util.collections.second
 import uk.ac.ebi.biostd.util.collections.third
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.files
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {

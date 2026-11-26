@@ -72,12 +72,12 @@ import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.events.service.EventsPublisherService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 

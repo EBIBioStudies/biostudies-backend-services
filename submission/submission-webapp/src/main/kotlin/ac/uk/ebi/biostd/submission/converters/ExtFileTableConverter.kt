@@ -6,7 +6,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.converter.HttpMessageConverter
 import uk.ac.ebi.biostd.extended.model.ExtFileTable
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import kotlin.reflect.full.isSuperclassOf
 
 class ExtFileTableConverter(

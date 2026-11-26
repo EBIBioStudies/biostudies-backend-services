@@ -14,8 +14,8 @@ import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.filesFlow
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.filesFlow
 import java.nio.file.Path
 
 @Suppress("LongParameterList")

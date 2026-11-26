@@ -6,8 +6,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.base.Either.Companion.left
+import uk.ac.ebi.biostd.extended.serialization.service.createExtFileList
 import uk.ac.ebi.biostd.util.collections.second
-import uk.ac.ebi.extended.serialization.service.createExtFileList
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 

@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.filesFlow
 import uk.ac.ebi.biostd.model.RequestStatus.FILES_VALIDATED
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
@@ -25,7 +25,7 @@ class SubmissionRequestIndexer(
 ) {
     /**
      * Index the submission request files by creating records for each one. Note that pagetab files are processed first,
-     * guaranteed by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
+     * guaranteed by @see uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
      * submission main/core data is not available.
      */
     suspend fun indexRequest(

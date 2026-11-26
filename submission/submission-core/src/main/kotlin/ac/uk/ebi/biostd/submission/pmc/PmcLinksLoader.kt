@@ -25,9 +25,9 @@ import uk.ac.ebi.biostd.extended.model.ExtLinkList
 import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.allSectionsFiles
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.io.KFiles
 import uk.ac.ebi.biostd.util.collections.indexOf
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 import kotlin.io.path.outputStream
 import kotlin.time.Duration.Companion.seconds

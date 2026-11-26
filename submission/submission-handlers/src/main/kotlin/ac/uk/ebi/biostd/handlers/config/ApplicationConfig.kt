@@ -36,7 +36,7 @@ import org.springframework.http.codec.ClientCodecConfigurer
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(NotificationPersistenceConfig::class, MongoDbReposConfig::class)

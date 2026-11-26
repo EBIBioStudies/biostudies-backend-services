@@ -34,8 +34,8 @@ import uk.ac.ebi.biostd.db.MONGO_VERSION
 import uk.ac.ebi.biostd.extended.model.FileSourceType.SUBMISSION
 import uk.ac.ebi.biostd.extended.model.FileSourceType.USER
 import uk.ac.ebi.biostd.extended.model.createNfsFile
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.test.clean
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)

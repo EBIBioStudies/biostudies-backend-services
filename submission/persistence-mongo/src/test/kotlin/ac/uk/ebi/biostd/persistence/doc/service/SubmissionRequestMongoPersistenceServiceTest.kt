@@ -44,6 +44,7 @@ import uk.ac.ebi.biostd.dsl.json.jsonObj
 import uk.ac.ebi.biostd.extended.model.FileSourceType
 import uk.ac.ebi.biostd.extended.model.FileSourceType.USER
 import uk.ac.ebi.biostd.extended.model.createNfsFile
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.io.sources.PreferredSource.SUBMISSION
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.model.RequestStatus.CLEANED
@@ -53,7 +54,6 @@ import uk.ac.ebi.biostd.model.RequestStatus.PERSISTED
 import uk.ac.ebi.biostd.model.RequestStatus.POST_PROCESSED
 import uk.ac.ebi.biostd.model.RequestStatus.REQUESTED
 import uk.ac.ebi.biostd.model.SubmissionId
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.temporal.ChronoUnit

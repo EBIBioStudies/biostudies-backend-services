@@ -15,8 +15,8 @@ import ac.uk.ebi.biostd.client.integration.web.SubmitClient
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.UserOperations
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 internal class SubmitClientImpl(
     private val client: WebClient,

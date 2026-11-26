@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.Properties
 import uk.ac.ebi.biostd.io.sources.PreferredSource
 import uk.ac.ebi.biostd.model.RequestStatus
 import uk.ac.ebi.biostd.model.RequestStatus.Companion.DRAFT_STATUS
@@ -29,8 +31,6 @@ import uk.ac.ebi.biostd.model.RequestStatus.Companion.PROCESSED_STATUS
 import uk.ac.ebi.biostd.model.RequestStatus.Companion.PROCESSING_STATUS
 import uk.ac.ebi.biostd.model.RequestStatus.DRAFT
 import uk.ac.ebi.biostd.model.SubmissionId
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.Properties
 import java.io.File
 import java.time.Instant
 import java.time.ZoneOffset.UTC

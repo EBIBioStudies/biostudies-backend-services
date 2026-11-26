@@ -7,7 +7,7 @@ import uk.ac.ebi.biostd.extended.model.ExtLink
 import uk.ac.ebi.biostd.extended.model.ExtLinkTable
 import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.ExtSectionTable
-import uk.ac.ebi.extended.serialization.service.createExtFileList
+import uk.ac.ebi.biostd.extended.serialization.service.createExtFileList
 
 const val ROOT_SEC_ACC_NO = "accNo-1"
 const val SUB_SEC_ACC_NO = "accNo-2"

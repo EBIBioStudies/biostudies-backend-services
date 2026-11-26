@@ -35,10 +35,10 @@ import uk.ac.ebi.biostd.extended.model.FileSourceType.USER
 import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.PersistedExtFile
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.test.basicExtSubmission
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files
 import java.nio.file.Path
 

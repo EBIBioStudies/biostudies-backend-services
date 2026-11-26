@@ -11,8 +11,8 @@ import mu.KotlinLogging
 import uk.ac.ebi.biostd.coroutines.every
 import uk.ac.ebi.biostd.extended.model.ExtLink
 import uk.ac.ebi.biostd.extended.model.ExtLinkList
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 
 private val logger = KotlinLogging.logger {}

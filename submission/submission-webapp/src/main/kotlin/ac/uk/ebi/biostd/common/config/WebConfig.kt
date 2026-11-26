@@ -22,8 +22,8 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Clock
 
 @Configuration

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.exception.InvalidFileListException
 import uk.ac.ebi.biostd.extended.model.ExtFileList
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.integration.SubFormat
 import uk.ac.ebi.biostd.io.sources.FileSourcesList
@@ -12,7 +13,6 @@ import uk.ac.ebi.biostd.io.use
 import uk.ac.ebi.biostd.model.FileList
 import uk.ac.ebi.biostd.model.canonicalName
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream

@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
 import reactor.netty.http.client.HttpClient
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 internal fun webClientBuilder(baseUrl: String): WebClient.Builder {
     val objectMapper = ExtSerializationService.createMapper()

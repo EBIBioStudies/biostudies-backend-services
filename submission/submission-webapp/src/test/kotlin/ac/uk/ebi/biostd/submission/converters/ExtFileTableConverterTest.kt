@@ -14,7 +14,7 @@ import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.biostd.extended.model.ExtFileTable
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)

@@ -6,11 +6,11 @@ import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.NfsFile
+import uk.ac.ebi.biostd.extended.serialization.service.TrackSection
+import uk.ac.ebi.biostd.extended.serialization.service.iterateSections
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.model.constants.SubFields.REVIEW_TYPE
-import uk.ac.ebi.extended.serialization.service.TrackSection
-import uk.ac.ebi.extended.serialization.service.iterateSections
 import java.io.File
 
 class PageTabService(

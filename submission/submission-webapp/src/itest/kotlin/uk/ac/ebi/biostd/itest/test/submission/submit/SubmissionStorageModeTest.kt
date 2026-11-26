@@ -33,6 +33,7 @@ import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.extended.model.StorageMode.NFS
+import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.io.ext.listFilesOrEmpty
@@ -47,7 +48,6 @@ import uk.ac.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import uk.ac.ebi.biostd.itest.itest.getWebClient
 import uk.ac.ebi.biostd.model.RequestStatus.POST_PROCESSED
 import uk.ac.ebi.biostd.util.collections.second
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.seconds
