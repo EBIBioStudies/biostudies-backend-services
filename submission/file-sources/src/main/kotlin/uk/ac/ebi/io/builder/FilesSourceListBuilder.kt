@@ -8,6 +8,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.allInnerSubmissionFiles
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.io.sources.AdminUpdateFilesSource
 import uk.ac.ebi.biostd.io.sources.FileSourcesList
 import uk.ac.ebi.biostd.io.sources.FilesSource
@@ -15,7 +16,6 @@ import uk.ac.ebi.biostd.io.sources.SourcesList
 import uk.ac.ebi.biostd.paths.FILES_PATH
 import uk.ac.ebi.biostd.paths.FolderType
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.io.sources.DbFilesSource
 import uk.ac.ebi.io.sources.FilesListSource
 import uk.ac.ebi.io.sources.FtpSource

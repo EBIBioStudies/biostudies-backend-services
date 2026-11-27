@@ -19,9 +19,9 @@ import uk.ac.ebi.biostd.extended.mapping.to.ToFileListMapper
 import uk.ac.ebi.biostd.extended.mapping.to.ToLinkListMapper
 import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 @Configuration

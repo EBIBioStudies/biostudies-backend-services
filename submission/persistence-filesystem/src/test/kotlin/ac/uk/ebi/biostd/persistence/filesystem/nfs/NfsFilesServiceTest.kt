@@ -18,11 +18,11 @@ import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.createNfsFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.test.basicExtSubmission
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertFails

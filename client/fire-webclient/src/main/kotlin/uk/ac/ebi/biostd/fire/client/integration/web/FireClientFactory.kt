@@ -1,4 +1,4 @@
-package uk.ac.ebi.fire.client.integration.web
+package uk.ac.ebi.biostd.fire.client.integration.web
 
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
@@ -14,8 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
-import uk.ac.ebi.fire.client.api.FireWebClient
-import uk.ac.ebi.fire.client.api.S3KClient
+import uk.ac.ebi.biostd.fire.client.api.FireWebClient
+import uk.ac.ebi.biostd.fire.client.api.S3KClient
 
 private const val FIRE_API_BASE = "fire"
 

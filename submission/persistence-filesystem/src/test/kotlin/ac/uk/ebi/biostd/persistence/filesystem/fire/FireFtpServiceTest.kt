@@ -12,9 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.ExtFileType
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.extended.model.FireFile
-import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FileSystemEntry
-import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.fire.client.model.FileSystemEntry
+import uk.ac.ebi.biostd.fire.client.model.FireApiFile
 import java.util.UUID
 
 @ExtendWith(MockKExtension::class)

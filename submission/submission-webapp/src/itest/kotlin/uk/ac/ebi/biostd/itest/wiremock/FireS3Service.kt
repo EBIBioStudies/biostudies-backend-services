@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.itest.wiremock
 
 import kotlinx.coroutines.runBlocking
-import uk.ac.ebi.fire.client.integration.web.FireS3Client
+import uk.ac.ebi.biostd.fire.client.integration.web.FireS3Client
 import java.io.File
 
 class FireS3Service(

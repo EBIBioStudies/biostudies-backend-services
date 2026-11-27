@@ -1,4 +1,4 @@
-package uk.ac.ebi.fire.client.model
+package uk.ac.ebi.biostd.fire.client.model
 
 import uk.ac.ebi.biostd.base.orFalse
 

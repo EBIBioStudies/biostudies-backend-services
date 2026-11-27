@@ -11,9 +11,9 @@ import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.extended.model.typeSafeCopy
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.io.sources.FilesSource
 import uk.ac.ebi.biostd.model.constants.FileFields
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 internal class SubmissionFilesSource(

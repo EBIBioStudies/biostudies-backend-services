@@ -12,12 +12,12 @@ import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.asNfsFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.io.FileUtils.copyOrReplaceFile
 import uk.ac.ebi.biostd.io.FileUtils.getOrCreateFolder
 import uk.ac.ebi.biostd.io.ext.notExist
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

@@ -1,6 +1,6 @@
-package uk.ac.ebi.fire.client.integration.web
+package uk.ac.ebi.biostd.fire.client.integration.web
 
-import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.biostd.fire.client.model.FireApiFile
 import java.io.File
 
 interface FireClient :

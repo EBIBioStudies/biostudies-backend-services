@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.extended.model.FireFile
-import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 
 class FireFtpService(
     private val fireClient: FireClient,

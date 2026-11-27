@@ -1,4 +1,4 @@
-package uk.ac.ebi.fire.client.api
+package uk.ac.ebi.biostd.fire.client.api
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
@@ -8,7 +8,7 @@ import aws.smithy.kotlin.runtime.content.asByteStream
 import aws.smithy.kotlin.runtime.content.writeToFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import uk.ac.ebi.fire.client.integration.web.FireS3Client
+import uk.ac.ebi.biostd.fire.client.integration.web.FireS3Client
 import java.io.File
 
 class S3KClient(

@@ -27,8 +27,8 @@ import uk.ac.ebi.biostd.base.Either.Companion.left
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtSection
 import uk.ac.ebi.biostd.extended.model.createNfsFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.test.basicExtSubmission
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

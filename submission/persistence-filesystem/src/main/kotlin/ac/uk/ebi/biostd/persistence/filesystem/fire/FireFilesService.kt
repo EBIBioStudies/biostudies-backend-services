@@ -10,8 +10,8 @@ import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.asFireFile
 import uk.ac.ebi.biostd.extended.model.expectedFirePath
-import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.fire.client.model.FireApiFile
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption

@@ -14,9 +14,9 @@ import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.RequestFile
 import uk.ac.ebi.biostd.extended.model.allSectionsFiles
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.integration.SubFormat.Companion.XLSX_EXTENSION
 import uk.ac.ebi.biostd.util.collections.ifNotEmpty
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 internal const val EXCEL_FILE_REQUIRED = "Excel file is required for Eu-ToxRisk submissions"

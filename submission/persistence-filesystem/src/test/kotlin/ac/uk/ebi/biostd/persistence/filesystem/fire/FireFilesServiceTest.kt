@@ -21,10 +21,10 @@ import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.FireFile
 import uk.ac.ebi.biostd.extended.model.NfsFile
 import uk.ac.ebi.biostd.extended.model.createNfsFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.fire.client.model.FileSystemEntry
+import uk.ac.ebi.biostd.fire.client.model.FireApiFile
 import uk.ac.ebi.biostd.test.createFile
-import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FileSystemEntry
-import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
 import kotlin.test.assertFails
 

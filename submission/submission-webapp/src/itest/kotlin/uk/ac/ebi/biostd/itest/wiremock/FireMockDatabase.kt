@@ -2,11 +2,11 @@ package uk.ac.ebi.biostd.itest.wiremock
 
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
+import uk.ac.ebi.biostd.fire.client.model.FileSystemEntry
+import uk.ac.ebi.biostd.fire.client.model.FireApiFile
 import uk.ac.ebi.biostd.io.ext.md5
 import uk.ac.ebi.biostd.io.ext.size
 import uk.ac.ebi.biostd.itest.wiremock.handlers.FireException
-import uk.ac.ebi.fire.client.model.FileSystemEntry
-import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap

@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import uk.ac.ebi.biostd.client.exception.WebClientException
+import uk.ac.ebi.biostd.fire.client.api.S3KClient
 import uk.ac.ebi.biostd.itest.wiremock.handlers.DeleteHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.DownloadHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.FileSaveHandler
@@ -21,7 +22,6 @@ import uk.ac.ebi.biostd.itest.wiremock.handlers.RequestHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.SetPathHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.UnPublishHandler
 import uk.ac.ebi.biostd.itest.wiremock.handlers.UnSetPathHandler
-import uk.ac.ebi.fire.client.api.S3KClient
 import java.nio.file.Path
 import kotlin.random.Random
 

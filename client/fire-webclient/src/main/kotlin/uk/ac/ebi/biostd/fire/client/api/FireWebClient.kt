@@ -1,4 +1,4 @@
-package uk.ac.ebi.fire.client.api
+package uk.ac.ebi.biostd.fire.client.api
 
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
@@ -13,8 +13,8 @@ import uk.ac.ebi.biostd.commons.http.ext.deleteAsync
 import uk.ac.ebi.biostd.commons.http.ext.getForObjectAsync
 import uk.ac.ebi.biostd.commons.http.ext.postForObjectAsync
 import uk.ac.ebi.biostd.commons.http.ext.putForObjectAsync
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.biostd.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.biostd.fire.client.model.FireApiFile
 import java.io.File
 
 internal const val FIRE_FILE_PARAM = "file"

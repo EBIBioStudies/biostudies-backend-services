@@ -20,12 +20,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.StorageMode
+import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.io.sources.PreferredSource.SUBMISSION
 import uk.ac.ebi.biostd.io.sources.SourcesList
 import uk.ac.ebi.biostd.paths.FolderType
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.test.basicExtSubmission
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.nio.file.Paths
 import java.time.LocalDateTime
