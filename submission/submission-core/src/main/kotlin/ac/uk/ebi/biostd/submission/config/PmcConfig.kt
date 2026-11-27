@@ -9,11 +9,11 @@ import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksLoader
 import ac.uk.ebi.biostd.submission.pmc.PmcLinksProcessor
 import ac.uk.ebi.biostd.submission.pmc.PmcRemoteLinksLoader
-import ebi.ac.uk.client.pmc.PmcClient
 import ebi.ac.uk.security.integration.components.SecurityQueryService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import uk.ac.ebi.biostd.client.pmc.PmcClient
 import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 @EnableScheduling

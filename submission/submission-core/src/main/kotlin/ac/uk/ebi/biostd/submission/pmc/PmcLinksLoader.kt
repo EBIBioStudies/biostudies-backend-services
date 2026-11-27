@@ -3,12 +3,6 @@ package ac.uk.ebi.biostd.submission.pmc
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.FOUND_LINKS
 import ac.uk.ebi.biostd.submission.pmc.LinksExtractionResult.NO_LINKS
-import ebi.ac.uk.client.pmc.PmcAnalisisRequest
-import ebi.ac.uk.client.pmc.PmcClient
-import ebi.ac.uk.client.pmc.PmcFile
-import ebi.ac.uk.client.pmc.PmcFileLink
-import ebi.ac.uk.client.pmc.SubmissionResult.ANALISIS_IN_PROGRESS
-import ebi.ac.uk.client.pmc.SubmissionResult.OK
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,6 +13,12 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.base.Either
+import uk.ac.ebi.biostd.client.pmc.PmcAnalisisRequest
+import uk.ac.ebi.biostd.client.pmc.PmcClient
+import uk.ac.ebi.biostd.client.pmc.PmcFile
+import uk.ac.ebi.biostd.client.pmc.PmcFileLink
+import uk.ac.ebi.biostd.client.pmc.SubmissionResult.ANALISIS_IN_PROGRESS
+import uk.ac.ebi.biostd.client.pmc.SubmissionResult.OK
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtLink
 import uk.ac.ebi.biostd.extended.model.ExtLinkList

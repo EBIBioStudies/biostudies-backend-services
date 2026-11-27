@@ -1,9 +1,6 @@
-package ebi.ac.uk.client.pmc
+package uk.ac.ebi.biostd.client.pmc
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import ebi.ac.uk.client.pmc.SubmissionResult.ANALISIS_IN_PROGRESS
-import ebi.ac.uk.client.pmc.SubmissionResult.PMC_DOES_NOT_EXIST
-import ebi.ac.uk.client.pmc.SubmissionResult.UNKNOWN_ERROR
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.BodyInserters
@@ -13,6 +10,9 @@ import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitExchange
 import org.springframework.web.reactive.function.client.awaitExchangeOrNull
 import org.springframework.web.reactive.function.client.createExceptionAndAwait
+import uk.ac.ebi.biostd.client.pmc.SubmissionResult.ANALISIS_IN_PROGRESS
+import uk.ac.ebi.biostd.client.pmc.SubmissionResult.PMC_DOES_NOT_EXIST
+import uk.ac.ebi.biostd.client.pmc.SubmissionResult.UNKNOWN_ERROR
 import java.net.URI
 import java.util.function.Consumer
 
