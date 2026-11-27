@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
-import ac.uk.ebi.biostd.common.properties.CleanUpProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.DIRECTORIES
@@ -22,6 +21,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import org.bson.types.ObjectId
+import uk.ac.ebi.biostd.common.properties.CleanUpProperties
 import uk.ac.ebi.biostd.coroutines.concurrently
 import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper
 import uk.ac.ebi.biostd.extended.model.ExtFile

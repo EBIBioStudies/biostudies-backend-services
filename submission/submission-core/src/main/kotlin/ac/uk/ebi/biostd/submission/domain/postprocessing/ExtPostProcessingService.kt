@@ -1,12 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.postprocessing
 
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_CLEAN_UP
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.ALL
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.DOI
@@ -15,6 +8,13 @@ import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingServic
 import ac.uk.ebi.biostd.submission.domain.postprocessing.ExtPostProcessingService.PostProcessMode.STATS
 import ac.uk.ebi.biostd.submission.domain.submitter.ExecutionArg
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_CLEAN_UP
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
 
 @Suppress("CyclomaticComplexMethod")
 class ExtPostProcessingService(

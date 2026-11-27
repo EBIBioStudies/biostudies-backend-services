@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.common.properties.DoiProperties
-import ac.uk.ebi.biostd.common.properties.RetryProperties
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
@@ -38,6 +36,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import uk.ac.ebi.biostd.common.properties.DoiProperties
+import uk.ac.ebi.biostd.common.properties.RetryProperties
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.biostd.dsl.attribute

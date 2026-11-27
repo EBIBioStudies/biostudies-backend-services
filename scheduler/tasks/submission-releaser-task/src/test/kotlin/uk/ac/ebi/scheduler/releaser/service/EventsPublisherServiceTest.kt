@@ -1,7 +1,5 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -11,6 +9,8 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
 import uk.ac.ebi.biostd.extended.events.SubmissionMessage
 import uk.ac.ebi.events.config.EventsProperties
 

@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
-import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
+import uk.ac.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import uk.ac.ebi.biostd.extended.events.RequestCheckedReleased
 import uk.ac.ebi.biostd.extended.events.RequestCleaned
 import uk.ac.ebi.biostd.extended.events.RequestCreated

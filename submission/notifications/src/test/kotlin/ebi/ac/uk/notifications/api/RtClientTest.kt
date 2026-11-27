@@ -1,6 +1,5 @@
 package ebi.ac.uk.notifications.api
 
-import ac.uk.ebi.biostd.common.properties.RtConfig
 import ebi.ac.uk.notifications.exception.InvalidResponseException
 import ebi.ac.uk.notifications.exception.InvalidTicketIdException
 import io.mockk.CapturingSlot
@@ -23,6 +22,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import uk.ac.ebi.biostd.common.properties.RtConfig
 import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class)

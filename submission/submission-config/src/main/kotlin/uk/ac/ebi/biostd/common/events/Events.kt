@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.events
+package uk.ac.ebi.biostd.common.events
 
 // Rabbit mq exchange @see [AMQP Model Explained](https://www.rabbitmq.com/tutorials/amqp-concepts.html)
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"

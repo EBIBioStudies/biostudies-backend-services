@@ -1,11 +1,11 @@
 package ebi.ac.uk.security.test
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import uk.ac.ebi.biostd.api.security.ActivateByEmailRequest
 import uk.ac.ebi.biostd.api.security.RegisterRequest
 import uk.ac.ebi.biostd.api.security.ResetPasswordRequest
 import uk.ac.ebi.biostd.api.security.RetryActivationRequest
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import java.time.LocalDateTime
 
 internal class SecurityTestEntities {

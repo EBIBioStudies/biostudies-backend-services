@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
-import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.model.DraftSubmitWebRequest
@@ -11,6 +10,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.biostd.api.OnBehalfParameters
 import uk.ac.ebi.biostd.api.SubmitParameters
 import uk.ac.ebi.biostd.base.orFalse
+import uk.ac.ebi.biostd.common.properties.SubmissionTaskProperties
 import uk.ac.ebi.biostd.extended.model.ExtAttributeDetail
 import uk.ac.ebi.biostd.integration.SubFormat
 import java.io.File

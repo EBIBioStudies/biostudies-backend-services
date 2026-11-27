@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties(value = [ApplicationProperties::class])

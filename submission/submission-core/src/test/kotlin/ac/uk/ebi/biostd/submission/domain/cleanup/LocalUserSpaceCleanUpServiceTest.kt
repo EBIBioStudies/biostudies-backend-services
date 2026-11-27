@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
-import ac.uk.ebi.biostd.common.properties.CleanUpProperties
 import ac.uk.ebi.biostd.persistence.common.service.CleanUpLogDataService
 import ac.uk.ebi.biostd.persistence.common.service.NotificationLogDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -32,6 +31,7 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.common.properties.CleanUpProperties
 import uk.ac.ebi.biostd.extended.events.CleanUpNotification
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files

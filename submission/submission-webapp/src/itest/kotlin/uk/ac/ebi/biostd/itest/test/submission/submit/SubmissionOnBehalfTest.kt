@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -23,6 +22,7 @@ import uk.ac.ebi.biostd.asserts.submitAndWait
 import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import uk.ac.ebi.biostd.dsl.submission
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv

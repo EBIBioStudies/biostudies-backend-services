@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -20,6 +19,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.coroutines.waitUntil
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.model.RequestStatus

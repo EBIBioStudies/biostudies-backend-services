@@ -1,6 +1,5 @@
 package ebi.ac.uk.notifications.service
 
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ebi.ac.uk.notifications.model.Email
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -10,6 +9,7 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 import uk.ac.ebi.biostd.extended.events.UrgentNotification
 
 @ExtendWith(MockKExtension::class)

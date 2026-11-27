@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ebi.ac.uk.security.integration.exception.InvalidCaptchaException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import uk.ac.ebi.biostd.common.properties.SecurityProperties
 
 private const val USER_CAPTCHA = "captcha"
 private const val APP_KEY = "app-key"

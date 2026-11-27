@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
-import ac.uk.ebi.biostd.common.properties.Mode
-import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -10,6 +8,8 @@ import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
+import uk.ac.ebi.biostd.common.properties.Mode
+import uk.ac.ebi.biostd.common.properties.SubmissionTaskProperties
 import uk.ac.ebi.biostd.coroutines.waitUntil
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds

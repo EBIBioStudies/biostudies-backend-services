@@ -1,10 +1,5 @@
 package uk.ac.ebi.events.service
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -18,6 +13,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import uk.ac.ebi.biostd.extended.events.RequestCleaned
 import uk.ac.ebi.biostd.extended.events.RequestFinalized
 import uk.ac.ebi.biostd.extended.events.RequestMessage

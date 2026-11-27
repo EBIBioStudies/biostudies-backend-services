@@ -1,12 +1,12 @@
 package ebi.ac.uk.notifications.service
 
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ebi.ac.uk.notifications.integration.templates.PasswordResetModel
 import ebi.ac.uk.notifications.integration.templates.PasswordResetTemplate
 import ebi.ac.uk.notifications.integration.templates.UserActivationModel
 import ebi.ac.uk.notifications.integration.templates.UserActivationTemplate
 import ebi.ac.uk.notifications.model.Email
 import ebi.ac.uk.notifications.util.TemplateLoader
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 import uk.ac.ebi.biostd.extended.events.SecurityNotification
 
 internal const val EMAIL_FROM = "BioStudies <biostudies@ebi.ac.uk>"

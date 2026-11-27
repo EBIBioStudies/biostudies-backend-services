@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
-import ac.uk.ebi.biostd.common.properties.Mode
-import ac.uk.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
+import uk.ac.ebi.biostd.common.properties.Mode
+import uk.ac.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
 
 class ExtUserSpaceCleanUpService(
     private val remoteSubmitterExecutor: RemoteSubmitterExecutor,

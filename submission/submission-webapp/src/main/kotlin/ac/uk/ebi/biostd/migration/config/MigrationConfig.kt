@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.migration.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 
 @Configuration
 class MigrationConfig {

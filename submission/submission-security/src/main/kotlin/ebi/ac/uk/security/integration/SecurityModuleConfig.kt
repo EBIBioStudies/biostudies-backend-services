@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.integration
 
-import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -25,6 +24,7 @@ import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.common.properties.SecurityProperties
 import uk.ac.ebi.biostd.commons.http.JacksonFactory
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths

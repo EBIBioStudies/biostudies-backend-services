@@ -1,6 +1,5 @@
 package ebi.ac.uk.notifications.integration
 
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.service.CleanUpNotificationService
@@ -13,6 +12,7 @@ import ebi.ac.uk.notifications.util.TemplateLoader
 import org.springframework.core.io.ResourceLoader
 import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 
 class NotificationConfig(
     private val resourceLoader: ResourceLoader,

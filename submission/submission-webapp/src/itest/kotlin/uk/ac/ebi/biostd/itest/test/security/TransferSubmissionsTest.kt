@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.security
 
-import ac.uk.ebi.biostd.common.properties.StorageMode.NFS
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.TransferOperation
 import ac.uk.ebi.biostd.persistence.common.model.TransferOperation.EMAIL_UPDATE
@@ -24,6 +23,7 @@ import uk.ac.ebi.biostd.client.exception.WebClientException
 import uk.ac.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import uk.ac.ebi.biostd.client.integration.web.BioWebClient
 import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
+import uk.ac.ebi.biostd.common.properties.StorageMode.NFS
 import uk.ac.ebi.biostd.dsl.tsv.line
 import uk.ac.ebi.biostd.dsl.tsv.tsv
 import uk.ac.ebi.biostd.itest.common.SecurityTestService

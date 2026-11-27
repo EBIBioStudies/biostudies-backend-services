@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.migration.service
 
-import ac.uk.ebi.biostd.common.properties.MigrationProperties
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
@@ -8,6 +7,7 @@ import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.take
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.common.properties.MigrationProperties
 import uk.ac.ebi.biostd.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.model.RequestStatus.Companion.PROCESSING_STATUS
 import java.time.Instant

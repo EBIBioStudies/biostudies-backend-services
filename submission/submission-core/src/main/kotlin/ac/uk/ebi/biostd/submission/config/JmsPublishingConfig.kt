@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.submission.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.EventsPublisherConfig

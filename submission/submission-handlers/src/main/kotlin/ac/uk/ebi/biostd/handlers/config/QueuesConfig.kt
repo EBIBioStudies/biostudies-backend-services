@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.handlers.config
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.URGENT_NOTIFICATIONS_ROUTING_KEY
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.URGENT_NOTIFICATIONS_ROUTING_KEY
 
 const val NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY = "bio.notification.failed"
 const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"

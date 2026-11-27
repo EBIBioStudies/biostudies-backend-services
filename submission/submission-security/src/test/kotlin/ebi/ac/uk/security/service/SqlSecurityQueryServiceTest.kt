@@ -1,8 +1,5 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.common.properties.FilesProperties
-import ac.uk.ebi.biostd.common.properties.SecurityProperties
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -21,6 +18,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.common.properties.FilesProperties
+import uk.ac.ebi.biostd.common.properties.SecurityProperties
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit.SECONDS
 

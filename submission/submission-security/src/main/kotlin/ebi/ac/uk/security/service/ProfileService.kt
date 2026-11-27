@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -13,6 +12,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserFolder
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import uk.ac.ebi.biostd.model.FolderStats
 import java.io.File
 import java.nio.file.Path

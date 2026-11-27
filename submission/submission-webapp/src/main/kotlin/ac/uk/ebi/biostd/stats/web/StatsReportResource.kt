@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.stats.web
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.AE_REPORT_NAME
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.COUNT_REPORT_DIR
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.DELTA_REPORT_DIR
@@ -11,6 +10,7 @@ import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService.Companion.
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.model.constants.TEXT_PLAIN
 import java.nio.file.Paths
 

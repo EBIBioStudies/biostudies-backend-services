@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.cleanup
 
-import ac.uk.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
-import ac.uk.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.NOTIFY
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
@@ -15,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
+import uk.ac.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
 
 @ExtendWith(MockKExtension::class)
 class ExtUserSpaceCleanUpServiceTest(

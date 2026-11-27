@@ -1,7 +1,7 @@
 package ebi.ac.uk.notifications.service
 
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ebi.ac.uk.notifications.model.Email
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 import uk.ac.ebi.biostd.extended.events.UrgentNotification
 
 class UrgentNotificationService(

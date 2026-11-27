@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.TimesService
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.extended.mapping.from.ToExtSectionMapper
 import uk.ac.ebi.biostd.extended.mapping.from.toExtAttributes
 import uk.ac.ebi.biostd.extended.model.ExtCollection

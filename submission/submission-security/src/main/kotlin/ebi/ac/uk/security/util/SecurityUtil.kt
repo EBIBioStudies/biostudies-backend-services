@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.util
 
-import ac.uk.ebi.biostd.common.properties.InstanceKeys
 import ac.uk.ebi.biostd.persistence.model.DbSecurityToken
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
@@ -12,6 +11,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import mu.KotlinLogging
 import org.springframework.web.util.UriComponentsBuilder
+import uk.ac.ebi.biostd.common.properties.InstanceKeys
 import java.security.MessageDigest
 import java.time.Clock
 import java.time.OffsetDateTime

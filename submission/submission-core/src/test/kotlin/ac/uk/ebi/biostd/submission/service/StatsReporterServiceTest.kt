@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ac.uk.ebi.biostd.persistence.common.model.CollectionStats
 import ac.uk.ebi.biostd.persistence.common.model.CollectionStatsReport
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.common.properties.PersistenceProperties
 import uk.ac.ebi.biostd.io.ext.createDirectory
 import uk.ac.ebi.biostd.io.ext.createFile
 import java.time.OffsetDateTime

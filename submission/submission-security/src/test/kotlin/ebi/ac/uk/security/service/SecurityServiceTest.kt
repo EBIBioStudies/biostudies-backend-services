@@ -1,8 +1,5 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.common.properties.FilesProperties
-import ac.uk.ebi.biostd.common.properties.SecurityProperties
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -53,6 +50,9 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.common.properties.FilesProperties
+import uk.ac.ebi.biostd.common.properties.SecurityProperties
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import uk.ac.ebi.biostd.extended.events.SecurityNotification
 import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.ACTIVATION
 import uk.ac.ebi.biostd.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL

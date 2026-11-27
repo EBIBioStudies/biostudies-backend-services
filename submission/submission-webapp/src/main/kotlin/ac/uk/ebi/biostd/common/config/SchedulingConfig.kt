@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.admin.operations.OperationsScheduler
 import ac.uk.ebi.biostd.admin.operations.OperationsService
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
@@ -12,6 +11,7 @@ import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 
 @Configuration
 @EnableScheduling

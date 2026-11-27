@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.admin.operations
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.migration.service.MigrationService
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.domain.cleanup.ExtUserSpaceCleanUpService.CleanUpMode.CLEAN_UP
@@ -10,6 +9,7 @@ import ac.uk.ebi.biostd.submission.pmc.ProcessConfig
 import ac.uk.ebi.biostd.submission.stats.service.StatsReporterService
 import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 
 class OperationsScheduler(
     private val properties: ApplicationProperties,

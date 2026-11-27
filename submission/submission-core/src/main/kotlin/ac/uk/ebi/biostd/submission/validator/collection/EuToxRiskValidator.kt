@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.validator.collection
 
-import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.common.properties.ValidatorProperties
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams
 import uk.ac.ebi.biostd.commons.http.ext.postForObject
 import uk.ac.ebi.biostd.extended.model.ExtFile

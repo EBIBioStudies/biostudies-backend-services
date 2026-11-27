@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.itest.entities
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
+import uk.ac.ebi.biostd.common.properties.StorageMode
 
 object DefaultUser : TestUser {
     override val username = "Default User"

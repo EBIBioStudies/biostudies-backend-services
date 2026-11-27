@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.security
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.service.SecurityService
@@ -19,6 +18,7 @@ import uk.ac.ebi.biostd.api.security.RegisterRequest
 import uk.ac.ebi.biostd.api.security.ResetPasswordRequest
 import uk.ac.ebi.biostd.client.exception.WebClientException
 import uk.ac.ebi.biostd.client.integration.web.SecurityWebClient
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import uk.ac.ebi.biostd.itest.common.SecurityTestService
 import uk.ac.ebi.biostd.itest.entities.FtpSuperUser
 import uk.ac.ebi.biostd.itest.entities.TestUser

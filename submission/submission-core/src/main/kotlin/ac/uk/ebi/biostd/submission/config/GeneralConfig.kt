@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.submission.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.FireProperties
-import ac.uk.ebi.biostd.common.properties.FtpProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
@@ -17,6 +14,9 @@ import org.springframework.context.annotation.Import
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
+import uk.ac.ebi.biostd.common.properties.FireProperties
+import uk.ac.ebi.biostd.common.properties.FtpProperties
 import uk.ac.ebi.biostd.coroutines.RetryConfig
 import uk.ac.ebi.biostd.coroutines.SuspendRetryTemplate
 import uk.ac.ebi.biostd.fire.client.integration.web.FireClient

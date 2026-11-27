@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.properties
+package uk.ac.ebi.biostd.common.properties
 
 data class SubmissionTaskProperties(
     val enabled: Boolean,

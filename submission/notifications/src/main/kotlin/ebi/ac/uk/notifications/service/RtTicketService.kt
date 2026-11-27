@@ -1,9 +1,9 @@
 package ebi.ac.uk.notifications.service
 
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ebi.ac.uk.notifications.api.RtClient
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 
 private val logger = KotlinLogging.logger {}
 

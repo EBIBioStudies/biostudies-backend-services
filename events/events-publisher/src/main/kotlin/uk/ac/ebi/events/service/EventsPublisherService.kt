@@ -1,14 +1,14 @@
 package uk.ac.ebi.events.service
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.events.URGENT_NOTIFICATIONS_ROUTING_KEY
-import ac.uk.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.biostd.common.events.CLEANUP_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.events.URGENT_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.biostd.common.properties.SubmissionNotificationsProperties
 import uk.ac.ebi.biostd.extended.events.CleanUpNotification
 import uk.ac.ebi.biostd.extended.events.RequestCheckedReleased
 import uk.ac.ebi.biostd.extended.events.RequestCleaned

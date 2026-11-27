@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
 import ac.uk.ebi.biostd.persistence.doc.service.PmcSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
@@ -14,6 +13,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.biostd.client.pmc.PmcClient
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.extended.serialization.service.ExtSerializationService
 
 @EnableScheduling

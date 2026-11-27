@@ -1,8 +1,8 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
 import uk.ac.ebi.biostd.extended.events.SubmissionMessage
 import uk.ac.ebi.events.config.EventsProperties
 

@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
-import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.common.HANDLERS_SUBSYSTEM
 import ac.uk.ebi.biostd.handlers.common.SYSTEM_NAME
@@ -15,6 +13,8 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 import uk.ac.ebi.biostd.commons.http.slack.Alert
 import uk.ac.ebi.biostd.commons.http.slack.NotificationsSender
 import uk.ac.ebi.biostd.extended.events.FailedRequestMessage

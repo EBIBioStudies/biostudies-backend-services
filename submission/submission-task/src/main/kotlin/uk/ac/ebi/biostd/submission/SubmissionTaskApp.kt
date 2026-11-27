@@ -1,18 +1,5 @@
 package uk.ac.ebi.biostd.submission
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
-import ac.uk.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
-import ac.uk.ebi.biostd.common.properties.Mode.LOAD_PMC_LINKS
-import ac.uk.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_CLEAN_UP
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
-import ac.uk.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
-import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.cleanup.LocalUserSpaceCleanUpService
 import ac.uk.ebi.biostd.submission.domain.postprocessing.LocalPostProcessingService
@@ -33,6 +20,19 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
+import uk.ac.ebi.biostd.common.properties.Mode.CLEAN_UP_USER_SPACE
+import uk.ac.ebi.biostd.common.properties.Mode.HANDLE_REQUEST
+import uk.ac.ebi.biostd.common.properties.Mode.LOAD_PMC_LINKS
+import uk.ac.ebi.biostd.common.properties.Mode.NOTIFY_USER_SPACE_CLEAN_UP
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_ALL
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_CLEAN_UP
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_DOI
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_INNER_FILES
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_PAGETAB_FILES
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_SINGLE
+import uk.ac.ebi.biostd.common.properties.Mode.POST_PROCESS_STATS
+import uk.ac.ebi.biostd.common.properties.TaskProperties
 import uk.ac.ebi.biostd.model.SubmissionId
 import kotlin.system.exitProcess
 

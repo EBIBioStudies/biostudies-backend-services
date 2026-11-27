@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import jakarta.persistence.CascadeType.MERGE
 import jakarta.persistence.CascadeType.PERSIST
 import jakarta.persistence.Column
@@ -20,6 +19,7 @@ import jakarta.persistence.NamedEntityGraph
 import jakarta.persistence.NamedEntityGraphs
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 

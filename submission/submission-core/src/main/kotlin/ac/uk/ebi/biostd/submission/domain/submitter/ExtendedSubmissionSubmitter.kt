@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
-import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
+import uk.ac.ebi.biostd.common.properties.SubmissionTaskProperties
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.model.SubmissionId
 import kotlin.time.Duration

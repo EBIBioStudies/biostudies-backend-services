@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.doc.integration.ToSubmissionConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
@@ -15,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.extended.mapping.to.ToFileListMapper
 import uk.ac.ebi.biostd.extended.mapping.to.ToLinkListMapper
 import uk.ac.ebi.biostd.extended.mapping.to.ToSubmissionMapper

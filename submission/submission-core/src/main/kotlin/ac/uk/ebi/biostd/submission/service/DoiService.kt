@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.common.properties.DoiProperties
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorNameException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
@@ -20,6 +19,7 @@ import org.springframework.http.MediaType.MULTIPART_FORM_DATA
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.biostd.base.isNotBlank
 import uk.ac.ebi.biostd.base.nullIfBlank
+import uk.ac.ebi.biostd.common.properties.DoiProperties
 import uk.ac.ebi.biostd.commons.http.builder.httpHeadersOf
 import uk.ac.ebi.biostd.commons.http.builder.linkedMultiValueMapOf
 import uk.ac.ebi.biostd.commons.http.ext.RequestParams

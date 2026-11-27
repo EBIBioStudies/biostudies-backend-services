@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.admin.operations
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import kotlinx.coroutines.Dispatchers
@@ -8,6 +7,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.coroutines.concurrently
 import uk.ac.ebi.biostd.io.FileUtils
 import uk.ac.ebi.biostd.system.tempFolder

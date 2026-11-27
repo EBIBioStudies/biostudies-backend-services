@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 import uk.ac.ebi.biostd.extended.model.ExtSubmissionInfo
 import uk.ac.ebi.biostd.paths.FolderType
 import uk.ac.ebi.biostd.paths.FolderType.FTP

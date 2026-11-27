@@ -1,6 +1,5 @@
 package ebi.ac.uk.notifications.service
 
-import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRT
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ebi.ac.uk.notifications.api.RtClient
@@ -11,6 +10,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.common.properties.NotificationProperties
 
 @ExtendWith(MockKExtension::class)
 class RtTicketServiceTest(

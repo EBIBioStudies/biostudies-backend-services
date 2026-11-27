@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.pmc
 
-import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.submission.domain.submitter.ExecutionArg
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.common.properties.Mode
 
 class PmcRemoteLinksLoader(
     private val remoteSubmitterExecutor: RemoteSubmitterExecutor,

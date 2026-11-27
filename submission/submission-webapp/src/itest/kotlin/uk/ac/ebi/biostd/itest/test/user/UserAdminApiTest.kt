@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.itest.test.user
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -16,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.biostd.asserts.assertThrows
 import uk.ac.ebi.biostd.client.exception.WebClientException
 import uk.ac.ebi.biostd.client.integration.web.BioWebClient
+import uk.ac.ebi.biostd.common.properties.StorageMode
 import uk.ac.ebi.biostd.coroutines.waitUntil
 import uk.ac.ebi.biostd.io.ext.createFile
 import uk.ac.ebi.biostd.itest.common.SecurityTestService

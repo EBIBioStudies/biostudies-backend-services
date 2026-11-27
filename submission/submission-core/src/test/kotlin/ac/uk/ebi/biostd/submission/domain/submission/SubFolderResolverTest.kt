@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.submission
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.common.properties.ApplicationProperties
 
 @ExtendWith(MockKExtension::class)
 internal class SubFolderResolverTest(
