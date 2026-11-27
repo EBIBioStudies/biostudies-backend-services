@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.extended.model.StorageMode
 import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.ftp.FtpClient
 import uk.ac.ebi.biostd.io.sources.PreferredSource.SUBMISSION
 import uk.ac.ebi.biostd.io.sources.SourcesList
 import uk.ac.ebi.biostd.paths.FolderType

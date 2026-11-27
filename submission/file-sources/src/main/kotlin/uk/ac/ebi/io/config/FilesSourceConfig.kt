@@ -1,8 +1,8 @@
 package uk.ac.ebi.io.config
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.ftp.FtpClient
 import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.ftp.FtpClient
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 

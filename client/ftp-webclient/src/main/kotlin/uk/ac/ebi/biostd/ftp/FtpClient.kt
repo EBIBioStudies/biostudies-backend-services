@@ -1,4 +1,4 @@
-package ebi.ac.uk.ftp
+package uk.ac.ebi.biostd.ftp
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

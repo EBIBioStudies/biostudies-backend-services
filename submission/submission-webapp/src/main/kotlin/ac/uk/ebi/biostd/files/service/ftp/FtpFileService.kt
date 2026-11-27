@@ -3,11 +3,11 @@ package ac.uk.ebi.biostd.files.service.ftp
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
-import ebi.ac.uk.ftp.FtpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.biostd.api.UserFileType
+import uk.ac.ebi.biostd.ftp.FtpClient
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.files.service
 
 import ac.uk.ebi.biostd.files.exception.UserFolderNotFound
 import ac.uk.ebi.biostd.files.service.DataMoverUserFilesService.Companion.JOB_MINUTES
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.clearAllMocks
@@ -24,6 +23,7 @@ import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.ftp.FtpClient
 import java.nio.file.Path
 
 @ExtendWith(MockKExtension::class)

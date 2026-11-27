@@ -1,11 +1,11 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.ftp.FtpClient
 import org.apache.commons.net.ftp.FTPFile
 import uk.ac.ebi.biostd.extended.model.ExtAttribute
 import uk.ac.ebi.biostd.extended.model.ExtFile
 import uk.ac.ebi.biostd.extended.model.ExtFileType.DIR
 import uk.ac.ebi.biostd.extended.model.ExtFileType.FILE
+import uk.ac.ebi.biostd.ftp.FtpClient
 import uk.ac.ebi.biostd.io.sources.FilesSource
 import uk.ac.ebi.biostd.model.constants.FileFields
 import uk.ac.ebi.io.builder.createFile

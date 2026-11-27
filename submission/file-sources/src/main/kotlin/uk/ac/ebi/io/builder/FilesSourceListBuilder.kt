@@ -1,7 +1,6 @@
 package uk.ac.ebi.io.builder
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -9,6 +8,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.biostd.extended.model.ExtSubmission
 import uk.ac.ebi.biostd.extended.model.allInnerSubmissionFiles
 import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
+import uk.ac.ebi.biostd.ftp.FtpClient
 import uk.ac.ebi.biostd.io.sources.AdminUpdateFilesSource
 import uk.ac.ebi.biostd.io.sources.FileSourcesList
 import uk.ac.ebi.biostd.io.sources.FilesSource

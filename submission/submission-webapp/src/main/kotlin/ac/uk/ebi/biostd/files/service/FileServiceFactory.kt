@@ -4,12 +4,12 @@ import ac.uk.ebi.biostd.files.exception.UserFolderNotFound
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.service.ftp.FtpFileService
 import ac.uk.ebi.biostd.files.service.nfs.PathFilesService
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import uk.ac.ebi.biostd.ftp.FtpClient
 import java.io.File
 import java.nio.file.Files
 

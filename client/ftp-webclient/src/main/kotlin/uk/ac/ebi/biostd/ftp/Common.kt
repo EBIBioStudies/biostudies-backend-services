@@ -1,4 +1,4 @@
-package ebi.ac.uk.ftp
+package uk.ac.ebi.biostd.ftp
 
 import org.apache.commons.net.ftp.FTPClient
 import kotlin.time.Duration

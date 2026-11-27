@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.RemoteSubmitterExecutor
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ebi.ac.uk.ftp.FtpClient
-import ebi.ac.uk.ftp.RetryFtpClient
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -25,6 +23,8 @@ import uk.ac.ebi.biostd.fire.client.integration.web.FireClient
 import uk.ac.ebi.biostd.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.biostd.fire.client.integration.web.FireConfig
 import uk.ac.ebi.biostd.fire.client.integration.web.S3Config
+import uk.ac.ebi.biostd.ftp.FtpClient
+import uk.ac.ebi.biostd.ftp.RetryFtpClient
 import uk.ac.ebi.biostd.paths.SubmissionFolderResolver
 import uk.ac.ebi.biostd.serialization.common.FilesResolver
 import uk.ac.ebi.io.builder.FilesSourceListBuilder

@@ -1,4 +1,4 @@
-package ebi.ac.uk.ftp
+package uk.ac.ebi.biostd.ftp
 
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension

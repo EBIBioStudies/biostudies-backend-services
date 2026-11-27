@@ -1,4 +1,4 @@
-package ebi.ac.uk.ftp
+package uk.ac.ebi.biostd.ftp
 
 import org.apache.ftpserver.ConnectionConfigFactory
 import org.apache.ftpserver.DataConnectionConfigurationFactory
